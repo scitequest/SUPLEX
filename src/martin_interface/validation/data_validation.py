@@ -6,7 +6,7 @@ import logging
 import copy
 from typing import List, Optional, Any
 from .basic_file_validation import *
-from ..constants import DATA_FIELDS
+from ..martin_interface_constants import DATA_FIELDS
 
 logger = logging.getLogger(__name__)
 

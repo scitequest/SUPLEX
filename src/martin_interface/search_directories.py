@@ -3,7 +3,7 @@ import os
 from collections import deque
 import logging
 from typing import List, Set
-from .constants import SEARCH_MODE
+from .martin_interface_constants import SEARCH_MODE
 
 logger = logging.getLogger(__name__)
 

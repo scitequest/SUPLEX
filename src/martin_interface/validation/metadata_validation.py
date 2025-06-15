@@ -5,7 +5,7 @@ from datetime import datetime
 import isodate
 from typing import List, Optional, Any
 from .basic_file_validation import *
-from ..constants import METADATA_FIELDS_REQUIRED, PROJECT_FIELDS, INCUBATION_FIELDS
+from ..martin_interface_constants import METADATA_FIELDS_REQUIRED, PROJECT_FIELDS, INCUBATION_FIELDS
 
 logger = logging.getLogger(__name__)
 

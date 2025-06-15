@@ -3,7 +3,7 @@ from .validation import *
 from .dataset import Dataset
 from .project import Project
 from .holder import PathHolder, FileHolder
-from .constants import MARTIN_MEASURE_DIR_DEPTH, SEARCH_MODE, STANDARD_READOUT_FILES, IMAGE_EXTENSIONS
+from .martin_interface_constants import MARTIN_MEASURE_DIR_DEPTH, SEARCH_MODE, STANDARD_READOUT_FILES, IMAGE_EXTENSIONS
 from .search_directories import delve_dirs, sweep_dirs
 import logging
 from typing import List

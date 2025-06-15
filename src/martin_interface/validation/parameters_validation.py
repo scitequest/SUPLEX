@@ -2,7 +2,7 @@ import json
 import logging
 from typing import List, Optional, Any
 from .basic_file_validation import *
-from ..constants import PARAMETERS_FIELDS_POLYGON, PARAMETERS_FIELDS_CIRCLE
+from ..martin_interface_constants import PARAMETERS_FIELDS_POLYGON, PARAMETERS_FIELDS_CIRCLE
 
 logger = logging.getLogger(__name__)
 

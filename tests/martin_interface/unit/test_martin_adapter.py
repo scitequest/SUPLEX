@@ -3,7 +3,7 @@ import pytest
 import os
 from unittest.mock import Mock, patch, MagicMock
 from src.martin_interface.martin_adapter import Adapter
-from src.martin_interface.constants import SEARCH_MODE, STANDARD_READOUT_FILES
+from src.martin_interface.martin_interface_constants import SEARCH_MODE, STANDARD_READOUT_FILES
 from src.martin_interface.holder import FileHolder
 
 class TestAdapter:

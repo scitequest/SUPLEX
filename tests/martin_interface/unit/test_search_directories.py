@@ -4,7 +4,7 @@ import tempfile
 import json
 from unittest.mock import patch, Mock
 from src.martin_interface.search_directories import delve_dirs, sweep_dirs
-from src.martin_interface.constants import SEARCH_MODE
+from src.martin_interface.martin_interface_constants import SEARCH_MODE
 
 class TestSearchDirectories:    
     def test_delve_dirs_basic(self, temp_dir, sample_data_dict):

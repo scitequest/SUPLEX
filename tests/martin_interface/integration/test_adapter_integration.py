@@ -3,7 +3,7 @@ import os
 import json
 import copy
 from src.martin_interface.martin_adapter import Adapter
-from src.martin_interface.constants import SEARCH_MODE
+from src.martin_interface.martin_interface_constants import SEARCH_MODE
 
 class TestAdapterIntegration:
     @pytest.fixture

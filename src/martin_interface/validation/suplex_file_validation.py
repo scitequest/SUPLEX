@@ -4,7 +4,7 @@ import json
 import logging
 from typing import List, Optional, Any
 from .basic_file_validation import *
-from ..constants import SUPLEX_FIELDS
+from ..martin_interface_constants import SUPLEX_FIELDS
 
 logger = logging.getLogger(__name__)
 
