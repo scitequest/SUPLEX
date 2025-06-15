@@ -16,9 +16,10 @@ class PathHolder:
         metadata_path (Optional[str]): The path to the metadata file, if available.
         parameters_path (Optional[str]): The path to the parameters file, if available.
         image_path (Optional[str]): The path to the image file, if available.
-        annotated_image_path (Optional[str]): The path to the annotated image file, if available. 
+        annotated_image_path (Optional[str]): The path to the annotated image file, if available.
         suplex_path (Optional[str]): The path to the suplex file, if available.
     """
+
     dataset_path: str
     data_path: str
     data_statistics_path: Optional[str] = None
@@ -43,6 +44,7 @@ class FileHolder:
         parameters_file (list[dict[Any, Any]]): A list of dictionaries containing the parameters of a measurement.
         suplex_file (list[dict[Any, Any]]): A dictionary for storage, allowing to carry over information between runtime sessions of this software.
     """
+
     data_file: dict[str, List[dict[str, Any]]]
     data_statistics_file: Optional[dict[str, List[dict[str, Any]]]] = None
     metadata_file: Optional[dict[Any, Any]] = None

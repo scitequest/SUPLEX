@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List
 from .roi_elements import RoiParameters
 
+
 @dataclass(frozen=True)
 class GeneralParameters:
     """
@@ -16,6 +17,7 @@ class GeneralParameters:
         spots_per_spotfield (int): Number of spots in each spotfield.
         background_rectangles (List[RoiParameters]): List which contains positional information of all background rectangles.
     """
+
     invert_lut: bool
     subtract_background: bool
     number_of_spotfields: int
