@@ -1,0 +1,48 @@
+
+{
+    "version": "0.7.0",
+    "datetime": "2024-08-07T13:11:53.211664800+02:00",
+    "patient": {
+        "id": "x",
+        "name": "x",
+        "tags": [
+            "x"
+        ]
+    },
+    "image": {
+        "created": "2024-08-07T13:11:53.266+02:00",
+        "imager": "Imager name",
+        "pixel_binning": 1,
+        "exposure_time": "PT0S"
+    },
+    "incubations": [
+        {
+            "solution": "Solution 1",
+            "stock_concentration": {
+                "value": 10.0,
+                "unit": "percent"
+            },
+            "final_concentration": {
+                "value": 5.0,
+                "unit": "percent"
+            },
+            "incubation_time": "PT16M40S"
+        },
+        {
+            "solution": "Solution 2",
+            "stock_concentration": {
+                "value": 200.0,
+                "unit": "micro_mol_per_litre"
+            },
+            "final_concentration": {
+                "value": 100.0,
+                "unit": "micro_mol_per_litre"
+            },
+            "incubation_time": "PT16M40S"
+        }
+    ],
+    "project": {
+        "name": "Test",
+        "description": "asdasdasd"
+    }
+}
