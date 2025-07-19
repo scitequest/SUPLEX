@@ -95,6 +95,20 @@ class SuplexModuleInterface(ABC):
         ...
 
     @abstractmethod
+    def update_scheme(self, new_scheme) -> Optional[Self]:
+        """
+        Updates module color scheme.
+        Only elements which are not part of the widget factory have to be adjusted manually.
+        In most cases this means that this method can be kept empty.
+
+        The main use of this method is to allow for free style customization.
+
+        Args:
+            new_scheme: new color scheme to be loaded into the module.
+        """
+        ...
+
+    @abstractmethod
     def reset_module(self) -> Optional[Self]:
         """
         Resets module to its initial state.

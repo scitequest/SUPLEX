@@ -26,8 +26,11 @@ class ValidSuplexModuleAlias(SMI):
     def get_module_hover_text(self) -> str:
         return "This is a valid test module implementation"
 
-    def initiate_module(self, datasets: List[Any], ui: ipywidgets.Box) -> None:
+    def initiate_module(self, datasets: List[Any]) -> None:
         print(f"Module initiated with {len(datasets)} datasets")
+
+    def update_scheme(self, new_scheme):
+        return None
 
     def reset_module(self) -> Optional["ValidSuplexModule"]:
         return ValidSuplexModule()

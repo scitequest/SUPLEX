@@ -6,13 +6,16 @@ from src.suplex_modules.module_loader import load_modules
 from src.suplex_modules.suplex_module_interface import SuplexModuleInterface
 from src.suplex_modules.module_constants import SEARCH_MODE
 
+
 class TestModuleLoadingIntegration:
     def test_load_modules_recursive(self, caplog):
         with caplog.at_level(logging.WARNING):
             test_modules_path = (
                 Path(__file__).parent.parent.parent / "test_data" / "test_modules"
             )
-            modules = load_modules(dir_path=test_modules_path, mode = SEARCH_MODE.RECURSIVE)
+            modules = load_modules(
+                dir_path=test_modules_path, mode=SEARCH_MODE.RECURSIVE
+            )
 
             assert modules
             assert len(modules) == 3
@@ -43,7 +46,9 @@ class TestModuleLoadingIntegration:
             test_modules_path = (
                 Path(__file__).parent.parent.parent / "test_data" / "test_modules"
             )
-            modules = load_modules(dir_path=test_modules_path, mode = SEARCH_MODE.ITERATIVE_UNBOUND)
+            modules = load_modules(
+                dir_path=test_modules_path, mode=SEARCH_MODE.ITERATIVE_UNBOUND
+            )
 
             assert modules
             assert len(modules) == 3

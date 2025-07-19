@@ -54,11 +54,14 @@ class AdvancedSuplexModule(LoggerMixin, SuplexModuleInterface, ConfigurableModul
     def get_module_hover_text(self) -> str:
         return f"Advanced module with multiple inheritance (Theme: {self.settings.get('theme', 'default')})"
 
-    def initiate_module(self, datasets: List[Any], ui: ipywidgets.Box) -> None:
+    def initiate_module(self, datasets: List[Any]) -> None:
         self.load_config()
         self.log_info(
             f"Module initiated with {len(datasets)} datasets and config from {self.config_path}"
         )
+
+    def update_scheme(self, new_scheme):
+        return None
 
     def reset_module(self) -> Optional["AdvancedSuplexModule"]:
         self.log_info("Resetting module")

@@ -41,4 +41,5 @@ class TestSuplexModuleInterface:
         assert hasattr(module, "check_if_viable")
         assert hasattr(module, "get_module_hover_text")
         assert hasattr(module, "initiate_module")
+        assert hasattr(module, "update_scheme")
         assert hasattr(module, "reset_module")

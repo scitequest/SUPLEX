@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 from typing_extensions import Self
 from ipywidgets import Box
 
-from ..martin_interface.dataset import Dataset
+from martin_interface.dataset import Dataset
 
 
 class SuplexModuleInterface(ABC):
@@ -53,8 +53,10 @@ class SuplexModuleInterface(ABC):
         Returns the button style, including font color and button color.
 
         Returns:
-            Dict[str, str]: A dictionary with keys 'font_color' and 'button_color',
+            Dict[str, str]: A dictionary with keys 'font_color', 'button_color'
                             each mapping to a color string (e.g., '#FFFFFF' for white).
+                            The dictionary may also contain a 'button_icon',
+                            its value may both be an emoji or the path to an actual image.
         """
         ...
 
@@ -84,13 +86,27 @@ class SuplexModuleInterface(ABC):
         ...
 
     @abstractmethod
-    def initiate_module(self, datasets: List[Dataset], ui: Box) -> None:
+    def initiate_module(self, datasets: List[Dataset]) -> None:
         """
         Initiates module by loading datasets and generating the user interface.
 
         Args:
             datasets (List[Dataset]): A list of Dataset instances to be loaded into the module.
             ui (ipywidgets.Box): Container for graphical representation and user interface of the module.
+        """
+        ...
+
+    @abstractmethod
+    def update_scheme(self, new_scheme) -> Optional[Self]:
+        """
+        Updates module color scheme.
+        Only elements which are not part of the widget factory have to be adjusted manually.
+        In most cases this means that this method can be kept empty.
+
+        The main use of this method is to allow for free style customization.
+
+        Args:
+            new_scheme: new color scheme to be loaded into the module.
         """
         ...
 

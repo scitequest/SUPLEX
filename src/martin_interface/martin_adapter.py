@@ -4,7 +4,6 @@ from .dataset import Dataset
 from .project import Project
 from .holder import PathHolder, FileHolder
 from .martin_interface_constants import (
-    MARTIN_MEASURE_DIR_DEPTH,
     SEARCH_MODE,
     STANDARD_READOUT_FILES,
     IMAGE_EXTENSIONS,
@@ -24,6 +23,7 @@ class Adapter:
     Attributes:
         path (str): Root directory path to scan for MARTin datasets.
         mode (SEARCH_MODE): Search mode from SEARCH_MODE enum.
+        search_depth (int): Search depth, not applicable on recursive and unbound search modes.
         readout_files (list): Default file names of files which need to be present to detect a MARTin dataset.
 
     """
@@ -31,12 +31,14 @@ class Adapter:
     def __init__(
         self,
         path: str,
-        mode: SEARCH_MODE = SEARCH_MODE.ITERATIVE_BOUNDED_ALL,
+        mode: SEARCH_MODE = SEARCH_MODE.RECURSIVE,
+        search_depth: int = 5,
         readout_files: List[str] = STANDARD_READOUT_FILES,
     ) -> None:
 
         self._datasets = []
         self._projects = []
+        self._search_depth = search_depth
 
         if not os.path.isdir(path):
             logger.error(f"{path} is not a directory.")
@@ -55,13 +57,13 @@ class Adapter:
                 )
             else:
                 logger.debug(
-                    f"Initiated linear search of {path} for {readout_files} in mode: {mode} with depth = {MARTIN_MEASURE_DIR_DEPTH}."
+                    f"Initiated linear search of {path} for {readout_files} in mode: {mode} with depth = {self._search_depth}."
                 )
             file_dirs = sweep_dirs(
                 root_path=path,
                 target_files=readout_files,
                 mode=mode,
-                max_depth=MARTIN_MEASURE_DIR_DEPTH,
+                max_depth=self._search_depth,
             )
 
         # If no files could be found terminate early.

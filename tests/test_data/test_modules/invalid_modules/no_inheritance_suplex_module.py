@@ -29,6 +29,9 @@ class NoInheritanceSuplexModule:
     def initiate_module(self, datasets: List[Dataset], ui: ipywidgets.Box) -> None:
         print("Standalone module initiated")
 
+    def update_scheme(self, new_scheme):
+        return None
+
     def reset_module(self) -> Optional["StandaloneModule"]:
         return StandaloneModule()
 
