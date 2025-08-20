@@ -1,7 +1,8 @@
 import logging
-from typing import Optional, List, Dict, Any, Union, Callable
+from typing import Optional, Tuple, List, Dict, Any, Union, Callable
 
 import ipywidgets as widgets
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,31 @@ class WidgetFactory:
     CSS classes and styling to maintain a unified look across the application.
     """
 
+    @staticmethod
+    def get_layout(
+        layout: Optional[widgets.Layout], width: str, height: str
+    ) -> widgets.Layout:
+        """
+        Helper method to get or create a layout with specified width and height.
+
+        Args:
+            layout: Optional custom layout object
+            width: CSS width to use if layout is None or lacks width
+            height: CSS height to use if layout is None or lacks height
+
+        Returns:
+            Configured Layout object
+        """
+        if layout is None:
+            return widgets.Layout(width=width, height=height)
+
+        # Ensure layout has width and height if not set
+        if not hasattr(layout, "width") or layout.width is None:
+            layout.width = width
+        if not hasattr(layout, "height") or layout.height is None:
+            layout.height = height
+        return layout
+
     # BUTTON METHODS
 
     @staticmethod
@@ -25,6 +51,7 @@ class WidgetFactory:
         tooltip: str = "",
         width: str = "auto",
         height: str = "32px",
+        layout: Optional[widgets.Layout] = None,
         on_click: Optional[Callable] = None,
         **kwargs,
     ) -> widgets.Button:
@@ -38,6 +65,7 @@ class WidgetFactory:
             tooltip: Tooltip text to show on hover
             width: CSS width of the button
             height: CSS height of the button
+            layout: Custom layout (overrides width/height if provided)
             on_click: Callback function to execute when clicked
             **kwargs: Additional arguments passed to the Button widget
 
@@ -51,12 +79,13 @@ class WidgetFactory:
         )
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             button = widgets.Button(
                 description=description,
                 disabled=disabled,
                 icon=icon,
                 tooltip=tooltip,
-                layout=widgets.Layout(width=width, height=height),
+                layout=layout,
                 **kwargs,
             )
             button.add_class("styled-widget")
@@ -82,6 +111,7 @@ class WidgetFactory:
         tooltip: str = "",
         width: str = "auto",
         height: str = "32px",
+        layout: Optional[widgets.Layout] = None,
         on_click: Optional[Callable] = None,
         **kwargs,
     ) -> widgets.Button:
@@ -95,6 +125,7 @@ class WidgetFactory:
             tooltip: Tooltip text to show on hover
             width: CSS width of the button
             height: CSS height of the button
+            layout: Custom layout (overrides width/height if provided)
             on_click: Callback function to execute when clicked
             **kwargs: Additional arguments passed to the Button widget
 
@@ -104,12 +135,13 @@ class WidgetFactory:
         logger.debug("Creating emphasis button: description='%s'", description)
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             button = widgets.Button(
                 description=description,
                 disabled=disabled,
                 icon=icon,
                 tooltip=tooltip,
-                layout=widgets.Layout(width=width, height=height),
+                layout=layout,
                 **kwargs,
             )
             button.add_class("styled-widget")
@@ -133,6 +165,7 @@ class WidgetFactory:
         tooltip: str = "",
         width: str = "auto",
         height: str = "32px",
+        layout: Optional[widgets.Layout] = None,
         on_click: Optional[Callable] = None,
         **kwargs,
     ) -> widgets.Button:
@@ -146,6 +179,7 @@ class WidgetFactory:
             tooltip: Tooltip text to show on hover
             width: CSS width of the button
             height: CSS height of the button
+            layout: Custom layout (overrides width/height if provided)
             on_click: Callback function to execute when clicked
             **kwargs: Additional arguments passed to the Button widget
 
@@ -155,12 +189,13 @@ class WidgetFactory:
         logger.debug("Creating success button: description='%s'", description)
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             button = widgets.Button(
                 description=description,
                 disabled=disabled,
                 icon=icon,
                 tooltip=tooltip,
-                layout=widgets.Layout(width=width, height=height),
+                layout=layout,
                 **kwargs,
             )
             button.add_class("styled-widget")
@@ -184,6 +219,7 @@ class WidgetFactory:
         tooltip: str = "",
         width: str = "auto",
         height: str = "32px",
+        layout: Optional[widgets.Layout] = None,
         on_click: Optional[Callable] = None,
         **kwargs,
     ) -> widgets.Button:
@@ -197,6 +233,7 @@ class WidgetFactory:
             tooltip: Tooltip text to show on hover
             width: CSS width of the button
             height: CSS height of the button
+            layout: Custom layout (overrides width/height if provided)
             on_click: Callback function to execute when clicked
             **kwargs: Additional arguments passed to the Button widget
 
@@ -206,12 +243,13 @@ class WidgetFactory:
         logger.debug("Creating danger button: description='%s'", description)
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             button = widgets.Button(
                 description=description,
                 disabled=disabled,
                 icon=icon,
                 tooltip=tooltip,
-                layout=widgets.Layout(width=width, height=height),
+                layout=layout,
                 **kwargs,
             )
             button.add_class("styled-widget")
@@ -235,6 +273,7 @@ class WidgetFactory:
         tooltip: str = "",
         width: str = "auto",
         height: str = "32px",
+        layout: Optional[widgets.Layout] = None,
         on_click: Optional[Callable] = None,
         **kwargs,
     ) -> widgets.Button:
@@ -248,6 +287,7 @@ class WidgetFactory:
             tooltip: Tooltip text to show on hover
             width: CSS width of the button
             height: CSS height of the button
+            layout: Custom layout (overrides width/height if provided)
             on_click: Callback function to execute when clicked
             **kwargs: Additional arguments passed to the Button widget
 
@@ -257,12 +297,13 @@ class WidgetFactory:
         logger.debug("Creating warning button: description='%s'", description)
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             button = widgets.Button(
                 description=description,
                 disabled=disabled,
                 icon=icon,
                 tooltip=tooltip,
-                layout=widgets.Layout(width=width, height=height),
+                layout=layout,
                 **kwargs,
             )
             button.add_class("styled-widget")
@@ -287,6 +328,7 @@ class WidgetFactory:
         width: str = "auto",
         height: str = "32px",
         toggled: bool = False,
+        layout: Optional[widgets.Layout] = None,
         on_click: Optional[Callable] = None,
         **kwargs,
     ) -> widgets.Button:
@@ -302,6 +344,7 @@ class WidgetFactory:
             width: CSS width of the button
             height: CSS height of the button
             toggled: Initial toggle state
+            layout: Custom layout (overrides width/height if provided)
             on_click: Callback function to execute when clicked
             **kwargs: Additional arguments passed to the Button widget
 
@@ -315,12 +358,13 @@ class WidgetFactory:
         )
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             button = widgets.Button(
                 description=description,
                 disabled=disabled,
                 icon=icon,
                 tooltip=tooltip,
-                layout=widgets.Layout(width=width, height=height),
+                layout=layout,
                 **kwargs,
             )
             button.add_class("styled-widget")
@@ -370,6 +414,8 @@ class WidgetFactory:
         i_toggled: int = 0,
         width: str = "auto",
         height: str = "32px",
+        layout: Optional[widgets.Layout] = None,
+        **kwargs,
     ) -> List[widgets.Button]:
         """
         Create a set of custom radio buttons using styled buttons.
@@ -381,6 +427,8 @@ class WidgetFactory:
             i_toggled: Index of initially selected button
             width: CSS width for each button
             height: CSS height for each button
+            layout: Custom layout for each button (overrides width/height if provided)
+            **kwargs: Additional arguments passed to the Button widget
 
         Returns:
             List of Button widgets configured as radio buttons
@@ -401,10 +449,12 @@ class WidgetFactory:
 
         try:
             buttons = []
+            layout = WidgetFactory.get_layout(layout, width, height)
             for i in range(number):
                 button = widgets.Button(
                     description=description[i],
-                    layout=widgets.Layout(width=width, height=height),
+                    layout=layout,
+                    **kwargs,
                 )
                 button.add_class("styled-widget")
                 button.add_class("styled-button")
@@ -442,6 +492,7 @@ class WidgetFactory:
         disabled: bool = False,
         width: str = "300px",
         height: str = "32px",
+        layout: Optional[widgets.Layout] = None,
         on_change: Optional[Callable] = None,
         **kwargs,
     ) -> widgets.Text:
@@ -455,6 +506,7 @@ class WidgetFactory:
             disabled: Whether the input should be disabled
             width: CSS width of the input
             height: CSS height of the input
+            layout: Custom layout (overrides width/height if provided)
             on_change: Callback function for value changes
             **kwargs: Additional arguments passed to the Text widget
 
@@ -468,12 +520,13 @@ class WidgetFactory:
         )
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             text = widgets.Text(
                 value=value,
                 placeholder=placeholder,
                 description=description,
                 disabled=disabled,
-                layout=widgets.Layout(width=width, height=height),
+                layout=layout,
                 **kwargs,
             )
             text.add_class("styled-widget")
@@ -497,6 +550,7 @@ class WidgetFactory:
         disabled: bool = False,
         width: str = "300px",
         height: str = "32px",
+        layout: Optional[widgets.Layout] = None,
         on_change: Optional[Callable] = None,
         **kwargs,
     ) -> widgets.Password:
@@ -510,6 +564,7 @@ class WidgetFactory:
             disabled: Whether the input should be disabled
             width: CSS width of the input
             height: CSS height of the input
+            layout: Custom layout (overrides width/height if provided)
             on_change: Callback function for value changes
             **kwargs: Additional arguments passed to the Password widget
 
@@ -519,12 +574,13 @@ class WidgetFactory:
         logger.debug("Creating password input: description='%s'", description)
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             password = widgets.Password(
                 value=value,
                 placeholder=placeholder,
                 description=description,
                 disabled=disabled,
-                layout=widgets.Layout(width=width, height=height),
+                layout=layout,
                 **kwargs,
             )
             password.add_class("styled-widget")
@@ -547,6 +603,7 @@ class WidgetFactory:
         disabled: bool = False,
         width: str = "400px",
         height: str = "120px",
+        layout: Optional[widgets.Layout] = None,
         on_change: Optional[Callable] = None,
         **kwargs,
     ) -> widgets.Textarea:
@@ -560,6 +617,7 @@ class WidgetFactory:
             disabled: Whether the textarea should be disabled
             width: CSS width of the textarea
             height: CSS height of the textarea
+            layout: Custom layout (overrides width/height if provided)
             on_change: Callback function for value changes
             **kwargs: Additional arguments passed to the Textarea widget
 
@@ -574,12 +632,13 @@ class WidgetFactory:
         )
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             textarea = widgets.Textarea(
                 value=value,
                 placeholder=placeholder,
                 description=description,
                 disabled=disabled,
-                layout=widgets.Layout(width=width, height=height),
+                layout=layout,
                 **kwargs,
             )
             textarea.add_class("styled-widget")
@@ -604,9 +663,10 @@ class WidgetFactory:
         disabled: bool = False,
         width: str = "200px",
         height: str = "32px",
+        layout: Optional[widgets.Layout] = None,
         on_change: Optional[Callable] = None,
         **kwargs,
-    ):
+    ) -> Union[widgets.BoundedIntText, widgets.BoundedFloatText]:
         """
         Create a styled number input widget (integer or float based on input types).
 
@@ -619,6 +679,7 @@ class WidgetFactory:
             disabled: Whether the input should be disabled
             width: CSS width of the input
             height: CSS height of the input
+            layout: Custom layout (overrides width/height if provided)
             on_change: Callback function for value changes
             **kwargs: Additional arguments passed to the widget
 
@@ -635,6 +696,7 @@ class WidgetFactory:
         )
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             if isinstance(value, int) and isinstance(step, int):
                 widget = widgets.BoundedIntText(
                     value=value,
@@ -643,7 +705,7 @@ class WidgetFactory:
                     step=step,
                     description=description,
                     disabled=disabled,
-                    layout=widgets.Layout(width=width, height=height),
+                    layout=layout,
                     **kwargs,
                 )
             else:
@@ -654,7 +716,7 @@ class WidgetFactory:
                     step=float(step),
                     description=description,
                     disabled=disabled,
-                    layout=widgets.Layout(width=width, height=height),
+                    layout=layout,
                     **kwargs,
                 )
 
@@ -671,6 +733,126 @@ class WidgetFactory:
             logger.error("Failed to create number input: %s", e, exc_info=True)
             raise
 
+    @staticmethod
+    def int_number_input(
+        value: int = 0,
+        min_value: Optional[int] = None,
+        max_value: Optional[int] = None,
+        step: int = 1,
+        description: str = "",
+        disabled: bool = False,
+        width: str = "200px",
+        height: str = "32px",
+        layout: Optional[widgets.Layout] = None,
+        on_change: Optional[Callable] = None,
+        **kwargs,
+    ) -> widgets.BoundedIntText:
+        """
+        Create a styled integer number input widget.
+        Args:
+            value: Initial integer value
+            min_value: Minimum allowed value
+            max_value: Maximum allowed value
+            step: Step increment for the input
+            description: Label text for the input
+            disabled: Whether the input should be disabled
+            width: CSS width of the input
+            height: CSS height of the input
+            layout: Custom layout (overrides width/height if provided)
+            on_change: Callback function for value changes
+            **kwargs: Additional arguments passed to the widget
+        Returns:
+            Configured BoundedIntText widget with styling
+        """
+        logger.debug(
+            "Creating int number input: description='%s', value=%s, min_value=%s, max_value=%s",
+            description,
+            value,
+            min_value,
+            max_value,
+        )
+        try:
+            layout = WidgetFactory.get_layout(layout, width, height)
+            widget = widgets.BoundedIntText(
+                value=value,
+                min=min_value if min_value is not None else 0,
+                max=max_value if max_value is not None else 100,
+                step=step,
+                description=description,
+                disabled=disabled,
+                layout=layout,
+                **kwargs,
+            )
+            widget.add_class("styled-widget")
+            widget.add_class("styled-input")
+            if on_change:
+                widget.observe(on_change, names="value")
+            logger.debug("Created widget traits: %s", widget.trait_names())
+            return widget
+        except Exception as e:
+            logger.error("Failed to create int number input: %s", e, exc_info=True)
+            raise
+
+    @staticmethod
+    def float_number_input(
+        value: float = 0.0,
+        min_value: Optional[float] = None,
+        max_value: Optional[float] = None,
+        step: float = 0.1,
+        description: str = "",
+        disabled: bool = False,
+        width: str = "200px",
+        height: str = "32px",
+        layout: Optional[widgets.Layout] = None,
+        on_change: Optional[Callable] = None,
+        **kwargs,
+    ) -> widgets.BoundedFloatText:
+        """
+        Create a styled float number input widget.
+        Args:
+            value: Initial float value
+            min_value: Minimum allowed value
+            max_value: Maximum allowed value
+            step: Step increment for the input
+            description: Label text for the input
+            disabled: Whether the input should be disabled
+            width: CSS width of the input
+            height: CSS height of the input
+            layout: Custom layout (overrides width/height if provided)
+            on_change: Callback function for value changes
+            **kwargs: Additional arguments passed to the widget
+        Returns:
+            Configured BoundedFloatText widget with styling
+        """
+        logger.debug(
+            "Creating float number input: description='%s', value=%s, min_value=%s, max_value=%s",
+            description,
+            value,
+            min_value,
+            max_value,
+        )
+        try:
+            layout = WidgetFactory.get_layout(layout, width, height)
+            widget = widgets.BoundedFloatText(
+                value=value,
+                min=min_value if min_value is not None else 0.0,
+                max=max_value if max_value is not None else 100.0,
+                step=step,
+                description=description,
+                disabled=disabled,
+                layout=layout,
+                **kwargs,
+            )
+            widget.add_class("styled-widget")
+            widget.add_class("styled-input")
+            if on_change:
+                widget.observe(on_change, names="value")
+            logger.debug("Created widget traits: %s", widget.trait_names())
+            return widget
+        except Exception as e:
+            logger.error("Failed to create float number input: %s", e, exc_info=True)
+            raise
+
     # DROPDOWN METHODS
 
     @staticmethod
@@ -681,6 +863,7 @@ class WidgetFactory:
         disabled: bool = False,
         width: str = "200px",
         height: str = "32px",
+        layout: Optional[widgets.Layout] = None,
         on_change: Optional[Callable] = None,
         **kwargs,
     ) -> widgets.Dropdown:
@@ -694,6 +877,7 @@ class WidgetFactory:
             disabled: Whether the dropdown should be disabled
             width: CSS width of the dropdown
             height: CSS height of the dropdown
+            layout: Custom layout (overrides width/height if provided)
             on_change: Callback function for selection changes
             **kwargs: Additional arguments passed to the Dropdown widget
 
@@ -710,12 +894,13 @@ class WidgetFactory:
         )
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             dropdown_widget = widgets.Dropdown(
                 options=options,
                 value=value,
                 description=description,
                 disabled=disabled,
-                layout=widgets.Layout(width=width, height=height),
+                layout=layout,
                 **kwargs,
             )
             dropdown_widget.add_class("styled-widget")
@@ -846,22 +1031,22 @@ class WidgetFactory:
     # SLIDER METHODS
 
     @staticmethod
-    def slider(
-        value: Union[int, float] = 0,
-        min_value: Union[int, float] = 0,
-        max_value: Union[int, float] = 100,
-        step: Union[int, float] = 1,
+    def int_slider(
+        value: int = 0,
+        min_value: int = 0,
+        max_value: int = 100,
+        step: int = 1,
         description: str = "",
         disabled: bool = False,
         orientation: str = "horizontal",
         width: str = "300px",
         height: str = "auto",
+        layout: Optional[widgets.Layout] = None,
         on_change: Optional[Callable] = None,
         **kwargs,
-    ) -> Union[widgets.IntSlider, widgets.FloatSlider]:
+    ) -> widgets.IntSlider:
         """
-        Create a styled slider widget (integer or float based on input types).
-
+        Create a styled integer slider widget.
         Args:
             value: Initial slider value
             min_value: Minimum slider value
@@ -872,56 +1057,257 @@ class WidgetFactory:
             orientation: Slider orientation ('horizontal' or 'vertical')
             width: CSS width of the slider
             height: CSS height of the slider
+            layout: Custom layout (overrides width/height if provided)
             on_change: Callback function for value changes
             **kwargs: Additional arguments passed to the widget
-
         Returns:
-            Configured IntSlider or FloatSlider widget with styling
+            Configured IntSlider widget with styling
         """
         logger.debug(
-            "Creating slider: description='%s', range=%s-%s, orientation=%s",
+            "Creating int slider: description='%s', range=%s-%s, orientation=%s",
             description,
             min_value,
             max_value,
             orientation,
         )
-
         try:
-            if isinstance(value, int) and isinstance(step, int):
-                slider_widget = widgets.IntSlider(
-                    value=value,
-                    min=min_value,
-                    max=max_value,
-                    step=step,
-                    description=description,
-                    disabled=disabled,
-                    orientation=orientation,
-                    layout=widgets.Layout(width=width, height=height),
-                    **kwargs,
-                )
-            else:
-                slider_widget = widgets.FloatSlider(
-                    value=float(value),
-                    min=float(min_value),
-                    max=float(max_value),
-                    step=float(step),
-                    description=description,
-                    disabled=disabled,
-                    orientation=orientation,
-                    layout=widgets.Layout(width=width, height=height),
-                    **kwargs,
-                )
-
+            layout = WidgetFactory.get_layout(layout, width, height)
+            slider_widget = widgets.IntSlider(
+                value=value,
+                min=min_value,
+                max=max_value,
+                step=step,
+                description=description,
+                disabled=disabled,
+                orientation=orientation,
+                layout=layout,
+                **kwargs,
+            )
             slider_widget.add_class("styled-widget")
             slider_widget.add_class("styled-slider")
-
             if on_change:
                 slider_widget.observe(on_change, names="value")
-
             return slider_widget
-
         except Exception as e:
-            logger.error("Failed to create slider: %s", e, exc_info=True)
+            logger.error("Failed to create int slider: %s", e, exc_info=True)
+            raise
+
+    @staticmethod
+    def float_slider(
+        value: float = 0.0,
+        min_value: float = 0.0,
+        max_value: float = 100.0,
+        step: float = 1.0,
+        description: str = "",
+        disabled: bool = False,
+        orientation: str = "horizontal",
+        width: str = "300px",
+        height: str = "auto",
+        layout: Optional[widgets.Layout] = None,
+        on_change: Optional[Callable] = None,
+        **kwargs,
+    ) -> widgets.FloatSlider:
+        """
+        Create a styled float slider widget.
+        Args:
+            value: Initial slider value
+            min_value: Minimum slider value
+            max_value: Maximum slider value
+            step: Step increment for the slider
+            description: Label text for the slider
+            disabled: Whether the slider should be disabled
+            orientation: Slider orientation ('horizontal' or 'vertical')
+            width: CSS width of the slider
+            height: CSS height of the slider
+            layout: Custom layout (overrides width/height if provided)
+            on_change: Callback function for value changes
+            **kwargs: Additional arguments passed to the widget
+        Returns:
+            Configured FloatSlider widget with styling
+        """
+        logger.debug(
+            "Creating float slider: description='%s', range=%s-%s, orientation=%s",
+            description,
+            min_value,
+            max_value,
+            orientation,
+        )
+        try:
+            layout = WidgetFactory.get_layout(layout, width, height)
+            slider_widget = widgets.FloatSlider(
+                value=value,
+                min=min_value,
+                max=max_value,
+                step=step,
+                description=description,
+                disabled=disabled,
+                orientation=orientation,
+                layout=layout,
+                **kwargs,
+            )
+            slider_widget.add_class("styled-widget")
+            slider_widget.add_class("styled-slider")
+            if on_change:
+                slider_widget.observe(on_change, names="value")
+            return slider_widget
+        except Exception as e:
+            logger.error("Failed to create float slider: %s", e, exc_info=True)
+            raise
+
+    @staticmethod
+    def int_range_slider(
+        value: Union[List[int], Tuple[int, int]] = [0, 100],
+        min_value: int = 0,
+        max_value: int = 100,
+        step: int = 1,
+        description: str = "",
+        disabled: bool = False,
+        orientation: str = "horizontal",
+        width: str = "300px",
+        height: str = "auto",
+        continuous_update: bool = False,
+        readout: bool = True,
+        readout_format: str = "auto",
+        layout: Optional[widgets.Layout] = None,
+        on_change: Optional[Callable] = None,
+        **kwargs,
+    ) -> widgets.IntRangeSlider:
+        """
+        Create a styled integer range slider widget.
+        Args:
+            value: Initial range values as [min_val, max_val] or (min_val, max_val)
+            min_value: Minimum slider value
+            max_value: Maximum slider value
+            step: Step increment for the slider
+            description: Label text for the slider
+            disabled: Whether the slider should be disabled
+            orientation: Slider orientation ('horizontal' or 'vertical')
+            width: CSS width of the slider
+            height: CSS height of the slider
+            continuous_update: Whether to update continuously during drag
+            readout: Whether to show the current values
+            readout_format: Format string for displayed values ('auto', 'd' for int, '.1f' for float)
+            layout: Custom layout (overrides width/height if provided)
+            on_change: Callback function for value changes
+            **kwargs: Additional arguments passed to the widget
+        Returns:
+            Configured IntRangeSlider widget with styling
+        """
+        logger.debug(
+            "Creating int range slider: description='%s', range=%s-%s, values=%s, orientation=%s",
+            description,
+            min_value,
+            max_value,
+            value,
+            orientation,
+        )
+        try:
+            # Convert tuple to list if needed
+            if isinstance(value, tuple):
+                value = list(value)
+            # Set default readout format
+            if readout_format == "auto":
+                readout_format = "d"
+            layout = WidgetFactory.get_layout(layout, width, height)
+            range_slider_widget = widgets.IntRangeSlider(
+                value=value,
+                min=min_value,
+                max=max_value,
+                step=step,
+                description=description,
+                disabled=disabled,
+                orientation=orientation,
+                continuous_update=continuous_update,
+                readout=readout,
+                readout_format=readout_format,
+                layout=layout,
+                **kwargs,
+            )
+            range_slider_widget.add_class("styled-widget")
+            range_slider_widget.add_class("styled-slider")
+            if on_change:
+                range_slider_widget.observe(on_change, names="value")
+            return range_slider_widget
+        except Exception as e:
+            logger.error("Failed to create int range slider: %s", e, exc_info=True)
+            raise
+
+    @staticmethod
+    def float_range_slider(
+        value: Union[List[float], Tuple[float, float]] = [0.0, 100.0],
+        min_value: float = 0.0,
+        max_value: float = 100.0,
+        step: float = 1.0,
+        description: str = "",
+        disabled: bool = False,
+        orientation: str = "horizontal",
+        width: str = "300px",
+        height: str = "auto",
+        continuous_update: bool = False,
+        readout: bool = True,
+        readout_format: str = "auto",
+        layout: Optional[widgets.Layout] = None,
+        on_change: Optional[Callable] = None,
+        **kwargs,
+    ) -> widgets.FloatRangeSlider:
+        """
+        Create a styled float range slider widget.
+        Args:
+            value: Initial range values as [min_val, max_val] or (min_val, max_val)
+            min_value: Minimum slider value
+            max_value: Maximum slider value
+            step: Step increment for the slider
+            description: Label text for the slider
+            disabled: Whether the slider should be disabled
+            orientation: Slider orientation ('horizontal' or 'vertical')
+            width: CSS width of the slider
+            height: CSS height of the slider
+            continuous_update: Whether to update continuously during drag
+            readout: Whether to show the current values
+            readout_format: Format string for displayed values ('auto', 'd' for int, '.1f' for float)
+            layout: Custom layout (overrides width/height if provided)
+            on_change: Callback function for value changes
+            **kwargs: Additional arguments passed to the widget
+        Returns:
+            Configured FloatRangeSlider widget with styling
+        """
+        logger.debug(
+            "Creating float range slider: description='%s', range=%s-%s, values=%s, orientation=%s",
+            description,
+            min_value,
+            max_value,
+            value,
+            orientation,
+        )
+        try:
+            # Convert tuple to list if needed
+            if isinstance(value, tuple):
+                value = list(value)
+            # Set default readout format
+            if readout_format == "auto":
+                readout_format = ".1f"
+            layout = WidgetFactory.get_layout(layout, width, height)
+            range_slider_widget = widgets.FloatRangeSlider(
+                value=value,
+                min=min_value,
+                max=max_value,
+                step=step,
+                description=description,
+                disabled=disabled,
+                orientation=orientation,
+                continuous_update=continuous_update,
+                readout=readout,
+                readout_format=readout_format,
+                layout=layout,
+                **kwargs,
+            )
+            range_slider_widget.add_class("styled-widget")
+            range_slider_widget.add_class("styled-slider")
+            if on_change:
+                range_slider_widget.observe(on_change, names="value")
+            return range_slider_widget
+        except Exception as e:
+            logger.error("Failed to create float range slider: %s", e, exc_info=True)
             raise
 
     # DATE PICKER METHODS
@@ -955,10 +1341,8 @@ class WidgetFactory:
         """
         logger.debug("Creating date picker: description='%s'", description)
 
-        if layout is None:
-            layout = widgets.Layout(width=width, height=height)
-
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             date_picker_widget = widgets.DatePicker(
                 value=value,
                 description=description,
@@ -988,6 +1372,7 @@ class WidgetFactory:
         description: str = "",
         width: str = "300px",
         height: str = "20px",
+        layout: Optional[widgets.Layout] = None,
         **kwargs,
     ) -> Union[widgets.IntProgress, widgets.FloatProgress]:
         """
@@ -1000,6 +1385,7 @@ class WidgetFactory:
             description: Label text for the progress bar
             width: CSS width of the progress bar
             height: CSS height of the progress bar
+            layout: Custom layout (overrides width/height if provided)
             **kwargs: Additional arguments passed to the progress widget
 
         Returns:
@@ -1013,13 +1399,14 @@ class WidgetFactory:
         )
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             if isinstance(value, int):
                 progress = widgets.IntProgress(
                     value=value,
                     min=min_value,
                     max=max_value,
                     description=description,
-                    layout=widgets.Layout(width=width, height=height),
+                    layout=layout,
                     **kwargs,
                 )
             else:
@@ -1028,7 +1415,7 @@ class WidgetFactory:
                     min=float(min_value),
                     max=float(max_value),
                     description=description,
-                    layout=widgets.Layout(width=width, height=height),
+                    layout=layout,
                     **kwargs,
                 )
 
@@ -1045,54 +1432,29 @@ class WidgetFactory:
 
     @staticmethod
     def tab(
-        children: Optional[List[widgets.Widget]] = None,
-        titles: Optional[List[str]] = None,
-        width: str = "100%",
-        height: str = "100%",
+        layout: Optional[widgets.Layout] = None,
         **kwargs,
     ) -> widgets.Tab:
         """
         Create a styled tab widget.
 
         Args:
-            children: List of widgets to display in each tab
-            titles: List of titles for each tab
-            width: CSS width of the tab widget
-            height: CSS height of the tab widget
-            **kwargs: Additional arguments passed to the Tab widget
+            layout: Custom layout for the tab widget
+            **kwargs: Additional arguments passed to the Tab widget (e.g., children, titles)
 
         Returns:
             Configured Tab widget with styling
         """
-        if children is None:
-            children = []
-        if titles is None:
-            titles = []
-
-        logger.debug(
-            "Creating tab widget: children_count=%d, titles_count=%d",
-            len(children),
-            len(titles),
-        )
-
         try:
+            layout = WidgetFactory.get_layout(layout, width="100%", height="auto")
             tab_widget = widgets.Tab(
-                children=children,
-                layout=widgets.Layout(width=width, height=height),
+                layout=layout,
                 **kwargs,
             )
-
-            # Set titles if provided
-            for i, title in enumerate(titles):
-                if i < len(children):
-                    tab_widget.set_title(i, title)
-                    logger.debug("Set tab title %d: %s", i, title)
-
             tab_widget.add_class("styled-widget")
             tab_widget.add_class("styled-tab")
 
             return tab_widget
-
         except Exception as e:
             logger.error("Failed to create tab widget: %s", e, exc_info=True)
             raise
@@ -1105,6 +1467,7 @@ class WidgetFactory:
         titles: Optional[List[str]] = None,
         width: str = "100%",
         height: str = "auto",
+        layout: Optional[widgets.Layout] = None,
         **kwargs,
     ) -> widgets.Accordion:
         """
@@ -1115,6 +1478,7 @@ class WidgetFactory:
             titles: List of titles for each accordion section
             width: CSS width of the accordion widget
             height: CSS height of the accordion widget
+            layout: Custom layout (overrides width/height if provided)
             **kwargs: Additional arguments passed to the Accordion widget
 
         Returns:
@@ -1132,13 +1496,13 @@ class WidgetFactory:
         )
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             accordion_widget = widgets.Accordion(
                 children=children,
-                layout=widgets.Layout(width=width, height=height),
+                layout=layout,
                 **kwargs,
             )
 
-            # Set titles if provided
             for i, title in enumerate(titles):
                 if i < len(children):
                     accordion_widget.set_title(i, title)
@@ -1157,7 +1521,10 @@ class WidgetFactory:
 
     @staticmethod
     def output_widget(
-        width: str = "100%", height: str = "200px", **kwargs
+        width: str = "100%",
+        height: str = "200px",
+        layout: Optional[widgets.Layout] = None,
+        **kwargs,
     ) -> widgets.Output:
         """
         Create a styled output widget for displaying output content.
@@ -1165,6 +1532,7 @@ class WidgetFactory:
         Args:
             width: CSS width of the output widget
             height: CSS height of the output widget
+            layout: Custom layout (overrides width/height if provided)
             **kwargs: Additional arguments passed to the Output widget
 
         Returns:
@@ -1173,8 +1541,10 @@ class WidgetFactory:
         logger.debug("Creating output widget: size=%sx%s", width, height)
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             output = widgets.Output(
-                layout=widgets.Layout(width=width, height=height), **kwargs
+                layout=layout,
+                **kwargs,
             )
             output.add_class("styled-widget")
             output.add_class("styled-output")
@@ -1191,7 +1561,7 @@ class WidgetFactory:
     def label(value: str = "", emphasis: bool = False, **kwargs) -> widgets.HTML:
         """
         Create a styled label widget using HTML.
-        Lables are small descriptors used to tag other elements.
+        Labels are small descriptors used to tag other elements.
 
         Args:
             value: Text content for the label
@@ -1219,7 +1589,11 @@ class WidgetFactory:
 
     @staticmethod
     def html_widget(
-        value: str = "", width: str = "100%", height: str = "auto", **kwargs
+        value: str = "",
+        width: str = "100%",
+        height: str = "auto",
+        layout: Optional[widgets.Layout] = None,
+        **kwargs,
     ) -> widgets.HTML:
         """
         Create a styled HTML widget for displaying HTML content.
@@ -1228,6 +1602,7 @@ class WidgetFactory:
             value: HTML content to display
             width: CSS width of the HTML widget
             height: CSS height of the HTML widget
+            layout: Custom layout (overrides width/height if provided)
             **kwargs: Additional arguments passed to the HTML widget
 
         Returns:
@@ -1236,8 +1611,11 @@ class WidgetFactory:
         logger.debug("Creating HTML widget: content_length=%d", len(value))
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
             html = widgets.HTML(
-                value=value, layout=widgets.Layout(width=width, height=height), **kwargs
+                value=value,
+                layout=layout,
+                **kwargs,
             )
             html.add_class("styled-widget")
             html.add_class("styled-html")
@@ -1261,6 +1639,7 @@ class WidgetFactory:
         overflow: str = "auto",
         overflow_y: str = "auto",
         overflow_x: str = "auto",
+        layout: Optional[widgets.Layout] = None,
         **kwargs,
     ) -> widgets.HBox:
         """
@@ -1276,7 +1655,8 @@ class WidgetFactory:
             overflow: CSS overflow property
             overflow_y: CSS overflow-y property
             overflow_x: CSS overflow-x property
-            **kwargs: Additional layout arguments
+            layout: Custom layout (overrides width/height if provided)
+            **kwargs: Additional arguments passed to the HBox widget
 
         Returns:
             Configured HBox widget with styling
@@ -1289,18 +1669,17 @@ class WidgetFactory:
         )
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
+            layout.align_items = layout.align_items or align_items
+            layout.justify_content = layout.justify_content or justify_content
+
             hbox_widget = widgets.HBox(
                 children=children,
-                layout=widgets.Layout(
-                    width=width,
-                    height=height,
-                    align_items=align_items,
-                    justify_content=justify_content,
-                    overflow=overflow,
-                    overflow_y=overflow_y,
-                    overflow_x=overflow_x,
-                    **kwargs,
-                ),
+                layout=layout,
+                overflow=overflow,
+                overflow_y=overflow_y,
+                overflow_x=overflow_x,
+                **kwargs,
             )
             hbox_widget.add_class("styled-widget")
             hbox_widget.add_class("styled-hbox")
@@ -1312,11 +1691,17 @@ class WidgetFactory:
             if overflow_y == "hidden":
                 hbox_widget.add_class("styled-overflow-y-hidden")
 
-            # Add gap using CSS margin on children if specified
             if gap and children:
                 for i, child in enumerate(children[:-1]):  # All except last child
                     if hasattr(child, "layout") and hasattr(child.layout, "margin"):
-                        child.layout.margin = f"{child.layout.margin or '0'} {gap} 0 0"
+                        margin = child.layout.margin
+                        if margin is None:
+                            child.layout.margin = f"0 {gap} 0 0"
+                            continue
+
+                        margin_vals = list(set(re.findall(r"\d+", margin)))
+                        if len(margin_vals) == 1 and margin_vals[0] == "0":
+                            child.layout.margin = f"0 {gap} 0 0"
 
             return hbox_widget
 
@@ -1335,6 +1720,7 @@ class WidgetFactory:
         overflow: str = "auto",
         overflow_y: str = "auto",
         overflow_x: str = "auto",
+        layout: Optional[widgets.Layout] = None,
         **kwargs,
     ) -> widgets.VBox:
         """
@@ -1350,7 +1736,8 @@ class WidgetFactory:
             overflow: CSS overflow property
             overflow_y: CSS overflow-y property
             overflow_x: CSS overflow-x property
-            **kwargs: Additional layout arguments
+            layout: Custom layout (overrides width/height if provided)
+            **kwargs: Additional arguments passed to the VBox widget
 
         Returns:
             Configured VBox widget with styling
@@ -1363,18 +1750,17 @@ class WidgetFactory:
         )
 
         try:
+            layout = WidgetFactory.get_layout(layout, width, height)
+            layout.align_items = layout.align_items or align_items
+            layout.justify_content = layout.justify_content or justify_content
+
             vbox_widget = widgets.VBox(
                 children=children,
-                layout=widgets.Layout(
-                    width=width,
-                    height=height,
-                    align_items=align_items,
-                    justify_content=justify_content,
-                    overflow=overflow,
-                    overflow_y=overflow_y,
-                    overflow_x=overflow_x,
-                    **kwargs,
-                ),
+                layout=layout,
+                overflow=overflow,
+                overflow_y=overflow_y,
+                overflow_x=overflow_x,
+                **kwargs,
             )
             vbox_widget.add_class("styled-widget")
             vbox_widget.add_class("styled-vbox")
@@ -1390,7 +1776,14 @@ class WidgetFactory:
             if gap and children:
                 for i, child in enumerate(children[:-1]):  # All except last child
                     if hasattr(child, "layout") and hasattr(child.layout, "margin"):
-                        child.layout.margin = f"0 0 {gap} 0"
+                        margin = child.layout.margin
+                        if margin is None:
+                            child.layout.margin = f"0 0 {gap} 0"
+                            continue
+
+                        margin_vals = list(set(re.findall(r"\d+", margin)))
+                        if len(margin_vals) == 1 and margin_vals[0] == "0":
+                            child.layout.margin = f"0 0 {gap} 0"
 
             return vbox_widget
 
@@ -1404,6 +1797,10 @@ class WidgetFactory:
         padding: str = "5px",
         width: str = "100%",
         height: str = "100%",
+        overflow: str = "auto",
+        overflow_y: str = "auto",
+        overflow_x: str = "hidden",
+        layout: Optional[widgets.Layout] = None,
         **kwargs,
     ) -> widgets.HBox:
         """
@@ -1414,7 +1811,11 @@ class WidgetFactory:
             padding: Padding around the container
             width: CSS width of the container
             height: CSS height of the container
-            **kwargs: Additional layout arguments
+            overflow: CSS overflow property
+            overflow_y: CSS overflow-y property
+            overflow_x: CSS overflow-x property
+            layout: Custom layout (overrides width/height if provided)
+            **kwargs: Additional arguments passed to the HBox widget
 
         Returns:
             Configured HBox widget with grid-like flexbox styling
@@ -1430,27 +1831,31 @@ class WidgetFactory:
         )
 
         try:
-            # Flexbox Layout Properties
-            layout_props = {
-                "display": "flex",
-                "flex_flow": "row wrap",
-                "align_items": "flex-start",
-                "align_content": "flex-start",
-                "overflow_y": "auto",
-                "overflow_x": "hidden",
-                "width": width,
-                "height": height,
-                "padding": padding,
-            }
-
-            layout_props.update(kwargs)
+            layout = WidgetFactory.get_layout(layout, width, height)
+            layout.display = layout.display or "flex"
+            layout.flex_flow = layout.flex_flow or "row wrap"
+            layout.align_items = layout.align_items or "flex-start"
+            layout.align_content = layout.align_content or "flex-start"
+            layout.padding = layout.padding or padding
 
             container = widgets.HBox(
-                children=children, layout=widgets.Layout(**layout_props)
+                children=children,
+                layout=layout,
+                overflow=overflow,
+                overflow_y=overflow_y,
+                overflow_x=overflow_x,
+                **kwargs,
             )
 
             container.add_class("styled-widget")
             container.add_class("styled-grid-container")
+
+            if overflow == "hidden":
+                container.add_class("styled-overflow-hidden")
+            if overflow_x == "hidden":
+                container.add_class("styled-overflow-x-hidden")
+            if overflow_y == "hidden":
+                container.add_class("styled-overflow-y-hidden")
 
             return container
 
@@ -1468,6 +1873,7 @@ class WidgetFactory:
         gap: str = "5px",
         align_items: str = "stretch",
         justify_content: str = "flex-start",
+        layout: Optional[widgets.Layout] = None,
         **kwargs,
     ) -> widgets.VBox:
         """
@@ -1481,6 +1887,7 @@ class WidgetFactory:
             gap: Gap between child elements
             align_items: CSS align-items property
             justify_content: CSS justify-content property
+            layout: Custom layout (overrides width/height if provided)
             **kwargs: Additional layout arguments
 
         Returns:
@@ -1499,6 +1906,7 @@ class WidgetFactory:
                 gap=gap,
                 align_items=align_items,
                 justify_content=justify_content,
+                layout=layout,
                 **kwargs,
             )
             info_field.add_class("info-field-default")
@@ -1516,6 +1924,7 @@ class WidgetFactory:
         gap: str = "5px",
         align_items: str = "stretch",
         justify_content: str = "flex-start",
+        layout: Optional[widgets.Layout] = None,
         **kwargs,
     ) -> widgets.VBox:
         """
@@ -1529,6 +1938,7 @@ class WidgetFactory:
             gap: Gap between child elements
             align_items: CSS align-items property
             justify_content: CSS justify-content property
+            layout: Custom layout (overrides width/height if provided)
             **kwargs: Additional layout arguments
 
         Returns:
@@ -1547,6 +1957,7 @@ class WidgetFactory:
                 gap=gap,
                 align_items=align_items,
                 justify_content=justify_content,
+                layout=layout,
                 **kwargs,
             )
             info_field.add_class("info-field-info")
@@ -1564,6 +1975,7 @@ class WidgetFactory:
         gap: str = "5px",
         align_items: str = "stretch",
         justify_content: str = "flex-start",
+        layout: Optional[widgets.Layout] = None,
         **kwargs,
     ) -> widgets.VBox:
         """
@@ -1577,6 +1989,7 @@ class WidgetFactory:
             gap: Gap between child elements
             align_items: CSS align-items property
             justify_content: CSS justify-content property
+            layout: Custom layout (overrides width/height if provided)
             **kwargs: Additional layout arguments
 
         Returns:
@@ -1595,6 +2008,7 @@ class WidgetFactory:
                 gap=gap,
                 align_items=align_items,
                 justify_content=justify_content,
+                layout=layout,
                 **kwargs,
             )
             info_field.add_class("info-field-success")
@@ -1612,6 +2026,7 @@ class WidgetFactory:
         gap: str = "5px",
         align_items: str = "stretch",
         justify_content: str = "flex-start",
+        layout: Optional[widgets.Layout] = None,
         **kwargs,
     ) -> widgets.VBox:
         """
@@ -1625,6 +2040,7 @@ class WidgetFactory:
             gap: Gap between child elements
             align_items: CSS align-items property
             justify_content: CSS justify-content property
+            layout: Custom layout (overrides width/height if provided)
             **kwargs: Additional layout arguments
 
         Returns:
@@ -1643,6 +2059,7 @@ class WidgetFactory:
                 gap=gap,
                 align_items=align_items,
                 justify_content=justify_content,
+                layout=layout,
                 **kwargs,
             )
             info_field.add_class("info-field-warning")
@@ -1660,6 +2077,7 @@ class WidgetFactory:
         gap: str = "5px",
         align_items: str = "stretch",
         justify_content: str = "flex-start",
+        layout: Optional[widgets.Layout] = None,
         **kwargs,
     ) -> widgets.VBox:
         """
@@ -1673,6 +2091,7 @@ class WidgetFactory:
             gap: Gap between child elements
             align_items: CSS align-items property
             justify_content: CSS justify-content property
+            layout: Custom layout (overrides width/height if provided)
             **kwargs: Additional layout arguments
 
         Returns:
@@ -1691,6 +2110,7 @@ class WidgetFactory:
                 gap=gap,
                 align_items=align_items,
                 justify_content=justify_content,
+                layout=layout,
                 **kwargs,
             )
             info_field.add_class("info-field-error")
@@ -1708,6 +2128,7 @@ class WidgetFactory:
         gap: str = "5px",
         align_items: str = "stretch",
         justify_content: str = "flex-start",
+        layout: Optional[widgets.Layout] = None,
         **kwargs,
     ) -> widgets.VBox:
         """
@@ -1721,6 +2142,7 @@ class WidgetFactory:
             gap: Gap between child elements
             align_items: CSS align-items property
             justify_content: CSS justify-content property
+            layout: Custom layout (overrides width/height if provided)
             **kwargs: Additional layout arguments
 
         Returns:
@@ -1739,6 +2161,7 @@ class WidgetFactory:
                 gap=gap,
                 align_items=align_items,
                 justify_content=justify_content,
+                layout=layout,
                 **kwargs,
             )
             info_field.add_class("info-field-critical")
@@ -1756,6 +2179,7 @@ class WidgetFactory:
         gap: str = "5px",
         align_items: str = "stretch",
         justify_content: str = "flex-start",
+        layout: Optional[widgets.Layout] = None,
         **kwargs,
     ) -> widgets.VBox:
         """
@@ -1769,6 +2193,7 @@ class WidgetFactory:
             gap: Gap between child elements
             align_items: CSS align-items property
             justify_content: CSS justify-content property
+            layout: Custom layout (overrides width/height if provided)
             **kwargs: Additional layout arguments
 
         Returns:
@@ -1787,6 +2212,7 @@ class WidgetFactory:
                 gap=gap,
                 align_items=align_items,
                 justify_content=justify_content,
+                layout=layout,
                 **kwargs,
             )
             info_field.add_class("info-field-debug")

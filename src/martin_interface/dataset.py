@@ -324,6 +324,14 @@ class Dataset:
 
     # Allowing direct access to attributes of relevant objects of `Dataset`.
     @property
+    def id(self) -> str:
+        return self._metadata.pat_id
+
+    @property
+    def name(self) -> str:
+        return self._metadata.name
+
+    @property
     def measure_date(self) -> datetime | None:
         if self._metadata is not None:
             return self._metadata.datetime

@@ -391,7 +391,9 @@ class Navigator:
             self._current_module = module
             selected_datasets = self._dataset_selection_page.get_selected_datasets()
 
-            module_ui = module.initiate_module(selected_datasets)
+            module_ui = module.initiate_module(
+                datasets=selected_datasets, color_scheme=self._scheme
+            )
             self._gui.update_content_holder(module_ui)
 
             self._current_step = PAGE.MODULE

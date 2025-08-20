@@ -100,6 +100,11 @@ class GREEN_SCHEME:
                 OUTPUT = "#065f46"
                 DROPDOWN = "#065f46"
 
+            class TABLE:
+                HEAD = "#000000"
+                BODY = "#000000"
+                EMPHASIS = "#000000"
+
     class LAYOUT_COLOR:
         BACKGROUND = "#f0fdf4"  # Very light green
         HEADER = "#10b981"  # Bright emerald
@@ -202,6 +207,10 @@ class GREEN_SCHEME:
             class DROPDOWN:
                 BACKGROUND = "#ede9fe"
                 BORDER = "#d1d5db"
+
+        class TABLE:
+            HEAD = "#ede9fe"
+            LINES = "#000000"
 
     class ICON:
         DEFAULT = "🟣"
@@ -339,6 +348,11 @@ class ORANGE_SCHEME:
                 OUTPUT = "#c2410c"
                 DROPDOWN = "#c2410c"
 
+            class TABLE:
+                HEAD = "#000000"
+                BODY = "#000000"
+                EMPHASIS = "#000000"
+
     class LAYOUT_COLOR:
         BACKGROUND = "#fff7ed"  # Very light orange
         HEADER = "#ea580c"  # Bright orange
@@ -441,6 +455,10 @@ class ORANGE_SCHEME:
             class DROPDOWN:
                 BACKGROUND = "#fed7aa"
                 BORDER = "#d1d5db"
+
+        class TABLE:
+            HEAD = "#fed7aa"
+            LINES = "#000000"
 
     class ICON:
         DEFAULT = "🟠"
@@ -584,6 +602,11 @@ class TEAL_SCHEME:
                 OUTPUT = "#0f766e"
                 DROPDOWN = "#0f766e"
 
+            class TABLE:
+                HEAD = "#000000"
+                BODY = "#000000"
+                EMPHASIS = "#000000"
+
     class LAYOUT_COLOR:
         BACKGROUND = "#f0fdfa"  # Very light teal
         HEADER = "#0d9488"  # Bright teal
@@ -686,6 +709,10 @@ class TEAL_SCHEME:
             class DROPDOWN:
                 BACKGROUND = "#ccfbf1"
                 BORDER = "#d1d5db"
+
+        class TABLE:
+            HEAD = "#ccfbf1"
+            LINES = "#134e4a"
 
     class ICON:
         DEFAULT = "🩵"

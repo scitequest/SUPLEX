@@ -214,7 +214,7 @@ class TestWidgetFactory:
         assert radios[2].value == False
 
     def test_slider_int(self):
-        slider = WidgetFactory.slider(
+        slider = WidgetFactory.int_slider(
             value=50, min_value=0, max_value=100, step=5, description="Volume:"
         )
 
@@ -226,7 +226,7 @@ class TestWidgetFactory:
         assert "styled-slider" in slider._dom_classes
 
     def test_slider_float(self):
-        slider = WidgetFactory.slider(
+        slider = WidgetFactory.float_slider(
             value=0.5, min_value=0.0, max_value=1.0, step=0.1, orientation="vertical"
         )
 

@@ -6,6 +6,7 @@ from martin_interface.dataset import Dataset
 from suplex_modules.submodules.submodule_utils import *
 from suplex_modules.submodules.submodule_constants import NORMALIZATION
 
+
 class TestSubmoduleUtils:
     def test_calculate_step_size_valid_range(self):
         """Test step size calculation for valid range."""
@@ -56,7 +57,9 @@ class TestSubmoduleUtils:
         mock_ds2 = Mock(spec=Dataset)
         value_sets = {mock_ds1: [100, 200], mock_ds2: [50, 300]}
         result = apply_normalization(value_sets, NORMALIZATION.GLOBAL, 1.0)
-        assert max(max(values) for values in result.values()) == 1.0  # Global max normalized to 1
+        assert (
+            max(max(values) for values in result.values()) == 1.0
+        )  # Global max normalized to 1
 
     def test_apply_normalization_internal(self):
         """Test INTERNAL normalization."""
@@ -65,7 +68,7 @@ class TestSubmoduleUtils:
         value_sets = {mock_ds1: [100, 200], mock_ds2: [50, 300]}
         result = apply_normalization(value_sets, NORMALIZATION.INTERNAL, 1.0)
         assert result[mock_ds1] == [0.5, 1.0]
-        assert result[mock_ds2] == [50/300, 1.0]
+        assert result[mock_ds2] == [50 / 300, 1.0]
 
     def test_apply_normalization_custom(self):
         """Test CUSTOM normalization."""

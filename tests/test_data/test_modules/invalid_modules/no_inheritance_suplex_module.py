@@ -26,7 +26,7 @@ class NoInheritanceSuplexModule:
     def get_module_hover_text(self) -> str:
         return "Standalone module without inheritance"
 
-    def initiate_module(self, datasets: List[Dataset], ui: ipywidgets.Box) -> None:
+    def initiate_module(self, datasets: List[Dataset], color_scheme: Any) -> None:
         print("Standalone module initiated")
 
     def update_scheme(self, new_scheme):

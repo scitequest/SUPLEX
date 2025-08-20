@@ -223,7 +223,7 @@ class DatasetSelector:
                 width="100%",
                 height="100%",
                 overflow_y="auto",
-                padding="5px",
+                layout=widgets.Layout(padding="5px"),
             )
 
         except Exception as e:

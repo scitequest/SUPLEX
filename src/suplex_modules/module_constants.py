@@ -35,6 +35,29 @@ class SEARCH_MODE(Enum):
     ITERATIVE_UNBOUND = "iterative_unbound"
 
 
+class FILE(Enum):
+    """
+    Identificators for MARTin related files.
+
+    Defines the strategies for searching directories:
+    - DATA: Measurement of individual spots.
+    - DATA_STATISTICS: Statistical analyses across spots of the same sample.
+    - PARAMETERS: Information about the measurement such as positional data of every spot.
+    - METADATA: More general information about the assay.
+    - IMAGE: Whole image on which the measurement was conducted.
+    - ANNOTATED_IMAGE: An annotated cutout of IMAGE depicting where exactly the measurement was conducted.
+    - SUPLEX: A file allowing for storage of information between runs of the SUPLEX software.
+    """
+
+    DATA = "data"
+    DATA_STATISTICS = "data_statistics"
+    PARAMETERS = "parameters"
+    METADATA = "metadata"
+    IMAGE = "image"
+    ANNOTATED_IMAGE = "annotated_image"
+    SUPLEX = "suplex"
+
+
 # Possible image extensions of images exported during a MARTin measurement.
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".tif", ".tiff"}
 

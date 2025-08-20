@@ -7,8 +7,9 @@ from src.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCar
 from suplex_modules.submodules.submodule_constants import (
     DATASET_SELECTOR_MODE,
     DATASET_LABEL,
-    TAG_SELECTION_MODE,
+    SELECTION_MODE,
 )
+
 
 class TestDatasetSelectionPage:
     def test_initialization(self, mock_navigator):
@@ -155,7 +156,7 @@ class TestProjectCard:
                 assert card._project == mock_project_with_datasets
                 assert card._borders == []
                 assert card._current_date_format == DATASET_LABEL.CREATED_DATE
-                assert card._tag_selection_mode == TAG_SELECTION_MODE.ANY
+                assert card._tag_selection_mode == SELECTION_MODE.ANY
 
                 # Verify selectors created
                 mock_ds.assert_called_once()

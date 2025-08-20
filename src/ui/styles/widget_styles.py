@@ -302,7 +302,6 @@ def get_widget_styles(scheme: Any) -> widgets.HTML:
             font-family: {scheme.TEXT.FONT.DEFAULT} !important;
             font-size: {scheme.TEXT.SIZE.DEFAULT} !important;
             position: relative !important;
-            display: inline-block !important;
         }}
         
         .styled-widget.styled-dropdown select,
@@ -388,42 +387,108 @@ def get_widget_styles(scheme: Any) -> widgets.HTML:
         }}
         
         
-        /* SLIDER STYLES */
-        
+        /* SLIDER STYLES*/
+
         .styled-widget.styled-slider,
         .styled-widget .styled-slider {{
             font-family: {scheme.TEXT.FONT.DEFAULT} !important;
             font-size: {scheme.TEXT.SIZE.DEFAULT} !important;
             color: {scheme.TEXT.COLOR.DEFAULT} !important;
-            overflow: hidden !important;
+            display: block !important;
+            visibility: visible !important;
+            justify-content: center;
+            padding: 10px !important;
+        }}
+
+        .styled-widget.styled-slider .widget-label:empty {{
+            display: none !important;
+            margin: 0 !important;
         }}
         
-        .styled-widget.styled-slider .ui-slider,
-        .styled-widget .styled-slider .ui-slider {{
-            background-color: {hex_to_rgba(scheme.LAYOUT_COLOR.WIDGET.SLIDER.TRACK, 0.8)} !important;
-            border: none !important;
-            border-radius: 3px !important;
+        .styled-widget.styled-slider .widget-hslider,
+        .styled-widget .styled-slider .widget-hslider,
+        .styled-widget.styled-slider .widget-vslider,
+        .styled-widget .styled-slider .widget-vslider {{
+            display: flex !important;
+            align-items: center !important;
+            width: 100% !important;
         }}
         
-        .styled-widget.styled-slider .ui-slider .ui-slider-handle,
-        .styled-widget .styled-slider .ui-slider .ui-slider-handle {{
-            background-color: {scheme.LAYOUT_COLOR.WIDGET.SLIDER.HANDLE} !important;
+        /* Track */
+        .styled-widget.styled-slider .noUi-target,
+        .styled-widget .styled-slider .noUi-target {{
+            background: {hex_to_rgba(scheme.LAYOUT_COLOR.CONTRAST, 0.3)} !important;
+            border: 1px solid {hex_to_rgba(scheme.LAYOUT_COLOR.CONTRAST, 0.8)} !important;
+            border-radius: 4px !important;
+            height: 8px !important;
+            box-shadow: none !important;
+        }}
+        
+        /* Thumb */
+        .styled-widget.styled-slider .noUi-handle,
+        .styled-widget .styled-slider .noUi-handle {{
+            background: {scheme.LAYOUT_COLOR.WIDGET.SLIDER.HANDLE} !important;
             border: 2px solid {scheme.LAYOUT_COLOR.BACKGROUND} !important;
             border-radius: 50% !important;
+            width: 20px !important;
+            height: 20px !important;
             cursor: pointer !important;
-            transition: all 0.2s ease !important;
+            outline: none !important;
+            top: -7px !important;
+            right: -10px !important;
+            box-shadow: none !important;
         }}
         
-        .styled-widget.styled-slider .ui-slider .ui-slider-handle:hover,
-        .styled-widget .styled-slider .ui-slider .ui-slider-handle:hover {{
-            transform: scale(1.1) !important;
+        .styled-widget.styled-slider .noUi-handle:hover,
+        .styled-widget .styled-slider .noUi-handle:hover,
+        .styled-widget.styled-slider .noUi-handle:focus,
+        .styled-widget .styled-slider .noUi-handle:focus {{
+            background: {get_emphasized_hex_color(scheme.LAYOUT_COLOR.WIDGET.SLIDER.HANDLE, 0.1)} !important;
+            box-shadow: 0 0 0 3px {hex_to_rgba(scheme.LAYOUT_COLOR.HEADER, 0.2)} !important;
         }}
         
-        .styled-widget.styled-slider .ui-slider .ui-slider-range,
-        .styled-widget .styled-slider .ui-slider .ui-slider-range {{
-            background-color: {scheme.LAYOUT_COLOR.WIDGET.SLIDER.RANGE} !important;
-            border-radius: 3px !important;
+        
+        .styled-widget.styled-slider .noUi-connect,
+        .styled-widget .styled-slider .noUi-connect {{
+            background: {scheme.LAYOUT_COLOR.WIDGET.SLIDER.RANGE} !important;
+            border-radius: 4px !important;
         }}
+        
+        /* Slider Readout */
+        .styled-widget.styled-slider .widget-readout,
+        .styled-widget .styled-slider .widget-readout {{
+            color: {scheme.TEXT.COLOR.DEFAULT} !important;
+            font-family: {scheme.TEXT.FONT.DEFAULT} !important;
+            font-size: {scheme.TEXT.SIZE.DEFAULT} !important;
+            background-color: {scheme.LAYOUT_COLOR.WIDGET.INPUT.BACKGROUND.DEFAULT} !important;
+            border: 1px solid {hex_to_rgba(scheme.LAYOUT_COLOR.WIDGET.INPUT.BORDER.DEFAULT, 0.8)} !important;
+            border-radius: 4px !important;
+            padding: 2px 8px !important;
+            /* Using margins in combination with width I tricked the css into positioning the readout correctly, this might not be the best solution.*/
+            margin-top: 5px !important;
+            margin-left: 10% !important;
+            min-width: 80% !important;
+            max-width: 80% !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+        }}
+        
+        .styled-widget.styled-slider .threshold-values {{
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 10px !important;
+            margin-top: 5px !important;
+        }}
+        
+        /* Disabled State */
+        .styled-widget.styled-slider[disabled] .noUi-target,
+        .styled-widget .styled-slider[disabled] .noUi-target {{
+            opacity: 0.5 !important;
+            pointer-events: none !important;
+        }}
+        
+
         
         /* DATE PICKER STYLES */
         
@@ -521,6 +586,18 @@ def get_widget_styles(scheme: Any) -> widgets.HTML:
             border-radius: 0 !important;
         }}
         
+        /* Bouncing Animation Keyframes */
+        @keyframes bouncing-loader {{
+            0% {{
+                opacity: 1 !important;
+                transform: translate3d(0, 0, 0) !important;
+            }}
+            100% {{
+                opacity: 0.1 !important;
+                transform: translate3d(0, -20px, 0) !important;
+            }}
+        }}
+
         /* TAB STYLES - Optimized for ipywidgets */
         
         .styled-widget.styled-tab,
@@ -587,7 +664,6 @@ def get_widget_styles(scheme: Any) -> widgets.HTML:
             background-color: {scheme.LAYOUT_COLOR.WIDGET.TAB.PANEL} !important;
             padding: 0 !important;
             height: calc(100% - 45px) !important; /* Subtract tab bar height */
-            overflow: hidden !important;
         }}
         
         /* Ensure proper height for tab children */
@@ -718,7 +794,7 @@ def get_widget_styles(scheme: Any) -> widgets.HTML:
             color: {get_emphasized_hex_color(scheme.TEXT.COLOR.HYPERLINK, 0.1)} !important;
         }}
         
-        /* CONTAINER STYLES */
+        /* CONTAINER STYLES - currently mostly placeholders*/
         
         .styled-widget.styled-box,
         .styled-widget .styled-box {{
@@ -727,18 +803,15 @@ def get_widget_styles(scheme: Any) -> widgets.HTML:
         
         .styled-widget.styled-hbox,
         .styled-widget .styled-hbox {{
-            display: flex !important;
-            flex-direction: row !important;
             box-sizing: border-box !important;
         }}
 
         .styled-widget.styled-vbox,
         .styled-widget .styled-vbox {{
-            display: flex !important;
-            flex-direction: column !important;
             box-sizing: border-box !important;
         }}
 
+        /* CSS hidden attributes force the disapperance of the scrollbar */
         .styled-widget.styled-overflow-y-hidden,
         .styled-widget .styled-overflow-y-hidden {{
             overflow-y: hidden !important;

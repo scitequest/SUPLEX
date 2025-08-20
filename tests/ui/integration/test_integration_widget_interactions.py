@@ -11,7 +11,7 @@ from src.ui.elements.popup_log_system import PopupLogger
 from martin_interface.martin_interface_constants import SEARCH_MODE
 from suplex_modules.submodules.submodule_constants import (
     DATASET_LABEL,
-    TAG_SELECTION_MODE,
+    SELECTION_MODE,
 )
 
 
@@ -255,7 +255,7 @@ class TestWidgetInteractionsIntegration:
                 project_card._tag_selector.set_selected_tags(["common_tag"])
 
                 # Test tag-based dataset filtering
-                project_card._tag_selection_mode = TAG_SELECTION_MODE.ANY
+                project_card._SELECTION_MODE = SELECTION_MODE.ANY
                 datasets_with_tag = project_card._tag_selector.get_tagged_datasets_any()
 
                 # All datasets should have the common tag

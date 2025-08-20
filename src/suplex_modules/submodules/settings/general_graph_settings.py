@@ -2,14 +2,26 @@ import logging
 from typing import Optional, List, Tuple
 import ipywidgets as widgets
 from ui.widget_factory import WidgetFactory
-from suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET, SCALE_TYPE, INTERPOLATION_TYPE, GRID_STYLE, LEGEND_POSITION, ASPECT_RATIO, SEQUENTIAL_COLOR_SCHEME, DIVERGENT_COLOR_SCHEME, OPTION_WIDGETS_MAX_WIDTH
+from suplex_modules.submodules.settings.submodule_settings_constants import (
+    OPTION_INSET,
+    SCALE_TYPE,
+    INTERPOLATION_TYPE,
+    GRID_STYLE,
+    LEGEND_POSITION,
+    ASPECT_RATIO,
+    SEQUENTIAL_COLOR_SCHEME,
+    DIVERGENT_COLOR_SCHEME,
+    OPTION_WIDGETS_MAX_WIDTH,
+)
 
 logger = logging.getLogger(__name__)
+
 
 class GeneralGraphSettings:
     """
     Settings for general graph options.
     """
+
     def __init__(
         self,
         # Axis settings
@@ -20,7 +32,6 @@ class GeneralGraphSettings:
         invert_y_axis: Optional[bool] = None,
         invert_z_axis: Optional[bool] = None,
         swap_axes: Optional[bool] = None,
-        
         # Display settings
         show_axis_ticks: Optional[bool] = None,
         show_axis_labels: Optional[bool] = None,
@@ -28,31 +39,26 @@ class GeneralGraphSettings:
         show_legend: Optional[bool] = None,
         show_title: Optional[bool] = None,
         include_empty_datasets: Optional[bool] = None,
-        
         # Appearance settings
         sequential_color_scheme: Optional[SEQUENTIAL_COLOR_SCHEME] = None,
         divergent_color_scheme: Optional[DIVERGENT_COLOR_SCHEME] = None,
         resolution: Optional[Tuple[int, int]] = None,
         dpi: Optional[int] = None,
         transparency: Optional[float] = None,
-        
         # Labels and titles
         title: Optional[str] = None,
         x_label: Optional[str] = None,
         y_label: Optional[str] = None,
         z_label: Optional[str] = None,
         max_label_length: Optional[int] = None,
-        
         # Scale settings
         x_scale: Optional[SCALE_TYPE] = None,
         y_scale: Optional[SCALE_TYPE] = None,
         z_scale: Optional[SCALE_TYPE] = None,
-        
         # Range settings
         x_range: Optional[Tuple[float, float]] = None,
         y_range: Optional[Tuple[float, float]] = None,
         z_range: Optional[Tuple[float, float]] = None,
-        
         # Additional options
         marker_size: Optional[float] = None,
         line_width: Optional[float] = None,
@@ -66,7 +72,7 @@ class GeneralGraphSettings:
         colorbar_label: Optional[str] = None,
         grid_style: Optional[GRID_STYLE] = None,
         legend_position: Optional[LEGEND_POSITION] = None,
-        show_all_options: bool = False
+        show_all_options: bool = False,
     ) -> None:
         """
         Initialize GeneralGraphSettings with optional parameters.
@@ -114,14 +120,26 @@ class GeneralGraphSettings:
         show_title = show_title if self._show_title_enabled else True
 
         self._include_empty_datasets_enabled = include_empty_datasets is not None
-        include_empty_datasets = include_empty_datasets if self._include_empty_datasets_enabled else False
+        include_empty_datasets = (
+            include_empty_datasets if self._include_empty_datasets_enabled else False
+        )
 
         self._sequential_color_scheme_enabled = sequential_color_scheme is not None
-        self._sequential_color_scheme = sequential_color_scheme if self._sequential_color_scheme_enabled and sequential_color_scheme in SEQUENTIAL_COLOR_SCHEME else SEQUENTIAL_COLOR_SCHEME.VIRIDIS
+        self._sequential_color_scheme = (
+            sequential_color_scheme
+            if self._sequential_color_scheme_enabled
+            and sequential_color_scheme in SEQUENTIAL_COLOR_SCHEME
+            else SEQUENTIAL_COLOR_SCHEME.VIRIDIS
+        )
         sequential_color_scheme = self._sequential_color_scheme
 
         self._divergent_color_scheme_enabled = divergent_color_scheme is not None
-        self._divergent_color_scheme = divergent_color_scheme if self._divergent_color_scheme_enabled and divergent_color_scheme in DIVERGENT_COLOR_SCHEME else DIVERGENT_COLOR_SCHEME.COOLWARM
+        self._divergent_color_scheme = (
+            divergent_color_scheme
+            if self._divergent_color_scheme_enabled
+            and divergent_color_scheme in DIVERGENT_COLOR_SCHEME
+            else DIVERGENT_COLOR_SCHEME.COOLWARM
+        )
         divergent_color_scheme = self._divergent_color_scheme
 
         self._resolution_enabled = resolution is not None
@@ -149,15 +167,27 @@ class GeneralGraphSettings:
         max_label_length = max_label_length if self._max_label_length_enabled else 20
 
         self._x_scale_enabled = x_scale is not None
-        self._x_scale = x_scale if self._x_scale_enabled and x_scale in SCALE_TYPE else SCALE_TYPE.LINEAR
+        self._x_scale = (
+            x_scale
+            if self._x_scale_enabled and x_scale in SCALE_TYPE
+            else SCALE_TYPE.LINEAR
+        )
         x_scale = self._x_scale
 
         self._y_scale_enabled = y_scale is not None
-        self._y_scale = y_scale if self._y_scale_enabled and y_scale in SCALE_TYPE else SCALE_TYPE.LINEAR
+        self._y_scale = (
+            y_scale
+            if self._y_scale_enabled and y_scale in SCALE_TYPE
+            else SCALE_TYPE.LINEAR
+        )
         y_scale = self._y_scale
 
         self._z_scale_enabled = z_scale is not None
-        self._z_scale = z_scale if self._z_scale_enabled and z_scale in SCALE_TYPE else SCALE_TYPE.LINEAR
+        self._z_scale = (
+            z_scale
+            if self._z_scale_enabled and z_scale in SCALE_TYPE
+            else SCALE_TYPE.LINEAR
+        )
         z_scale = self._z_scale
 
         self._x_range_enabled = x_range is not None
@@ -188,11 +218,19 @@ class GeneralGraphSettings:
         tick_font_size = tick_font_size if self._tick_font_size_enabled else 10
 
         self._aspect_ratio_enabled = aspect_ratio is not None
-        self._aspect_ratio = aspect_ratio if self._aspect_ratio_enabled and aspect_ratio in ASPECT_RATIO else ASPECT_RATIO.AUTO
+        self._aspect_ratio = (
+            aspect_ratio
+            if self._aspect_ratio_enabled and aspect_ratio in ASPECT_RATIO
+            else ASPECT_RATIO.AUTO
+        )
         aspect_ratio = self._aspect_ratio
 
         self._interpolation_enabled = interpolation is not None
-        self._interpolation = interpolation if self._interpolation_enabled and interpolation in INTERPOLATION_TYPE else INTERPOLATION_TYPE.NEAREST
+        self._interpolation = (
+            interpolation
+            if self._interpolation_enabled and interpolation in INTERPOLATION_TYPE
+            else INTERPOLATION_TYPE.NEAREST
+        )
         interpolation = self._interpolation
 
         self._show_colorbar_enabled = show_colorbar is not None
@@ -202,17 +240,25 @@ class GeneralGraphSettings:
         colorbar_label = colorbar_label if self._colorbar_label_enabled else ""
 
         self._grid_style_enabled = grid_style is not None
-        self._grid_style = grid_style if self._grid_style_enabled and grid_style in GRID_STYLE else GRID_STYLE.DARKGRID
+        self._grid_style = (
+            grid_style
+            if self._grid_style_enabled and grid_style in GRID_STYLE
+            else GRID_STYLE.DARKGRID
+        )
         grid_style = self._grid_style
 
         self._legend_position_enabled = legend_position is not None
-        self._legend_position = legend_position if self._legend_position_enabled and legend_position in LEGEND_POSITION else LEGEND_POSITION.BEST
+        self._legend_position = (
+            legend_position
+            if self._legend_position_enabled and legend_position in LEGEND_POSITION
+            else LEGEND_POSITION.BEST
+        )
         legend_position = self._legend_position
 
         # Easy method to enable all options with default values
         self._show_all_options = show_all_options
 
-        # Regardless of settings widgets will always be generated 
+        # Regardless of settings widgets will always be generated
         self.create_widgets(
             col_descriptor=col_descriptor,
             row_descriptor=row_descriptor,
@@ -254,9 +300,9 @@ class GeneralGraphSettings:
             show_colorbar=show_colorbar,
             colorbar_label=colorbar_label,
             grid_style=grid_style,
-            legend_position=legend_position
+            legend_position=legend_position,
         )
-        
+
     def create_widgets(
         self,
         col_descriptor: str,
@@ -299,7 +345,7 @@ class GeneralGraphSettings:
         show_colorbar: bool,
         colorbar_label: str,
         grid_style: GRID_STYLE,
-        legend_position: LEGEND_POSITION
+        legend_position: LEGEND_POSITION,
     ) -> None:
         """
         Create widgets for general graph settings.
@@ -312,96 +358,124 @@ class GeneralGraphSettings:
         self._col_descriptor_widget = WidgetFactory.text_input(
             value=col_descriptor,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._row_descriptor_widget = WidgetFactory.text_input(
             value=row_descriptor,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._z_descriptor_widget = WidgetFactory.text_input(
             value=z_descriptor,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._invert_x_axis_widget = WidgetFactory.checkbox(
             value=invert_x_axis,
             description="Invert X Axis",
             indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._invert_y_axis_widget = WidgetFactory.checkbox(
             value=invert_y_axis,
             description="Invert Y Axis",
             indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._invert_z_axis_widget = WidgetFactory.checkbox(
             value=invert_z_axis,
             description="Invert Z Axis",
             indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._swap_axes_widget = WidgetFactory.checkbox(
             value=swap_axes,
             description="Swap Axes",
             indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._show_axis_ticks_widget = WidgetFactory.checkbox(
             value=show_axis_ticks,
             description="Show Axis Ticks",
             indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._show_axis_labels_widget = WidgetFactory.checkbox(
             value=show_axis_labels,
             description="Show Axis Labels",
             indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._show_grid_widget = WidgetFactory.checkbox(
             value=show_grid,
             description="Show Grid",
             indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._show_legend_widget = WidgetFactory.checkbox(
             value=show_legend,
             description="Show Legend",
             indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._show_title_widget = WidgetFactory.checkbox(
             value=show_title,
             description="Show Title",
             indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._include_empty_datasets_widget = WidgetFactory.checkbox(
             value=include_empty_datasets,
             description="Include Empty Datasets",
             indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._show_colorbar_widget = WidgetFactory.checkbox(
             value=show_colorbar,
             description="Show Colorbar",
             indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         seq_schemes = [scheme.value for scheme in SEQUENTIAL_COLOR_SCHEME]
@@ -409,7 +483,9 @@ class GeneralGraphSettings:
             options=seq_schemes,
             value=sequential_color_scheme.value,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         div_schemes = [scheme.value for scheme in DIVERGENT_COLOR_SCHEME]
@@ -417,7 +493,9 @@ class GeneralGraphSettings:
             options=div_schemes,
             value=divergent_color_scheme.value,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._resolution_width_widget = WidgetFactory.number_input(
@@ -426,7 +504,9 @@ class GeneralGraphSettings:
             max_value=4000,
             step=100,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._resolution_height_widget = WidgetFactory.number_input(
@@ -435,7 +515,9 @@ class GeneralGraphSettings:
             max_value=4000,
             step=100,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._dpi_widget = WidgetFactory.number_input(
@@ -444,7 +526,9 @@ class GeneralGraphSettings:
             max_value=10000,
             step=1,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._transparency_widget = WidgetFactory.number_input(
@@ -453,37 +537,49 @@ class GeneralGraphSettings:
             max_value=1.0,
             step=0.1,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._title_widget = WidgetFactory.text_input(
             value=title,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._x_label_widget = WidgetFactory.text_input(
             value=x_label,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._y_label_widget = WidgetFactory.text_input(
             value=y_label,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._z_label_widget = WidgetFactory.text_input(
             value=z_label,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._colorbar_label_widget = WidgetFactory.text_input(
             value=colorbar_label,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._max_label_length_widget = WidgetFactory.number_input(
@@ -492,7 +588,9 @@ class GeneralGraphSettings:
             max_value=100,
             step=1,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         scale_types = [stype.value for stype in SCALE_TYPE]
@@ -500,65 +598,83 @@ class GeneralGraphSettings:
             options=scale_types,
             value=x_scale.value,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._y_scale_dropdown = WidgetFactory.dropdown(
             options=scale_types,
             value=y_scale.value,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._z_scale_dropdown = WidgetFactory.dropdown(
             options=scale_types,
             value=z_scale.value,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         self._x_range_min_widget = WidgetFactory.float_number_input(
             value=x_range[0],
             step=1,
-            min_value = x_range[0],
+            min_value=x_range[0],
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._x_range_max_widget = WidgetFactory.float_number_input(
             value=x_range[1],
             step=1,
-            max_value = x_range[1],
+            max_value=x_range[1],
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._y_range_min_widget = WidgetFactory.float_number_input(
             value=y_range[0],
             step=0.1,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._y_range_max_widget = WidgetFactory.float_number_input(
             value=y_range[1],
             step=0.1,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._z_range_min_widget = WidgetFactory.float_number_input(
             value=z_range[0],
             step=0.1,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._z_range_max_widget = WidgetFactory.float_number_input(
             value=z_range[1],
             step=0.1,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._marker_size_widget = WidgetFactory.float_number_input(
@@ -567,7 +683,9 @@ class GeneralGraphSettings:
             max_value=50.0,
             step=1.0,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._line_width_widget = WidgetFactory.float_number_input(
@@ -576,7 +694,9 @@ class GeneralGraphSettings:
             max_value=10.0,
             step=0.5,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._base_font_size_widget = WidgetFactory.float_number_input(
@@ -585,7 +705,9 @@ class GeneralGraphSettings:
             max_value=36,
             step=1,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._title_font_size_widget = WidgetFactory.number_input(
@@ -594,7 +716,9 @@ class GeneralGraphSettings:
             max_value=36,
             step=1,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._label_font_size_widget = WidgetFactory.number_input(
@@ -603,7 +727,9 @@ class GeneralGraphSettings:
             max_value=36,
             step=1,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         self._tick_font_size_widget = WidgetFactory.number_input(
@@ -612,7 +738,9 @@ class GeneralGraphSettings:
             max_value=36,
             step=1,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
 
         aspect_ratios = [ar.name for ar in ASPECT_RATIO]
@@ -620,7 +748,9 @@ class GeneralGraphSettings:
             options=aspect_ratios,
             value=aspect_ratio.name,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         interp_types = [itype.value for itype in INTERPOLATION_TYPE]
@@ -628,7 +758,9 @@ class GeneralGraphSettings:
             options=interp_types,
             value=interpolation.value,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         grid_styles = [gstyle.value for gstyle in GRID_STYLE]
@@ -636,7 +768,9 @@ class GeneralGraphSettings:
             options=grid_styles,
             value=grid_style.value,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
         leg_positions = [lpos.value for lpos in LEGEND_POSITION]
@@ -644,7 +778,9 @@ class GeneralGraphSettings:
             options=leg_positions,
             value=legend_position.value,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY)
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding=OPTION_INSET.PRIMARY
+            ),
         )
 
     @property
@@ -761,7 +897,10 @@ class GeneralGraphSettings:
 
     @property
     def resolution(self) -> Tuple[int, int]:
-        return (self._resolution_width_widget.value, self._resolution_height_widget.value)
+        return (
+            self._resolution_width_widget.value,
+            self._resolution_height_widget.value,
+        )
 
     def get_resolution_width_widget(self) -> widgets.IntText:
         return self._resolution_width_widget
@@ -945,17 +1084,17 @@ class GeneralGraphSettings:
 
     def get_legend_position_dropdown(self) -> widgets.Dropdown:
         return self._legend_position_dropdown
-    
+
     def get_active_widgets(self) -> List[widgets.Widget]:
         """
         Get a list of all interactive widgets for general graph settings.
-    
+
         Returns:
             List[widgets.Widget]: A list of all interactive widgets for general graph settings.
         """
         logger.debug("Collecting all interactive widgets for GeneralGraphSettings")
         active_widgets = []
-    
+
         if self._col_descriptor_enabled or self._show_all_options:
             active_widgets.append(self._col_descriptor_widget)
         if self._row_descriptor_enabled or self._show_all_options:
@@ -1042,9 +1181,9 @@ class GeneralGraphSettings:
             active_widgets.append(self._grid_style_dropdown)
         if self._legend_position_enabled or self._show_all_options:
             active_widgets.append(self._legend_position_dropdown)
-    
+
         return active_widgets
-        
+
     def get_ui(self) -> widgets.Widget:
         """
         Get the UI widget for general graph settings.
@@ -1054,55 +1193,72 @@ class GeneralGraphSettings:
         """
         logger.debug("Getting UI for GeneralGraphSettings")
         general_widgets = []
-        general_widgets.append(WidgetFactory.html_widget(
-            value="<h3>General Graph Options</h3>"
-        ))
+        general_widgets.append(
+            WidgetFactory.html_widget(value="<h3>General Graph Options</h3>")
+        )
 
         # Axis Descriptors
         descriptor_children = []
         if self._col_descriptor_enabled or self._show_all_options:
-            col_descriptor_box = WidgetFactory.vbox(children = [self._col_descriptor_widget],layout=widgets.Layout(padding=OPTION_INSET.PRIMARY))
-            descriptor_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Column Descriptor:"),
-                    col_descriptor_box
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            col_descriptor_box = WidgetFactory.vbox(
+                children=[self._col_descriptor_widget],
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+            )
+            descriptor_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Column Descriptor:"),
+                        col_descriptor_box,
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._row_descriptor_enabled or self._show_all_options:
-            row_descriptor_box = WidgetFactory.vbox(children = [self._row_descriptor_widget],layout=widgets.Layout(padding=OPTION_INSET.PRIMARY))
-            descriptor_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Row Descriptor:"),
-                    row_descriptor_box
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            row_descriptor_box = WidgetFactory.vbox(
+                children=[self._row_descriptor_widget],
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+            )
+            descriptor_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Row Descriptor:"),
+                        row_descriptor_box,
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._z_descriptor_enabled or self._show_all_options:
-            z_descriptor_box = WidgetFactory.vbox(children = [self._z_descriptor_widget],layout=widgets.Layout(padding=OPTION_INSET.PRIMARY))
-            descriptor_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Z Descriptor:"),
-                    z_descriptor_box
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            z_descriptor_box = WidgetFactory.vbox(
+                children=[self._z_descriptor_widget],
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+            )
+            descriptor_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Z Descriptor:"),
+                        z_descriptor_box,
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if descriptor_children:
-            general_widgets.append(WidgetFactory.vbox(
-                children=descriptor_children,
-                gap="15px",
-                overflow="visible",
-                height="auto"
-            ))
+            general_widgets.append(
+                WidgetFactory.vbox(
+                    children=descriptor_children,
+                    gap="15px",
+                    overflow="visible",
+                    height="auto",
+                )
+            )
 
         # Invert and Swap Checkboxes
         invert_children = []
@@ -1115,21 +1271,23 @@ class GeneralGraphSettings:
         if self._swap_axes_enabled or self._show_all_options:
             invert_children.append(self._swap_axes_widget)
         if invert_children:
-            general_widgets.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Axis Options:"),
-                    WidgetFactory.vbox(
-                        children=invert_children,
-                        gap="5px",
-                        overflow="visible",
-                        height="auto"
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            general_widgets.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Axis Options:"),
+                        WidgetFactory.vbox(
+                            children=invert_children,
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
 
         # Display Checkboxes
         display_children = []
@@ -1148,556 +1306,629 @@ class GeneralGraphSettings:
         if self._show_colorbar_enabled or self._show_all_options:
             display_children.append(self._show_colorbar_widget)
         if display_children:
-            general_widgets.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Display Options:"),
-                    WidgetFactory.vbox(
-                        children=display_children,
-                        gap="5px",
-                        overflow="visible",
-                        height="auto"
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            general_widgets.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Display Options:"),
+                        WidgetFactory.vbox(
+                            children=display_children,
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
 
         # Appearance
         appearance_children = []
         if self._sequential_color_scheme_enabled or self._show_all_options:
-            appearance_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Sequential Color Scheme:"),
-                    self._sequential_color_scheme_dropdown
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            appearance_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Sequential Color Scheme:"),
+                        self._sequential_color_scheme_dropdown,
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._divergent_color_scheme_enabled or self._show_all_options:
-            appearance_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Divergent Color Scheme:"),
-                    self._divergent_color_scheme_dropdown
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            appearance_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Divergent Color Scheme:"),
+                        self._divergent_color_scheme_dropdown,
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._resolution_enabled or self._show_all_options:
-            appearance_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Resolution:"),
-                    WidgetFactory.vbox(
-                        children=[
-                            WidgetFactory.vbox(
-                                children=[
-                                    WidgetFactory.label(value="Width:"),
-                                    WidgetFactory.vbox(
-                                        children=[self._resolution_width_widget],
-                                        gap="5px",
-                                        overflow="visible",
-                                        height="auto",
-                                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                                    )
-                                ],
-                                gap="5px",
-                                overflow="visible",
-                                height="auto",
-                                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                            ),
-                            WidgetFactory.vbox(
-                                children=[
-                                    WidgetFactory.label(value="Height:"),
-                                    WidgetFactory.vbox(
-                                        children=[self._resolution_height_widget],
-                                        gap="5px",
-                                        overflow="visible",
-                                        height="auto",
-                                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                                    )
-                                ],
-                                gap="5px",
-                                overflow="visible",
-                                height="auto",
-                                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                            )
-                        ],
-                        gap="15px",
-                        overflow="visible",
-                        height="auto"
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            appearance_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Resolution:"),
+                        WidgetFactory.vbox(
+                            children=[
+                                WidgetFactory.vbox(
+                                    children=[
+                                        WidgetFactory.label(value="Width:"),
+                                        WidgetFactory.vbox(
+                                            children=[self._resolution_width_widget],
+                                            gap="5px",
+                                            overflow="visible",
+                                            height="auto",
+                                            layout=widgets.Layout(
+                                                padding=OPTION_INSET.PRIMARY
+                                            ),
+                                        ),
+                                    ],
+                                    gap="5px",
+                                    overflow="visible",
+                                    height="auto",
+                                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                                ),
+                                WidgetFactory.vbox(
+                                    children=[
+                                        WidgetFactory.label(value="Height:"),
+                                        WidgetFactory.vbox(
+                                            children=[self._resolution_height_widget],
+                                            gap="5px",
+                                            overflow="visible",
+                                            height="auto",
+                                            layout=widgets.Layout(
+                                                padding=OPTION_INSET.PRIMARY
+                                            ),
+                                        ),
+                                    ],
+                                    gap="5px",
+                                    overflow="visible",
+                                    height="auto",
+                                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                                ),
+                            ],
+                            gap="15px",
+                            overflow="visible",
+                            height="auto",
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._dpi_enabled or self._show_all_options:
-            appearance_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="DPI:"),
-                    WidgetFactory.vbox(
-                        children=[self._dpi_widget],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            appearance_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="DPI:"),
+                        WidgetFactory.vbox(
+                            children=[self._dpi_widget],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._transparency_enabled or self._show_all_options:
-            appearance_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Transparency:"),
-                    WidgetFactory.vbox(
-                        children=[self._transparency_widget],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            appearance_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Transparency:"),
+                        WidgetFactory.vbox(
+                            children=[self._transparency_widget],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if appearance_children:
-            general_widgets.append(WidgetFactory.vbox(
-                children=appearance_children,
-                gap="5px",
-                overflow="visible",
-                height="auto"
-            ))
+            general_widgets.append(
+                WidgetFactory.vbox(
+                    children=appearance_children,
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                )
+            )
 
         # Labels and Titles
         labels_children = []
         if self._title_enabled or self._show_all_options:
-            title_box = WidgetFactory.vbox(children = [self._title_widget],layout=widgets.Layout(padding=OPTION_INSET.PRIMARY))
-            labels_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Title:"),
-                    title_box
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            title_box = WidgetFactory.vbox(
+                children=[self._title_widget],
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+            )
+            labels_children.append(
+                WidgetFactory.vbox(
+                    children=[WidgetFactory.label(value="Title:"), title_box],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._x_label_enabled or self._show_all_options:
-            x_label_box = WidgetFactory.vbox(children = [self._x_label_widget],layout=widgets.Layout(padding=OPTION_INSET.PRIMARY))
-            labels_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="X Label:"),
-                    x_label_box
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            x_label_box = WidgetFactory.vbox(
+                children=[self._x_label_widget],
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+            )
+            labels_children.append(
+                WidgetFactory.vbox(
+                    children=[WidgetFactory.label(value="X Label:"), x_label_box],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._y_label_enabled or self._show_all_options:
-            y_label_box = WidgetFactory.vbox(children = [self._y_label_widget],layout=widgets.Layout(padding=OPTION_INSET.PRIMARY))
-            labels_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Y Label:"),
-                    y_label_box
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            y_label_box = WidgetFactory.vbox(
+                children=[self._y_label_widget],
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+            )
+            labels_children.append(
+                WidgetFactory.vbox(
+                    children=[WidgetFactory.label(value="Y Label:"), y_label_box],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._z_label_enabled or self._show_all_options:
-            z_label_box = WidgetFactory.vbox(children = [self._z_label_widget],layout=widgets.Layout(padding=OPTION_INSET.PRIMARY))
-            labels_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Z Label:"),
-                    z_label_box
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            z_label_box = WidgetFactory.vbox(
+                children=[self._z_label_widget],
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+            )
+            labels_children.append(
+                WidgetFactory.vbox(
+                    children=[WidgetFactory.label(value="Z Label:"), z_label_box],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._colorbar_label_enabled or self._show_all_options:
-            colorbar_label_box = WidgetFactory.vbox(children = [self._colorbar_label_widget],layout=widgets.Layout(padding=OPTION_INSET.PRIMARY))
-            labels_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Colorbar Label:"),
-                    colorbar_label_box
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            colorbar_label_box = WidgetFactory.vbox(
+                children=[self._colorbar_label_widget],
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+            )
+            labels_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Colorbar Label:"),
+                        colorbar_label_box,
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._max_label_length_enabled or self._show_all_options:
-            labels_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Max Label Length:"),
-                    WidgetFactory.vbox(
-                        children=[self._max_label_length_widget],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            labels_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Max Label Length:"),
+                        WidgetFactory.vbox(
+                            children=[self._max_label_length_widget],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if labels_children:
-            general_widgets.append(WidgetFactory.vbox(
-                children=labels_children,
-                gap="5px",
-                overflow="visible",
-                height="auto"
-            ))
+            general_widgets.append(
+                WidgetFactory.vbox(
+                    children=labels_children,
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                )
+            )
 
         # Scale and Range
         scale_children = []
         if self._x_scale_enabled or self._show_all_options:
-            scale_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="X Scale:"),
-                    self._x_scale_dropdown
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            scale_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="X Scale:"),
+                        self._x_scale_dropdown,
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._y_scale_enabled or self._show_all_options:
-            scale_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Y Scale:"),
-                    self._y_scale_dropdown
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            scale_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Y Scale:"),
+                        self._y_scale_dropdown,
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._z_scale_enabled or self._show_all_options:
-            scale_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Z Scale:"),
-                    self._z_scale_dropdown
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            scale_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Z Scale:"),
+                        self._z_scale_dropdown,
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if scale_children:
-            general_widgets.append(WidgetFactory.vbox(
-                children=scale_children,
-                gap="15px",
-                overflow="visible",
-                height="auto"
-            ))
+            general_widgets.append(
+                WidgetFactory.vbox(
+                    children=scale_children,
+                    gap="15px",
+                    overflow="visible",
+                    height="auto",
+                )
+            )
 
         range_children = []
         if self._x_range_enabled or self._show_all_options:
-            range_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.vbox(
-                        children=[
-                            WidgetFactory.label(value="X Range Min:"),
-                            WidgetFactory.vbox(
-                                children=[self._x_range_min_widget],
-                                gap="5px",
-                                overflow="visible",
-                                height="auto",
-                                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                            )
-                        ],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    ),
-                    WidgetFactory.vbox(
-                        children=[
-                            WidgetFactory.label(value="X Range Max:"),
-                            WidgetFactory.vbox(
-                                children=[self._x_range_max_widget],
-                                gap="5px",
-                                overflow="visible",
-                                height="auto",
-                                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                            )
-                        ],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto"
-            ))
+            range_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.vbox(
+                            children=[
+                                WidgetFactory.label(value="X Range Min:"),
+                                WidgetFactory.vbox(
+                                    children=[self._x_range_min_widget],
+                                    gap="5px",
+                                    overflow="visible",
+                                    height="auto",
+                                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                                ),
+                            ],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                        WidgetFactory.vbox(
+                            children=[
+                                WidgetFactory.label(value="X Range Max:"),
+                                WidgetFactory.vbox(
+                                    children=[self._x_range_max_widget],
+                                    gap="5px",
+                                    overflow="visible",
+                                    height="auto",
+                                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                                ),
+                            ],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                )
+            )
         if self._y_range_enabled or self._show_all_options:
-            range_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.vbox(
-                        children=[
-                            WidgetFactory.label(value="Y Range Min:"),
-                            WidgetFactory.vbox(
-                                children=[self._y_range_min_widget],
-                                gap="5px",
-                                overflow="visible",
-                                height="auto",
-                                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                            )
-                        ],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    ),
-                    WidgetFactory.vbox(
-                        children=[
-                            WidgetFactory.label(value="Y Range Max:"),
-                            WidgetFactory.vbox(
-                                children=[self._y_range_max_widget],
-                                gap="5px",
-                                overflow="visible",
-                                height="auto",
-                                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                            )
-                        ],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto"
-            ))
+            range_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.vbox(
+                            children=[
+                                WidgetFactory.label(value="Y Range Min:"),
+                                WidgetFactory.vbox(
+                                    children=[self._y_range_min_widget],
+                                    gap="5px",
+                                    overflow="visible",
+                                    height="auto",
+                                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                                ),
+                            ],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                        WidgetFactory.vbox(
+                            children=[
+                                WidgetFactory.label(value="Y Range Max:"),
+                                WidgetFactory.vbox(
+                                    children=[self._y_range_max_widget],
+                                    gap="5px",
+                                    overflow="visible",
+                                    height="auto",
+                                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                                ),
+                            ],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                )
+            )
         if self._z_range_enabled or self._show_all_options:
-            range_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.vbox(
-                        children=[
-                            WidgetFactory.label(value="Z Range Min:"),
-                            WidgetFactory.vbox(
-                                children=[self._z_range_min_widget],
-                                gap="5px",
-                                overflow="visible",
-                                height="auto",
-                                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                            )
-                        ],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    ),
-                    WidgetFactory.vbox(
-                        children=[
-                            WidgetFactory.label(value="Z Range Max:"),
-                            WidgetFactory.vbox(
-                                children=[self._z_range_max_widget],
-                                gap="5px",
-                                overflow="visible",
-                                height="auto",
-                                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                            )
-                        ],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto"
-            ))
+            range_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.vbox(
+                            children=[
+                                WidgetFactory.label(value="Z Range Min:"),
+                                WidgetFactory.vbox(
+                                    children=[self._z_range_min_widget],
+                                    gap="5px",
+                                    overflow="visible",
+                                    height="auto",
+                                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                                ),
+                            ],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                        WidgetFactory.vbox(
+                            children=[
+                                WidgetFactory.label(value="Z Range Max:"),
+                                WidgetFactory.vbox(
+                                    children=[self._z_range_max_widget],
+                                    gap="5px",
+                                    overflow="visible",
+                                    height="auto",
+                                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                                ),
+                            ],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                )
+            )
         if range_children:
-            general_widgets.append(WidgetFactory.vbox(
-                children=range_children,
-                gap="15px",
-                overflow="visible",
-                height="auto"
-            ))
+            general_widgets.append(
+                WidgetFactory.vbox(
+                    children=range_children,
+                    gap="15px",
+                    overflow="visible",
+                    height="auto",
+                )
+            )
 
         # Additional Options
         additional_children = []
         if self._marker_size_enabled or self._show_all_options:
-            additional_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Marker Size:"),
-                    WidgetFactory.vbox(
-                        children=[self._marker_size_widget],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            additional_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Marker Size:"),
+                        WidgetFactory.vbox(
+                            children=[self._marker_size_widget],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._line_width_enabled or self._show_all_options:
-            additional_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Line Width:"),
-                    WidgetFactory.vbox(
-                        children=[self._line_width_widget],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            additional_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Line Width:"),
+                        WidgetFactory.vbox(
+                            children=[self._line_width_widget],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._base_font_size_enabled or self._show_all_options:
-            additional_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Base Font Size:"),
-                    WidgetFactory.vbox(
-                        children=[self._base_font_size_widget],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            additional_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Base Font Size:"),
+                        WidgetFactory.vbox(
+                            children=[self._base_font_size_widget],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._title_font_size_enabled or self._show_all_options:
-            additional_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Title Font Size:"),
-                    WidgetFactory.vbox(
-                        children=[self._title_font_size_widget],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            additional_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Title Font Size:"),
+                        WidgetFactory.vbox(
+                            children=[self._title_font_size_widget],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._label_font_size_enabled or self._show_all_options:
-            additional_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Label Font Size:"),
-                    WidgetFactory.vbox(
-                        children=[self._label_font_size_widget],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            additional_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Label Font Size:"),
+                        WidgetFactory.vbox(
+                            children=[self._label_font_size_widget],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._tick_font_size_enabled or self._show_all_options:
-            additional_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Tick Font Size:"),
-                    WidgetFactory.vbox(
-                        children=[self._tick_font_size_widget],
-                        gap="5px",
-                        overflow="visible",
-                        height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            additional_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Tick Font Size:"),
+                        WidgetFactory.vbox(
+                            children=[self._tick_font_size_widget],
+                            gap="5px",
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._aspect_ratio_enabled or self._show_all_options:
-            additional_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Aspect Ratio:"),
-                    self._aspect_ratio_dropdown
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            additional_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Aspect Ratio:"),
+                        self._aspect_ratio_dropdown,
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._interpolation_enabled or self._show_all_options:
-            additional_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Interpolation:"),
-                    self._interpolation_dropdown
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            additional_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Interpolation:"),
+                        self._interpolation_dropdown,
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._grid_style_enabled or self._show_all_options:
-            additional_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Grid Style:"),
-                    self._grid_style_dropdown
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            additional_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Grid Style:"),
+                        self._grid_style_dropdown,
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if self._legend_position_enabled or self._show_all_options:
-            additional_children.append(WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Legend Position:"),
-                    self._legend_position_dropdown
-                ],
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            ))
+            additional_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Legend Position:"),
+                        self._legend_position_dropdown,
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
         if additional_children:
-            general_widgets.append(WidgetFactory.vbox(
-                children=additional_children,
-                gap="5px",
-                overflow="visible",
-                height="auto"
-            ))
+            general_widgets.append(
+                WidgetFactory.vbox(
+                    children=additional_children,
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                )
+            )
 
         return WidgetFactory.vbox(
             children=general_widgets,
             gap="5px",
             overflow="visible",
             height="auto",
-            layout=widgets.Layout(max_width=OPTION_WIDGETS_MAX_WIDTH)
+            layout=widgets.Layout(max_width=OPTION_WIDGETS_MAX_WIDTH),
         )

@@ -167,7 +167,10 @@ class DirectorySelectionPage:
         )
 
         return WidgetFactory.vbox(
-            children=[title, subtitle], width="100%", overflow="hidden"
+            children=[title, subtitle],
+            width="100%",
+            overflow="hidden",
+            layout=widgets.Layout(padding="50px 0px 0px 0px"),
         )
 
     def create_main_content(self) -> widgets.HBox:
@@ -187,7 +190,7 @@ class DirectorySelectionPage:
 
         # Sample data button
         sample_data_button = WidgetFactory.button_default(
-            description="Use Sample Data", width="100%"
+            description="Use Sample Data", width="50%"
         )
         sample_data_button.on_click(lambda x: self.use_sample_data())
 
@@ -232,9 +235,9 @@ class DirectorySelectionPage:
             height="auto",
             align_items="flex-start",
             justify_content="center",
-            overflow_x="auto",
+            overflow_x="hidden",
             overflow_y="hidden",
-            padding="0px 0px 0px 12px",
+            layout=widgets.Layout(padding="0px 0px 0px 12px"),
         )
 
         dir_selector_button = WidgetFactory.button_emphasis(
@@ -247,7 +250,7 @@ class DirectorySelectionPage:
             align_items="stretch",
             justify_content="center",
             gap="1px",
-            width="100%",
+            width="50%",
             height="50px",
             overflow="hidden",
         )
@@ -304,7 +307,7 @@ class DirectorySelectionPage:
         search_options_row = WidgetFactory.hbox(
             children=[search_mode_box, search_depth_box],
             justify_content="space-between",
-            width="100%",
+            width="50%",
             gap="5px",
         )
 
