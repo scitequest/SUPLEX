@@ -169,7 +169,7 @@ class PopupLogger:
             self._log_output = widgets.HTML(
                 value="",
                 layout=widgets.Layout(
-                    width="auto",
+                    width="100%",
                     height="auto",
                     border="none",
                 ),
@@ -178,7 +178,7 @@ class PopupLogger:
                 children=[self._log_output],
                 layout=widgets.Layout(
                     height="auto",
-                    width="auto",
+                    width="100%",
                     overflow_y="auto",
                     overflow_x="hidden",
                     padding="10px",

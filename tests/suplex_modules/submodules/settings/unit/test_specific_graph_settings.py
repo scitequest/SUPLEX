@@ -3,6 +3,7 @@ import ipywidgets as widgets
 from suplex_modules.submodules.settings.jitterplot_settings import JitterplotSettings
 from suplex_modules.submodules.settings.submodule_settings_constants import JITTER_TYPE
 
+
 class TestJitterplotSettings:
     def test_init_defaults(self):
         """Test init."""

@@ -2,14 +2,19 @@ import logging
 from typing import Optional, List
 import ipywidgets as widgets
 from ui.widget_factory import WidgetFactory
-from suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET, JITTER_TYPE
+from suplex_modules.submodules.settings.submodule_settings_constants import (
+    OPTION_INSET,
+    JITTER_TYPE,
+)
 
 logger = logging.getLogger(__name__)
+
 
 class JitterplotSettings:
     """
     Settings for jitterplot-specific options.
     """
+
     def __init__(
         self,
         show_jitterplot: Optional[bool] = None,
@@ -18,7 +23,7 @@ class JitterplotSettings:
         jitter_type: Optional[JITTER_TYPE] = None,
         jitter_strength: Optional[float] = None,
         point_alpha: Optional[float] = None,
-        show_all_options: bool = False
+        show_all_options: bool = False,
     ) -> None:
         """
         Initialize JitterplotSettings with optional parameters.
@@ -32,41 +37,53 @@ class JitterplotSettings:
             point_alpha (float): Alpha transparency for points.
             show_all_options (bool): Whether to show all options with defaults.
         """
-        logger.debug("Initializing JitterplotSettings with show_jitterplot=%s, apply_jitter=%s, point_size=%s, jitter_type=%s, jitter_strength=%s, point_alpha=%s, show_all_options=%s",
-                     show_jitterplot, apply_jitter, point_size, jitter_type, jitter_strength, point_alpha, show_all_options)
+        logger.debug(
+            "Initializing JitterplotSettings with show_jitterplot=%s, apply_jitter=%s, point_size=%s, jitter_type=%s, jitter_strength=%s, point_alpha=%s, show_all_options=%s",
+            show_jitterplot,
+            apply_jitter,
+            point_size,
+            jitter_type,
+            jitter_strength,
+            point_alpha,
+            show_all_options,
+        )
 
         self._show_jitterplot_enabled = show_jitterplot is not None
         show_jitterplot = show_jitterplot if self._show_jitterplot_enabled else True
-        
+
         self._apply_jitter_enabled = apply_jitter is not None
         apply_jitter = apply_jitter if self._apply_jitter_enabled else False
-        
+
         self._jitter_type_enabled = jitter_type is not None
-        self._jitter_type = jitter_type if self._jitter_type_enabled and jitter_type in JITTER_TYPE else JITTER_TYPE.UNIFORM
+        self._jitter_type = (
+            jitter_type
+            if self._jitter_type_enabled and jitter_type in JITTER_TYPE
+            else JITTER_TYPE.UNIFORM
+        )
         jitter_type = self._jitter_type
-        
+
         self._jitter_strength_enabled = jitter_strength is not None
         jitter_strength = jitter_strength if self._jitter_strength_enabled else 0.2
-        
+
         self._point_size_enabled = point_size is not None
         point_size = point_size if self._point_size_enabled else 10
-        
+
         self._point_alpha_enabled = point_alpha is not None
         point_alpha = point_alpha if self._point_alpha_enabled else 0.6
 
         # Easy method to enable all options with default values
         self._show_all_options = show_all_options
 
-        # Regardless of settings widgets will always be generated 
+        # Regardless of settings widgets will always be generated
         self.create_widgets(
             show_jitterplot=show_jitterplot,
             apply_jitter=apply_jitter,
             jitter_type=jitter_type,
             jitter_strength=jitter_strength,
             point_size=point_size,
-            point_alpha=point_alpha
+            point_alpha=point_alpha,
         )
-        
+
     def create_widgets(
         self,
         show_jitterplot: bool,
@@ -74,7 +91,7 @@ class JitterplotSettings:
         jitter_type: JITTER_TYPE,
         jitter_strength: float,
         point_size: int,
-        point_alpha: float
+        point_alpha: float,
     ) -> None:
         """
         Create widgets for jitterplot settings.
@@ -87,61 +104,78 @@ class JitterplotSettings:
             point_size (int): Initial point size.
             point_alpha (float): Initial point alpha.
         """
-        logger.debug("Creating widgets for JitterplotSettings with show_jitterplot=%s, apply_jitter=%s, jitter_type=%s, jitter_strength=%s, point_size=%s, point_alpha=%s",
-                     show_jitterplot, apply_jitter, jitter_type, jitter_strength, point_size, point_alpha)
+        logger.debug(
+            "Creating widgets for JitterplotSettings with show_jitterplot=%s, apply_jitter=%s, jitter_type=%s, jitter_strength=%s, point_size=%s, point_alpha=%s",
+            show_jitterplot,
+            apply_jitter,
+            jitter_type,
+            jitter_strength,
+            point_size,
+            point_alpha,
+        )
 
         self._show_jitterplot_widget = WidgetFactory.checkbox(
             value=show_jitterplot,
             description="Show Jitterplot",
             indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
-       
+
         self._apply_jitter_widget = WidgetFactory.checkbox(
             value=apply_jitter,
             description="Apply Jitter",
             indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
-       
+
         types = [jtype.value for jtype in JITTER_TYPE]
         self._jitter_type_radio = WidgetFactory.custom_radio_buttons(
             number=len(types),
             description=types,
-            i_toggled=types.index(self._jitter_type.value)
+            i_toggled=types.index(self._jitter_type.value),
         )
-       
+
         self._jitter_strength_widget = WidgetFactory.number_input(
             value=jitter_strength,
             min_value=0.0,
             step=0.05,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
-       
+
         self._point_size_widget = WidgetFactory.number_input(
             value=point_size,
             min_value=1,
             max_value=100,
             step=1,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
-       
+
         self._point_alpha_widget = WidgetFactory.number_input(
             value=point_alpha,
             min_value=0.0,
             max_value=1.0,
             step=0.05,
             description="",
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
         )
-       
+
         for button in self._jitter_type_radio:
             button.on_click(lambda b: self.update_jitter_type(b.description))
-        
+
         self.update_jitter_type(jitter_type.value)
-        
+
     def update_jitter_type(self, type_str: str) -> None:
         """
         Update the jitter type based on the selected option.
@@ -161,7 +195,7 @@ class JitterplotSettings:
         """
         logger.debug("Collecting all interactive widgets for JitterplotSettings")
         active_widgets = []
-        
+
         if self._show_jitterplot_enabled or self._show_all_options:
             active_widgets.append(self._show_jitterplot_widget)
         if self._apply_jitter_enabled or self._show_all_options:
@@ -174,9 +208,9 @@ class JitterplotSettings:
             active_widgets.append(self._point_size_widget)
         if self._point_alpha_enabled or self._show_all_options:
             active_widgets.append(self._point_alpha_widget)
-            
+
         return active_widgets
-            
+
     def get_ui(self) -> widgets.Widget:
         """
         Get the UI widget for jitterplot settings.
@@ -186,9 +220,9 @@ class JitterplotSettings:
         """
         logger.debug("Getting UI for JitterplotSettings")
         jitterplot_widgets = []
-        jitterplot_widgets.append(WidgetFactory.html_widget(
-            value="<h3>Jitterplot Options</h3>"
-        ))
+        jitterplot_widgets.append(
+            WidgetFactory.html_widget(value="<h3>Jitterplot Options</h3>")
+        )
 
         checkboxes = []
         if self._show_jitterplot_enabled or self._show_all_options:
@@ -201,7 +235,7 @@ class JitterplotSettings:
                 gap="5px",
                 overflow="visible",
                 height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
             )
             jitterplot_widgets.append(checkboxes_container)
 
@@ -212,17 +246,14 @@ class JitterplotSettings:
                 gap="5px",
                 overflow="visible",
                 height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
             )
             jitter_type_container = WidgetFactory.vbox(
-                children=[
-                    jitter_type_label,
-                    jitter_radio_hbox
-                ],
+                children=[jitter_type_label, jitter_radio_hbox],
                 gap="5px",
                 overflow="visible",
                 height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
             )
             jitterplot_widgets.append(jitter_type_container)
 
@@ -235,13 +266,13 @@ class JitterplotSettings:
                         gap="5px",
                         overflow="visible",
                         height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
+                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                    ),
                 ],
                 gap="5px",
                 overflow="visible",
                 height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
             )
             jitterplot_widgets.append(jitter_strength_container)
 
@@ -254,13 +285,13 @@ class JitterplotSettings:
                         gap="5px",
                         overflow="visible",
                         height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
+                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                    ),
                 ],
                 gap="5px",
                 overflow="visible",
                 height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
             )
             jitterplot_widgets.append(point_size_container)
 
@@ -273,23 +304,20 @@ class JitterplotSettings:
                         gap="5px",
                         overflow="visible",
                         height="auto",
-                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-                    )
+                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                    ),
                 ],
                 gap="5px",
                 overflow="visible",
                 height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
+                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
             )
             jitterplot_widgets.append(point_alpha_container)
 
         return WidgetFactory.vbox(
-            children=jitterplot_widgets,
-            gap="5px",
-            overflow="visible",
-            height="auto"
+            children=jitterplot_widgets, gap="5px", overflow="visible", height="auto"
         )
-   
+
     @property
     def show_jitterplot(self) -> bool:
         """
@@ -299,7 +327,7 @@ class JitterplotSettings:
             bool: The value of the show_jitterplot widget.
         """
         return self._show_jitterplot_widget.value
-        
+
     def get_show_jitterplot_widget(self) -> widgets.Checkbox:
         """
         Get the show_jitterplot widget.
@@ -308,7 +336,7 @@ class JitterplotSettings:
             widgets.Checkbox: The show_jitterplot checkbox widget.
         """
         return self._show_jitterplot_widget
-   
+
     @property
     def apply_jitter(self) -> bool:
         """
@@ -327,7 +355,7 @@ class JitterplotSettings:
             widgets.Checkbox: The apply_jitter checkbox widget.
         """
         return self._apply_jitter_widget
-   
+
     @property
     def jitter_type(self) -> JITTER_TYPE:
         """
@@ -346,7 +374,7 @@ class JitterplotSettings:
             list: List of radio button widgets for jitter type.
         """
         return self._jitter_type_radio
-   
+
     @property
     def jitter_strength(self) -> float:
         """
@@ -365,7 +393,7 @@ class JitterplotSettings:
             widgets.FloatText: The jitter_strength number input widget.
         """
         return self._jitter_strength_widget
-   
+
     @property
     def point_size(self) -> int:
         """
@@ -384,7 +412,7 @@ class JitterplotSettings:
             widgets.IntText: The point_size number input widget.
         """
         return self._point_size_widget
-   
+
     @property
     def point_alpha(self) -> float:
         """

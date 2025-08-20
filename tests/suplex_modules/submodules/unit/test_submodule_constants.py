@@ -2,6 +2,7 @@ import pytest
 from enum import Enum
 from suplex_modules.submodules.submodule_constants import *
 
+
 class TestSubmoduleConstants:
     def test_dataset_label_enum(self):
         """Test of the DATASET_LABEL enum."""
@@ -75,6 +76,15 @@ class TestSubmoduleConstants:
 
     def test_threshold_filter_state_evaluate(self):
         """Test of the evaluate method of THRESHOLD_FILTER_STATE."""
-        assert THRESHOLD_FILTER_STATE.evaluate(5, 0, 10) == THRESHOLD_FILTER_STATE.WITHIN_RANGE
-        assert THRESHOLD_FILTER_STATE.evaluate(-1, 0, 10) == THRESHOLD_FILTER_STATE.BELOW_RANGE
-        assert THRESHOLD_FILTER_STATE.evaluate(11, 0, 10) == THRESHOLD_FILTER_STATE.ABOVE_RANGE
+        assert (
+            THRESHOLD_FILTER_STATE.evaluate(5, 0, 10)
+            == THRESHOLD_FILTER_STATE.WITHIN_RANGE
+        )
+        assert (
+            THRESHOLD_FILTER_STATE.evaluate(-1, 0, 10)
+            == THRESHOLD_FILTER_STATE.BELOW_RANGE
+        )
+        assert (
+            THRESHOLD_FILTER_STATE.evaluate(11, 0, 10)
+            == THRESHOLD_FILTER_STATE.ABOVE_RANGE
+        )

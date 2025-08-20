@@ -106,6 +106,11 @@ class DEFAULT_SCHEME:
                 OUTPUT = "#2d3748"
                 DROPDOWN = "#000000"
 
+            class TABLE:
+                HEAD = "#000000"
+                BODY = "#000000"
+                EMPHASIS = "#000000"
+
     class LAYOUT_COLOR:
         BACKGROUND = "#f8fafc"  # Very light gray-blue
         HEADER = "#4299e1"  # Beautiful, modern blue
@@ -211,6 +216,10 @@ class DEFAULT_SCHEME:
             class DROPDOWN:
                 BACKGROUND = "#bee3f8"
                 BORDER = "#d1d5db"
+
+        class TABLE:
+            HEAD = "#ffffff"
+            LINES = "#000000"
 
     class ICON:
         DEFAULT = "💬"

@@ -161,7 +161,7 @@ class ModuleSelectionPage:
             )
 
             # Create main tab widget
-            tab_widget = widgets.Tab(
+            tab_widget = WidgetFactory.tab(
                 children=list(tab_children),
                 layout=widgets.Layout(
                     width="100%", height="100%", overflow="hidden", padding="5px"
