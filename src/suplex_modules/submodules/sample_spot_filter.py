@@ -454,20 +454,20 @@ class SampleSpotFilter:
 
         self._attribute_selector = AttributeSelector()
         self._attribute_dropdown = self._attribute_selector.get_dropdown_widget(
-            included_attributes=included_attributes,
+            included_attributes= included_attributes,
             layout=widgets.Layout(width="100%", padding="0px 10px 0px 0px"),
         )
         self._attribute_dropdown.value = default_attribute.value
 
         def on_normalization_method_changed():
             self._normalization_factor_input.disabled = (
-                NORMALIZATION(self._normalization_dropdown.value)
+                NORMALIZATION(self._normalization_dropdown)
                 != NORMALIZATION.CUSTOM
             )
 
         self._normalization_dropdown = WidgetFactory.dropdown(
-            options=included_normalization_methods,
-            value=default_normalization_method,
+            options=[option.value for option in included_normalization_methods],
+            value=default_normalization_method.value,
             description="",
             on_change=lambda b: on_normalization_method_changed(),
             layout=widgets.Layout(width="100%"),
@@ -1073,6 +1073,7 @@ class SampleSpotFilter:
         max_threshold = (
             max_threshold if max_threshold is not None else self.max_threshold
         )
+        
         normalization_factor = (
             normalization_factor
             if normalization_factor is not None
@@ -1089,6 +1090,7 @@ class SampleSpotFilter:
             else self.spots_affect_sample
         )
 
+        
         if attribute in DATA_STATISTICS_ATTRIBUTES:
             sample_threshold_map = get_sample_threshold_map(
                 datasets=datasets,
@@ -1105,6 +1107,7 @@ class SampleSpotFilter:
             DATASET_ATTRIBUTE.SPOT_COORDINATES_X,
             DATASET_ATTRIBUTE.SPOT_COORDINATES_Y,
         ]
+
         if attribute in spot_attributes:
             spot_threshold_map = get_spot_threshold_map(
                 datasets=datasets,
@@ -1117,7 +1120,7 @@ class SampleSpotFilter:
         else:
             # Default spot map filled with true statements
             spot_threshold_map = self.get_default_spot_map(datasets=datasets)
-
+        
         # Spot attributes first so spots can affect other spots of the same sample if both spots_affect_sample and sample_affects_spots is true
         if attribute in spot_attributes and spots_affect_sample:
             if sample_filter_mode == SELECTION_MODE.ANY:

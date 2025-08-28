@@ -24,6 +24,7 @@ from suplex_modules.submodules.submodule_constants import (
     DATA_ATTRIBUTES,
     DATA_STATISTICS_ATTRIBUTES,
     NORMALIZATION,
+    NORMALIZATION_DEFAULT,
     DATASET_LABEL,
 )
 from suplex_modules.submodules.dataset_sorter import DatasetSorter
@@ -438,7 +439,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             )
 
             normalization_options_label = WidgetFactory.label("Normalization")
-            normalization_options = [option.value for option in NORMALIZATION]
+            normalization_options = [option.value for option in NORMALIZATION_DEFAULT]
 
             def on_normalization_dropdown_changed():
                 normalization_method = NORMALIZATION(self._normalization_dropdown.value)
