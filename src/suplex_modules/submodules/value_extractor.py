@@ -407,7 +407,7 @@ def reference_normalization(
     stdev = ref_stat.get("stdev", float("nan"))
 
     if math.isnan(stdev) or math.isnan(avg):
-        logger.info("Reference values are NaN. Value list will be set to NaN.")
+        logger.info("All reference values are NaN. Value list will be set to NaN.")
         return [float("nan") for value in value_list]
 
     if normalization_method not in NORMALIZATION_REFERENCE_POINT:
@@ -415,8 +415,8 @@ def reference_normalization(
         return [float("nan") for value in value_list]
         
     if avg == 0:
-        logger.warning("Reference value avg is zero. Normalization will not be applied.")
-        return value_list
+        logger.info("Reference value avg is zero. Value list will be set to Zero.")
+        return [0.0 for value in value_list]
         
     if normalization_method not in NORMALIZATION_REFERENCE_POINT:
         logger.error(f"Non-reference value normalization method used: {normalization_method}. Values will be set to NaN.")
@@ -454,6 +454,8 @@ def reference_normalization(
                 normalized = 3.0 if z > 0 else -3.0
         elif normalization_method == NORMALIZATION.BY_POSITION_GAUSSIAN_PARTIAL:
             normalized = max(-3.0, min(3.0, z))
+        elif normalization_method == NORMALIZATION.BY_POSITION:
+            normalized = value / avg
         else:
             # This case should never apply since we catch it earlier in this method
             normalized = float("nan")

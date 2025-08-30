@@ -877,7 +877,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             dataset_stats = []
             attribute = self._value_extractor.attribute
             normalization = self._value_extractor.normalization
-            is_reference_norm = normalization in NORMALIZATION_REFERENCE_POINT
+            is_reference_norm = normalization in NORMALIZATION_REFERENCE_POINT and len(self._value_extractor.references) > 0
 
             for dataset in self._sorted_datasets:
                 values = self._filtered_values.get(dataset, [])
@@ -1009,6 +1009,16 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         """
         logger.debug("Generating intensity overview plot")
 
+        # Catches edge case: no references selected in reference point method
+        if self._value_extractor.normalization in NORMALIZATION_REFERENCE_POINT and len(self._value_extractor.references) == 0:
+            html_str = f"Please select reference indices to generate a plot."
+            self._plot_box.children = [
+                WidgetFactory.info_field_error(
+                    [WidgetFactory.html_widget(html_str)]
+                )
+            ]
+            return
+        
         try:
             value_lists = self._filtered_values
 
@@ -1068,6 +1078,10 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         """
         Export the current plot using Tkinter save dialog.
         """
+        if self._value_extractor.normalization in NORMALIZATION_REFERENCE_POINT and len(self._value_extractor.references) == 0:
+            logger.info("Could not export plot since no indices for export were selected.")
+            return
+            
         logger.debug("Exporting plot")
         try:
             value_lists = self._filtered_values
@@ -1206,18 +1220,23 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         vmax = None 
         center = None
         cmap = self._general_graph_settings.sequential_color_scheme.value
-        
-        if self._value_extractor.normalization in NORMALIZATION_REFERENCE_POINT:
+
+        normalization = self._value_extractor.normalization
+        if normalization in NORMALIZATION_REFERENCE_POINT:
             cmap = self._general_graph_settings.divergent_color_scheme.value
+            center = 0
+            if normalization == NORMALIZATION.BY_POSITION:
+                center = 1
             if self._heatmap_settings.symmetric_scaling:
+                # This effectiveley neutralizes center
                 finite_data = data_matrix[~np.isnan(data_matrix)]
                 if len(finite_data) > 0:
-                    max_abs_value = np.max(np.abs(finite_data))
-                    vmin = -max_abs_value
-                    vmax = max_abs_value
-            center = 0
-            if self._value_extractor.normalization == NORMALIZATION.BY_POSITION:
-                center = 1
+                    delta_min = abs(np.min(finite_data) - center)
+                    delta_max = abs(np.max(finite_data) - center)
+                    max_delta = max(delta_min, delta_max)
+                    
+                    vmin = center - max_delta
+                    vmax = center + max_delta
         
         sns_heatmap_kwargs = {
         "ax": ax,
@@ -1346,6 +1365,10 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         """
         Export data as CSV using Tkinter save dialog.
         """
+        if self._value_extractor.normalization in NORMALIZATION_REFERENCE_POINT and len(self._value_extractor.references) == 0:
+            logger.info("Could not export csv since no indices for export were selected.")
+            return
+            
         logger.debug("Exporting data as CSV")
         try:
             value_lists = self._filtered_values
@@ -1371,6 +1394,10 @@ class OverviewHeatmapModule(SuplexModuleInterface):
     
             # Datasets for rows
             datasets = list(value_lists.keys())
+
+            for i, dataset in enumerate(datasets):
+                values = value_lists[dataset]
+                data_matrix[i, :len(values)] = values
     
             # Indices for columns (analogous to heatmap x_labels)
             max_len = data_matrix.shape[1]
@@ -1383,7 +1410,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             # Tkinter Save-File-Dialog
             root = Tk()
             root.withdraw()
-            default_filename = f"overview_heatmap_{attribute}_{normalization}.csv"
+            default_filename = f"overview_heatmap_{attribute.value}_{normalization.value}.csv"
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".csv",
                 filetypes=[("CSV files", "*.csv")],

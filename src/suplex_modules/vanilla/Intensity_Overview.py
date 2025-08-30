@@ -13,11 +13,11 @@ from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
 from ui.widget_factory import WidgetFactory
 from suplex_modules.submodules.viability_rules import no_datasets_selected
-from suplex_modules.submodules.attribute_selector import (
-    AttributeSelector,
+from suplex_modules.submodules.value_extractor import (
+    ValueExtractor,
     extract_value_list_from_dataset,
     get_flat_value_list,
-    flatten_list,
+    flatten_list
 )
 from suplex_modules.submodules.submodule_constants import (
     DATASET_ATTRIBUTE,
@@ -55,8 +55,8 @@ from suplex_modules.submodules.submodule_utils import (
 )
 
 logger = logging.getLogger(__name__)
-
 ABS_MAX_VALUE = 2**16 - 1
+MAX_PIXELS_GRAPH = 2**20
 
 
 class IntensityOverviewModule(SuplexModuleInterface):
@@ -86,10 +86,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         self._module_hover_text = self._DEFAULT_HOVER_TEXT
 
         # UI Elements
-        self._attribute_selector = None
-        self._attribute_dropdown = None
-        self._normalization_dropdown = None
-        self._custom_normalization_input = None
+        self._value_extractor = None
 
         self._dataset_filter_checkbox = None
         self._use_displayed_dataset_filter_checkbox = None
@@ -119,7 +116,6 @@ class IntensityOverviewModule(SuplexModuleInterface):
             max_label_length=20,
             base_font_size=12,
             aspect_ratio=ASPECT_RATIO.AUTO,
-            dpi=300,
             x_scale=SCALE_TYPE.LINEAR,
             x_range=(0, ABS_MAX_VALUE),
             grid_style=GRID_STYLE.TICKS,
@@ -156,8 +152,6 @@ class IntensityOverviewModule(SuplexModuleInterface):
 
         # Flag which allows to change widgets programmatically
         self._ignore_events = False
-        # Helper variable which stores if graphs should be updated upon tab change (reduces redundancy)
-        self._graph_update_pending = False
         logger.debug("IntensityOverviewModule initialized successfully")
 
     @property
@@ -178,7 +172,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         Returns:
             str: The module version.
         """
-        return "0.5.0"
+        return "0.6.0"
 
     @property
     def group_name(self) -> str:
@@ -263,7 +257,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             self._dataset_sorter = DatasetSorter(
                 tags=all_tags, num_levels=1, max_num_levels=10
             )
-            included_filter_attributes = (
+            included_attributes = (
                 DATA_ATTRIBUTES
                 + DATA_STATISTICS_ATTRIBUTES
                 + [
@@ -271,11 +265,18 @@ class IntensityOverviewModule(SuplexModuleInterface):
                     DATASET_ATTRIBUTE.SPOT_COORDINATES_Y,
                 ]
             )
+            self._value_extractor = ValueExtractor(
+                attributes = included_attributes,
+                normalization_methods = NORMALIZATION_DEFAULT,
+                max_reference_index = ABS_MAX_VALUE
+            )
+            
             self._dataset_filter = DatasetFilter(
-                included_attributes=included_filter_attributes
+                included_attributes=included_attributes
             )
             self._sample_spot_filter = SampleSpotFilter(
-                included_attributes=included_filter_attributes
+                included_attributes=included_attributes,
+                included_normalization_methods = NORMALIZATION_DEFAULT
             )
             self._sample_threshold_map = (
                 self._sample_spot_filter.get_default_sample_map(self._included_datasets)
@@ -283,8 +284,6 @@ class IntensityOverviewModule(SuplexModuleInterface):
             self._spot_threshold_map = self._sample_spot_filter.get_default_spot_map(
                 self._included_datasets
             )
-
-            self._attribute_selector = AttributeSelector()
 
             controls = self.create_main_control_interface()
             sort_filter_content = self.create_sort_filter_tab()
@@ -341,16 +340,11 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 """
                 Update graph only when changing to Graph tab
                 """
-                if not self._graph_update_pending:
-                    return
-
                 current_tab_index = change["new"]
                 current_tab_title = self._tabs.titles[current_tab_index]
 
-                if current_tab_title == "Graph":
-                    self.update_analysis()
-
-                self._graph_update_pending = False
+                if current_tab_title in ["Graph", "Dataset Statistics"]:
+                    self.apply_all_filters()
 
             self._tabs.observe(on_tab_change, names="selected_index")
 
@@ -385,7 +379,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             )
             controls_content = WidgetFactory.vbox(
                 children=[
-                    self.create_data_select_section(),
+                    self._value_extractor.get_ui(),
                     self.create_dataset_filter_section(),
                     self.create_value_filter_section(),
                     self.create_control_button_section(),
@@ -397,96 +391,19 @@ class IntensityOverviewModule(SuplexModuleInterface):
                     padding="0px 10px",
                 ),
             )
+            for widget in self._value_extractor.get_active_widgets():
+                widget.observe(lambda b: self.on_selected_attribute_changed(), names="value")
 
             control_interface = WidgetFactory.vbox(
                 children=[title_html, controls_content],
                 layout=widgets.Layout(width="400px", height="100%", padding="5px"),
             )
-            # For the initial setup of values
-            self.on_selected_attribute_changed()
             logger.debug("Main control interface created successfully")
             return control_interface
         except Exception as e:
             logger.error(
                 "Failed to create main control interface: %s", e, exc_info=True
             )
-            raise
-
-    def create_data_select_section(self):
-        """
-        Create the data selection section UI.
-
-        Returns:
-            widgets.Widget: The data select section widget.
-        """
-        logger.debug("Creating data select section")
-        try:
-            attribute_selector_label = WidgetFactory.label("Displayed Attribute")
-            included_attributes = (
-                DATA_ATTRIBUTES
-                + DATA_STATISTICS_ATTRIBUTES
-                + [
-                    DATASET_ATTRIBUTE.SPOT_COORDINATES_X,
-                    DATASET_ATTRIBUTE.SPOT_COORDINATES_Y,
-                ]
-            )
-            self._attribute_dropdown = self._attribute_selector.get_dropdown_widget(
-                included_attributes=included_attributes,
-                layout=widgets.Layout(width="100%"),
-            )
-            self._attribute_dropdown.observe(
-                lambda b: self.on_selected_attribute_changed(), names="value"
-            )
-
-            normalization_options_label = WidgetFactory.label("Normalization")
-            normalization_options = [option.value for option in NORMALIZATION_DEFAULT]
-
-            def on_normalization_dropdown_changed():
-                normalization_method = NORMALIZATION(self._normalization_dropdown.value)
-                self._custom_normalization_input.disabled = not (
-                    normalization_method == NORMALIZATION.CUSTOM
-                )
-                self.on_selected_attribute_changed()
-
-            self._normalization_dropdown = WidgetFactory.dropdown(
-                options=normalization_options,
-                value=normalization_options[0],
-                description="",
-                layout=widgets.Layout(margin="0px", padding="0px"),
-            )
-            # 16 bit number
-            self._custom_normalization_input = WidgetFactory.number_input(
-                value=ABS_MAX_VALUE,
-                min_value=1,
-                max_value=ABS_MAX_VALUE,
-                step=1,
-                description="",
-                disabled=True,
-                on_change=lambda b: self.on_selected_attribute_changed(),
-                layout=widgets.Layout(width="100px", margin="0px", padding="0px"),
-            )
-            self._normalization_dropdown.observe(
-                lambda b: on_normalization_dropdown_changed(), names="value"
-            )
-
-            normalization_controls = WidgetFactory.hbox(
-                [self._normalization_dropdown, self._custom_normalization_input],
-                layout=widgets.Layout(gap="5px"),
-            )
-
-            data_select_section = WidgetFactory.vbox(
-                children=[
-                    attribute_selector_label,
-                    self._attribute_dropdown,
-                    normalization_options_label,
-                    normalization_controls,
-                ],
-                layout=widgets.Layout(gap="500px"),
-            )
-            logger.debug("Data select section created successfully")
-            return data_select_section
-        except Exception as e:
-            logger.error("Failed to create data select section: %s", e, exc_info=True)
             raise
 
     def create_dataset_filter_section(self) -> widgets.Widget:
@@ -737,7 +654,6 @@ class IntensityOverviewModule(SuplexModuleInterface):
         def on_change_descriptor(new_descriptor: DATASET_LABEL):
             self._dataset_descriptor = new_descriptor
             self.update_analysis()
-            self._graph_update_pending = True
 
         self._descriptor_radio[0].on_click(
             lambda b: on_change_descriptor(DATASET_LABEL.ID)
@@ -798,8 +714,8 @@ class IntensityOverviewModule(SuplexModuleInterface):
         self._sorted_datasets = self._dataset_sorter.get_sorted_datasets(self._datasets)
 
         # Visualized
-        attribute = DATASET_ATTRIBUTE(self._attribute_dropdown.value)
-        normalization_method = NORMALIZATION(self._normalization_dropdown.value)
+        attribute = self._value_extractor.attribute
+        normalization_method = self._value_extractor.normalization
 
         # Dataset Filter
         dataset_filter_attribute = (
@@ -822,7 +738,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             else None
         )
         value_filter_normalization_factor = (
-            self._custom_normalization_input.value
+            self._value_extractor.custom_factor
             if self._use_displayed_value_filter_checkbox.value
             else None
         )
@@ -842,7 +758,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 datasets=datasets,
                 attribute=attribute,
                 normalization_method=normalization_method,
-                normalization_factor=self._custom_normalization_input.value,
+                normalization_factor=self._value_extractor.custom_factor,
             )
 
             all_values_flat_normalized = []
@@ -896,7 +812,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         Apply dataset filter to sorted datasets.
         """
         logger.debug("Applying dataset filter")
-        attribute = DATASET_ATTRIBUTE(self._attribute_dropdown.value)
+        attribute = self._value_extractor.attribute
         dataset_filter_attribute = (
             attribute if self._use_displayed_dataset_filter_checkbox.value else None
         )
@@ -912,8 +828,8 @@ class IntensityOverviewModule(SuplexModuleInterface):
         Apply value filter to datasets.
         """
         logger.debug("Applying value filter")
-        attribute = DATASET_ATTRIBUTE(self._attribute_dropdown.value)
-        normalization_method = NORMALIZATION(self._normalization_dropdown.value)
+        attribute = self._value_extractor.attribute
+        normalization_method = self._value_extractor.normalization
 
         spot_filter_attribute = (
             attribute if self._use_displayed_value_filter_checkbox.value else None
@@ -925,7 +841,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             else None
         )
         spot_filter_normalization_factor = (
-            self._custom_normalization_input.value
+            self._value_extractor.custom_factor
             if self._use_displayed_value_filter_checkbox.value
             else None
         )
@@ -963,8 +879,8 @@ class IntensityOverviewModule(SuplexModuleInterface):
         Normalize filtered and unfiltered values.
         """
         logger.debug("Normalizing values")
-        normalization_method = NORMALIZATION(self._normalization_dropdown.value)
-        normalization_factor = self._custom_normalization_input.value
+        normalization_method = self._value_extractor.normalization
+        normalization_factor = self._value_extractor.custom_factor
 
         self._filtered_values = apply_normalization(
             value_sets=self._filtered_values,
@@ -993,9 +909,9 @@ class IntensityOverviewModule(SuplexModuleInterface):
         """
         logger.debug("Updating overview analysis")
         try:
-            attribute = DATASET_ATTRIBUTE(self._attribute_dropdown.value)
-            normalization = NORMALIZATION(self._normalization_dropdown.value)
-            norm_factor = self._custom_normalization_input.value
+            attribute = self._value_extractor.attribute
+            normalization = self._value_extractor.normalization
+            norm_factor = self._value_extractor.custom_factor
 
             norm_text = f"({normalization.value})"
             if normalization != NORMALIZATION.RAW:
@@ -1202,8 +1118,8 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 ]
                 return
 
-            attribute = DATASET_ATTRIBUTE(self._attribute_dropdown.value)
-            normalization = NORMALIZATION(self._normalization_dropdown.value)
+            attribute = self._value_extractor.attribute
+            normalization = self._value_extractor.normalization
             norm_text = f"({normalization.value})"
             if normalization != NORMALIZATION.RAW:
                 norm_text = "Normalized " + norm_text
@@ -1290,7 +1206,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             fig = self.generate_box_jitter_plot(plot_data=value_sets)
 
             buffer = io.BytesIO()
-            fig.savefig(buffer, format="png", dpi=300, bbox_inches="tight")
+            fig.savefig(buffer, format="png", dpi=fig.dpi, bbox_inches="tight")
             buffer.seek(0)
             img_bytes = buffer.getvalue()
             plt.close(fig)  # Close the figure to free memory
@@ -1330,14 +1246,14 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 return
 
             fig = self.generate_box_jitter_plot(
-                plot_data=value_sets, dpi=self._general_graph_settings.dpi
+                plot_data=value_sets
             )
 
             buffer = io.BytesIO()
             fig.savefig(
                 buffer,
-                format="png",
-                dpi=self._general_graph_settings.dpi,
+                format="svg",
+                dpi=fig.dpi,
                 bbox_inches="tight",
             )
             buffer.seek(0)
@@ -1346,10 +1262,10 @@ class IntensityOverviewModule(SuplexModuleInterface):
             # Tkinter Save-File-Dialog
             root = Tk()
             root.withdraw()
-            default_filename = f"intensity_overview_{self._attribute_dropdown.value}_{self._normalization_dropdown.value}.png"
+            default_filename = f"intensity_overview_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
             file_path = filedialog.asksaveasfilename(
-                defaultextension=".png",
-                filetypes=[("PNG files", "*.png")],
+                defaultextension=".svg",
+                filetypes=[("SVG files", "*.svg")],
                 initialfile=default_filename,
                 title="Save Plot As",
             )
@@ -1383,16 +1299,13 @@ class IntensityOverviewModule(SuplexModuleInterface):
         side_len = (max_length - 3) // 2
         return f"{label[:side_len]}...{label[-(max_length - 3 - side_len):]}"
 
-    def generate_box_jitter_plot(
-        self, plot_data: Dict[str, List[float]], dpi=100
-    ) -> plt.Figure:
+    def generate_box_jitter_plot(self, plot_data: Dict[str, List[float]]) -> plt.Figure:
         """
         Generate the actual intensity plot.
-
+    
         Args:
             plot_data (Dict[str, List[float]]): Data to plot, keyed by dataset.
-            dpi (int): Dots per inch for the figure. Default is 100.
-
+    
         Returns:
             plt.Figure: The generated figure.
         """
@@ -1411,12 +1324,12 @@ class IntensityOverviewModule(SuplexModuleInterface):
             n_datasets = len(plot_data)
             if n_datasets == 0:
                 n_datasets = 1
-
+    
             # Inches per dataset
             width_per_dataset = 0.4
             height_per_dataset = 0.3
             left_margin = right_margin = bottom_margin = top_margin = 0.5
-
+    
             if self._general_graph_settings.swap_axes:
                 fig_width = left_margin + right_margin + n_datasets * width_per_dataset
                 fig_height = 4 + top_margin + bottom_margin
@@ -1425,19 +1338,31 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 fig_height = (
                     bottom_margin + top_margin + n_datasets * height_per_dataset
                 )
-
+    
             ar_value = get_aspect_ratio_value(self._general_graph_settings.aspect_ratio)
-
+    
             if ar_value is not None:
                 if self._general_graph_settings.swap_axes:
                     fig_height = fig_width / ar_value
                 else:
                     fig_width = fig_height * ar_value
-
+    
             figsize = (fig_width, fig_height)
-
-            fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
-
+    
+            fig, ax = plt.subplots(figsize=figsize)
+    
+            # DPI-Downscaling-Logik (analog zu overview_heatmap.py)
+            current_dpi = fig.dpi  # Standard-DPI von matplotlib (normalerweise 100)
+            est_width_pixels = fig_width * current_dpi
+            est_height_pixels = fig_height * current_dpi
+    
+            if (est_width_pixels > MAX_PIXELS_GRAPH) or (est_height_pixels > MAX_PIXELS_GRAPH):
+                min_dpi_width = MAX_PIXELS_GRAPH / fig_width
+                min_dpi_height = MAX_PIXELS_GRAPH / fig_height
+                min_dpi = max(50, min(min_dpi_width, min_dpi_height))  # Mindestens 50 DPI, um Qualität zu wahren
+                fig.set_dpi(min_dpi)
+                logger.info(f"Proactively reduced DPI to {min_dpi} (estimated pixels: {est_width_pixels:.0f}x{est_height_pixels:.0f}, figsize: {fig_width}x{fig_height}) to avoid size limit.")
+    
             color_scheme = self._general_graph_settings.sequential_color_scheme.value
             try:
                 cmap = plt.cm.get_cmap(color_scheme)
@@ -1447,11 +1372,11 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 )
                 cmap = plt.cm.get_cmap("viridis")
             colors = cmap(np.linspace(0, 1, len(plot_data)))
-
+    
             dataset_labels = [key.id for key in plot_data.keys()]
             if self._dataset_descriptor == DATASET_LABEL.NAME:
                 dataset_labels = [key.name for key in plot_data.keys()]
-
+    
             if self._general_graph_settings.max_label_length:
                 max_label_length = self._general_graph_settings.max_label_length
                 axis_labels = []
@@ -1461,20 +1386,20 @@ class IntensityOverviewModule(SuplexModuleInterface):
                             label=label, max_length=max_label_length
                         )
                     )
-
+    
             if self._boxplot_settings.show_boxplot:
                 self.create_boxplot(ax, plot_data, colors, axis_labels)
-
+    
             if self._jitterplot_settings.show_jitterplot:
                 self.create_jitterplot(ax, plot_data, colors)
-
+    
             if self._show_threshold_checkbox.value:
                 self.add_thresholds(ax)
-
+    
             # Setup axes, labels, scales, etc.
             self.setup_axes(ax, plot_data, colors, axis_labels)
             plt.tight_layout(pad=1.5)
-
+    
             logger.debug("Box scatter plot generated successfully")
             return fig
         except Exception as e:
@@ -1621,11 +1546,13 @@ class IntensityOverviewModule(SuplexModuleInterface):
             axis_labels = plot_data.keys()
 
         n_datasets = len(plot_data)
-
-        attribute_display = self._attribute_dropdown.value.replace("_", " ").title()
+        attribute = self._value_extractor.attribute
+        normalization = self._value_extractor.normalization
+        
+        attribute_display = attribute.value.replace("_", " ").title()
         normalization_suffix = (
-            f" ({self._normalization_dropdown.value})"
-            if self._normalization_dropdown.value != "raw"
+            f" ({normalization.value})"
+            if normalization != "raw"
             else ""
         )
 
@@ -1681,8 +1608,8 @@ class IntensityOverviewModule(SuplexModuleInterface):
         """
         logger.debug("Exporting data as CSV")
 
-        attribute = DATASET_ATTRIBUTE(self._attribute_dropdown.value)
-        normalization_method = NORMALIZATION(self._normalization_dropdown.value)
+        attribute = self._value_extractor.attribute
+        normalization_method = self._value_extractor.normalization
 
         sample_threshold_map = spot_threshold_map = None
         if self._apply_threshold_checkbox.value:
@@ -1705,7 +1632,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             outside_replacement_value=float("nan"),
         )
 
-        normalization_factor = self._custom_normalization_input.value
+        normalization_factor = self._value_extractor.custom_factor
         csv_valuesets = apply_normalization(
             value_sets=csv_valuesets,
             normalization_method=normalization_method,
@@ -1719,7 +1646,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
 
         root = Tk()
         root.withdraw()
-        default_filename = f"intensity_data_{self._attribute_dropdown.value}_{self._normalization_dropdown.value}.csv"
+        default_filename = f"intensity_data_{attribute.value}_{normalization_method.value}.csv"
         file_path = filedialog.asksaveasfilename(
             defaultextension=".csv",
             filetypes=[("CSV files", "*.csv")],

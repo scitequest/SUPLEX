@@ -11,8 +11,8 @@ from typing import Union, List, Optional, Tuple
 
 from martin_interface.dataset import Dataset
 from ui.widget_factory import WidgetFactory
-from suplex_modules.submodules.attribute_selector import (
-    AttributeSelector,
+from suplex_modules.submodules.value_extractor import (
+    ValueExtractor,
     get_flat_value_list,
 )
 from suplex_modules.submodules.submodule_constants import (
@@ -280,7 +280,6 @@ class DatasetFilter:
     def __init__(
         self,
         default_method: FILTER_METHOD = FILTER_METHOD.MEAN_MAX_RATIO,
-        default_attribute: DATASET_ATTRIBUTE = DATASET_ATTRIBUTE.MEAN,
         included_attributes: List[DATASET_ATTRIBUTE] = list(DATASET_ATTRIBUTE),
         default_threshold: float = 0.5,
     ):
@@ -289,7 +288,6 @@ class DatasetFilter:
 
         Args:
             default_method (FILTER_METHOD): Initial filter method to select.
-            default_attribute (DATASET_ATTRIBUTE): Initial dataset attribute to select.
             included_attributes (List[DATASET_ATTRIBUTE]): List of dataset attributes to include in the selector.
             default_threshold (float): Initial threshold value for the slider.
         """
@@ -315,13 +313,9 @@ class DatasetFilter:
             layout=widgets.Layout(width="100%", padding="0px 10px 0px 0px"),
         )
 
-        self._attribute_selector = AttributeSelector()
-        self._attribute_dropdown = self._attribute_selector.get_dropdown_widget(
-            included_attributes=included_attributes,
-            layout=widgets.Layout(width="100%", padding="0px 10px 0px 0px"),
-        )
-
-        self._attribute_dropdown.value = default_attribute.value
+        self._value_extractor = ValueExtractor(attributes = included_attributes)
+        self._attribute_dropdown = self._value_extractor.get_attribute_widget()
+        self._attribute_dropdown.layout = widgets.Layout(width="100%", padding="0px 10px 0px 0px")
 
         self._invert_checkbox = WidgetFactory.checkbox(
             description="Invert Filter",
@@ -338,7 +332,7 @@ class DatasetFilter:
 
     @property
     def attribute(self) -> DATASET_ATTRIBUTE:
-        return DATASET_ATTRIBUTE(self._attribute_dropdown.value)
+        return self._value_extractor.attribute
 
     @property
     def threshold(self) -> float:
