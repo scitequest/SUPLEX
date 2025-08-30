@@ -10,8 +10,8 @@ import numpy as np
 
 from martin_interface.dataset import Dataset
 from ui.widget_factory import WidgetFactory
-from suplex_modules.submodules.attribute_selector import (
-    AttributeSelector,
+from suplex_modules.submodules.value_extractor import (
+    ValueExtractor,
     extract_value_list_from_dataset,
     get_flat_value_list,
 )
@@ -22,6 +22,7 @@ from suplex_modules.submodules.submodule_constants import (
     NORMALIZATION,
     SELECTION_MODE,
     THRESHOLD_FILTER_STATE,
+    NORMALIZATION_DEFAULT
 )
 from suplex_modules.submodules.submodule_utils import calculate_step_size
 from suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET
@@ -413,10 +414,7 @@ class SampleSpotFilter:
     def __init__(
         self,
         included_attributes: List[DATASET_ATTRIBUTE] = None,
-        default_attribute: DATASET_ATTRIBUTE = DATASET_ATTRIBUTE.ADJUSTED_AVERAGE,
         included_normalization_methods: List[NORMALIZATION] = None,
-        default_normalization_method: NORMALIZATION = NORMALIZATION.RAW,
-        default_custom_normalization: float = 1.0,
         default_abs_max: float = 2**16 - 1,
     ):
         """
@@ -425,18 +423,15 @@ class SampleSpotFilter:
         Args:
             included_attributes (List[DATASET_ATTRIBUTE]): List of attributes available for filtering.
                 Defaults to DATA_ATTRIBUTES + DATA_STATISTICS_ATTRIBUTES.
-            default_attribute (DATASET_ATTRIBUTE): Default attribute selection.
             included_normalization_methods (List[NORMALIZATION]): List of normalization methods to include.
                 Defaults to all NORMALIZATION enum values.
-            default_normalization_method (NORMALIZATION): Default normalization method.
-            default_custom_normalization (float): Default value for custom normalization.
             default_abs_max (float): Default maximum value for sliders and inputs.
         """
         logger.debug("Initializing SampleSpotFilter")
         if included_attributes is None:
             included_attributes = DATA_ATTRIBUTES + DATA_STATISTICS_ATTRIBUTES
         if included_normalization_methods is None:
-            included_normalization_methods = list(NORMALIZATION)
+            included_normalization_methods = NORMALIZATION_DEFAULT
 
         logger.debug("Initializing SampleSpotFilter")
 
@@ -452,42 +447,9 @@ class SampleSpotFilter:
             layout=widgets.Layout(width="100%", padding="0px 10px"),
         )
 
-        self._attribute_selector = AttributeSelector()
-        self._attribute_dropdown = self._attribute_selector.get_dropdown_widget(
-            included_attributes=included_attributes,
-            layout=widgets.Layout(width="100%", padding="0px 10px 0px 0px"),
-        )
-        self._attribute_dropdown.value = default_attribute.value
-
-        def on_normalization_method_changed():
-            self._normalization_factor_input.disabled = (
-                NORMALIZATION(self._normalization_dropdown.value)
-                != NORMALIZATION.CUSTOM
-            )
-
-        self._normalization_dropdown = WidgetFactory.dropdown(
-            options=included_normalization_methods,
-            value=default_normalization_method,
-            description="",
-            on_change=lambda b: on_normalization_method_changed(),
-            layout=widgets.Layout(width="100%"),
-        )
-
-        custom_normalization_is_default = (
-            default_normalization_method == NORMALIZATION.CUSTOM
-        )
-        normalization_factor_input_val = (
-            default_custom_normalization if custom_normalization_is_default else 1
-        )
-
-        self._normalization_factor_input = WidgetFactory.number_input(
-            value=normalization_factor_input_val,
-            min_value=1,
-            max_value=default_abs_max,
-            step=1,
-            description="",
-            disabled=not custom_normalization_is_default,
-            layout=widgets.Layout(width="100%"),
+        self._value_extractor = ValueExtractor(
+            attributes = included_attributes,
+            normalization_methods = included_normalization_methods
         )
 
         self._invert_checkbox = WidgetFactory.checkbox(
@@ -528,17 +490,17 @@ class SampleSpotFilter:
     @property
     def attribute(self) -> DATASET_ATTRIBUTE:
         """Get the currently selected filter attribute."""
-        return DATASET_ATTRIBUTE(self._attribute_dropdown.value)
+        return self._value_extractor.attribute
 
     @property
     def normalization_method(self) -> NORMALIZATION:
         """Get the currently selected normalization method."""
-        return NORMALIZATION(self._normalization_dropdown.value)
+        return self._value_extractor.normalization
 
     @property
     def normalization_factor(self) -> float:
         """Get the current custom normalization factor value."""
-        return self._normalization_factor_input.value
+        return self._value_extractor.custom_factor
 
     @property
     def min_threshold(self) -> float:
@@ -572,15 +534,15 @@ class SampleSpotFilter:
 
     def get_attribute_dropdown(self) -> widgets.Dropdown:
         """Get the attribute selection dropdown widget."""
-        return self._attribute_dropdown
+        return self._value_extractor.get_attribute_widget()
 
     def get_normalization_dropdown(self) -> widgets.Dropdown:
         """Get the normalization method dropdown widget."""
-        return self._normalization_dropdown
+        return self._value_extractor.get_normalization_widget()
 
     def get_normalization_factor_input(self) -> widgets.BoundedFloatText:
         """Get the custom normalization factor input widget."""
-        return self._normalization_factor_input
+        return self._value_extractor.get_custom_factor_widget()
 
     def get_threshold_range_slider(self) -> widgets.FloatRangeSlider:
         """Get the threshold range slider widget."""
@@ -663,10 +625,9 @@ class SampleSpotFilter:
         """
         logger.debug(f"Setting all widgets disabled: {disabled}")
         self._threshold_range_slider.disabled = disabled
-        self._attribute_selector.disabled = disabled
-        self._attribute_dropdown.disabled = disabled
-        self._normalization_dropdown.disabled = disabled
-        self._normalization_factor_input.disabled = disabled
+        self._value_extractor.get_attribute_widget().disabled = disabled
+        self._value_extractor.get_normalization_widget().disabled = disabled
+        self._value_extractor.get_custom_factor_widget().disabled = disabled
         self._invert_checkbox.disabled = disabled
         self._sample_affects_spots_checkbox.disabled = disabled
         self._spots_affect_sample_checkbox.disabled = disabled
@@ -852,30 +813,6 @@ class SampleSpotFilter:
             layout=widgets.Layout(gap="5px", padding=OPTION_INSET.PRIMARY),
         )
 
-        attribute_label = WidgetFactory.label("Attribute")
-        attribute_dropdown_box = WidgetFactory.vbox(
-            children=[self._attribute_dropdown],
-            layout=widgets.Layout(gap="5px", padding=OPTION_INSET.PRIMARY),
-        )
-        attribute_box = WidgetFactory.vbox(
-            children=[attribute_label, attribute_dropdown_box],
-            layout=widgets.Layout(gap="5px", padding=OPTION_INSET.PRIMARY),
-        )
-
-        normalization_label = WidgetFactory.label("Normalization Method")
-        factor_input_box = WidgetFactory.vbox(
-            children=[self._normalization_factor_input],
-            layout=widgets.Layout(width="100%", padding="0px 10px 0px 0px"),
-        )
-        normalization_dropdown_box = WidgetFactory.hbox(
-            children=[self._normalization_dropdown, factor_input_box],
-            layout=widgets.Layout(gap="5px", padding=OPTION_INSET.PRIMARY),
-        )
-        normalization_box = WidgetFactory.vbox(
-            children=[normalization_label, normalization_dropdown_box],
-            layout=widgets.Layout(gap="5px", padding=OPTION_INSET.PRIMARY),
-        )
-
         invert_checkbox_box = WidgetFactory.vbox(
             children=[self._invert_checkbox],
             layout=widgets.Layout(gap="5px", padding=OPTION_INSET.SECONDARY),
@@ -922,8 +859,7 @@ class SampleSpotFilter:
             children=[
                 ui_title,
                 threshold_box,
-                attribute_box,
-                normalization_box,
+                self._value_extractor.get_ui(),
                 invert_checkbox_box,
                 propagation_box,
             ],
@@ -960,7 +896,7 @@ class SampleSpotFilter:
         normalization_method = normalization_method or self.normalization_method
         normalization_factor = normalization_factor
         if normalization_factor is None:
-            normalization_factor = self._normalization_factor_input.value
+            normalization_factor = self._value_extractor.custom_factor
         normalization_factors = get_normalization_factors(
             datasets=datasets,
             attribute=attribute,
@@ -1073,6 +1009,7 @@ class SampleSpotFilter:
         max_threshold = (
             max_threshold if max_threshold is not None else self.max_threshold
         )
+        
         normalization_factor = (
             normalization_factor
             if normalization_factor is not None
@@ -1089,6 +1026,7 @@ class SampleSpotFilter:
             else self.spots_affect_sample
         )
 
+        
         if attribute in DATA_STATISTICS_ATTRIBUTES:
             sample_threshold_map = get_sample_threshold_map(
                 datasets=datasets,
@@ -1105,6 +1043,7 @@ class SampleSpotFilter:
             DATASET_ATTRIBUTE.SPOT_COORDINATES_X,
             DATASET_ATTRIBUTE.SPOT_COORDINATES_Y,
         ]
+
         if attribute in spot_attributes:
             spot_threshold_map = get_spot_threshold_map(
                 datasets=datasets,
@@ -1117,7 +1056,7 @@ class SampleSpotFilter:
         else:
             # Default spot map filled with true statements
             spot_threshold_map = self.get_default_spot_map(datasets=datasets)
-
+        
         # Spot attributes first so spots can affect other spots of the same sample if both spots_affect_sample and sample_affects_spots is true
         if attribute in spot_attributes and spots_affect_sample:
             if sample_filter_mode == SELECTION_MODE.ANY:

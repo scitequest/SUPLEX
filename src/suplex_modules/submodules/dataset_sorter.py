@@ -15,8 +15,8 @@ from suplex_modules.submodules.submodule_constants import (
     DATA_STATISTICS_ATTRIBUTES,
     PARAMETERS_ATTRIBUTES,
 )
-from suplex_modules.submodules.attribute_selector import (
-    AttributeSelector,
+from suplex_modules.submodules.value_extractor import (
+    ValueExtractor,
     get_flat_value_list,
 )
 from suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET
@@ -312,7 +312,7 @@ def sort_alphanumerically(
 
     # Have to invert order to sort from A-Z and earliest to latest.
     sorted_datasets, sorted_reference = sort_datasets(
-        datasets, reference_list, not invert_order
+        datasets, reference_list, invert_order
     )
 
     return sorted_datasets, sorted_reference
@@ -374,7 +374,7 @@ class SortStep:
             tags: List of tags for has_tag sort option
         """
         logger.debug("Initializing SortStep for: %s", label)
-        self.step_label = WidgetFactory.label(value=label)
+        self._step_label = WidgetFactory.label(value=label)
 
         self._invert_checkbox = WidgetFactory.checkbox(
             value=False,
@@ -416,14 +416,14 @@ class SortStep:
             if attributes
             else ["No Attributes Enabled"]
         )
-        self._attribute_dropdown = WidgetFactory.dropdown(
-            options=attribute_options,
-            value=attribute_options[0],
-            layout=widgets.Layout(margin="0px 5px 0px 0px", padding="0px"),
+        self._value_extractor = ValueExtractor(
+            attributes = allowed_attributes
         )
+        self._attribute_dropdown = self._value_extractor.get_attribute_widget()
+        self._attribute_dropdown.layout = widgets.Layout(margin="0px 5px 0px 0px", padding="0px")
 
-        self.tags = tags or []
-        tag_options = self.tags if self.tags else ["No Tags Available"]
+        self._tags = tags or []
+        tag_options = self._tags if self._tags else ["No Tags Available"]
         self._tag_dropdown = WidgetFactory.dropdown(
             options=tag_options,
             value=tag_options[0],
@@ -471,7 +471,7 @@ class SortStep:
         """
         logger.debug("Retrieving UI for SortStep")
         return WidgetFactory.vbox(
-            children=[self.step_label, self._ui_box],
+            children=[self._step_label, self._ui_box],
             layout=widgets.Layout(
                 margin="0px", padding=OPTION_INSET.PRIMARY, gap="5px"
             ),
@@ -534,16 +534,7 @@ class SortStep:
             return sorted_datasets
 
         # Value-based sorts
-        attribute_str = self._attribute_dropdown.value
-        if attribute_str == "No Attributes Enabled":
-            logger.warning("No attributes enabled for value-based sort")
-            return datasets.copy()
-
-        try:
-            attribute = DATASET_ATTRIBUTE(attribute_str)
-        except ValueError:
-            logger.warning("Invalid attribute: %s", attribute_str)
-            return datasets.copy()
+        attribute = self._value_extractor.attribute
 
         # Extract flat value lists for each dataset
         reference_lists = [get_flat_value_list(ds, attribute) for ds in datasets]
@@ -611,7 +602,7 @@ class DatasetSorter:
         self._allowed_set_descriptors = allowed_set_descriptors
         self._allowed_attributes = allowed_attributes
 
-        self.tags = tags or []
+        self._tags = tags or []
 
         # No values below 1 allowed
         if num_levels < 1:
@@ -629,10 +620,8 @@ class DatasetSorter:
             )
             max_num_levels = num_levels
 
-        self.num_levels = num_levels
-        self.max_num_levels = max_num_levels
-
-        self.attribute_selector = AttributeSelector()
+        self._num_levels = num_levels
+        self._max_num_levels = max_num_levels
 
         self._ui_container = None
         self._sorting_steps = []  # List of SortStep instances
@@ -688,9 +677,9 @@ class DatasetSorter:
 
         n_levels_label = WidgetFactory.label(value="Number of Sorting Operations")
         n_levels_widget = WidgetFactory.number_input(
-            value=self.num_levels,
+            value=self._num_levels,
             min_value=1,
-            max_value=self.max_num_levels,
+            max_value=self._max_num_levels,
             step=1,
             on_change=lambda b: self.update_sorting_steps(
                 n_steps=n_levels_widget.value
@@ -740,13 +729,13 @@ class DatasetSorter:
                 allowed_sort_methods=self._allowed_sort_methods,
                 allowed_set_descriptors=self._allowed_set_descriptors,
                 allowed_attributes=self._allowed_attributes,
-                tags=self.tags,
+                tags=self._tags,
             )
             self._sorting_steps.append(new_step)
         self._sort_steps_box.children = [
             step.get_ui() for step in self._sorting_steps[:n_steps]
         ]
-        self.num_levels = n_steps
+        self._num_levels = n_steps
         logger.debug("Sorting steps updated to %d", n_steps)
 
     def get_sorted_datasets(self, datasets) -> List[Dataset]:
@@ -762,9 +751,9 @@ class DatasetSorter:
             return []
 
         sorted_datasets = datasets.copy()
-        logger.debug("Starting multi-level sorting with %d levels", self.num_levels)
+        logger.debug("Starting multi-level sorting with %d levels", self._num_levels)
 
-        for i, step in enumerate(self._sorting_steps[: self.num_levels]):
+        for i, step in enumerate(self._sorting_steps[: self._num_levels]):
             logger.debug("Applying sort step %d", i + 1)
             sorted_datasets = step.get_sorted_datasets(sorted_datasets)
 

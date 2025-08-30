@@ -21,7 +21,6 @@ class GeneralGraphSettings:
     """
     Settings for general graph options.
     """
-
     def __init__(
         self,
         # Axis settings
@@ -1087,12 +1086,11 @@ class GeneralGraphSettings:
 
     def get_active_widgets(self) -> List[widgets.Widget]:
         """
-        Get a list of all interactive widgets for general graph settings.
+        Get the list of active widgets based on enabled flags or show_all_options.
 
         Returns:
-            List[widgets.Widget]: A list of all interactive widgets for general graph settings.
+            List[widgets.Widget]: List of active widgets.
         """
-        logger.debug("Collecting all interactive widgets for GeneralGraphSettings")
         active_widgets = []
 
         if self._col_descriptor_enabled or self._show_all_options:
