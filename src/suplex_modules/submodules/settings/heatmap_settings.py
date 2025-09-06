@@ -13,7 +13,6 @@ class HeatmapSettings:
     """
     def __init__(
         self,
-        show_heatmap: Optional[bool] = None,
         square: Optional[bool] = None,
         symmetric_scaling: Optional[bool] = None,
         annot: Optional[bool] = None,
@@ -23,8 +22,7 @@ class HeatmapSettings:
         linewidths: Optional[float] = None,
         linecolor: Optional[str] = None,
         robust: Optional[bool] = None,
-        cbar: Optional[bool] = None,
-        cbar_orientation: Optional[str] = None,
+        cbar_options: Optional[List[CBAR_ORIENTATION]] = None,
         use_letter_annotation_x: Optional[bool] = None,
         use_letter_annotation_y: Optional[bool] = None,
         start_at_index_0: Optional[bool] = None,
@@ -42,7 +40,6 @@ class HeatmapSettings:
         Initialize HeatmapSettings with optional parameters.
 
         Args:
-            show_heatmap (bool): Whether to show the heatmap.
             square (bool): Whether to make cells square.
             symmetric_scaling (bool): Whether to use symmetric scaling around center.
             annot (bool): Whether to annotate values.
@@ -52,8 +49,7 @@ class HeatmapSettings:
             linewidths (float): Width of grid lines.
             linecolor (str): Color of grid lines.
             robust (bool): Whether to use robust scaling.
-            cbar (bool): Whether to show the colorbar.
-            cbar_orientation (str): Orientation of the colorbar.
+            cbar_options (List[CBAR_ORIENTATION]): Orientation of cbar.
             use_letter_annotation_x (bool): Whether to use letter annotation for X axis.
             use_letter_annotation_y (bool): Whether to use letter annotation for Y axis.
             start_at_index_0 (bool): Whether to start indexing at 0.
@@ -67,9 +63,6 @@ class HeatmapSettings:
             show_all_options (bool): Whether to show all options with defaults.
         """
         logger.debug("Initializing HeatmapSettings")
-
-        self._show_heatmap_enabled = show_heatmap is not None
-        show_heatmap = show_heatmap if self._show_heatmap_enabled else True
 
         self._square_enabled = square is not None
         square = square if self._square_enabled else False
@@ -100,12 +93,8 @@ class HeatmapSettings:
         self._robust_enabled = robust is not None
         robust = robust if self._robust_enabled else False
 
-        self._cbar_enabled = cbar is not None
-        cbar = cbar if self._cbar_enabled else True
-
-        self._cbar_orientation_enabled = cbar_orientation is not None
-        self._cbar_orientation = CBAR_ORIENTATION(cbar_orientation) if cbar_orientation and cbar_orientation in [e.value for e in CBAR_ORIENTATION] else CBAR_ORIENTATION.VERTICAL
-        cbar_orientation = self._cbar_orientation.value
+        self._cbar_enabled = cbar_options is not None
+        cbar_orientations = cbar_options if self._cbar_enabled else list(CBAR_ORIENTATION)
 
         self._use_letter_annotation_x_enabled = use_letter_annotation_x is not None
         use_letter_annotation_x = use_letter_annotation_x if self._use_letter_annotation_x_enabled else False
@@ -146,7 +135,6 @@ class HeatmapSettings:
         self._show_all_options = show_all_options
 
         self.create_widgets(
-            show_heatmap=show_heatmap,
             square=square,
             symmetric_scaling=symmetric_scaling,
             annot=annot,
@@ -156,8 +144,7 @@ class HeatmapSettings:
             linewidths=linewidths,
             linecolor=linecolor,
             robust=robust,
-            cbar=cbar,
-            cbar_orientation=cbar_orientation,
+            cbar_orientations=cbar_orientations,
             use_letter_annotation_x=use_letter_annotation_x,
             use_letter_annotation_y=use_letter_annotation_y,
             start_at_index_0=start_at_index_0,
@@ -173,7 +160,6 @@ class HeatmapSettings:
 
     def create_widgets(
         self,
-        show_heatmap: bool,
         square: bool,
         symmetric_scaling: bool,
         annot: bool,
@@ -183,8 +169,7 @@ class HeatmapSettings:
         linewidths: float,
         linecolor: str,
         robust: bool,
-        cbar: bool,
-        cbar_orientation: str,
+        cbar_orientations: List[CBAR_ORIENTATION],
         use_letter_annotation_x: bool,
         use_letter_annotation_y: bool,
         start_at_index_0: bool,
@@ -201,13 +186,6 @@ class HeatmapSettings:
         Create widgets for heatmap settings.
         """
         logger.debug("Creating widgets for HeatmapSettings")
-
-        self._show_heatmap_widget = WidgetFactory.checkbox(
-            value=show_heatmap,
-            description="Show Heatmap",
-            indent=False,
-            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
-        )
 
         self._square_widget = WidgetFactory.checkbox(
             value=square,
@@ -306,11 +284,10 @@ class HeatmapSettings:
             layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
         )
 
-        # New colorbar mode dropdown
-        cbar_mode_value = "Hide" if not cbar else cbar_orientation.capitalize()
+        cbar_options = [c_option.value for c_option in cbar_orientations]
         self._cbar_mode_widget = WidgetFactory.dropdown(
-            options=["Hide", "Vertical", "Horizontal"],
-            value=cbar_mode_value,
+            options= cbar_options,
+            value=cbar_options[0],
             description="",
             layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
         )
@@ -402,8 +379,6 @@ class HeatmapSettings:
         logger.debug("Collecting active widgets for HeatmapSettings")
         active_widgets = []
 
-        if self._show_heatmap_enabled or self._show_all_options:
-            active_widgets.append(self._show_heatmap_widget)
         if self._square_enabled or self._show_all_options:
             active_widgets.append(self._square_widget)
         if self._symmetric_scaling_enabled or self._show_all_options:
@@ -428,7 +403,7 @@ class HeatmapSettings:
             active_widgets.append(self._linecolor_widget)
         if self._robust_enabled or self._show_all_options:
             active_widgets.append(self._robust_widget)
-        if self._cbar_enabled or self._cbar_orientation_enabled or self._show_all_options:
+        if self._cbar_enabled or self._show_all_options:
             active_widgets.append(self._cbar_mode_widget)
         if self._use_letter_annotation_x_enabled or self._show_all_options:
             active_widgets.append(self._use_letter_annotation_x_widget)
@@ -464,8 +439,6 @@ class HeatmapSettings:
 
         # Basic checkboxes
         basic_checkboxes = []
-        if self._show_heatmap_enabled or self._show_all_options:
-            basic_checkboxes.append(self._show_heatmap_widget)
         if self._square_enabled or self._show_all_options:
             basic_checkboxes.append(self._square_widget)
         if self._robust_enabled or self._show_all_options:
@@ -627,8 +600,7 @@ class HeatmapSettings:
             )
             heatmap_widgets.append(linecolor_container)
             
-        # Colorbar section (simplified to dropdown)
-        if self._cbar_enabled or self._cbar_orientation_enabled or self._show_all_options:
+        if self._cbar_enabled or self._show_all_options:
             cbar_container = WidgetFactory.vbox(
                 children=[
                     WidgetFactory.label(value="Colorbar:"),
@@ -762,13 +734,6 @@ class HeatmapSettings:
         )
 
     @property
-    def show_heatmap(self) -> bool:
-        return self._show_heatmap_widget.value
-
-    def get_show_heatmap_widget(self) -> widgets.Checkbox:
-        return self._show_heatmap_widget
-
-    @property
     def square(self) -> bool:
         return self._square_widget.value
 
@@ -838,13 +803,10 @@ class HeatmapSettings:
     def get_robust_widget(self) -> widgets.Checkbox:
         return self._robust_widget
 
-    @property
-    def cbar(self) -> bool:
-        return self._cbar_mode_widget.value != "Hide"
 
     @property
-    def cbar_orientation(self) -> str:
-        return self._cbar_mode_widget.value.lower() if self.cbar else None
+    def cbar_orientation(self) -> CBAR_ORIENTATION:
+        return CBAR_ORIENTATION(self._cbar_mode_widget.value)
 
     def get_cbar_mode_widget(self) -> widgets.Dropdown:
         return self._cbar_mode_widget

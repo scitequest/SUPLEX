@@ -38,6 +38,7 @@ class LEGEND_POSITION(Enum):
     LOWER_RIGHT = "lower right"
     LOWER_LEFT = "lower left"
     RIGHT = "right"
+    LEFT = "left"
     CENTER_LEFT = "center left"
     CENTER_RIGHT = "center right"
     LOWER_CENTER = "lower center"
@@ -206,3 +207,4 @@ class LINE_COLOR(Enum):
 class CBAR_ORIENTATION(Enum):
     VERTICAL = "vertical"
     HORIZONTAL = "horizontal"
+    HIDE = "hide colorbar"

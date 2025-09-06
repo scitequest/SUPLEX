@@ -52,8 +52,10 @@ from suplex_modules.submodules.settings.submodule_settings_constants import (
     OPTION_INSET,
     OPTION_WIDGETS_MAX_WIDTH,
     ASPECT_RATIO,
-    get_aspect_ratio_value,
+    CBAR_ORIENTATION,
+    get_aspect_ratio_value
 )
+from suplex_modules.submodules.submodule_utils import get_shortened_label
 
 logger = logging.getLogger(__name__)
 
@@ -129,8 +131,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             cell_size = 0.01,
             linecolor= LINE_COLOR.BLACK,
             robust = False,
-            cbar = True,
-            cbar_orientation = CBAR_ORIENTATION.VERTICAL,
+            cbar_options = list(CBAR_ORIENTATION),
             start_at_index_0 = True,
             highlight_reference_points = True,
             highlight_colors = highlight_colors
@@ -1007,7 +1008,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         """
         Generate the intensity overview plot.
         """
-        logger.debug("Generating intensity overview plot")
+        logger.debug("Generating overview heatmap")
 
         # Catches edge case: no references selected in reference point method
         if self._value_extractor.normalization in NORMALIZATION_REFERENCE_POINT and len(self._value_extractor.references) == 0:
@@ -1024,7 +1025,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
             if not self._general_graph_settings.include_empty_datasets:
                 value_lists = {
-                    key: value_list for key, value_list in value_lists.items() if value_list
+                    key: value_list for key, value_list in value_lists.items() 
+                    if value_list and not all(val is None or (val is not None and np.isnan(val)) for val in value_list)
                 }
 
             if not value_lists:
@@ -1167,8 +1169,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         # Dataset labels (y-axis by default)
         max_label_length = self._general_graph_settings.max_label_length
         y_labels = [
-            self.get_shortened_label(
-                dataset.id if self._dataset_descriptor == DATASET_LABEL.ID else (dataset.metadata.name if dataset.metadata else "Unknown"),
+            get_shortened_label(
+                dataset.id if self._dataset_descriptor == DATASET_LABEL.ID else dataset.name,
                 max_label_length
             ) for dataset in datasets
         ]
@@ -1237,6 +1239,11 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                     
                     vmin = center - max_delta
                     vmax = center + max_delta
+
+        show_cbar = self._heatmap_settings.cbar_orientation in [CBAR_ORIENTATION.VERTICAL, CBAR_ORIENTATION.HORIZONTAL]
+        cbar_kws = None
+        if show_cbar:
+            cbar_kws = {"orientation": self._heatmap_settings.cbar_orientation.value}
         
         sns_heatmap_kwargs = {
         "ax": ax,
@@ -1251,10 +1258,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         "linewidths": self._heatmap_settings.linewidths,
         "linecolor": self._heatmap_settings.linecolor,
         "robust": self._heatmap_settings.robust,
-        "cbar": self._heatmap_settings.cbar,
-        "cbar_kws": {
-        "orientation": self._heatmap_settings.cbar_orientation.lower(),
-        } if self._heatmap_settings.cbar else None,
+        "cbar": show_cbar,
+        "cbar_kws": cbar_kws,
         }
 
         # Heatmaps resolve auto internally
@@ -1265,7 +1270,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         heatmap = sns.heatmap(df, **sns_heatmap_kwargs)
 
         # Changes labels to σ notation if gaussian option was used
-        if self._heatmap_settings.cbar and self._value_extractor.normalization in [NORMALIZATION.BY_POSITION_GAUSSIAN_ABSOLUTE, NORMALIZATION.BY_POSITION_GAUSSIAN_PARTIAL]:
+        if show_cbar and self._value_extractor.normalization in [NORMALIZATION.BY_POSITION_GAUSSIAN_ABSOLUTE, NORMALIZATION.BY_POSITION_GAUSSIAN_PARTIAL]:
             cbar = heatmap.collections[0].colorbar
             
             current_ticks = cbar.get_ticks()
@@ -1340,26 +1345,6 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                     
         logger.debug(f"Heatmap generated successfully, figsize: {fig_width}x{fig_height}, dpi: {fig.dpi})")
         return fig
-
-    def get_shortened_label(self, label: str, max_length: int) -> str:
-        """
-        Shorten a label if it exceeds the maximum length.
-
-        Args:
-            label (str): The label to shorten.
-            max_length (int): Maximum allowed length.
-
-        Returns:
-            str: Shortened label if necessary.
-        """
-        if len(label) <= max_length:
-            return label
-
-        if max_length < 5:
-            return label[:max_length]
-
-        side_len = (max_length - 3) // 2
-        return f"{label[:side_len]}...{label[-(max_length - 3 - side_len):]}"
 
     def on_export_csv(self):
         """
