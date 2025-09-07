@@ -3,7 +3,7 @@ from typing import Optional, List
 import ipywidgets as widgets
 from enum import Enum
 from ui.widget_factory import WidgetFactory
-from suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET, ANNOTATION_COLOR, LINE_COLOR, CBAR_ORIENTATION
+from suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET, ANNOTATION_COLOR, LINE_COLOR, CBAR_ORIENTATION, CBAR_TICK_MODE
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +23,7 @@ class HeatmapSettings:
         linecolor: Optional[str] = None,
         robust: Optional[bool] = None,
         cbar_options: Optional[List[CBAR_ORIENTATION]] = None,
+        cbar_tick_options: Optional[List[CBAR_TICK_MODE]] = None,
         use_letter_annotation_x: Optional[bool] = None,
         use_letter_annotation_y: Optional[bool] = None,
         start_at_index_0: Optional[bool] = None,
@@ -96,6 +97,9 @@ class HeatmapSettings:
         self._cbar_enabled = cbar_options is not None
         cbar_orientations = cbar_options if self._cbar_enabled else list(CBAR_ORIENTATION)
 
+        self._cbar_tick_modes_enabled = cbar_tick_options is not None
+        cbar_tick_options = cbar_tick_options if self._cbar_tick_modes_enabled else list(CBAR_TICK_MODE)
+
         self._use_letter_annotation_x_enabled = use_letter_annotation_x is not None
         use_letter_annotation_x = use_letter_annotation_x if self._use_letter_annotation_x_enabled else False
 
@@ -145,6 +149,7 @@ class HeatmapSettings:
             linecolor=linecolor,
             robust=robust,
             cbar_orientations=cbar_orientations,
+            cbar_tick_options = cbar_tick_options,
             use_letter_annotation_x=use_letter_annotation_x,
             use_letter_annotation_y=use_letter_annotation_y,
             start_at_index_0=start_at_index_0,
@@ -170,6 +175,7 @@ class HeatmapSettings:
         linecolor: str,
         robust: bool,
         cbar_orientations: List[CBAR_ORIENTATION],
+        cbar_tick_options: List[CBAR_TICK_MODE],
         use_letter_annotation_x: bool,
         use_letter_annotation_y: bool,
         start_at_index_0: bool,
@@ -292,6 +298,14 @@ class HeatmapSettings:
             layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
         )
 
+        cbar_tick_modes = [c_option.value for c_option in cbar_tick_options]
+        self._cbar_tick_mode_widget = WidgetFactory.dropdown(
+            options= cbar_tick_modes,
+            value=cbar_tick_modes[0],
+            description="",
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px")
+        )
+
         self._use_letter_annotation_x_widget = WidgetFactory.checkbox(
             value=use_letter_annotation_x,
             description="Use Letter Annotation X",
@@ -405,6 +419,8 @@ class HeatmapSettings:
             active_widgets.append(self._robust_widget)
         if self._cbar_enabled or self._show_all_options:
             active_widgets.append(self._cbar_mode_widget)
+        if self._cbar_tick_modes_enabled or self._show_all_options:
+            active_widgets.append(self._cbar_tick_mode_widget)
         if self._use_letter_annotation_x_enabled or self._show_all_options:
             active_widgets.append(self._use_letter_annotation_x_widget)
         if self._use_letter_annotation_y_enabled or self._show_all_options:
@@ -599,11 +615,12 @@ class HeatmapSettings:
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
             )
             heatmap_widgets.append(linecolor_container)
+
             
+        c_bar_children = []
         if self._cbar_enabled or self._show_all_options:
-            cbar_container = WidgetFactory.vbox(
-                children=[
-                    WidgetFactory.label(value="Colorbar:"),
+            c_bar_children.append(WidgetFactory.label(value="Colorbar:"))
+            c_bar_children.append(
                     WidgetFactory.vbox(
                         children=[self._cbar_mode_widget],
                         gap="5px",
@@ -611,7 +628,22 @@ class HeatmapSettings:
                         height="auto",
                         layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
                     )
-                ],
+                )
+
+        if self._cbar_tick_modes_enabled or self._show_all_options:
+            c_bar_children.append(WidgetFactory.label(value="Colorbar Ticks:"))
+            c_bar_children.append(WidgetFactory.vbox(
+                        children=[self._cbar_tick_mode_widget],
+                        gap="5px",
+                        overflow="visible",
+                        height="auto",
+                        layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
+                    )
+                )
+        
+        if c_bar_children:
+            cbar_container = WidgetFactory.vbox(
+                children=c_bar_children,
                 gap="5px",
                 overflow="visible",
                 height="auto",
@@ -810,6 +842,13 @@ class HeatmapSettings:
 
     def get_cbar_mode_widget(self) -> widgets.Dropdown:
         return self._cbar_mode_widget
+
+    @property
+    def cbar_tick_mode(self) -> CBAR_TICK_MODE:
+        return CBAR_TICK_MODE(self._cbar_tick_mode_widget.value)
+
+    def get_cbar_tick_mode_widget(self) -> widgets.Dropdown:
+        return self._cbar_tick_mode_widget
 
     @property
     def use_letter_annotation_x(self) -> bool:

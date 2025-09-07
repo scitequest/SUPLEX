@@ -208,3 +208,12 @@ class CBAR_ORIENTATION(Enum):
     VERTICAL = "vertical"
     HORIZONTAL = "horizontal"
     HIDE = "hide colorbar"
+
+class CBAR_TICK_MODE(Enum):
+    AUTO = "auto"
+    HIDE = "hide ticks"
+    START_END = "extremes"
+    START_MIDDLE_END = "extremes and middle"
+    FOUR_TICKS = "four ticks"
+    FIVE_TICKS = "five ticks"
+    TEN_TICKS = "ten ticks"

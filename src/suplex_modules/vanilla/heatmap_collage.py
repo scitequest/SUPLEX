@@ -1,5 +1,7 @@
 import ipywidgets as widgets
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+import matplotlib.ticker as ticker
 import seaborn as sns
 from typing import Dict, List, Optional, Union, Any, Callable
 from typing_extensions import Self
@@ -15,6 +17,7 @@ from PIL import Image, ImageOps
 import svgutils.transform as sg
 import tempfile
 import time
+import warnings
 
 from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
@@ -47,7 +50,7 @@ from suplex_modules.submodules.sample_spot_filter import (
     SampleSpotFilter,
     get_normalization_factors,
 )
-from suplex_modules.submodules.collage import Collage
+from suplex_modules.submodules.collage import Collage, add_title_to_svg, add_padding_to_svgs
 
 from suplex_modules.submodules.settings.general_graph_settings import (
     GeneralGraphSettings,
@@ -66,10 +69,11 @@ from suplex_modules.submodules.settings.submodule_settings_constants import (
     OPTION_WIDGETS_MAX_WIDTH,
     ASPECT_RATIO,
     CBAR_ORIENTATION,
+    CBAR_TICK_MODE,
     get_aspect_ratio_value,
 )
 
-from suplex_modules.submodules.submodule_utils import number_to_letters, get_shortened_label
+from suplex_modules.submodules.submodule_utils import number_to_letters, calculate_step_size
 logger = logging.getLogger(__name__)
 
 MAX_PIXELS_GRAPH = 2**20
@@ -113,7 +117,6 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             include_empty_datasets=False,
             sequential_color_scheme=SEQUENTIAL_COLOR_SCHEME.GREYS,
             divergent_color_scheme=DIVERGENT_COLOR_SCHEME.COOLWARM,
-            max_label_length=30,
             base_font_size=20,
             aspect_ratio=ASPECT_RATIO.AUTO,
             grid_style=GRID_STYLE.TICKS,
@@ -134,15 +137,20 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             annot_digits = 0,
             annot_color = ANNOTATION_COLOR.AUTO,
             linewidths = 0,
-            cell_size = 0.01,
+            cell_size = 0.4,
             linecolor= LINE_COLOR.BLACK,
             robust = False,
             cbar_options = list(CBAR_ORIENTATION),
+            cbar_tick_options = list(CBAR_TICK_MODE),
             start_at_index_0 = True,
             highlight_reference_points = True,
             highlight_colors = highlight_colors,
             use_letter_annotation_x = False,
             use_letter_annotation_y = False,
+            col_labels = "",
+            row_labels = "",
+            use_custom_col_labels = False,
+            use_custom_row_labels = False,
             n_cols = 10
         )
         
@@ -298,8 +306,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 title = "",
                 title_positions = list(TITLE_POSITION),
                 title_colors = title_colors,
-                font_size = 20,
-                max_font_size = 100,
+                font_size = 50,
+                max_font_size = 200,
                 reading_orders = list(READING_ORDER),
                 show_all_options = True
             )
@@ -1078,9 +1086,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 stat_max = np.nanmax(values)
                 stat_std = np.nanstd(values)
                 
-                max_len = self._general_graph_settings.max_label_length
                 name = dataset.id if self._dataset_descriptor == DATASET_LABEL.ID else dataset.name
-                name = get_shortened_label(label = name, max_length = max_len)
                 
                 stat = {
                     "name": name,
@@ -1374,11 +1380,12 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
             title = ""
             if self._general_graph_settings.show_title:
-                max_len = self._general_graph_settings.max_label_length
                 title = dataset.id if self._dataset_descriptor == DATASET_LABEL.ID else dataset.name
-                title = get_shortened_label(label = title, max_length = max_len)
+                
             # We use constant values for the sub-collages, maybe we'll make this interactive in a future version
             # Commented attributes default to the same setting as the overarching collage
+            sub_title_size = max(1, int(self._collage.font_size * 0.618)) # Golden ratio
+            
             sub_collages.append(self._collage.generate_collage(
                 images=dataset_figures + dataset_images,
                 layout = COLLAGE_LAYOUT.GRID_EQUAL_ALL,
@@ -1391,14 +1398,40 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 title = title,
                 #title_position,
                 #title_color,
-                font_size = self._general_graph_settings.base_font_size,
+                font_size = sub_title_size,
                 #reading_order,
                 dpi = self._general_graph_settings.dpi
             ))
             for fig in dataset_figures:
                 plt.close(fig)
-                
-        collage_image = self._collage.generate_collage(images=sub_collages, dpi = self._general_graph_settings.dpi)
+
+        show_global_cbar = self._heatmap_settings.cbar_orientation in [CBAR_ORIENTATION.VERTICAL, CBAR_ORIENTATION.HORIZONTAL]
+        show_global_cbar = show_global_cbar and self._value_extractor.normalization not in [NORMALIZATION.RAW, NORMALIZATION.CUSTOM, NORMALIZATION.BY_POSITION, NORMALIZATION.BY_POSITION_GAUSSIAN_PARTIAL]
+        
+        title = "" # remove title to allow centering with separatly added colbar
+        vertical_margin = 0
+        horizontal_margin = 0
+        if not show_global_cbar:
+            title = self._collage.title
+            horizontal_margin = self._collage.horizontal_margin
+            vertical_margin = self._collage.vertical_margin
+        
+        collage_image = self._collage.generate_collage(images=sub_collages, dpi = self._general_graph_settings.dpi, title = title, horizontal_margin = horizontal_margin, vertical_margin = vertical_margin)
+
+        if show_global_cbar:
+            collage_image = self.add_global_colorbar(svg_image = collage_image, plot_data = plot_data)
+            collage_image = add_title_to_svg(
+                svg=collage_image,
+                title=self._collage.title,
+                title_position=self._collage.title_position,
+                title_color=self._collage.title_color,
+                font_size=self._collage.font_size
+            )
+            collage_image = add_padding_to_svgs(
+                [collage_image],
+                horizontal_padding=self._collage.horizontal_margin,
+                vertical_padding=self._collage.vertical_margin
+            )[0]
         
         logger.debug("Collage generated successfully")
         return collage_image
@@ -1438,8 +1471,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             })
             
             # Calculate figure size
-            width_per_col = 0.4  # Inches per column
-            height_per_row = 0.3  # Inches per row
+            width_per_col = self._heatmap_settings.cell_size
+            height_per_row = self._heatmap_settings.cell_size
             left_margin = right_margin = bottom_margin = top_margin = 0.5
             fig_width = left_margin + right_margin + n_cols * width_per_col
             fig_height = bottom_margin + top_margin + n_rows * height_per_row
@@ -1481,6 +1514,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 annot_kws["color"] = self._heatmap_settings.annot_color.value
 
             show_cbar = self._heatmap_settings.cbar_orientation in [CBAR_ORIENTATION.VERTICAL, CBAR_ORIENTATION.HORIZONTAL]
+            show_cbar = show_cbar and normalization in [NORMALIZATION.RAW, NORMALIZATION.CUSTOM, NORMALIZATION.BY_POSITION, NORMALIZATION.BY_POSITION, NORMALIZATION.BY_POSITION_GAUSSIAN_PARTIAL]
             cbar_kws = None
             if show_cbar:
                 cbar_kws = {"orientation": self._heatmap_settings.cbar_orientation.value}
@@ -1505,6 +1539,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             )
             
             # Changes labels to σ notation if gaussian option was used
+            
             if show_cbar and normalization in [NORMALIZATION.BY_POSITION_GAUSSIAN_ABSOLUTE, NORMALIZATION.BY_POSITION_GAUSSIAN_PARTIAL]:
                 cbar = heatmap.collections[0].colorbar
                 
@@ -1520,6 +1555,33 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 
                 cbar.set_ticks(integer_ticks)
                 cbar.set_ticklabels(labels)
+            elif show_cbar:
+                cbar = heatmap.collections[0].colorbar
+                vmin_cbar, vmax_cbar = cbar.mappable.get_clim()
+                tick_mode = self._heatmap_settings.cbar_tick_mode
+                if tick_mode == CBAR_TICK_MODE.HIDE:
+                    cbar.set_ticks([])
+                elif tick_mode == CBAR_TICK_MODE.START_END:
+                    vmin_cbar, vmax_cbar = cbar.mappable.get_clim()
+                    cbar.set_ticks([vmin_cbar, vmax_cbar])
+                elif tick_mode == CBAR_TICK_MODE.START_MIDDLE_END:
+                    vmin_cbar, vmax_cbar = cbar.mappable.get_clim()
+                    middle = (vmax_cbar + vmin_cbar) / 2
+                    cbar.set_ticks([vmin_cbar, middle, vmax_cbar])
+                elif tick_mode == CBAR_TICK_MODE.FOUR_TICKS:
+                    vmin_cbar, vmax_cbar = cbar.mappable.get_clim()
+                    cbar.set_ticks(np.linspace(vmin_cbar, vmax_cbar, 4))
+                elif tick_mode == CBAR_TICK_MODE.FIVE_TICKS:
+                    vmin_cbar, vmax_cbar = cbar.mappable.get_clim()
+                    cbar.set_ticks(np.linspace(vmin_cbar, vmax_cbar, 5))
+                elif tick_mode == CBAR_TICK_MODE.TEN_TICKS:
+                    vmin_cbar, vmax_cbar = cbar.mappable.get_clim()
+                    cbar.set_ticks(np.linspace(vmin_cbar, vmax_cbar, 10))
+                    
+                if tick_mode not in [CBAR_TICK_MODE.HIDE, CBAR_TICK_MODE.AUTO]:
+                    _, decimals = calculate_step_size(vmin_cbar, vmax_cbar)
+                    current_ticks = cbar.get_ticks()
+                    labels = [f"{t:.{decimals}f}" for t in current_ticks]       
             
             # Set labels to row and column indices
             col_labels = range(n_cols)
@@ -1535,20 +1597,36 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             else:
                 row_labels = range(start_index, n_rows + start_index)
 
+            if self._heatmap_settings.use_custom_col_labels:
+                col_label_str = self._heatmap_settings.col_labels
+                custom_col_labels = [label.strip() for label in col_label_str.split(",") if label.strip()]
+                if len(custom_col_labels) == n_cols:
+                    col_labels = custom_col_labels
+                else:
+                    logger.warning(
+                        f"Custom column labels length mismatch: expected {n_cols}, got {len(custom_col_labels)}. "
+                        "Falling back to default labels."
+                    )
+            
+            if self._heatmap_settings.use_custom_row_labels:
+                row_label_str = self._heatmap_settings.row_labels
+                custom_row_labels = [label.strip() for label in row_label_str.split(",") if label.strip()]
+                if len(custom_row_labels) == n_rows:
+                    row_labels = custom_row_labels
+                else:
+                    logger.warning(
+                        f"Custom row labels length mismatch: expected {n_rows}, got {len(custom_row_labels)}. "
+                        "Falling back to default labels."
+                    )
+            
             # centered ticks
             x_ticks = np.arange(0.5, n_cols, 1)
             y_ticks = np.arange(0.5, n_rows, 1)
-            
-            if self._general_graph_settings.swap_axes:
-                ax.set_xticks(y_ticks)
-                ax.set_yticks(x_ticks)
-                ax.set_xticklabels(row_labels, rotation=0)
-                ax.set_yticklabels(col_labels, rotation=0)
-            else:
-                ax.set_xticks(x_ticks)
-                ax.set_yticks(y_ticks)
-                ax.set_xticklabels(col_labels, rotation=0)
-                ax.set_yticklabels(row_labels, rotation=0)
+
+            ax.set_xticks(x_ticks)
+            ax.set_yticks(y_ticks)
+            ax.set_xticklabels(col_labels, rotation=0)
+            ax.set_yticklabels(row_labels, rotation=0)
                 
             
             ax.set_xlabel("")
@@ -1563,7 +1641,10 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 ax.set_xticks([])
                 ax.set_yticks([])
                 
-            ax.grid(self._general_graph_settings.show_grid, alpha=self._general_graph_settings.transparency)
+            if self._general_graph_settings.show_grid:
+                ax.grid(True, alpha=self._general_graph_settings.transparency)
+            else:
+                ax.grid(False)
             
             if self._general_graph_settings.invert_x_axis:
                 ax.invert_xaxis()
@@ -1599,7 +1680,150 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             logger.error(f"Failed to generate heatmap for dataset {dataset.id}: {e}", exc_info=True)
             return None
 
+    def add_global_colorbar(self, svg_image: sg.SVGFigure, plot_data: Dict[Dataset, List[float]], bar_width = 200) -> sg.SVGFigure:
+        logger.debug("Adding global colorbar to collage")
 
+        # This is written to work generally even though we don't use all options
+        
+        all_values = [val for values in plot_data.values() for val in values if not np.isnan(val)]
+        if not all_values:
+            logger.warning("No valid data for colorbar generation")
+            return svg_image
+            
+        orientation = self._heatmap_settings.cbar_orientation
+        if orientation == CBAR_ORIENTATION.HIDE:
+            return svg_image  # Return original if no cbar
+    
+        vmin = min(all_values)
+        vmax = max(all_values)
+        center = None
+    
+        normalization = self._value_extractor.normalization
+        if normalization in NORMALIZATION_REFERENCE_POINT:
+            center = 0
+            if normalization == NORMALIZATION.BY_POSITION:
+                center = 1
+            if self._heatmap_settings.symmetric_scaling:
+                delta_min = abs(vmin - center)
+                delta_max = abs(vmax - center)
+                max_delta = max(delta_min, delta_max)
+                vmin = center - max_delta
+                vmax = center + max_delta
+    
+        # Colormap setup
+        cmap = self._general_graph_settings.sequential_color_scheme.value
+        if center is not None:
+            cmap = self._general_graph_settings.divergent_color_scheme.value
+    
+        # Ticks and labels
+        ticks = None
+        ticklabels = None
+        if normalization in [NORMALIZATION.BY_POSITION_GAUSSIAN_ABSOLUTE, NORMALIZATION.BY_POSITION_GAUSSIAN_PARTIAL]:
+            ticks = [-3, -2, -1, 0, 1, 2, 3]
+            ticklabels = [f"−σ{int(-t)}" if t < 0 else f"σ{int(t)}" if t > 0 else "0" for t in ticks]
+    
+        collage_width = float(svg_image.width.rstrip("pt"))
+        collage_height = float(svg_image.height.rstrip("pt"))
+    
+        if orientation == CBAR_ORIENTATION.VERTICAL:
+            width = bar_width 
+            height = collage_height
+        else:  # horizontal
+            width = collage_width
+            height = bar_width
+    
+        # Figure size in inches (approx 72 pt per inch)
+        fig_width = width / 72.0
+        fig_height = height / 72.0
+    
+        fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+    
+        # Norm and colorbar
+        norm = mpl.colors.TwoSlopeNorm(vmin=vmin, vcenter=center, vmax=vmax) if center is not None else mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+        cb = mpl.colorbar.ColorbarBase(
+            ax,
+            cmap=plt.get_cmap(cmap),
+            norm=norm,
+            orientation=orientation.value,
+            ticks=ticks if ticks else None
+        )
+
+        tick_font_size = max(1, int(self._collage.font_size * 0.618))
+        cb.ax.tick_params(labelsize=tick_font_size)
+
+        # Apply CBAR_TICK_MODE logic
+        if normalization in [NORMALIZATION.BY_POSITION_GAUSSIAN_ABSOLUTE, NORMALIZATION.BY_POSITION_GAUSSIAN_PARTIAL]:
+            if ticks and ticklabels:
+                cb.set_ticks(ticks)
+                cb.set_ticklabels(ticklabels)
+        else:
+            tick_mode = self._heatmap_settings.cbar_tick_mode
+            logger.debug(f"Setting global colorbar ticks with mode: {tick_mode.value}")
+            
+            if tick_mode == CBAR_TICK_MODE.HIDE:
+                cb.set_ticks([])
+            elif tick_mode == CBAR_TICK_MODE.START_END:
+                cb.set_ticks([vmin, vmax])
+            elif tick_mode == CBAR_TICK_MODE.START_MIDDLE_END:
+                middle = (vmax + vmin) / 2
+                cb.set_ticks([vmin, middle, vmax])
+            elif tick_mode == CBAR_TICK_MODE.FOUR_TICKS:
+                cb.set_ticks(np.linspace(vmin, vmax, 4))
+            elif tick_mode == CBAR_TICK_MODE.FIVE_TICKS:
+                cb.set_ticks(np.linspace(vmin, vmax, 5))
+            elif tick_mode == CBAR_TICK_MODE.TEN_TICKS:
+                cb.set_ticks(np.linspace(vmin, vmax, 10))
+                
+            if tick_mode not in [CBAR_TICK_MODE.HIDE, CBAR_TICK_MODE.AUTO]:
+                vmin_cbar, vmax_cbar = cb.mappable.get_clim()
+                _, decimals = calculate_step_size(vmin_cbar, vmax_cbar)
+                current_ticks = cb.get_ticks()
+                labels = [f"{t:.{decimals}f}" for t in current_ticks]
+    
+        # Export to SVG
+        with io.BytesIO() as buf:
+            fig.savefig(buf, format="svg", pad_inches=5)
+            buf.seek(0)
+            svg_str = buf.read().decode("utf-8")
+    
+        plt.close(fig)
+    
+        cbar_svg = sg.fromstring(svg_str)
+        root = cbar_svg.getroot()
+        root.moveto(0, 0)
+    
+        cbar_fig = sg.SVGFigure(width=f"{width}pt", height=f"{height}pt")
+        
+        cbar_fig.append(root)
+    
+        # Combine with svg_image padding is used twice, between heatmap and bar and between bar and edge
+        padding = tick_font_size * 2
+        if orientation == CBAR_ORIENTATION.VERTICAL:
+            total_width = collage_width + width + padding + padding
+            total_height = max(collage_height, height)
+            combined_fig = sg.SVGFigure(width=f"{total_width}pt", height=f"{total_height}pt")
+            collage_root = svg_image.getroot()
+            collage_root.moveto(0, 0)
+            combined_fig.append(collage_root)
+            cbar_root = cbar_fig.getroot()
+            cbar_root.moveto(collage_width + padding, 0)
+            combined_fig.append(cbar_root)
+            combined_fig.set_size((f"{total_width}pt", f"{total_height}pt"))
+        else:  # horizontal
+            total_width = max(collage_width, width)
+            total_height = collage_height + height + padding + padding
+            combined_fig = sg.SVGFigure(width=f"{total_width}pt", height=f"{total_height}pt")
+            collage_root = svg_image.getroot()
+            collage_root.moveto(0, 0)
+            combined_fig.append(collage_root)
+            cbar_root = cbar_fig.getroot()
+            cbar_root.moveto(0, collage_height + padding)
+            combined_fig.append(cbar_root)
+            combined_fig.set_size((f"{total_width}pt", f"{total_height}pt"))
+    
+        logger.debug("Global colorbar added successfully")
+        return combined_fig
+    
     def get_data_matrix(self, value_lists: Dict[Dataset, List[float]]):
         if not value_lists:
             raise ValueError("No data provided for heatmap generation")
