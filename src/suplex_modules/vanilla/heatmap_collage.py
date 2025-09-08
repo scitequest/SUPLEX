@@ -1,7 +1,6 @@
 import ipywidgets as widgets
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import matplotlib.ticker as ticker
 import seaborn as sns
 from typing import Dict, List, Optional, Union, Any, Callable
 from typing_extensions import Self
@@ -9,15 +8,13 @@ import io
 import os
 from tkinter import filedialog, Tk
 import numpy as np
-import pandas as pd
 import logging
 import csv
 import math
-from PIL import Image, ImageOps
+from PIL import Image
 import svgutils.transform as sg
 import tempfile
 import time
-import warnings
 
 from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
@@ -106,53 +103,6 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         self._dataset_sorter = None
         self._dataset_filter = None
         self._sample_spot_filter = None
-
-        self._general_graph_settings = GeneralGraphSettings(
-            swap_axes=False,
-            invert_x_axis=False,
-            invert_y_axis=False,
-            show_grid=True,
-            show_title=True,
-            show_axis_ticks=True,
-            include_empty_datasets=False,
-            sequential_color_scheme=SEQUENTIAL_COLOR_SCHEME.GREYS,
-            divergent_color_scheme=DIVERGENT_COLOR_SCHEME.COOLWARM,
-            base_font_size=20,
-            aspect_ratio=ASPECT_RATIO.AUTO,
-            grid_style=GRID_STYLE.TICKS,
-            transparency=0.0,
-            dpi = 300,
-        )
-
-        highlight_colors = list(ANNOTATION_COLOR)
-        highlight_colors.remove(ANNOTATION_COLOR.AUTO)
-        highlight_colors.remove(ANNOTATION_COLOR.BLACK)
-        highlight_colors.remove(ANNOTATION_COLOR.WHITE)
-        
-        self._heatmap_settings = HeatmapSettings(
-            square = False,
-            symmetric_scaling = True,
-            annot = False,
-            annot_fontsize = 1,
-            annot_digits = 0,
-            annot_color = ANNOTATION_COLOR.AUTO,
-            linewidths = 0,
-            cell_size = 0.4,
-            linecolor= LINE_COLOR.BLACK,
-            robust = False,
-            cbar_options = list(CBAR_ORIENTATION),
-            cbar_tick_options = list(CBAR_TICK_MODE),
-            start_at_index_0 = True,
-            highlight_reference_points = True,
-            highlight_colors = highlight_colors,
-            use_letter_annotation_x = False,
-            use_letter_annotation_y = False,
-            col_labels = "",
-            row_labels = "",
-            use_custom_col_labels = False,
-            use_custom_row_labels = False,
-            n_cols = 10
-        )
         
         self._descriptor_radio = None
         self._dataset_descriptor = DATASET_LABEL.ID
@@ -272,9 +222,67 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             "Initiating module %s with %d datasets", self.module_name, len(datasets)
         )
         try:
+            
             self._datasets = datasets
             self._included_datasets = datasets.copy()
             self._color_scheme = color_scheme
+
+            max_samples_per_dataset = 1 # Default
+            # Max samples since we generate split heatmaps per spotfield instead of combined ones
+            if self._datasets:
+                max_samples_per_dataset = max(
+                    len(dataset.samples) 
+                    for dataset in self._datasets
+                )
+            
+            self._general_graph_settings = GeneralGraphSettings(
+                swap_axes=False,
+                invert_x_axis=False,
+                invert_y_axis=False,
+                show_grid=True,
+                show_title=True,
+                show_axis_ticks=True,
+                include_empty_datasets=False,
+                sequential_color_scheme=SEQUENTIAL_COLOR_SCHEME.GREYS,
+                divergent_color_scheme=DIVERGENT_COLOR_SCHEME.COOLWARM,
+                base_font_size=20,
+                aspect_ratio=ASPECT_RATIO.AUTO,
+                grid_style=GRID_STYLE.TICKS,
+                transparency=0.0,
+                dpi = 300,
+                min_index = 0,
+                max_index = max_samples_per_dataset
+            )
+    
+            highlight_colors = list(ANNOTATION_COLOR)
+            highlight_colors.remove(ANNOTATION_COLOR.AUTO)
+            highlight_colors.remove(ANNOTATION_COLOR.BLACK)
+            highlight_colors.remove(ANNOTATION_COLOR.WHITE)
+            
+            self._heatmap_settings = HeatmapSettings(
+                square = False,
+                symmetric_scaling = True,
+                annot = False,
+                annot_fontsize = 1,
+                annot_digits = 0,
+                annot_color = ANNOTATION_COLOR.AUTO,
+                linewidths = 0,
+                cell_size = 0.4,
+                linecolor= LINE_COLOR.BLACK,
+                robust = False,
+                cbar_options = list(CBAR_ORIENTATION),
+                cbar_tick_options = list(CBAR_TICK_MODE),
+                start_at_index_0 = True,
+                highlight_reference_points = True,
+                highlight_colors = highlight_colors,
+                use_letter_annotation_x = False,
+                use_letter_annotation_y = False,
+                col_labels = "",
+                row_labels = "",
+                use_custom_col_labels = False,
+                use_custom_row_labels = False,
+                n_cols = 10
+            )
 
             # Automatically set to the highest number of cols across all datasets
             max_columns = max(
@@ -825,6 +833,12 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         return settings_tab
 
     def auto_update(self, method: Callable[[], None]) -> None:
+        """
+        Automatically update the analysis if auto-update is enabled.
+
+        Args:
+            method: The method to call for updating.
+        """
         if self._auto_update_checkbox.value:
             method()
 
@@ -1345,6 +1359,15 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             logger.error("Failed to export plot: %s", e, exc_info=True)
     
     def get_collage(self, plot_data: Dict[Dataset, List[float]]) -> sg.SVGFigure:
+        """
+        Generate a collage from individual dataset heatmaps and images.
+
+        Args:
+            plot_data (Dict[Dataset, List[float]]): Data for plotting.
+
+        Returns:
+            sg.SVGFigure: The generated collage SVG.
+        """
         logger.debug("Generating collage from individual dataset heatmaps")
 
         # self._dataset_cols_number_input
@@ -1362,7 +1385,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                     img = Image.open(annotated_image_path).convert("RGBA")
                     dataset_images.append(img)
                 except Exception as e:
-                    logger.warning(f"Failed to load image from {annotated_image_path}: {e}")
+                    logger.warning(f"Failed to load image from {annotated_image_path}: %s", e)
 
             full_image_path = dataset.path_holder.image_path
             if self._add_full_images_checkbox.value and full_image_path:
@@ -1376,7 +1399,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                     img = img.convert("RGBA")
                     dataset_images.append(img)
                 except Exception as e:
-                    logger.warning(f"Failed to load image from {full_image_path}: {e}")
+                    logger.warning(f"Failed to load image from {full_image_path}: %s", e)
 
             title = ""
             if self._general_graph_settings.show_title:
@@ -1437,6 +1460,16 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         return collage_image
 
     def get_heatmaps(self, dataset: Dataset, plot_values: List[float]) -> List[plt.Figure]:
+        """
+        Generate heatmaps for the dataset, splitting by spotfields if applicable.
+
+        Args:
+            dataset (Dataset): The dataset to generate heatmaps for.
+            plot_values (List[float]): The values to plot.
+
+        Returns:
+            List[plt.Figure]: List of heatmap figures.
+        """
         n_spotfields = dataset.general_parameters.number_of_spotfields
         if n_spotfields <= 1 or n_spotfields is None or self._value_extractor.attribute in DATA_STATISTICS_ATTRIBUTES:
             return [self.generate_heatmap(dataset = dataset, plot_values = plot_values)]
@@ -1447,8 +1480,26 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         
 
     def generate_heatmap(self, dataset: Dataset, plot_values: List[float]) -> plt.Figure:
-        logger.debug(f"Generating heatmap for dataset: {dataset.id}")
+        """
+        Generate a single heatmap for the given dataset and values.
+
+        Args:
+            dataset (Dataset): The dataset.
+            plot_values (List[float]): The values to plot in the heatmap.
+
+        Returns:
+            plt.Figure: The generated heatmap figure.
+        """
+        logger.debug(f"Generating heatmap for dataset: %s", dataset.id)
         try:
+            min_index = self._general_graph_settings.min_index
+            max_index = self._general_graph_settings.max_index
+            if min_index > max_index or min_index >= len(plot_values):
+                logger.warning(f"Could not apply index truncation to {dataset.id}. Number of values {len(plot_values)}, min_index {min_index}, max_index {max_index}.")
+            else:
+                max_index = min(max_index, len(plot_values) - 1)
+                plot_values = plot_values[min_index:max_index + 1]
+                
             # Structure into 2D array based on n_cols
             n_cols = self._heatmap_settings.n_cols
             n_values = len(plot_values)
@@ -1668,19 +1719,30 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                         ref_row = ref_idx // n_cols
                         ref_col = ref_idx % n_cols
                     # Draw a rectangle around the cell
-                    rect = plt.Rectangle((ref_col, ref_row), 1, 1, fill=False, edgecolor=self._heatmap_settings.annot_color.value, lw=2)
+                    rect = plt.Rectangle((ref_col, ref_row), 1, 1, fill=False, edgecolor=self._heatmap_settings.highlight_color.value, lw=2)
                     ax.add_patch(rect)
             
             plt.tight_layout(pad=1.5)
             
-            logger.debug(f"Heatmap generated successfully for dataset: {dataset.id}")
+            logger.debug(f"Heatmap generated successfully for dataset: %s", dataset.id)
             return fig
         
         except Exception as e:
-            logger.error(f"Failed to generate heatmap for dataset {dataset.id}: {e}", exc_info=True)
+            logger.error(f"Failed to generate heatmap for dataset %s: %s", dataset.id, e, exc_info=True)
             return None
 
     def add_global_colorbar(self, svg_image: sg.SVGFigure, plot_data: Dict[Dataset, List[float]], bar_width = 200) -> sg.SVGFigure:
+        """
+        Add a global colorbar to the collage SVG.
+
+        Args:
+            svg_image (sg.SVGFigure): The original SVG image.
+            plot_data (Dict[Dataset, List[float]]): Data for colorbar scaling.
+            bar_width (int, optional): Width of the colorbar. Defaults to 200.
+
+        Returns:
+            sg.SVGFigure: The SVG with added colorbar.
+        """
         logger.debug("Adding global colorbar to collage")
 
         # This is written to work generally even though we don't use all options
@@ -1758,7 +1820,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 cb.set_ticklabels(ticklabels)
         else:
             tick_mode = self._heatmap_settings.cbar_tick_mode
-            logger.debug(f"Setting global colorbar ticks with mode: {tick_mode.value}")
+            logger.debug(f"Setting global colorbar ticks with mode: %s", tick_mode.value)
             
             if tick_mode == CBAR_TICK_MODE.HIDE:
                 cb.set_ticks([])
@@ -1825,6 +1887,15 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         return combined_fig
     
     def get_data_matrix(self, value_lists: Dict[Dataset, List[float]]):
+        """
+        Prepare a data matrix for CSV export.
+
+        Args:
+            value_lists (Dict[Dataset, List[float]]): The value lists.
+
+        Returns:
+            np.ndarray: The data matrix.
+        """
         if not value_lists:
             raise ValueError("No data provided for heatmap generation")
    
