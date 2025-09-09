@@ -546,8 +546,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
             )
             self._add_full_images_checkbox.observe(lambda b: self.auto_update(self.update_analysis), names="value")
-            
-            # Checkbox group (without a top-level label)
+
             checkbox_container = WidgetFactory.vbox(
                 children=[
                     self._add_heatmaps_checkbox, 
@@ -566,6 +565,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 for dataset in self._datasets 
                 if dataset.general_parameters.number_of_spotfields is not None
             )
+            
             # Plus two since we allow users to add annotated and full images
             dataset_cols_init_val = int(math.ceil(math.sqrt(max_columns))) # try to make a square
             max_dataset_cols += 2
@@ -649,8 +649,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             )
             
             # Add containers to collage_widgets
-            collage_widgets.append(top_row_hbox)  # Collage + Dataset nebeneinander
-            collage_widgets.append(heatmap_cols_container)  # Heatmap darunter
+            collage_widgets.append(top_row_hbox)
+            collage_widgets.append(heatmap_cols_container)
             
             # Create the main container
             collage_controls_section = WidgetFactory.vbox(
@@ -1533,6 +1533,18 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 fig_width = fig_height * ar_value  # Adjust width to match aspect ratio
             
             fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+
+            # Estimating size for dynamic downscaling
+            current_dpi = fig.dpi
+            est_width_pixels = fig_width * current_dpi
+            est_height_pixels = fig_height * current_dpi
+            
+            if (est_width_pixels > MAX_PIXELS_GRAPH) or (est_height_pixels > MAX_PIXELS_GRAPH):
+                min_dpi_width = MAX_PIXELS_GRAPH / fig_width
+                min_dpi_height = MAX_PIXELS_GRAPH / fig_height
+                min_dpi = max(50, min(min_dpi_width, min_dpi_height))
+                fig.set_dpi(min_dpi)
+                logger.info(f"Proactively reduced DPI to {min_dpi} (estimated pixels: {est_width_pixels:.0f}x{est_height_pixels:.0f}, figsize: {fig_width}x{fig_height}) to avoid size limit.")
             
             # Colorbar scaling and cmap setup
             vmin = None
@@ -1713,8 +1725,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 for ref_idx in self._value_extractor.references:
                     if self._general_graph_settings.swap_axes:
                         # Adjust for swapped axes: original rows become columns
-                        ref_col = ref_idx // self._heatmap_settings.n_cols  # Original row becomes new col
-                        ref_row = ref_idx % self._heatmap_settings.n_cols   # Original col becomes new row
+                        ref_col = ref_idx // self._heatmap_settings.n_cols 
+                        ref_row = ref_idx % self._heatmap_settings.n_cols
                     else:
                         ref_row = ref_idx // n_cols
                         ref_col = ref_idx % n_cols

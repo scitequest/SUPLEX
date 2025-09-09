@@ -29,14 +29,11 @@ def format_image_to_svg(input_item: Union[Image.Image, plt.Figure], dpi: int = 3
     Formats a PIL image or Matplotlib figure to an SVGFigure.
 
     Args:
-        input_item: The input image or figure to convert.
-        dpi: Dots per inch for rendering (default: 300).
+        input_item (Union[Image.Image, plt.Figure]): The input image or figure to convert.
+        dpi (int): Dots per inch for rendering.
 
     Returns:
         An sg.SVGFigure representation of the input.
-
-    Raises:
-        ValueError: If the input type is unsupported or conversion fails.
     """
     try:
         if isinstance(input_item, Image.Image):
@@ -65,7 +62,7 @@ def format_image_to_svg(input_item: Union[Image.Image, plt.Figure], dpi: int = 3
             os.remove(tmpfile.name)
             return svg_fig
 
-        # Return svg's as is
+        # Return svg files as is
         if isinstance(input_item, sg.SVGFigure):
             return input_item
 
@@ -79,8 +76,8 @@ def scale_svgs(svgs: List[sg.SVGFigure], scale_option: SCALE_OPTION) -> List[sg.
     Scales SVGFigures according to the specified scale option while preserving or ignoring aspect ratio.
 
     Args:
-        svgs: List of SVGFigures to scale.
-        scale_option: The scaling strategy to apply.
+        svgs (SVGFigure): List of SVGFigures to scale.
+        scale_option (SCALE_OPTION): The scaling strategy to apply.
 
     Returns:
         List of scaled SVGFigures.
@@ -89,15 +86,19 @@ def scale_svgs(svgs: List[sg.SVGFigure], scale_option: SCALE_OPTION) -> List[sg.
     if scale_option == SCALE_OPTION.NO_SCALE:
         return svgs
 
+    # Extracts dimensions and formats into a unitless float
     widths = [float(svg.width.rstrip("ptpx")) for svg in svgs]
     heights = [float(svg.height.rstrip("ptpx")) for svg in svgs]
-    height_min, height_max = min(heights), max(heights)
-    width_min, width_max = min(widths), max(widths)
+    
+    height_min  = min(heights) if heights else 1.0
+    height_max = max(heights) if heights else 1.0
+    width_min = min(widths) if widths else 1.0
+    width_max = max(widths) if widths else 1.0
 
     scaled_svgs = []
-    for svg in svgs:
-        h = float(svg.height.rstrip("ptpx"))
-        w = float(svg.width.rstrip("ptpx"))
+    for i, svg in enumerate(svgs):
+        h = heights[i]
+        w = widths[i]
         aspect_ratio = w / h if h != 0 else 1.0
 
         new_w = w
@@ -141,6 +142,7 @@ def scale_svgs(svgs: List[sg.SVGFigure], scale_option: SCALE_OPTION) -> List[sg.
         scale_factor_x = new_w / w if w != 0 else 1.0
         scale_factor_y = new_h / h if h != 0 else 1.0
 
+        # Use pt since its an absolute value and harmonizes best with title strings
         new_fig = sg.SVGFigure(f"{new_w}pt", f"{new_h}pt")
         # Without set size width and height become None
         new_fig.set_size((f"{new_w}pt", f"{new_h}pt"))
@@ -157,9 +159,9 @@ def add_padding_to_svgs(svgs: List[sg.SVGFigure], horizontal_padding: int = 0, v
     Adds padding to SVGFigures by adjusting their size and positions.
 
     Args:
-        svgs: List of SVGFigures to pad.
-        horizontal_padding: Padding to add horizontally (default: 0).
-        vertical_padding: Padding to add vertically (default: 0).
+        svgs (SVGFigure): List of SVGFigures to pad.
+        horizontal_padding (int): Padding to add horizontally.
+        vertical_padding (int): Padding to add vertically.
 
     Returns:
         List of padded SVGFigures.
@@ -194,8 +196,8 @@ def get_gridded_svgs(
     Adjusts sizes of SVGFigures based on the layout by adding padding to equalize dimensions.
 
     Args:
-        svgs: List of SVGFigures to adjust.
-        layout: The collage layout to apply.
+        svgs (List[sg.SVGFigure]): List of SVGFigures to adjust.
+        layout (COLLAGE_LAYOUT): The collage layout to apply.
 
     Returns:
         List of adjusted SVGFigures.
@@ -210,9 +212,9 @@ def get_gridded_svgs(
     max_height = max(heights) if heights else 1.0
 
     gridded_svgs = []
-    for svg in svgs:
-        current_width = float(svg.width.rstrip("ptpx"))
-        current_height = float(svg.height.rstrip("ptpx"))
+    for i, svg in enumerate(svgs):
+        current_width = widths[i]
+        current_height = heights[i]
         if layout in [COLLAGE_LAYOUT.GRID_EQUAL_ALL, COLLAGE_LAYOUT.MOSAIC_EQUAL_ALL]:
             delta_width = (max_width - current_width) / 2
             delta_height = (max_height - current_height) / 2
@@ -246,10 +248,10 @@ def get_svg_array_for_svgs(
     Creates a 2D array representing the collage layout with SVGFigures and spacers.
 
     Args:
-        svgs: List of SVGFigures to arrange.
-        n_cols: Number of columns in the layout.
-        layout: The collage layout to use.
-        reading_order: The order in which to place the SVGs.
+        svgs (List[sg.SVGFigure]): List of SVGFigures to arrange.
+        n_cols (int): Number of columns in the layout.
+        layout (COLLAGE_LAYOUT): The collage layout to use.
+        reading_order (READING_ORDER): The order in which to place the SVGs.
 
     Returns:
         A 2D list representing the arranged SVGs.
@@ -285,6 +287,7 @@ def get_svg_array_for_svgs(
             for col in range(n_cols):
                 image_positions.append((row, col))
 
+    # Place svgs according to reading order
     sort_key_map = {
         READING_ORDER.LEFT_RIGHT_TOP_BOTTOM: lambda pos: (pos[0], pos[1]),
         READING_ORDER.RIGHT_LEFT_TOP_BOTTOM: lambda pos: (pos[0], -pos[1]),
@@ -306,15 +309,13 @@ def get_svg_array_for_svgs(
     return svg_array
 
 def generate_collage_figure(
-    collage_array: List[List[Optional[sg.SVGFigure]]],
-    dpi: int = 300
+    collage_array: List[List[Optional[sg.SVGFigure]]]
 ) -> sg.SVGFigure:
     """
     Generates a collage figure from a 2D array of SVGFigures.
 
     Args:
-        collage_array: 2D array of SVGFigures (or None for empty cells).
-        dpi: Dots per inch for rendering (default: 300).
+        collage_array (List[List[Optional[sg.SVGFigure]]]): 2D array of SVGFigures (or None for empty cells).
 
     Returns:
         An sg.SVGFigure containing the arranged collage.
@@ -349,6 +350,7 @@ def generate_collage_figure(
                 row_heights.append(height)
         max_heights_per_row.append(max(row_heights) if row_heights else 1.0)
 
+    # We may expand on this part in later iterations to allow less rigid collage formats (non grid).
     total_width = sum(max_widths_per_col)
     total_height = sum(max_heights_per_row)
 
@@ -386,12 +388,12 @@ def add_title_to_svg(
     Adds a title to an existing SVG figure and adjusts its size accordingly.
 
     Args:
-        svg: The original SVG figure (sg.SVGFigure).
-        title: The title text to add.
-        title_position: Position of the title (TOP, BOTTOM, LEFT, RIGHT, CENTER).
-        title_color: Color of the title.
-        font_size: Font size of the title in pt.
-        title_gap: Gap between title and SVG content in pt (default: 10).
+        svg (SVGFigure): The original SVG figure (sg.SVGFigure).
+        title (str): The title text to add.
+        title_position (TITLE_POSITION): Position of the title (TOP, BOTTOM, LEFT, RIGHT, CENTER).
+        title_color (Color): Color of the title.
+        font_size (int): Font size of the title in pt.
+        title_gap (float): Gap between title and SVG content in pt (default: 10).
 
     Returns:
         A new sg.SVGFigure with the added title.
@@ -426,46 +428,44 @@ def add_title_to_svg(
     plot.moveto(x_offset, y_offset)
     elements.append(plot)
 
-    # Add title if provided
-    if title:
-        title_color_tuple = get_color_tuple(title_color, use_alpha=True)
-        title_color_rgb = f"rgb({title_color_tuple[0]},{title_color_tuple[1]},{title_color_tuple[2]})"
+    title_color_tuple = get_color_tuple(title_color, use_alpha=True)
+    title_color_rgb = f"rgb({title_color_tuple[0]},{title_color_tuple[1]},{title_color_tuple[2]})"
 
-        if title_position == TITLE_POSITION.TOP:
-            title_x = new_width / 2
-            title_y = title_height - (title_gap / 2)
-            elements.append(
-                sg.TextElement(title_x, title_y, title, size=font_size, color=title_color_rgb,
-                              anchor="middle", weight="normal")
-            )
-        elif title_position == TITLE_POSITION.BOTTOM:
-            title_x = new_width / 2
-            title_y = new_height - (title_gap / 2)
-            elements.append(
-                sg.TextElement(title_x, title_y, title, size=font_size, color=title_color_rgb,
-                              anchor="middle", weight="normal")
-            )
-        elif title_position == TITLE_POSITION.LEFT:
-            title_x = title_gap / 2
-            title_y = new_height / 2
-            title_elem = sg.TextElement(title_x, title_y, title, size=font_size, color=title_color_rgb,
-                                       anchor="start", weight="normal")
-            title_elem.rotate(90, title_x, title_y)
-            elements.append(title_elem)
-        elif title_position == TITLE_POSITION.RIGHT:
-            title_x = new_width - (title_gap / 2)
-            title_y = new_height / 2
-            title_elem = sg.TextElement(title_x, title_y, title, size=font_size, color=title_color_rgb,
-                                       anchor="end", weight="normal")
-            title_elem.rotate(-90, title_x, title_y)
-            elements.append(title_elem)
-        elif title_position == TITLE_POSITION.CENTER:
-            title_x = new_width / 2
-            title_y = new_height / 2
-            elements.append(
-                sg.TextElement(title_x, title_y, title, size=font_size, color=title_color_rgb,
-                              anchor="middle", weight="normal")
-            )
+    if title_position == TITLE_POSITION.TOP:
+        title_x = new_width / 2
+        title_y = title_height - (title_gap / 2)
+        elements.append(
+            sg.TextElement(title_x, title_y, title, size=font_size, color=title_color_rgb,
+                          anchor="middle", weight="normal")
+        )
+    elif title_position == TITLE_POSITION.BOTTOM:
+        title_x = new_width / 2
+        title_y = new_height - (title_gap / 2)
+        elements.append(
+            sg.TextElement(title_x, title_y, title, size=font_size, color=title_color_rgb,
+                          anchor="middle", weight="normal")
+        )
+    elif title_position == TITLE_POSITION.LEFT:
+        title_x = title_gap / 2
+        title_y = new_height / 2
+        title_elem = sg.TextElement(title_x, title_y, title, size=font_size, color=title_color_rgb,
+                                   anchor="start", weight="normal")
+        title_elem.rotate(90, title_x, title_y)
+        elements.append(title_elem)
+    elif title_position == TITLE_POSITION.RIGHT:
+        title_x = new_width - (title_gap / 2)
+        title_y = new_height / 2
+        title_elem = sg.TextElement(title_x, title_y, title, size=font_size, color=title_color_rgb,
+                                   anchor="end", weight="normal")
+        title_elem.rotate(-90, title_x, title_y)
+        elements.append(title_elem)
+    elif title_position == TITLE_POSITION.CENTER:
+        title_x = new_width / 2
+        title_y = new_height / 2
+        elements.append(
+            sg.TextElement(title_x, title_y, title, size=font_size, color=title_color_rgb,
+                          anchor="middle", weight="normal")
+        )
 
     # Append all elements to the new figure
     new_fig.append(elements)
@@ -491,20 +491,20 @@ def create_collage(
     Creates a collage from a list of images, using SVG from the start.
 
     Args:
-        images: List of images or figures to include in the collage.
-        layout: The layout style for the collage (default: GRID_EQUAL_ALL).
-        reading_order: The order in which images are placed (default: LEFT_RIGHT_TOP_BOTTOM).
-        columns: Number of columns in the grid (default: 5).
-        scale_option: Scaling strategy for images (default: DOWNSCALE_TO_WIDTH).
-        padding_horizontal: Horizontal padding between images (default: 0).
-        padding_vertical: Vertical padding between images (default: 0).
-        margin_horizontal: Horizontal margin around the collage (default: 0).
-        margin_vertical: Vertical margin around the collage (default: 0).
-        title: Title for the collage (default: "").
-        title_position: Position of the title (default: TOP).
-        title_color: Color of the title (default: BLACK).
-        font_size: Font size for the title (default: 12).
-        dpi: Dots per inch for rendering (default: 300).
+        images (List[Union[Image.Image, plt.Figure]]): List of images or figures to include in the collage.
+        layout (COLLAGE_LAYOUT): The layout style for the collage.
+        reading_order (READING_ORDER): The order in which images are placed.
+        columns (int): Number of columns in the grid.
+        scale_option (SCALE_OPTION): Scaling strategy for images.
+        padding_horizontal (int): Horizontal padding between images.
+        padding_vertical (int): Vertical padding between images.
+        margin_horizontal (int): Horizontal margin around the collage.
+        margin_vertical (int): Vertical margin around the collage.
+        title (str): Title for the collage.
+        title_position (TITLE_POSITION): Position of the title.
+        title_color (COLOR): Color of the title.
+        font_size (int): Font size for the title.
+        dpi (int): Dots per inch for rendering.
 
     Returns:
         An sg.SVGFigure representing the collage.
@@ -543,8 +543,7 @@ def create_collage(
     )
 
     collage = generate_collage_figure(
-        collage_array=collage_array,
-        dpi=dpi
+        collage_array=collage_array
     )
 
     # Add title
@@ -683,24 +682,24 @@ class Collage:
         Creates UI widgets for collage settings.
 
         Args:
-            layouts: Available layout options.
-            columns: Initial number of columns.
-            max_columns: Maximum number of columns.
-            scaling: Available scaling options.
-            padding_horizontal: Initial horizontal padding.
-            max_padding_horizontal: Maximum horizontal padding.
-            padding_vertical: Initial vertical padding.
-            max_padding_vertical: Maximum vertical padding.
-            margin_vertical: Initial vertical margin.
-            max_margin_vertical: Maximum vertical margin.
-            margin_horizontal: Initial horizontal margin.
-            max_margin_horizontal: Maximum horizontal margin.
-            title: Initial title text.
-            title_positions: Available title positions.
-            title_colors: Available title colors.
-            font_size: Initial font size.
-            max_font_size: Maximum font size.
-            reading_orders: Available reading orders.
+            layouts (List[COLLAGE_LAYOUT]): Available layout options.
+            columns (int): Initial number of columns.
+            max_columns (int): Maximum number of columns.
+            scaling (List[SCALE_OPTION]): Available scaling options.
+            padding_horizontal (int): Initial horizontal padding.
+            max_padding_horizontal (int): Maximum horizontal padding.
+            padding_vertical (int): Initial vertical padding.
+            max_padding_vertical (int): Maximum vertical padding.
+            margin_vertical (int): Initial vertical margin.
+            max_margin_vertical (int): Maximum vertical margin.
+            margin_horizontal (int): Initial horizontal margin.
+            max_margin_horizontal (int): Maximum horizontal margin.
+            title (str): Initial title text.
+            title_positions (List[TITLE_POSITION]): Available title positions.
+            title_colors (List[COLOR]): Available title colors.
+            font_size (int): Initial font size.
+            max_font_size (int): Maximum font size.
+            reading_orders (List[READING_ORDER]): Available reading orders.
         """
         layout_options = [layout.value for layout in layouts]
         self._layout_dropdown = WidgetFactory.dropdown(
@@ -844,6 +843,42 @@ class Collage:
     def reading_order(self) -> READING_ORDER:
         return READING_ORDER(self._reading_order_dropdown.value)
 
+    def get_layout_dropdown(self):
+        return self._layout_dropdown
+
+    def get_columns_input(self):
+        return self._n_columns_input
+    
+    def get_scale_dropdown(self):
+        return self._scale_dropdown
+    
+    def get_padding_horizontal_input(self):
+        return self._padding_horizontal_input
+    
+    def get_padding_vertical_input(self):
+        return self._padding_vertical_input
+    
+    def get_margin_vertical_input(self):
+        return self._margin_vertical_input
+    
+    def get_margin_horizontal_input(self):
+        return self._margin_horizontal_input
+    
+    def get_title_input(self):
+        return self._title_input
+    
+    def get_title_position_dropdown(self):
+        return self._title_position_dropdown
+    
+    def get_title_color_dropdown(self):
+        return self._title_color_dropdown
+    
+    def get_font_size_input(self):
+        return self._font_size_input
+    
+    def get_reading_order_dropdown(self):
+        return self._reading_order_dropdown
+        
     def get_active_widgets(self) -> List[widgets.Widget]:
         """
         Returns a list of active widgets based on enabled options.
@@ -878,55 +913,6 @@ class Collage:
             active_widgets.append(self._reading_order_dropdown)
         return active_widgets
 
-    def get_layout_dropdown(self):
-        """Returns the layout dropdown widget."""
-        return self._layout_dropdown
-
-    def get_columns_input(self):
-        """Returns the columns number input widget."""
-        return self._n_columns_input
-    
-    def get_scale_dropdown(self):
-        """Returns the scale dropdown widget."""
-        return self._scale_dropdown
-    
-    def get_padding_horizontal_input(self):
-        """Returns the horizontal padding number input widget."""
-        return self._padding_horizontal_input
-    
-    def get_padding_vertical_input(self):
-        """Returns the vertical padding number input widget."""
-        return self._padding_vertical_input
-    
-    def get_margin_vertical_input(self):
-        """Returns the vertical margin number input widget."""
-        return self._margin_vertical_input
-    
-    def get_margin_horizontal_input(self):
-        """Returns the horizontal margin number input widget."""
-        return self._margin_horizontal_input
-    
-    
-    def get_title_input(self):
-        """Returns the title text input widget."""
-        return self._title_input
-    
-    def get_title_position_dropdown(self):
-        """Returns the title position dropdown widget."""
-        return self._title_position_dropdown
-    
-    def get_title_color_dropdown(self):
-        """Returns the title color dropdown widget."""
-        return self._title_color_dropdown
-    
-    def get_font_size_input(self):
-        """Returns the font size number input widget."""
-        return self._font_size_input
-    
-    def get_reading_order_dropdown(self):
-        """Returns the reading order dropdown widget."""
-        return self._reading_order_dropdown
-
     def get_ui(self) -> widgets.Widget:
         """
         Builds and returns the UI widget for collage options.
@@ -935,10 +921,9 @@ class Collage:
             A VBox widget containing all collage options.
         """
         title_widget = WidgetFactory.html_widget(value="<h3>Collage Options</h3>")
-    
-        collage_widgets = [title_widget]
-    
-        layout_children = []
+
+        ui_children = [title_widget]
+        
         if self._layouts_enabled or self._show_all_options:
             layout_container = WidgetFactory.vbox(
                 children=[
@@ -956,7 +941,8 @@ class Collage:
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
             )
-            layout_children.append(layout_container)
+            ui_children.append(layout_container)
+            
         if self._columns_enabled or self._show_all_options:
             columns_container = WidgetFactory.vbox(
                 children=[
@@ -974,16 +960,7 @@ class Collage:
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
             )
-            layout_children.append(columns_container)
-        if layout_children:
-            layout_vbox = WidgetFactory.vbox(
-                children=layout_children,
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            )
-            collage_widgets.append(layout_vbox)
+            ui_children.append(columns_container)
     
         if self._scaling_enabled or self._show_all_options:
             scaling_container = WidgetFactory.vbox(
@@ -1002,9 +979,8 @@ class Collage:
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
             )
-            collage_widgets.append(scaling_container)
+            ui_children.append(scaling_container)
     
-        padding_children = []
         if self._padding_horizontal_enabled or self._show_all_options:
             inner_h_container = WidgetFactory.vbox(
                 children=[
@@ -1022,7 +998,8 @@ class Collage:
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
             )
-            padding_children.append(inner_h_container)
+            ui_children.append(inner_h_container)
+            
         if self._padding_vertical_enabled or self._show_all_options:
             inner_v_container = WidgetFactory.vbox(
                 children=[
@@ -1040,18 +1017,8 @@ class Collage:
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
             )
-            padding_children.append(inner_v_container)
-        if padding_children:
-            padding_vbox = WidgetFactory.vbox(
-                children=padding_children,
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            )
-            collage_widgets.append(padding_vbox)
-    
-        margins_children = []
+            ui_children.append(inner_v_container)
+       
         if self._margin_horizontal_enabled or self._show_all_options:
             margin_h_container = WidgetFactory.vbox(
                 children=[
@@ -1069,7 +1036,8 @@ class Collage:
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
             )
-            margins_children.append(margin_h_container)
+            ui_children.append(margin_h_container)
+            
         if self._margin_vertical_enabled or self._show_all_options:
             margin_v_container = WidgetFactory.vbox(
                 children=[
@@ -1087,18 +1055,8 @@ class Collage:
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
             )
-            margins_children.append(margin_v_container)
-        if margins_children:
-            margins_vbox = WidgetFactory.vbox(
-                children=margins_children,
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            )
-            collage_widgets.append(margins_vbox)
+            ui_children.append(margin_v_container)
     
-        title_children = []
         if self._title_enabled or self._show_all_options:
             title_input_container = WidgetFactory.vbox(
                 children=[
@@ -1116,7 +1074,8 @@ class Collage:
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
             )
-            title_children.append(title_input_container)
+            ui_children.append(title_input_container)
+            
         if self._title_positions_enabled or self._show_all_options:
             title_pos_container = WidgetFactory.vbox(
                 children=[
@@ -1134,7 +1093,8 @@ class Collage:
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
             )
-            title_children.append(title_pos_container)
+            ui_children.append(title_pos_container)
+            
         if self._title_colors_enabled or self._show_all_options:
             title_color_container = WidgetFactory.vbox(
                 children=[
@@ -1152,7 +1112,8 @@ class Collage:
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
             )
-            title_children.append(title_color_container)
+            ui_children.append(title_color_container)
+            
         if self._font_size_enabled or self._show_all_options:
             font_size_container = WidgetFactory.vbox(
                 children=[
@@ -1170,17 +1131,8 @@ class Collage:
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
             )
-            title_children.append(font_size_container)
-        if title_children:
-            title_vbox = WidgetFactory.vbox(
-                children=title_children,
-                gap="5px",
-                overflow="visible",
-                height="auto",
-                layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
-            )
-            collage_widgets.append(title_vbox)
-    
+            ui_children.append(font_size_container)
+            
         if self._reading_orders_enabled or self._show_all_options:
             reading_order_container = WidgetFactory.vbox(
                 children=[
@@ -1198,15 +1150,14 @@ class Collage:
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY)
             )
-            collage_widgets.append(reading_order_container)
+            ui_children.append(reading_order_container)
     
         return WidgetFactory.vbox(
-            children=collage_widgets,
+            children=ui_children,
             gap="5px",
             overflow="visible",
             height="auto"
         )
-        
 
     def generate_collage(
         self,
@@ -1229,26 +1180,23 @@ class Collage:
         Generates a collage using the current or provided settings.
 
         Args:
-            images: List of images or figures to include.
-            layout: Optional override for layout.
-            columns: Optional override for number of columns.
-            scale_option: Optional override for scaling.
-            padding_horizontal: Optional override for horizontal padding.
-            padding_vertical: Optional override for vertical padding.
-            horizontal_margin: Optional override for horizontal margin.
-            vertical_margin: Optional override for vertical margin.
-            title: Optional override for title.
-            title_position: Optional override for title position.
-            title_color: Optional override for title color.
-            font_size: Optional override for font size.
-            reading_order: Optional override for reading order.
-            dpi: Dots per inch for rendering (default: 300).
+            images (List[Union[Image.Image, plt.Figure]]): List of images or figures to include.
+            layout (Optional[COLLAGE_LAYOUT]): Optional override for layout.
+            columns (Optional[int]): Optional override for number of columns.
+            scale_option (Optional[SCALE_OPTION]): Optional override for scaling.
+            padding_horizontal (Optional[int]): Optional override for horizontal padding.
+            padding_vertical (Optional[int]): Optional override for vertical padding.
+            horizontal_margin (Optional[int]): Optional override for horizontal margin.
+            vertical_margin (Optional[int]): Optional override for vertical margin.
+            title (Optional[str]): Optional override for title.
+            title_position (Optional[TITLE_POSITION]): Optional override for title position.
+            title_color (Optional[COLOR]): Optional override for title color.
+            font_size (Optional[int]): Optional override for font size.
+            reading_order (Optional[READING_ORDER]): Optional override for reading order.
+            dpi (int): Dots per inch for rendering.
 
         Returns:
             An sg.SVGFigure representing the generated collage.
-
-        Raises:
-            Exception: If collage generation fails.
         """
         logger.debug("Generating collage")
         try:
