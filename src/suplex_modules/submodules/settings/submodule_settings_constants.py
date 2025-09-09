@@ -3,6 +3,7 @@ from typing import Optional
 
 OPTION_WIDGETS_MAX_WIDTH = "500px"
 
+
 class OPTION_INSET:
     BASELINE = "0px 0px 0px 0px"
     PRIMARY = "0px 0px 0px 10px"
@@ -10,28 +11,36 @@ class OPTION_INSET:
     TERTIARY = "0px 0px 0px 30px"
     QUATERNARY = "0px 0px 0px 40px"
 
+
 class SCALE_TYPE(Enum):
     """Available scale types"""
+
     LINEAR = "linear"
     LOG = "log"
     SYMLOG = "symlog"
 
+
 class INTERPOLATION_TYPE(Enum):
     """Available interpolation types"""
+
     NEAREST = "nearest"
     BILINEAR = "bilinear"
     BICUBIC = "bicubic"
     SPLINE16 = "spline16"
     SPLINE36 = "spline36"
 
+
 class GRID_STYLE(Enum):
     """Available grid styles"""
+
     DARKGRID = "darkgrid"
     WHITEGRID = "whitegrid"
     TICKS = "ticks"
 
+
 class LEGEND_POSITION(Enum):
     """Available legend positions"""
+
     BEST = "best"
     UPPER_RIGHT = "upper right"
     UPPER_LEFT = "upper left"
@@ -45,8 +54,10 @@ class LEGEND_POSITION(Enum):
     UPPER_CENTER = "upper center"
     CENTER = "center"
 
+
 class ASPECT_RATIO(Enum):
     """Available aspect ratios"""
+
     AUTO = "auto"
     EQUAL = "equal"
     FOUR_THREE = "4:3"
@@ -58,6 +69,7 @@ class ASPECT_RATIO(Enum):
     TWO_THREE = "2:3"
     SIXTEEN_TEN = "16:10"
     NINE_SIXTEEN = "9:16"
+
 
 def get_aspect_ratio_value(ar: ASPECT_RATIO) -> Optional[float]:
     """
@@ -75,14 +87,20 @@ def get_aspect_ratio_value(ar: ASPECT_RATIO) -> Optional[float]:
             width_str = parts[0].strip()
             height_str = parts[1].strip()
             # Eval also allows formulas
-            width = eval(width_str, {"sqrt": math.sqrt}) if "sqrt" in width_str else float(width_str)
+            width = (
+                eval(width_str, {"sqrt": math.sqrt})
+                if "sqrt" in width_str
+                else float(width_str)
+            )
             height = float(height_str)
             return width / height
         except Exception:
             return None
 
+
 class SEQUENTIAL_COLOR_SCHEME(Enum):
     """Available sequential color schemes"""
+
     # Original schemes
     VIRIDIS = "viridis"
     PLASMA = "plasma"
@@ -144,8 +162,10 @@ class SEQUENTIAL_COLOR_SCHEME(Enum):
     JET_R = "jet_r"
     TURBO_R = "turbo_r"
 
+
 class DIVERGENT_COLOR_SCHEME(Enum):
     """Available divergent color schemes"""
+
     COOLWARM = "coolwarm"
     SEISMIC = "seismic"
     RDBU = "RdBu"
@@ -175,16 +195,19 @@ class DIVERGENT_COLOR_SCHEME(Enum):
     ICEFIRE_R = "icefire_r"
     FLARE_R = "flare_r"
     CREST_R = "crest_r"
-    
+
+
 class WHISKER_MODE(Enum):
     NONE = "None"
     IQR = "IQR"
     PERCENTILES = "Percentiles"
     MIN_MAX = "Min-Max"
-    
+
+
 class JITTER_TYPE(Enum):
     UNIFORM = "uniform"
     GAUSSIAN = "gaussian"
+
 
 class ANNOTATION_COLOR(Enum):
     AUTO = "auto"
@@ -196,7 +219,8 @@ class ANNOTATION_COLOR(Enum):
     YELLOW = "yellow"
     ORANGE = "orange"
     PURPLE = "purple"
-    GRAY = "gray" 
+    GRAY = "gray"
+
 
 class LINE_COLOR(Enum):
     WHITE = "white"
@@ -204,10 +228,12 @@ class LINE_COLOR(Enum):
     GRAY = "gray"
     NONE = "none"
 
+
 class CBAR_ORIENTATION(Enum):
     VERTICAL = "vertical"
     HORIZONTAL = "horizontal"
     HIDE = "hide colorbar"
+
 
 class CBAR_TICK_MODE(Enum):
     AUTO = "auto"

@@ -12,7 +12,7 @@ from suplex_modules.submodules.submodule_constants import (
     DATA_STATISTICS_ATTRIBUTES,
     NORMALIZATION,
     NORMALIZATION_DEFAULT,
-    NORMALIZATION_REFERENCE_POINT
+    NORMALIZATION_REFERENCE_POINT,
 )
 from suplex_modules.submodules.settings.submodule_settings_constants import (
     OPTION_INSET,
@@ -21,6 +21,7 @@ from suplex_modules.submodules.settings.submodule_settings_constants import (
 logger = logging.getLogger(__name__)
 
 ABS_MAX_VALUE = 2**16 - 1
+
 
 def extract_value_list_from_dataset(
     dataset: Dataset, attribute: DATASET_ATTRIBUTE
@@ -263,7 +264,7 @@ def apply_normalization(
     value_lists: Dict[Dataset, List[float]],
     normalization_method: NORMALIZATION,
     custom_factor: Optional[float] = None,
-    reference_indices: Optional[List[int]] = None
+    reference_indices: Optional[List[int]] = None,
 ) -> Dict[Dataset, List[float]]:
     """
     Apply the selected normalization to the given values.
@@ -287,16 +288,23 @@ def apply_normalization(
             logger.warning("Custom factor not provided for CUSTOM normalization.")
             return value_lists
         if custom_factor == 0:
-            logger.warning("Custom factor cannot be zero. Normalization will not be applied.")
+            logger.warning(
+                "Custom factor cannot be zero. Normalization will not be applied."
+            )
             return value_lists
-        normalized_values = {key: normalize_by_factor(value_list, custom_factor) for key, value_list in value_lists.items()}
+        normalized_values = {
+            key: normalize_by_factor(value_list, custom_factor)
+            for key, value_list in value_lists.items()
+        }
         return normalized_values
 
     if normalization_method == NORMALIZATION.INTERNAL:
         normalized_values = {}
         for key, value_list in value_lists.items():
             if len(value_list) > 0:
-                normalized_values[key] = normalize_by_factor(value_list, np.nanmax(value_list))
+                normalized_values[key] = normalize_by_factor(
+                    value_list, np.nanmax(value_list)
+                )
             else:
                 normalized_values[key] = value_list
         return normalized_values
@@ -307,24 +315,31 @@ def apply_normalization(
         if global_max == 0:
             logger.warning("Global max is zero. Normalization will not be applied.")
             return value_lists
-        normalized_values = {key: normalize_by_factor(value_list, global_max) for key, value_list in value_lists.items()}
+        normalized_values = {
+            key: normalize_by_factor(value_list, global_max)
+            for key, value_list in value_lists.items()
+        }
         return normalized_values
 
     if normalization_method in NORMALIZATION_REFERENCE_POINT:
         if not reference_indices:
-            logger.info("No reference indices provided for normalization. Value lists will be returned as is.")
+            logger.info(
+                "No reference indices provided for normalization. Value lists will be returned as is."
+            )
             return value_lists
-        
+
         ref_stats = {
             key: get_reference_statistics(v, reference_indices)
             for key, v in value_lists.items()
         }
-        
+
         normalized_values = {
-            key: reference_normalization(value_lists[key], ref_stats[key], normalization_method)
+            key: reference_normalization(
+                value_lists[key], ref_stats[key], normalization_method
+            )
             for key in value_lists.keys()
         }
-        
+
         return normalized_values
 
     else:
@@ -332,7 +347,9 @@ def apply_normalization(
         return value_lists
 
 
-def normalize_by_factor(values: Union[List[float], float], factor: float) -> Union[List[float], float]:
+def normalize_by_factor(
+    values: Union[List[float], float], factor: float
+) -> Union[List[float], float]:
     """
     Helper to normalize nested lists by dividing by a factor.
     This function can be used externally.
@@ -350,7 +367,9 @@ def normalize_by_factor(values: Union[List[float], float], factor: float) -> Uni
         return values / factor if factor != 0 else values
 
 
-def get_reference_statistics(value_list: List[float], reference_indices: List[int]) -> Dict[str, float]:
+def get_reference_statistics(
+    value_list: List[float], reference_indices: List[int]
+) -> Dict[str, float]:
     """
     Calculate statistics for reference points selected by indices.
 
@@ -362,35 +381,48 @@ def get_reference_statistics(value_list: List[float], reference_indices: List[in
         Dict[str, float]: Dictionary with statistics like avg, stdev, etc.
     """
     if not reference_indices:
-        return {"n_reference_points": 0, "avg": float("nan"), "stdev": float("nan"), "median": float("nan"), "stdev_percent": float("nan")}
-    
+        return {
+            "n_reference_points": 0,
+            "avg": float("nan"),
+            "stdev": float("nan"),
+            "median": float("nan"),
+            "stdev_percent": float("nan"),
+        }
+
     selected_values = [
-        value_list[i] for i in reference_indices 
+        value_list[i]
+        for i in reference_indices
         if 0 <= i < len(value_list) and not math.isnan(value_list[i])
     ]
-    
+
     if not selected_values:
-        return {"n_reference_points": 0, "avg": float("nan"), "stdev": float("nan"), "median": float("nan"), "stdev_percent": float("nan")}
+        return {
+            "n_reference_points": 0,
+            "avg": float("nan"),
+            "stdev": float("nan"),
+            "median": float("nan"),
+            "stdev_percent": float("nan"),
+        }
 
     n_refs = len(selected_values)
     avg = statistics.mean(selected_values)
     stdev = statistics.stdev(selected_values) if len(selected_values) > 1 else 0.0
     median = statistics.median(selected_values)
     stdev_percent = (stdev / avg * 100) if avg != 0 else 0.0
-    
+
     return {
         "n_reference_points": n_refs,
         "avg": avg,
         "stdev": stdev,
         "median": median,
-        "stdev_percent": stdev_percent
+        "stdev_percent": stdev_percent,
     }
 
 
 def reference_normalization(
-    value_list: List[float], 
-    ref_stat: Dict[str, float], 
-    normalization_method: NORMALIZATION
+    value_list: List[float],
+    ref_stat: Dict[str, float],
+    normalization_method: NORMALIZATION,
 ) -> List[float]:
     """
     Apply reference-based normalization to the value list.
@@ -411,33 +443,46 @@ def reference_normalization(
         return [float("nan") for value in value_list]
 
     if normalization_method not in NORMALIZATION_REFERENCE_POINT:
-        logger.error(f"Non-reference value normalization method used: {normalization_method}. Values will be set to NaN.")
+        logger.error(
+            f"Non-reference value normalization method used: {normalization_method}. Values will be set to NaN."
+        )
         return [float("nan") for value in value_list]
-        
+
     if avg == 0:
         logger.info("Reference value avg is zero. Value list will be set to Zero.")
         return [0.0 for value in value_list]
-        
+
     if normalization_method not in NORMALIZATION_REFERENCE_POINT:
-        logger.error(f"Non-reference value normalization method used: {normalization_method}. Values will be set to NaN.")
+        logger.error(
+            f"Non-reference value normalization method used: {normalization_method}. Values will be set to NaN."
+        )
         return [float("nan") for value in value_list]
-        
+
     if avg == 0:
-        logger.warning("Reference value avg is zero. Normalization will not be applied.")
+        logger.warning(
+            "Reference value avg is zero. Normalization will not be applied."
+        )
         return value_list
-        
+
     if stdev == 0:
         logger.info("No variation between reference values!")
-        return [value if math.isnan(value) else (0.0 if value == avg else (-3.0 if value < avg else 3.0)) for value in value_list]
-    
+        return [
+            (
+                value
+                if math.isnan(value)
+                else (0.0 if value == avg else (-3.0 if value < avg else 3.0))
+            )
+            for value in value_list
+        ]
+
     normalized_list = []
     for value in value_list:
         if math.isnan(value):
             normalized_list.append(float("nan"))
             continue
-        
+
         z = (value - avg) / stdev
-        
+
         if normalization_method == NORMALIZATION.BY_POSITION_GAUSSIAN_ABSOLUTE:
             abs_z = abs(z)
             # [-σ ; σ)
@@ -459,9 +504,9 @@ def reference_normalization(
         else:
             # This case should never apply since we catch it earlier in this method
             normalized = float("nan")
-        
+
         normalized_list.append(normalized)
-    
+
     return normalized_list
 
 
@@ -504,15 +549,25 @@ class ValueExtractor:
         self._attributes = attributes
 
         self._normalization_enabled = normalization_methods is not None
-        normalization_methods = normalization_methods if self._normalization_enabled else list(NORMALIZATION)
+        normalization_methods = (
+            normalization_methods
+            if self._normalization_enabled
+            else list(NORMALIZATION)
+        )
         self._normalization_methods = normalization_methods
 
         self._custom_factor_enabled = NORMALIZATION.CUSTOM in normalization_methods
-        custom_factor = custom_factor if self._custom_factor_enabled and custom_factor is not None else ABS_MAX_VALUE
+        custom_factor = (
+            custom_factor
+            if self._custom_factor_enabled and custom_factor is not None
+            else ABS_MAX_VALUE
+        )
         self._custom_factor = custom_factor
 
         # Gets enabled if any reference point method is in normalization methods
-        self._references_enabled = bool(set(NORMALIZATION_REFERENCE_POINT) & set(normalization_methods))
+        self._references_enabled = bool(
+            set(NORMALIZATION_REFERENCE_POINT) & set(normalization_methods)
+        )
         references = references if self._references_enabled and references else []
         self._references = references
 
@@ -528,7 +583,7 @@ class ValueExtractor:
         Create the interactive widgets for the ValueExtractor UI.
         """
         options = [field.value for field in self._attributes]
-        
+
         self._attribute_dropdown = WidgetFactory.dropdown(
             options=options,
             value=options[0],
@@ -539,7 +594,7 @@ class ValueExtractor:
         )
 
         norm_options = [option.value for option in self._normalization_methods]
-        
+
         self._normalization_dropdown = WidgetFactory.dropdown(
             options=norm_options,
             value=norm_options[0],
@@ -556,24 +611,30 @@ class ValueExtractor:
             step=1,
             description="",
             layout=widgets.Layout(
-                height="30px", min_width="100px", width = "100px", margin="0px", padding="0px"
+                height="30px",
+                min_width="100px",
+                width="100px",
+                margin="0px",
+                padding="0px",
             ),
         )
 
         self._reference_point_selector = ReferencePointSelector(
-            max_index=self._max_reference_index,
-            initial_references=self._references
+            max_index=self._max_reference_index, initial_references=self._references
         )
 
         # Observer to enable/disable custom input and reference selector
         def on_normalization_change(change: Dict[str, Any]) -> None:
             selected = change["new"]
             selected_normalization_method = NORMALIZATION(selected)
-            self._custom_factor_input.disabled = selected_normalization_method != NORMALIZATION.CUSTOM
+            self._custom_factor_input.disabled = (
+                selected_normalization_method != NORMALIZATION.CUSTOM
+            )
             self._reference_point_selector.set_disabled(
                 selected_normalization_method not in NORMALIZATION_REFERENCE_POINT
             )
-        on_normalization_change({'new': self._normalization_dropdown.value})
+
+        on_normalization_change({"new": self._normalization_dropdown.value})
         self._normalization_dropdown.observe(on_normalization_change, names="value")
 
     def get_active_widgets(self) -> List[widgets.Widget]:
@@ -662,7 +723,7 @@ class ValueExtractor:
         """
         return self._reference_point_selector.references
 
-    def get_reference_selector(self) -> 'ReferencePointSelector':
+    def get_reference_selector(self) -> "ReferencePointSelector":
         """
         Get the reference selector.
 
@@ -670,7 +731,6 @@ class ValueExtractor:
             ReferencePointSelector: The reference point selector.
         """
         return self._reference_point_selector
-
 
     def get_ui(self) -> widgets.Widget:
         """
@@ -705,7 +765,7 @@ class ValueExtractor:
             norm_box_children = [self._normalization_dropdown]
             if self._custom_factor_enabled or self._show_all_options:
                 norm_box_children += [self._custom_factor_input]
-                
+
             normalization_container = WidgetFactory.vbox(
                 children=[
                     WidgetFactory.label(value="Normalization:"),
@@ -752,7 +812,7 @@ class ValueExtractor:
         attribute: Optional[DATASET_ATTRIBUTE] = None,
         normalization_method: Optional[NORMALIZATION] = None,
         custom_factor: Optional[float] = None,
-        reference_indices: Optional[List[int]] = None
+        reference_indices: Optional[List[int]] = None,
     ) -> Dict[Dataset, List[float]]:
         """
         Extract and optionally normalize values from the given datasets.
@@ -770,17 +830,19 @@ class ValueExtractor:
         if not datasets:
             logger.warning("No datasets were selected for extraction.")
             return {}
-            
+
         attribute = attribute or self.attribute
         normalization_method = normalization_method or self.normalization
-        value_lists = {dataset: get_flat_value_list(dataset, attribute) for dataset in datasets}
+        value_lists = {
+            dataset: get_flat_value_list(dataset, attribute) for dataset in datasets
+        }
         reference_indices = reference_indices or self.references
 
         return self.normalize_values(
             value_lists=value_lists,
             normalization_method=normalization_method,
             custom_factor=custom_factor,
-            reference_indices=reference_indices
+            reference_indices=reference_indices,
         )
 
     def normalize_values(
@@ -788,7 +850,7 @@ class ValueExtractor:
         value_lists: Dict[Dataset, List[float]],
         normalization_method: Optional[NORMALIZATION] = None,
         custom_factor: Optional[float] = None,
-        reference_indices: Optional[List[int]] = None
+        reference_indices: Optional[List[int]] = None,
     ) -> Dict[Dataset, List[float]]:
         """
         Normalize the given value lists using the specified normalization method.
@@ -805,27 +867,29 @@ class ValueExtractor:
         if not value_lists:
             logger.warning("No value lists provided for normalization.")
             return {}
-            
+
         normalization_method = normalization_method or self.normalization
 
         if normalization_method == NORMALIZATION.RAW:
             return value_lists
-        
+
         custom_factor = 1.0
         if normalization_method == NORMALIZATION.CUSTOM:
-            custom_factor = custom_factor if custom_factor is not None else self.custom_factor
-            
+            custom_factor = (
+                custom_factor if custom_factor is not None else self.custom_factor
+            )
+
         reference_indices = []
         if normalization_method in NORMALIZATION_REFERENCE_POINT:
             reference_indices = reference_indices or self.references
-    
+
         normalized_value_lists = apply_normalization(
             value_lists=value_lists,
             normalization_method=normalization_method,
             custom_factor=custom_factor,
-            reference_indices=reference_indices
+            reference_indices=reference_indices,
         )
-        
+
         return normalized_value_lists
 
 
@@ -836,9 +900,7 @@ class ReferencePointSelector:
     """
 
     def __init__(
-        self,
-        max_index: int = 1000,
-        initial_references: Optional[List[int]] = None
+        self, max_index: int = 1000, initial_references: Optional[List[int]] = None
     ) -> None:
         """
         Initializes the reference point widget.
@@ -864,31 +926,31 @@ class ReferencePointSelector:
             step=1,
             description="",
             width="80px",
-            height = "30px"
+            height="30px",
         )
-        
+
         def on_add_clicked() -> None:
             self._reference_indices.append(self._reference_input.value)
             self._reference_indices = sorted(set(self._reference_indices))
             self.update_reference_container()
-            
+
         self._add_reference_button = WidgetFactory.button_success(
             description="",
             icon="plus",
             width="50px",
-            height = "25px",
-            on_click = lambda b: on_add_clicked()
+            height="25px",
+            on_click=lambda b: on_add_clicked(),
         )
 
         def on_clear_clicked() -> None:
             self._reference_indices = []
             self.update_reference_container()
-            
+
         self._clear_references_button = WidgetFactory.button_danger(
             description="Clear all",
             width="100px",
-            height = "25px",
-            on_click = lambda b: on_clear_clicked()
+            height="25px",
+            on_click=lambda b: on_clear_clicked(),
         )
 
         # Container for tags
@@ -897,7 +959,7 @@ class ReferencePointSelector:
             width="100%",
             height="100%",
             overflow_y="auto",
-            overflow_x="hidden"
+            overflow_x="hidden",
         )
 
     def update_reference_container(self) -> None:
@@ -905,20 +967,23 @@ class ReferencePointSelector:
         Update the container displaying the selected reference indices as tags.
         """
         children = []
+
         def remove_idx(ref_btn: widgets.Button, index: int) -> None:
             self._reference_indices.remove(index)
-            self._ref_container.children = [child for child in self._ref_container.children if child != ref_btn]
-            
+            self._ref_container.children = [
+                child for child in self._ref_container.children if child != ref_btn
+            ]
+
         for reference_idx in self._reference_indices:
             idx_button = WidgetFactory.button_emphasis(
                 description=str(reference_idx),
                 icon="times",
-                width = "auto",
-                height = "30px",
-                on_click=lambda b, idx=reference_idx: remove_idx(b, idx)
+                width="auto",
+                height="30px",
+                on_click=lambda b, idx=reference_idx: remove_idx(b, idx),
             )
             children.append(idx_button)
-            
+
         self._ref_container.children = children
 
     @property
@@ -939,7 +1004,7 @@ class ReferencePointSelector:
             widgets.Widget: The reference input widget.
         """
         return self._reference_input
-    
+
     def get_add_reference_button(self) -> widgets.Widget:
         """
         Get the add reference button widget.
@@ -948,7 +1013,7 @@ class ReferencePointSelector:
             widgets.Widget: The add reference button.
         """
         return self._add_reference_button
-    
+
     def get_clear_references_button(self) -> widgets.Widget:
         """
         Get the clear references button widget.
@@ -974,9 +1039,13 @@ class ReferencePointSelector:
         Returns:
             List[widgets.Widget]: List of interactive widgets.
         """
-        widget_list = [self._reference_input, self._add_reference_button, self._clear_references_button]
+        widget_list = [
+            self._reference_input,
+            self._add_reference_button,
+            self._clear_references_button,
+        ]
         widget_list += list(self._ref_container.children)
-            
+
         return widget_list
 
     def set_disabled(self, disabled: bool) -> None:
@@ -989,7 +1058,7 @@ class ReferencePointSelector:
         widget_list = self.get_all_interactive_widgets()
         for widget in widget_list:
             widget.disabled = disabled
-    
+
     def get_ui(self) -> widgets.Widget:
         """
         Get the UI widget for the reference point selector.
@@ -1000,27 +1069,26 @@ class ReferencePointSelector:
         title = WidgetFactory.label(value="Select Reference Indices:")
 
         input_box = WidgetFactory.hbox(
-            children=[self._reference_input, self._add_reference_button],
-            gap = "5px"
+            children=[self._reference_input, self._add_reference_button], gap="5px"
         )
-        
+
         controls_box = WidgetFactory.hbox(
             children=[input_box, self._clear_references_button],
             width="100%",
-            height = "40px",
-            layout=widgets.Layout(justify_content="space-between", padding = "5px"),
-            overflow_y = "visible"
+            height="40px",
+            layout=widgets.Layout(justify_content="space-between", padding="5px"),
+            overflow_y="visible",
         )
-        
+
         ref_box = WidgetFactory.info_field_default(
             children=[self._ref_container],
-            layout=widgets.Layout(width="100%", height = "100px", padding = "5px")
+            layout=widgets.Layout(width="100%", height="100px", padding="5px"),
         )
 
         ui_box = WidgetFactory.vbox(
             children=[title, controls_box, ref_box],
-            gap = "1px",
+            gap="1px",
             width="100%",
-            height="auto"
+            height="auto",
         )
         return ui_box

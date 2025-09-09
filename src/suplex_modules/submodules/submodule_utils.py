@@ -78,6 +78,7 @@ def ceil_to_n(x, n):
     logger.debug("Result: %f", result)
     return result
 
+
 def get_shortened_label(label: str, max_length: int) -> str:
     """
     Shorten a label if it exceeds the maximum length.
@@ -97,6 +98,7 @@ def get_shortened_label(label: str, max_length: int) -> str:
 
     side_len = (max_length - 3) // 2
     return f"{label[:side_len]}...{label[-(max_length - 3 - side_len):]}"
+
 
 def apply_normalization(
     value_sets: Dict[Dataset, List[float]],
@@ -160,39 +162,41 @@ def apply_normalization(
     logger.debug("Normalization applied successfully")
     return value_sets
 
+
 def number_to_letters(n):
     """
     Converts a number to a letter sequence.
     0 -> A, 1 -> B, ..., 25 -> Z, 26 -> AA, 27 -> AB, etc.
-   
+
     Args:
         n (int): The number to convert (>= 0)
-   
+
     Returns:
         str: The corresponding letter sequence
     """
     if n < 0:
         raise ValueError("Only non-negative numbers are allowed")
-   
+
     result = ""
-   
+
     while True:
-        result = chr(ord('A') + n % 26) + result
+        result = chr(ord("A") + n % 26) + result
         n = n // 26
         if n == 0:
             break
         n -= 1
-   
+
     return result
+
 
 def get_color_tuple(color: COLOR, use_alpha: bool = False) -> tuple:
     """
     Convert COLOR enum to RGB or RGBA tuple.
-    
+
     Args:
         color: COLOR enum value.
         use_alpha: If True, return RGBA (with alpha=255 for non-transparent).
-    
+
     Returns:
         tuple: RGB or RGBA tuple.
     """

@@ -21,6 +21,7 @@ class GeneralGraphSettings:
     """
     Settings for general graph options.
     """
+
     def __init__(
         self,
         # Axis settings
@@ -201,10 +202,9 @@ class GeneralGraphSettings:
         self._z_range_enabled = z_range is not None
         z_range = z_range if self._z_range_enabled else (0.0, 1.0)
 
-        
         self._min_index_enabled = min_index is not None
         min_index = min_index if self._min_index_enabled else 0
-        
+
         self._max_index_enabled = max_index is not None
         max_index = max_index if self._max_index_enabled else 10000
 
@@ -298,7 +298,7 @@ class GeneralGraphSettings:
             x_range=x_range,
             y_range=y_range,
             z_range=z_range,
-            min_index=min_index, 
+            min_index=min_index,
             max_index=max_index,
             marker_size=marker_size,
             line_width=line_width,
@@ -345,7 +345,7 @@ class GeneralGraphSettings:
         x_range: Tuple[float, float],
         y_range: Tuple[float, float],
         z_range: Tuple[float, float],
-        min_index: int, 
+        min_index: int,
         max_index: int,
         marker_size: float,
         line_width: float,
@@ -692,8 +692,8 @@ class GeneralGraphSettings:
 
         self._min_index_widget = WidgetFactory.int_number_input(
             value=min_index,
-            min_value = min_index,
-            max_value = max_index,
+            min_value=min_index,
+            max_value=max_index,
             step=1,
             description="",
             layout=widgets.Layout(
@@ -703,8 +703,8 @@ class GeneralGraphSettings:
 
         self._max_index_widget = WidgetFactory.int_number_input(
             value=max_index,
-            min_value = min_index,
-            max_value = max_index,
+            min_value=min_index,
+            max_value=max_index,
             step=1,
             description="",
             layout=widgets.Layout(
@@ -1049,7 +1049,7 @@ class GeneralGraphSettings:
 
     def get_z_range_max_widget(self) -> widgets.FloatText:
         return self._z_range_max_widget
-        
+
     @property
     def min_index(self) -> int:
         return self._min_index_widget.value
@@ -1063,7 +1063,7 @@ class GeneralGraphSettings:
 
     def get_max_index_widget(self) -> widgets.IntText:
         return self._max_index_widget
-        
+
     @property
     def marker_size(self) -> float:
         return self._marker_size_widget.value
