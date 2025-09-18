@@ -75,7 +75,7 @@ def apply_adaptive_significance_cutoff(value_list: List[float], value_group_map:
     groups = sorted(set(value_group_map))
     
     if len(groups) <= 1:
-        logger.critical(f"Only one group in value set: {value_list}. Will be defaulted to insignificant.")
+        logger.debug(f"Only one group in value set: {value_list}. Will be defaulted to insignificant.")
         return [math.nan] * len(value_list)
     
     for group in groups:
@@ -92,12 +92,12 @@ def apply_adaptive_significance_cutoff(value_list: List[float], value_group_map:
 
             # If combined is less than tree set combined to insignificant
             if len(combined_group_list) < 3:
-                logger.critical(f"Cutoff at group {group}: Cannot apply shapiro because of combined list length < 3 ({len(combined_group_list)}). Groups will be set to insignificant")
+                logger.debug(f"Cutoff at group {group}: Cannot apply shapiro because of combined list length < 3 ({len(combined_group_list)}). Groups will be set to insignificant")
                 return [(v if g < group else math.nan) for v, g in zip(value_list, value_group_map)]
 
             if sum(combined_group_list) <= 0 or shapiro(combined_group_list)[1] > alpha:
                 # If normally distributed set group_values + other_values as insignificant
-                logger.critical(f"Cutoff at group {group}. No Z test applied because of low group size ({len(combined_group_list)}). Alpha used = {alpha}")
+                logger.debug(f"Cutoff at group {group}. No Z test applied because of low group size ({len(combined_group_list)}). Alpha used = {alpha}")
                 return [(v if g < group else math.nan) for v, g in zip(value_list, value_group_map)]
             # Combined group is not normally distributed which means that we have to include group and evaluate other_values in the next loop
             continue
@@ -109,7 +109,7 @@ def apply_adaptive_significance_cutoff(value_list: List[float], value_group_map:
             other_std = np.std(other_values, ddof=1)
             
             if other_std == 0:
-                logger.critical(f"Cutoff at group {group + 1}. Normally distributed with standard deviation of zero and mean {other_mean}.")
+                logger.debug(f"Cutoff at group {group + 1}. Normally distributed with standard deviation of zero and mean {other_mean}.")
                 return [(v if g < (group + 1) else math.nan) for v, g in zip(value_list, value_group_map)]
             
             group_mean = np.mean(group_values)
@@ -118,7 +118,7 @@ def apply_adaptive_significance_cutoff(value_list: List[float], value_group_map:
             p_value = 1 - norm.cdf(z_score)
             
             if p_value > alpha:
-                logger.critical(f"Cutoff at group {group}. Fits to normally distributed group {group + 1} (p-value={p_value:.4f} > {alpha})")
+                logger.debug(f"Cutoff at group {group}. Fits to normally distributed group {group + 1} (p-value={p_value:.4f} > {alpha})")
                 return [(v if g < group else math.nan) for v, g in zip(value_list, value_group_map)]
     
     # Fallback
