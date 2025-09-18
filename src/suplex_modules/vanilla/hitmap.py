@@ -585,10 +585,10 @@ class HitmapModule(SuplexModuleInterface):
             value=0.05,
             min_value=0.0,
             max_value=1.0,
-            step=0.01,
+            step=0.001,
             description="",
             readout=True,
-            readout_format=".2f",
+            readout_format=".3f",
             layout=widgets.Layout(width="100%", padding="0px 10px"),
             continuous_update=False,
             on_change=lambda b: self.auto_update(self.update_analysis)
