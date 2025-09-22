@@ -57,6 +57,8 @@ class ModuleSelectionPage:
         try:
             # Clean reset for new dataset selection
             self._module_tiles = []
+            # Store module names for tile sorting
+            module_names = {}
             self._tile_events = []
 
             tabs = {}
@@ -100,8 +102,10 @@ class ModuleSelectionPage:
                         # Organize tiles by group
                         if group_name not in tabs:
                             tabs[group_name] = []
+                            module_names[group_name] = []
                             logger.debug("Created new tab group: %s", group_name)
                         tabs[group_name].append(tile_widget)
+                        module_names[group_name].append(module_name)
                     else:
                         logger.warning(
                             "Failed to create tile for module %s", module_name
@@ -133,6 +137,26 @@ class ModuleSelectionPage:
                     width="100%",
                     height="100%",
                 )
+                
+            # Apply sorting to tabs
+            tabs = dict(sorted(tabs.items()))
+            if "Adapters" in tabs:
+                tabs = {"Adapters": tabs.pop("Adapters")} | tabs  # second
+            
+            if "Vanilla" in tabs:
+                tabs = {"Vanilla": tabs.pop("Vanilla")} | tabs    # first
+            
+            if "No group" in tabs:
+                tabs = tabs | {"No group": tabs.pop("No group")}  # last
+
+            module_names[group_name].append(module_name)
+            
+            # Sort Modules per tab alphabetically
+            for key in module_names:
+                if key in tabs:
+                    paired_sorted = sorted(zip(module_names[key], tabs[key]), key=lambda x: x[0])
+                    module_names[key], tabs[key] = zip(*paired_sorted)
+                    tabs[key] = list(tabs[key])
 
             # Create tab structure
             tab_children = []
