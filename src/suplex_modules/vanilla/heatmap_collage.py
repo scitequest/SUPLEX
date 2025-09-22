@@ -1413,17 +1413,23 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 return
 
             svg_fig = self.get_collage(plot_data=value_lists)
-            default_filename = f"intensity_overview_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
+            default_filename = f"Heatmap_Collage_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
 
             root = Tk()
             root.withdraw()
+            root.lift()
+            root.attributes('-topmost', True)
+            root.focus_force()
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".svg",
                 filetypes=[("SVG files", "*.svg")],
                 initialfile=default_filename,
                 title="Save Plot As",
             )
-
+            
+            root.attributes('-topmost', False)
+            root.destroy()
+            
             if file_path:
                 svg_fig.save(file_path)
                 logger.info("Plot exported successfully to %s", file_path)
@@ -2172,8 +2178,11 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             # Tkinter Save-File-Dialog
             root = Tk()
             root.withdraw()
+            root.lift()
+            root.attributes('-topmost', True)
+            root.focus_force()
             default_filename = (
-                f"overview_heatmap_{attribute.value}_{normalization.value}.csv"
+                f"Heatmap_Collage_{attribute.value}_{normalization.value}.csv"
             )
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".csv",
@@ -2181,7 +2190,10 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 initialfile=default_filename,
                 title="Save CSV As",
             )
-
+            
+            root.attributes('-topmost', False)
+            root.destroy()
+            
             if not file_path:
                 logger.debug("CSV export cancelled by user")
                 return

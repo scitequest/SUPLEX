@@ -1262,14 +1262,18 @@ class IntensityOverviewModule(SuplexModuleInterface):
             # Tkinter Save-File-Dialog
             root = Tk()
             root.withdraw()
-            default_filename = f"intensity_overview_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
+            root.lift()
+            root.attributes('-topmost', True)
+            root.focus_force()
+            default_filename = f"Intensity_Overview_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".svg",
                 filetypes=[("SVG files", "*.svg")],
                 initialfile=default_filename,
                 title="Save Plot As",
             )
-
+            root.attributes('-topmost', False)
+            root.destroy()
             if file_path:
                 with open(file_path, "wb") as f:
                     f.write(buffer.getvalue())
@@ -1650,8 +1654,11 @@ class IntensityOverviewModule(SuplexModuleInterface):
 
         root = Tk()
         root.withdraw()
+        root.lift()
+        root.attributes('-topmost', True)
+        root.focus_force()
         default_filename = (
-            f"intensity_data_{attribute.value}_{normalization_method.value}.csv"
+            f"Intensity_Data_{attribute.value}_{normalization_method.value}.csv"
         )
         file_path = filedialog.asksaveasfilename(
             defaultextension=".csv",
@@ -1659,7 +1666,10 @@ class IntensityOverviewModule(SuplexModuleInterface):
             initialfile=default_filename,
             title="Save CSV As",
         )
-
+        
+        root.attributes('-topmost', False)
+        root.destroy()
+        
         if not file_path:
             logger.debug("CSV export cancelled by user")
             return

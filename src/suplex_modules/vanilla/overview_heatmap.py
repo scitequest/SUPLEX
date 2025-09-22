@@ -1144,14 +1144,18 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             # Tkinter Save-File-Dialog
             root = Tk()
             root.withdraw()
-            default_filename = f"intensity_overview_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
+            root.lift()
+            root.attributes('-topmost', True)
+            root.focus_force()
+            default_filename = f"Overview_Heatmap_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".svg",
                 filetypes=[("SVG files", "*.svg")],
                 initialfile=default_filename,
                 title="Save Plot As",
             )
-
+            root.attributes('-topmost', False)
+            root.destroy()
             if file_path:
                 with open(file_path, "wb") as f:
                     f.write(buffer.getvalue())
@@ -1461,8 +1465,11 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             # Tkinter Save-File-Dialog
             root = Tk()
             root.withdraw()
+            root.lift()
+            root.attributes('-topmost', True)
+            root.focus_force()
             default_filename = (
-                f"overview_heatmap_{attribute.value}_{normalization.value}.csv"
+                f"Overview_Heatmap_{attribute.value}_{normalization.value}.csv"
             )
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".csv",
@@ -1470,6 +1477,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 initialfile=default_filename,
                 title="Save CSV As",
             )
+            root.attributes('-topmost', False)
+            root.destroy()
 
             if not file_path:
                 logger.debug("CSV export cancelled by user")
