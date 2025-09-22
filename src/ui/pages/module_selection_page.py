@@ -214,13 +214,15 @@ class ModuleSelectionPage:
             text_color = button_style.get("font_color", "#000000")
 
             # Create HTML tile widget
-            tile_html = WidgetFactory.html_widget(
+
+            # Current implementation ignores widget factory. Might change this later to be more responsive to desing schemes
+            tile_html = widgets.HTML(
                 value=self.get_tile_html(
                     module, background_color, text_color, is_viable
                 ),
-                width="280px",
-                height="160px",
+                layout= widgets.Layout(width = "280px", height = "160px")
             )
+
 
             # Set up event handlers
             events = []
