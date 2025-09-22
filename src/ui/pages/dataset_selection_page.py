@@ -106,6 +106,9 @@ class DatasetSelectionPage:
                         )
                         continue
 
+            # Sort project cards alphanumerically
+            self._project_cards.sort(key=lambda x: x.title.lower())
+            
             # Create accordion using WidgetFactory
             accordion = WidgetFactory.accordion(
                 children=[
