@@ -105,7 +105,7 @@ class ModuleSelectionPage:
                             module_names[group_name] = []
                             logger.debug("Created new tab group: %s", group_name)
                         tabs[group_name].append(tile_widget)
-                        module_names[group_name].append(module_name)
+                        module_names[group_name].append(module_name.lower())
                     else:
                         logger.warning(
                             "Failed to create tile for module %s", module_name
@@ -138,8 +138,8 @@ class ModuleSelectionPage:
                     height="100%",
                 )
                 
-            # Apply sorting to tabs
-            tabs = dict(sorted(tabs.items()))
+            # Apply sorting to tabs - case insensitive
+            tabs = dict(sorted(tabs.items(), key=lambda item: item[0].lower()))
             if "Adapters" in tabs:
                 tabs = {"Adapters": tabs.pop("Adapters")} | tabs  # second
             
