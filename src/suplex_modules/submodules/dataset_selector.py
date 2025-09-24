@@ -157,7 +157,8 @@ class DatasetSelector:
                         exc_info=True,
                     )
                     continue
-
+            # Sort checkboxes by their labels
+            self._checkboxes.sort(key=lambda checkbox: checkbox.description.lower())
             logger.debug("Successfully created %d checkboxes", len(self._checkboxes))
 
         except Exception as e:

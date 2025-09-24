@@ -1547,7 +1547,7 @@ class HitmapModule(SuplexModuleInterface):
                 return
 
             svg_fig = self.get_compound_heatmap_collage()
-            default_filename = f"compound_hitmap_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
+            default_filename = f"Compound_Hitmap_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
 
             root = Tk()
             root.withdraw()
@@ -1710,7 +1710,7 @@ class HitmapModule(SuplexModuleInterface):
 
 
             svg_fig = self.get_collage()
-            default_filename = f"hitmap_collage_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
+            default_filename = f"Hitmap_Collage_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
 
             root = Tk()
             root.withdraw()
@@ -2466,7 +2466,7 @@ class HitmapModule(SuplexModuleInterface):
             root.attributes('-topmost', True)
             root.focus_force()
             default_filename = (
-                f"Hitmap - Overview - {csv_title}.csv"
+                f"Hitmap_Overview_{csv_title}.csv"
             )
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".csv",
@@ -2601,7 +2601,7 @@ class HitmapModule(SuplexModuleInterface):
             root.lift()
             root.attributes('-topmost', True)
             root.focus_force()
-            default_filename = f"Hitmap - {csv_title}.csv"
+            default_filename = f"Hitmap_{csv_title}.csv"
             
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".csv",
