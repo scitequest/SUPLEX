@@ -120,7 +120,8 @@ def get_popup_logger_styles(scheme: Any) -> widgets.HTML:
             line-height: 1.5 !important;
             white-space: normal !important;
             word-wrap: break-word !important;
-            word-break: word !important;
+            word-break: break-all !important;
+            overflow-wrap: anywhere !important;
             box-sizing: border-box !important;
             color: {scheme.TEXT.COLOR.LOGGER_LOG_TEXT} !important;
         }}
@@ -154,6 +155,8 @@ def get_popup_logger_styles(scheme: Any) -> widgets.HTML:
             padding: 10px 10px !important;
             border-radius: 4px !important;
             word-wrap: break-word !important;
+            word-break: break-all !important;
+            overflow-wrap: anywhere !important;
             transition: all 0.2s ease !important;
         }}
         
@@ -183,6 +186,9 @@ def get_popup_logger_styles(scheme: Any) -> widgets.HTML:
             color: {scheme.TEXT.COLOR.LOGGER_LOG_TEXT} !important;
             font-size: {scheme.TEXT.SIZE.DEFAULT} !important;
             line-height: 1.3 !important;
+            word-wrap: break-word !important;
+            word-break: break-all !important;
+            overflow-wrap: anywhere !important;
             margin: 0 !important;
         }}
         

@@ -57,6 +57,8 @@ class ModuleSelectionPage:
         try:
             # Clean reset for new dataset selection
             self._module_tiles = []
+            # Store module names for tile sorting
+            module_names = {}
             self._tile_events = []
 
             tabs = {}
@@ -100,8 +102,10 @@ class ModuleSelectionPage:
                         # Organize tiles by group
                         if group_name not in tabs:
                             tabs[group_name] = []
+                            module_names[group_name] = []
                             logger.debug("Created new tab group: %s", group_name)
                         tabs[group_name].append(tile_widget)
+                        module_names[group_name].append(module_name.lower())
                     else:
                         logger.warning(
                             "Failed to create tile for module %s", module_name
@@ -133,6 +137,26 @@ class ModuleSelectionPage:
                     width="100%",
                     height="100%",
                 )
+                
+            # Apply sorting to tabs - case insensitive
+            tabs = dict(sorted(tabs.items(), key=lambda item: item[0].lower()))
+            if "Adapters" in tabs:
+                tabs = {"Adapters": tabs.pop("Adapters")} | tabs  # second
+            
+            if "Vanilla" in tabs:
+                tabs = {"Vanilla": tabs.pop("Vanilla")} | tabs    # first
+            
+            if "No group" in tabs:
+                tabs = tabs | {"No group": tabs.pop("No group")}  # last
+
+            module_names[group_name].append(module_name)
+            
+            # Sort Modules per tab alphabetically
+            for key in module_names:
+                if key in tabs:
+                    paired_sorted = sorted(zip(module_names[key], tabs[key]), key=lambda x: x[0])
+                    module_names[key], tabs[key] = zip(*paired_sorted)
+                    tabs[key] = list(tabs[key])
 
             # Create tab structure
             tab_children = []
@@ -161,7 +185,7 @@ class ModuleSelectionPage:
             )
 
             # Create main tab widget
-            tab_widget = widgets.Tab(
+            tab_widget = WidgetFactory.tab(
                 children=list(tab_children),
                 layout=widgets.Layout(
                     width="100%", height="100%", overflow="hidden", padding="5px"
@@ -214,13 +238,15 @@ class ModuleSelectionPage:
             text_color = button_style.get("font_color", "#000000")
 
             # Create HTML tile widget
-            tile_html = WidgetFactory.html_widget(
+
+            # Current implementation ignores widget factory. Might change this later to be more responsive to desing schemes
+            tile_html = widgets.HTML(
                 value=self.get_tile_html(
                     module, background_color, text_color, is_viable
                 ),
-                width="280px",
-                height="160px",
+                layout= widgets.Layout(width = "280px", height = "160px")
             )
+
 
             # Set up event handlers
             events = []

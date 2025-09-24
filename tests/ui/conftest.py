@@ -16,6 +16,7 @@ from src.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
 from src.ui.elements.navigator import Navigator
 from src.ui.elements.header import Header
 
+
 @pytest.fixture
 def mock_scheme_class():
     scheme_class = type("TestScheme", (), {})

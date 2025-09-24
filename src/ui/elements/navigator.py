@@ -388,10 +388,14 @@ class Navigator:
         """
         try:
             logger.debug("Navigating to module: %s", module.module_name)
-            self._current_module = module
+            self._current_module = (
+                module.reset_module()
+            )  # Always returns a fresh module instance
             selected_datasets = self._dataset_selection_page.get_selected_datasets()
 
-            module_ui = module.initiate_module(selected_datasets)
+            module_ui = self._current_module.initiate_module(
+                datasets=selected_datasets, color_scheme=self._scheme
+            )
             self._gui.update_content_holder(module_ui)
 
             self._current_step = PAGE.MODULE

@@ -193,16 +193,6 @@ def check_internal_value_consistency(
         )
         return False
 
-    n_spots = (
-        parameters_file["spots_per_spotfield"] * parameters_file["number_of_spotfields"]
-    )
-
-    if len(parameters_file["spots"]) != n_spots:
-        logger.error(
-            f"Internal inconsistency in {parameters_file_path}: expected {n_spots} spots, but found {len(parameters_file["spots"])} spots"
-        )
-        return False
-
     return True
 
 

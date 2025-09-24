@@ -54,7 +54,7 @@ class AdvancedSuplexModule(LoggerMixin, SuplexModuleInterface, ConfigurableModul
     def get_module_hover_text(self) -> str:
         return f"Advanced module with multiple inheritance (Theme: {self.settings.get('theme', 'default')})"
 
-    def initiate_module(self, datasets: List[Any]) -> None:
+    def initiate_module(self, datasets: List[Any], color_scheme: Any) -> None:
         self.load_config()
         self.log_info(
             f"Module initiated with {len(datasets)} datasets and config from {self.config_path}"

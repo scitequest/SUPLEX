@@ -102,6 +102,11 @@ class NIGHT_SCHEME:
                 OUTPUT = "#e8f0ff"
                 DROPDOWN = "#e8f0ff"
 
+            class TABLE:
+                HEAD = "#000000"
+                BODY = "#000000"
+                EMPHASIS = "#000000"
+
     class LAYOUT_COLOR:
         BACKGROUND = "#0f0f23"  # Very dark blue
         HEADER = "#6c63ff"  # Electric purple
@@ -204,6 +209,10 @@ class NIGHT_SCHEME:
             class DROPDOWN:
                 BACKGROUND = "#2a2a50"  # Dark blue background
                 BORDER = "#5a5a80"  # Medium blue-gray border
+
+        class TABLE:
+            HEAD = "#2a2a50"
+            LINES = "#f0f6ff"
 
     class ICON:
         DEFAULT = "⚡"
@@ -340,6 +349,11 @@ class NATURE_SCHEME:
                 OUTPUT = "#2d4a22"
                 DROPDOWN = "#2d4a22"
 
+            class TABLE:
+                HEAD = "#000000"
+                BODY = "#000000"
+                EMPHASIS = "#000000"
+
     class LAYOUT_COLOR:
         BACKGROUND = "#f8f6f0"  # Warm off-white
         HEADER = "#8b6914"  # Dark goldenrod
@@ -442,6 +456,10 @@ class NATURE_SCHEME:
             class DROPDOWN:
                 BACKGROUND = "#f0fff0"  # Honeydew green background
                 BORDER = "#8a9a7a"  # Muted green border
+
+        class TABLE:
+            HEAD = "#f0fff0"
+            LINES = "#2d4a22"
 
     class ICON:
         DEFAULT = "🌿"

@@ -18,7 +18,6 @@ def hex_to_rgb(hex_color: str) -> Optional[Tuple[int, int, int]]:
         RGB tuple with values 0-255, or None if conversion fails
 
     """
-    logger.debug("Converting hex color to RGB: %s", hex_color)
 
     try:
         # Clean and normalize input
@@ -27,13 +26,11 @@ def hex_to_rgb(hex_color: str) -> Optional[Tuple[int, int, int]]:
         if len(hex_color) == 3:
             # #RGB → #RRGGBB expansion
             rgb_tuple = tuple(int(hex_color[i] + hex_color[i], 16) for i in range(3))
-            logger.debug("Converted 3-char hex %s to RGB: %s", hex_color, rgb_tuple)
             return rgb_tuple
 
         elif len(hex_color) == 6:
             # Standard RRGGBB format
             rgb_tuple = tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
-            logger.debug("Converted 6-char hex %s to RGB: %s", hex_color, rgb_tuple)
             return rgb_tuple
 
         else:
@@ -67,7 +64,6 @@ def rgb_to_hex(r: int, g: int, b: int) -> str:
     Returns:
         Uppercase hexadecimal color string with # prefix
     """
-    logger.debug("Converting RGB(%d, %d, %d) to hex", r, g, b)
 
     try:
         # Clamp values to valid range
@@ -76,7 +72,6 @@ def rgb_to_hex(r: int, g: int, b: int) -> str:
         b = max(0, min(255, int(b)))
 
         hex_color = f"#{r:02X}{g:02X}{b:02X}"
-        logger.debug("Converted RGB(%d, %d, %d) to hex: %s", r, g, b, hex_color)
         return hex_color
 
     except Exception as e:
@@ -107,7 +102,6 @@ def get_luminance(r: int, g: int, b: int) -> float:
         ITU-R Recommendation BT.601-7 "Studio encoding parameters
         of digital television for standard 4:3 and wide-screen 16:9 aspect ratios"
     """
-    logger.debug("Calculating luminance for RGB(%d, %d, %d)", r, g, b)
 
     try:
         # Clamp values to valid range
@@ -116,9 +110,6 @@ def get_luminance(r: int, g: int, b: int) -> float:
         b = max(0, min(255, int(b)))
 
         luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
-        logger.debug(
-            "Calculated luminance: %.3f for RGB(%d, %d, %d)", luminance, r, g, b
-        )
         return luminance
 
     except Exception as e:
@@ -164,7 +155,6 @@ def darken_hex_color(hex_color: str, factor: float = 0.15) -> str:
         b = max(0, int(b * (1 - factor)))
 
         darkened_color = rgb_to_hex(r, g, b)
-        logger.debug("Darkened %s to %s", hex_color, darkened_color)
         return darkened_color
 
     except Exception as e:
@@ -203,7 +193,6 @@ def lighten_hex_color(hex_color: str, factor: float = 0.15) -> str:
         b = min(255, int(b + (255 - b) * factor))
 
         lightened_color = rgb_to_hex(r, g, b)
-        logger.debug("Lightened %s to %s", hex_color, lightened_color)
         return lightened_color
 
     except Exception as e:
@@ -245,21 +234,9 @@ def get_emphasized_hex_color(hex_color: str, emphasis_factor: float = 0.15) -> s
         if luminance > 0.5:
             # Light color -> darken for emphasis
             emphasized_color = darken_hex_color(hex_color, emphasis_factor)
-            logger.debug(
-                "Light color detected (luminance: %.3f), darkening %s to %s",
-                luminance,
-                hex_color,
-                emphasized_color,
-            )
         else:
             # Dark color -> lighten for emphasis
             emphasized_color = lighten_hex_color(hex_color, emphasis_factor)
-            logger.debug(
-                "Dark color detected (luminance: %.3f), lightening %s to %s",
-                luminance,
-                hex_color,
-                emphasized_color,
-            )
 
         return emphasized_color
 
@@ -281,8 +258,6 @@ def hex_to_rgba(hex_color: str, alpha: float = 0.1) -> str:
     Returns:
         RGBA color string in CSS format (e.g., "rgba(255, 0, 0, 0.5)")
     """
-    logger.debug("Converting hex color %s to RGBA with alpha %.2f", hex_color, alpha)
-
     try:
         rgb = hex_to_rgb(hex_color)
         if rgb is None:
@@ -295,7 +270,6 @@ def hex_to_rgba(hex_color: str, alpha: float = 0.1) -> str:
         alpha = max(0.0, min(1.0, alpha))  # Clamp alpha to valid range
 
         rgba_string = f"rgba({r}, {g}, {b}, {alpha})"
-        logger.debug("Converted %s to RGBA: %s", hex_color, rgba_string)
         return rgba_string
 
     except Exception as e:
