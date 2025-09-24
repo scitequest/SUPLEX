@@ -416,11 +416,11 @@ class SortStep:
             if attributes
             else ["No Attributes Enabled"]
         )
-        self._value_extractor = ValueExtractor(
-            attributes = allowed_attributes
-        )
+        self._value_extractor = ValueExtractor(attributes=allowed_attributes)
         self._attribute_dropdown = self._value_extractor.get_attribute_widget()
-        self._attribute_dropdown.layout = widgets.Layout(margin="0px 5px 0px 0px", padding="0px")
+        self._attribute_dropdown.layout = widgets.Layout(
+            margin="0px 5px 0px 0px", padding="0px"
+        )
 
         self._tags = tags or []
         tag_options = self._tags if self._tags else ["No Tags Available"]

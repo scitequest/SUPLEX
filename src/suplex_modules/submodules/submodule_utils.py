@@ -2,7 +2,7 @@ import math
 import logging
 from typing import Dict, List
 
-from suplex_modules.submodules.submodule_constants import NORMALIZATION
+from suplex_modules.submodules.submodule_constants import NORMALIZATION, COLOR
 from martin_interface.dataset import Dataset
 
 logger = logging.getLogger(__name__)
@@ -79,6 +79,27 @@ def ceil_to_n(x, n):
     return result
 
 
+def get_shortened_label(label: str, max_length: int) -> str:
+    """
+    Shorten a label if it exceeds the maximum length.
+
+    Args:
+        label (str): The label to shorten.
+        max_length (int): Maximum allowed length.
+
+    Returns:
+        str: Shortened label if necessary.
+    """
+    if len(label) <= max_length:
+        return label
+
+    if max_length < 5:
+        return label[:max_length]
+
+    side_len = (max_length - 3) // 2
+    return f"{label[:side_len]}...{label[-(max_length - 3 - side_len):]}"
+
+
 def apply_normalization(
     value_sets: Dict[Dataset, List[float]],
     normalization_method: NORMALIZATION = NORMALIZATION.RAW,
@@ -140,3 +161,58 @@ def apply_normalization(
         value_sets[key] = [value / normalization_factor for value in value_set]
     logger.debug("Normalization applied successfully")
     return value_sets
+
+
+def number_to_letters(n):
+    """
+    Converts a number to a letter sequence.
+    0 -> A, 1 -> B, ..., 25 -> Z, 26 -> AA, 27 -> AB, etc.
+
+    Args:
+        n (int): The number to convert (>= 0)
+
+    Returns:
+        str: The corresponding letter sequence
+    """
+    if n < 0:
+        raise ValueError("Only non-negative numbers are allowed")
+
+    result = ""
+
+    while True:
+        result = chr(ord("A") + n % 26) + result
+        n = n // 26
+        if n == 0:
+            break
+        n -= 1
+
+    return result
+
+
+def get_color_tuple(color: COLOR, use_alpha: bool = False) -> tuple:
+    """
+    Convert COLOR enum to RGB or RGBA tuple.
+
+    Args:
+        color: COLOR enum value.
+        use_alpha: If True, return RGBA (with alpha=255 for non-transparent).
+
+    Returns:
+        tuple: RGB or RGBA tuple.
+    """
+    color_map = {
+        COLOR.BLACK: (0, 0, 0),
+        COLOR.WHITE: (255, 255, 255),
+        COLOR.RED: (255, 0, 0),
+        COLOR.GREEN: (0, 255, 0),
+        COLOR.BLUE: (0, 0, 255),
+        COLOR.YELLOW: (255, 255, 0),
+        COLOR.ORANGE: (255, 165, 0),
+        COLOR.PURPLE: (128, 0, 128),
+        COLOR.GRAY: (128, 128, 128),
+        COLOR.NONE: (255, 255, 255) if not use_alpha else (0, 0, 0, 0),
+    }
+    rgb = color_map.get(color, (255, 255, 255))  # Default: white (RGB)
+    if use_alpha and color != COLOR.NONE:
+        return rgb + (255,)  # Add Alpha=255
+    return rgb

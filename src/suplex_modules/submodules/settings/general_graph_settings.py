@@ -21,6 +21,7 @@ class GeneralGraphSettings:
     """
     Settings for general graph options.
     """
+
     def __init__(
         self,
         # Axis settings
@@ -58,6 +59,9 @@ class GeneralGraphSettings:
         x_range: Optional[Tuple[float, float]] = None,
         y_range: Optional[Tuple[float, float]] = None,
         z_range: Optional[Tuple[float, float]] = None,
+        # Truncation settings
+        min_index: Optional[int] = None,
+        max_index: Optional[int] = None,
         # Additional options
         marker_size: Optional[float] = None,
         line_width: Optional[float] = None,
@@ -198,6 +202,12 @@ class GeneralGraphSettings:
         self._z_range_enabled = z_range is not None
         z_range = z_range if self._z_range_enabled else (0.0, 1.0)
 
+        self._min_index_enabled = min_index is not None
+        min_index = min_index if self._min_index_enabled else 0
+
+        self._max_index_enabled = max_index is not None
+        max_index = max_index if self._max_index_enabled else 10000
+
         self._marker_size_enabled = marker_size is not None
         marker_size = marker_size if self._marker_size_enabled else 5.0
 
@@ -288,6 +298,8 @@ class GeneralGraphSettings:
             x_range=x_range,
             y_range=y_range,
             z_range=z_range,
+            min_index=min_index,
+            max_index=max_index,
             marker_size=marker_size,
             line_width=line_width,
             base_font_size=base_font_size,
@@ -333,6 +345,8 @@ class GeneralGraphSettings:
         x_range: Tuple[float, float],
         y_range: Tuple[float, float],
         z_range: Tuple[float, float],
+        min_index: int,
+        max_index: int,
         marker_size: float,
         line_width: float,
         base_font_size: int,
@@ -670,6 +684,28 @@ class GeneralGraphSettings:
         self._z_range_max_widget = WidgetFactory.float_number_input(
             value=z_range[1],
             step=0.1,
+            description="",
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
+        )
+
+        self._min_index_widget = WidgetFactory.int_number_input(
+            value=min_index,
+            min_value=min_index,
+            max_value=max_index,
+            step=1,
+            description="",
+            layout=widgets.Layout(
+                height="30px", width="auto", margin="0px", padding="0px"
+            ),
+        )
+
+        self._max_index_widget = WidgetFactory.int_number_input(
+            value=max_index,
+            min_value=min_index,
+            max_value=max_index,
+            step=1,
             description="",
             layout=widgets.Layout(
                 height="30px", width="auto", margin="0px", padding="0px"
@@ -1015,6 +1051,20 @@ class GeneralGraphSettings:
         return self._z_range_max_widget
 
     @property
+    def min_index(self) -> int:
+        return self._min_index_widget.value
+
+    def get_min_index_widget(self) -> widgets.IntText:
+        return self._min_index_widget
+
+    @property
+    def max_index(self) -> int:
+        return self._max_index_widget.value
+
+    def get_max_index_widget(self) -> widgets.IntText:
+        return self._max_index_widget
+
+    @property
     def marker_size(self) -> float:
         return self._marker_size_widget.value
 
@@ -1159,6 +1209,10 @@ class GeneralGraphSettings:
         if self._z_range_enabled or self._show_all_options:
             active_widgets.append(self._z_range_min_widget)
             active_widgets.append(self._z_range_max_widget)
+        if self._min_index_enabled or self._show_all_options:
+            active_widgets.append(self._min_index_widget)
+        if self._max_index_enabled or self._show_all_options:
+            active_widgets.append(self._max_index_widget)
         if self._marker_size_enabled or self._show_all_options:
             active_widgets.append(self._marker_size_widget)
         if self._line_width_enabled or self._show_all_options:
@@ -1745,6 +1799,52 @@ class GeneralGraphSettings:
                 )
             )
 
+        truncation_children = []
+        if self._min_index_enabled or self._show_all_options:
+            truncation_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="Start Depiction at Index:"),
+                        WidgetFactory.vbox(
+                            children=[self._min_index_widget],
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
+        if self._max_index_enabled or self._show_all_options:
+            truncation_children.append(
+                WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.label(value="End Depiction at Index:"),
+                        WidgetFactory.vbox(
+                            children=[self._max_index_widget],
+                            overflow="visible",
+                            height="auto",
+                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                        ),
+                    ],
+                    gap="5px",
+                    overflow="visible",
+                    height="auto",
+                    layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
+                )
+            )
+        if truncation_children:
+            general_widgets.append(
+                WidgetFactory.vbox(
+                    children=truncation_children,
+                    gap="15px",
+                    overflow="visible",
+                    height="auto",
+                )
+            )
         # Additional Options
         additional_children = []
         if self._marker_size_enabled or self._show_all_options:

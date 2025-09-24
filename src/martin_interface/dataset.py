@@ -62,8 +62,8 @@ class Dataset:
 
         samples = []
         # Calculate number of spots using the highest index spot.
-        n_spots = (1 + data[-1]["row"]) * (1 + data[-1]["col"])
-        n_cols = data[-1]["col"] + 1
+        n_spots = int(len(data) / (data[-1]["spot"] + 1))
+        n_cols = max(d["col"] for d in data) + 1
         spots = [[] for _ in range(n_spots)]
         parameters = None
         if spot_parameters is not None:

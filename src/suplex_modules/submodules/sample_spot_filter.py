@@ -22,7 +22,7 @@ from suplex_modules.submodules.submodule_constants import (
     NORMALIZATION,
     SELECTION_MODE,
     THRESHOLD_FILTER_STATE,
-    NORMALIZATION_DEFAULT
+    NORMALIZATION_DEFAULT,
 )
 from suplex_modules.submodules.submodule_utils import calculate_step_size
 from suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET
@@ -448,8 +448,8 @@ class SampleSpotFilter:
         )
 
         self._value_extractor = ValueExtractor(
-            attributes = included_attributes,
-            normalization_methods = included_normalization_methods
+            attributes=included_attributes,
+            normalization_methods=included_normalization_methods,
         )
 
         self._invert_checkbox = WidgetFactory.checkbox(
@@ -1009,7 +1009,7 @@ class SampleSpotFilter:
         max_threshold = (
             max_threshold if max_threshold is not None else self.max_threshold
         )
-        
+
         normalization_factor = (
             normalization_factor
             if normalization_factor is not None
@@ -1026,7 +1026,6 @@ class SampleSpotFilter:
             else self.spots_affect_sample
         )
 
-        
         if attribute in DATA_STATISTICS_ATTRIBUTES:
             sample_threshold_map = get_sample_threshold_map(
                 datasets=datasets,
@@ -1056,7 +1055,7 @@ class SampleSpotFilter:
         else:
             # Default spot map filled with true statements
             spot_threshold_map = self.get_default_spot_map(datasets=datasets)
-        
+
         # Spot attributes first so spots can affect other spots of the same sample if both spots_affect_sample and sample_affects_spots is true
         if attribute in spot_attributes and spots_affect_sample:
             if sample_filter_mode == SELECTION_MODE.ANY:

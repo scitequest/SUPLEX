@@ -110,6 +110,7 @@ class DATASET_ATTRIBUTE(Enum):
     BACKGROUND_RECTANGLES_COORDINATES_X = "Background Rectangle X-Coordinates"
     BACKGROUND_RECTANGLES_COORDINATES_Y = "Background Rectangle Y-Coordinates"
 
+
 # Convenience lists
 DATA_ATTRIBUTES = [
     DATASET_ATTRIBUTE.MEAN_MINUS_MIN,
@@ -170,18 +171,20 @@ class NORMALIZATION(Enum):
     BY_POSITION_GAUSSIAN_ABSOLUTE = "GAUSSIAN: ABSOLUTE"
     BY_POSITION_GAUSSIAN_PARTIAL = "GAUSSIAN: PARTIAL"
 
+
 NORMALIZATION_DEFAULT = [
     NORMALIZATION.RAW,
     NORMALIZATION.INTERNAL,
     NORMALIZATION.GLOBAL,
-    NORMALIZATION.CUSTOM
+    NORMALIZATION.CUSTOM,
 ]
 
 NORMALIZATION_REFERENCE_POINT = [
     NORMALIZATION.BY_POSITION,
     NORMALIZATION.BY_POSITION_GAUSSIAN_ABSOLUTE,
-    NORMALIZATION.BY_POSITION_GAUSSIAN_PARTIAL
+    NORMALIZATION.BY_POSITION_GAUSSIAN_PARTIAL,
 ]
+
 
 class FILTER_METHOD(Enum):
     MEAN_MAX_RATIO = "Mean to Max Ratio"
@@ -210,3 +213,59 @@ class THRESHOLD_FILTER_STATE(Enum):
             return cls.ABOVE_RANGE
         else:
             return cls.WITHIN_RANGE
+
+
+class COLLAGE_LAYOUT(Enum):
+    GRID_EQUAL_ALL = "Grid: cells equally sized"
+    GRID_EQUAL_WIDTH = "Grid: equal cell width"
+    GRID_EQUAL_HEIGHT = "Grid: equal cell height"
+    MOSAIC_EQUAL_ALL = "Mosaic: cells equally sized"
+    MOSAIC_EQUAL_WIDTH = "Mosaic: equal cell width"
+    MOSAIC_EQUAL_HEIGHT = "Mosaic: equal cell height"
+
+
+class COLOR(Enum):
+    NONE = "none"
+    BLACK = "black"
+    WHITE = "white"
+    RED = "red"
+    BLUE = "blue"
+    GREEN = "green"
+    YELLOW = "yellow"
+    ORANGE = "orange"
+    PURPLE = "purple"
+    GRAY = "gray"
+
+
+class SCALE_OPTION(Enum):
+    NO_SCALE = "Keep original sizes"
+    DOWNSCALE_TO_WIDTH = "Downscale to smallest image width"
+    UPSCALE_TO_WIDTH = "Upscale to greatest image width"
+    DOWNSCALE_TO_HEIGHT = "Downscale to smallest image height"
+    UPSCALE_TO_HEIGHT = "Upscale to greatest image height"
+    STRETCH_TO_MIN_WIDTH = "Stretch all images to smallest width (ignore ratio)"
+    STRETCH_TO_MAX_WIDTH = "Stretch all images to greatest width (ignore ratio)"
+    STRETCH_TO_MIN_HEIGHT = "Stretch all images to smallest height (ignore ratio)"
+    STRETCH_TO_MAX_HEIGHT = "Stretch all images to greatest height (ignore ratio)"
+    STRETCH_TO_MIN_SIZE = "Stretch all images to smallest width & height (ignore ratio)"
+    STRETCH_TO_MAX_SIZE = "Stretch all images to greatest width & height (ignore ratio)"
+
+
+class READING_ORDER(Enum):
+    LEFT_RIGHT_TOP_BOTTOM = "left to right -> top to bottom"
+    RIGHT_LEFT_TOP_BOTTOM = "right to left -> top to bottom"
+    LEFT_RIGHT_BOTTOM_TOP = "left to right -> bottom to top"
+    RIGHT_LEFT_BOTTOM_TOP = "right to left -> bottom to top"
+
+    TOP_BOTTOM_LEFT_RIGHT = "top to bottom -> left to right"
+    TOP_BOTTOM_RIGHT_LEFT = "top to bottom -> right to left"
+    BOTTOM_TOP_LEFT_RIGHT = "bottom to top -> left to right"
+    BOTTOM_TOP_RIGHT_LEFT = "bottom to top -> right to left"
+
+
+class TITLE_POSITION(Enum):
+    TOP = "top"
+    BOTTOM = "bottom"
+    RIGHT = "right"
+    LEFT = "left"
+    CENTER = "center"

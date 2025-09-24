@@ -313,9 +313,11 @@ class DatasetFilter:
             layout=widgets.Layout(width="100%", padding="0px 10px 0px 0px"),
         )
 
-        self._value_extractor = ValueExtractor(attributes = included_attributes)
+        self._value_extractor = ValueExtractor(attributes=included_attributes)
         self._attribute_dropdown = self._value_extractor.get_attribute_widget()
-        self._attribute_dropdown.layout = widgets.Layout(width="100%", padding="0px 10px 0px 0px")
+        self._attribute_dropdown.layout = widgets.Layout(
+            width="100%", padding="0px 10px 0px 0px"
+        )
 
         self._invert_checkbox = WidgetFactory.checkbox(
             description="Invert Filter",

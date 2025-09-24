@@ -388,7 +388,9 @@ class Navigator:
         """
         try:
             logger.debug("Navigating to module: %s", module.module_name)
-            self._current_module = module.reset_module() # Always returns a fresh module instance
+            self._current_module = (
+                module.reset_module()
+            )  # Always returns a fresh module instance
             selected_datasets = self._dataset_selection_page.get_selected_datasets()
 
             module_ui = module.initiate_module(

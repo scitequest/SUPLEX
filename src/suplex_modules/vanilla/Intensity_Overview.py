@@ -17,7 +17,7 @@ from suplex_modules.submodules.value_extractor import (
     ValueExtractor,
     extract_value_list_from_dataset,
     get_flat_value_list,
-    flatten_list
+    flatten_list,
 )
 from suplex_modules.submodules.submodule_constants import (
     DATASET_ATTRIBUTE,
@@ -266,17 +266,17 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 ]
             )
             self._value_extractor = ValueExtractor(
-                attributes = included_attributes,
-                normalization_methods = NORMALIZATION_DEFAULT,
-                max_reference_index = ABS_MAX_VALUE
+                attributes=included_attributes,
+                normalization_methods=NORMALIZATION_DEFAULT,
+                max_reference_index=ABS_MAX_VALUE,
             )
-            
+
             self._dataset_filter = DatasetFilter(
                 included_attributes=included_attributes
             )
             self._sample_spot_filter = SampleSpotFilter(
                 included_attributes=included_attributes,
-                included_normalization_methods = NORMALIZATION_DEFAULT
+                included_normalization_methods=NORMALIZATION_DEFAULT,
             )
             self._sample_threshold_map = (
                 self._sample_spot_filter.get_default_sample_map(self._included_datasets)
@@ -392,7 +392,9 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 ),
             )
             for widget in self._value_extractor.get_active_widgets():
-                widget.observe(lambda b: self.on_selected_attribute_changed(), names="value")
+                widget.observe(
+                    lambda b: self.on_selected_attribute_changed(), names="value"
+                )
 
             control_interface = WidgetFactory.vbox(
                 children=[title_html, controls_content],
@@ -1245,9 +1247,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 logger.warning("No data available for export")
                 return
 
-            fig = self.generate_box_jitter_plot(
-                plot_data=value_sets
-            )
+            fig = self.generate_box_jitter_plot(plot_data=value_sets)
 
             buffer = io.BytesIO()
             fig.savefig(
@@ -1302,10 +1302,10 @@ class IntensityOverviewModule(SuplexModuleInterface):
     def generate_box_jitter_plot(self, plot_data: Dict[str, List[float]]) -> plt.Figure:
         """
         Generate the actual intensity plot.
-    
+
         Args:
             plot_data (Dict[str, List[float]]): Data to plot, keyed by dataset.
-    
+
         Returns:
             plt.Figure: The generated figure.
         """
@@ -1324,12 +1324,12 @@ class IntensityOverviewModule(SuplexModuleInterface):
             n_datasets = len(plot_data)
             if n_datasets == 0:
                 n_datasets = 1
-    
+
             # Inches per dataset
             width_per_dataset = 0.4
             height_per_dataset = 0.3
             left_margin = right_margin = bottom_margin = top_margin = 0.5
-    
+
             if self._general_graph_settings.swap_axes:
                 fig_width = left_margin + right_margin + n_datasets * width_per_dataset
                 fig_height = 4 + top_margin + bottom_margin
@@ -1338,31 +1338,37 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 fig_height = (
                     bottom_margin + top_margin + n_datasets * height_per_dataset
                 )
-    
+
             ar_value = get_aspect_ratio_value(self._general_graph_settings.aspect_ratio)
-    
+
             if ar_value is not None:
                 if self._general_graph_settings.swap_axes:
                     fig_height = fig_width / ar_value
                 else:
                     fig_width = fig_height * ar_value
-    
+
             figsize = (fig_width, fig_height)
-    
+
             fig, ax = plt.subplots(figsize=figsize)
-    
+
             # DPI-Downscaling-Logik (analog zu overview_heatmap.py)
             current_dpi = fig.dpi  # Standard-DPI von matplotlib (normalerweise 100)
             est_width_pixels = fig_width * current_dpi
             est_height_pixels = fig_height * current_dpi
-    
-            if (est_width_pixels > MAX_PIXELS_GRAPH) or (est_height_pixels > MAX_PIXELS_GRAPH):
+
+            if (est_width_pixels > MAX_PIXELS_GRAPH) or (
+                est_height_pixels > MAX_PIXELS_GRAPH
+            ):
                 min_dpi_width = MAX_PIXELS_GRAPH / fig_width
                 min_dpi_height = MAX_PIXELS_GRAPH / fig_height
-                min_dpi = max(50, min(min_dpi_width, min_dpi_height))  # Mindestens 50 DPI, um Qualität zu wahren
+                min_dpi = max(
+                    50, min(min_dpi_width, min_dpi_height)
+                )  # Mindestens 50 DPI, um Qualität zu wahren
                 fig.set_dpi(min_dpi)
-                logger.info(f"Proactively reduced DPI to {min_dpi} (estimated pixels: {est_width_pixels:.0f}x{est_height_pixels:.0f}, figsize: {fig_width}x{fig_height}) to avoid size limit.")
-    
+                logger.info(
+                    f"Proactively reduced DPI to {min_dpi} (estimated pixels: {est_width_pixels:.0f}x{est_height_pixels:.0f}, figsize: {fig_width}x{fig_height}) to avoid size limit."
+                )
+
             color_scheme = self._general_graph_settings.sequential_color_scheme.value
             try:
                 cmap = plt.cm.get_cmap(color_scheme)
@@ -1372,11 +1378,11 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 )
                 cmap = plt.cm.get_cmap("viridis")
             colors = cmap(np.linspace(0, 1, len(plot_data)))
-    
+
             dataset_labels = [key.id for key in plot_data.keys()]
             if self._dataset_descriptor == DATASET_LABEL.NAME:
                 dataset_labels = [key.name for key in plot_data.keys()]
-    
+
             if self._general_graph_settings.max_label_length:
                 max_label_length = self._general_graph_settings.max_label_length
                 axis_labels = []
@@ -1386,20 +1392,20 @@ class IntensityOverviewModule(SuplexModuleInterface):
                             label=label, max_length=max_label_length
                         )
                     )
-    
+
             if self._boxplot_settings.show_boxplot:
                 self.create_boxplot(ax, plot_data, colors, axis_labels)
-    
+
             if self._jitterplot_settings.show_jitterplot:
                 self.create_jitterplot(ax, plot_data, colors)
-    
+
             if self._show_threshold_checkbox.value:
                 self.add_thresholds(ax)
-    
+
             # Setup axes, labels, scales, etc.
             self.setup_axes(ax, plot_data, colors, axis_labels)
             plt.tight_layout(pad=1.5)
-    
+
             logger.debug("Box scatter plot generated successfully")
             return fig
         except Exception as e:
@@ -1548,12 +1554,10 @@ class IntensityOverviewModule(SuplexModuleInterface):
         n_datasets = len(plot_data)
         attribute = self._value_extractor.attribute
         normalization = self._value_extractor.normalization
-        
+
         attribute_display = attribute.value.replace("_", " ").title()
         normalization_suffix = (
-            f" ({normalization.value})"
-            if normalization != "raw"
-            else ""
+            f" ({normalization.value})" if normalization != "raw" else ""
         )
 
         value_label = self._general_graph_settings.x_label
@@ -1646,7 +1650,9 @@ class IntensityOverviewModule(SuplexModuleInterface):
 
         root = Tk()
         root.withdraw()
-        default_filename = f"intensity_data_{attribute.value}_{normalization_method.value}.csv"
+        default_filename = (
+            f"intensity_data_{attribute.value}_{normalization_method.value}.csv"
+        )
         file_path = filedialog.asksaveasfilename(
             defaultextension=".csv",
             filetypes=[("CSV files", "*.csv")],
