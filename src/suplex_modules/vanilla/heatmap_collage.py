@@ -383,6 +383,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 normalization_methods=normalization_methods,
                 max_reference_index=max_index,
             )
+            self._value_extractor.get_attribute_widget().value = DATASET_ATTRIBUTE.ADJUSTED_AVERAGE.value
 
             def on_values_extracted_changed():
                 self._ignore_events = True
