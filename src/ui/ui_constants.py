@@ -95,6 +95,11 @@ SCHEME_FIELDS = {
                 "OUTPUT": str,
                 "DROPDOWN": str,
             },
+            "TABLE": {
+                "HEAD": str,
+                "BODY": str,
+                "EMPHASIS": str,
+            },
         },
     },
     "LAYOUT_COLOR": {
@@ -165,6 +170,10 @@ SCHEME_FIELDS = {
             "ACCORDION": {"PANEL": str, "LINES": str},
             "OUTPUT": {"BACKGROUND": str, "BORDER": str},
             "DROPDOWN": {"BACKGROUND": str, "BORDER": str},
+        },
+        "TABLE": {
+            "HEAD": str,
+            "LINES": str,
         },
     },
     "ICON": {

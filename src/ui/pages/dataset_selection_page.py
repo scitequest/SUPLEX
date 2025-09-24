@@ -14,7 +14,7 @@ from ui.widget_factory import WidgetFactory
 from suplex_modules.submodules.submodule_constants import (
     DATASET_SELECTOR_MODE,
     DATASET_LABEL,
-    TAG_SELECTION_MODE,
+    SELECTION_MODE,
 )
 from suplex_modules.submodules.dataset_selector import DatasetSelector
 from suplex_modules.submodules.tag_selector import TagSelector
@@ -106,6 +106,9 @@ class DatasetSelectionPage:
                         )
                         continue
 
+            # Sort project cards alphanumerically
+            self._project_cards.sort(key=lambda x: x.title.lower())
+            
             # Create accordion using WidgetFactory
             accordion = WidgetFactory.accordion(
                 children=[
@@ -317,7 +320,7 @@ class ProjectCard:
         self._current_date_format = DATASET_LABEL.CREATED_DATE
 
         # Initialize tag selector
-        self._tag_selection_mode = TAG_SELECTION_MODE.ANY
+        self._tag_selection_mode = SELECTION_MODE.ANY
         self._tag_selector = TagSelector(datasets=self._project.datasets)
 
         logger.debug(
@@ -517,7 +520,7 @@ class ProjectCard:
             height="100%",
             overflow_y="auto",
             overflow_x="hidden",
-            padding="12px",
+            layout=widgets.Layout(padding="12px"),
         )
 
         top_row_box = WidgetFactory.hbox(
@@ -697,11 +700,11 @@ class ProjectCard:
         )
 
         def on_tag_any_clicked(b):
-            self._tag_selection_mode = TAG_SELECTION_MODE.ANY
+            self._tag_selection_mode = SELECTION_MODE.ANY
             logger.debug("Tag mode set to ANY for project: %s", self.title)
 
         def on_tag_all_clicked(b):
-            self._tag_selection_mode = TAG_SELECTION_MODE.ALL
+            self._tag_selection_mode = SELECTION_MODE.ALL
             logger.debug("Tag mode set to ALL for project: %s", self.title)
 
         tag_mode_buttons[0].on_click(on_tag_any_clicked)
@@ -715,7 +718,7 @@ class ProjectCard:
         def on_select_tags_button_clicked(b):
             datasets = (
                 self._tag_selector.get_tagged_datasets_any()
-                if self._tag_selection_mode == TAG_SELECTION_MODE.ANY
+                if self._tag_selection_mode == SELECTION_MODE.ANY
                 else self._tag_selector.get_tagged_datasets_all()
             )
             self._dataset_selector.select_datasets(datasets)
@@ -730,7 +733,7 @@ class ProjectCard:
         def on_deselect_tags_button_clicked(b):
             datasets = (
                 self._tag_selector.get_tagged_datasets_any()
-                if self._tag_selection_mode == TAG_SELECTION_MODE.ANY
+                if self._tag_selection_mode == SELECTION_MODE.ANY
                 else self._tag_selector.get_tagged_datasets_all()
             )
             self._dataset_selector.deselect_datasets(datasets)

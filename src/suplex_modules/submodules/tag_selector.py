@@ -4,7 +4,6 @@ from typing import List, Set
 import ipywidgets as widgets
 
 from martin_interface.dataset import Dataset
-from suplex_modules.submodules.submodule_constants import TAG_SELECTION_MODE
 from ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
@@ -83,7 +82,7 @@ class TagSelector:
                 width="100%",
                 height="100%",
                 overflow_y="auto",
-                padding="10px",
+                layout=widgets.Layout(padding="10px"),
             )
 
         except Exception as e:

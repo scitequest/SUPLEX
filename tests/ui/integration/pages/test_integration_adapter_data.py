@@ -10,7 +10,7 @@ from src.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCar
 from martin_interface.martin_interface_constants import SEARCH_MODE
 from suplex_modules.submodules.submodule_constants import (
     DATASET_LABEL,
-    TAG_SELECTION_MODE,
+    SELECTION_MODE,
 )
 
 
@@ -131,14 +131,14 @@ class TestAdapterDataIntegration:
                 project_card = ProjectCard(page=dataset_page, project=project)
 
         # Test ANY mode - datasets with any of the selected tags
-        project_card._tag_selection_mode = TAG_SELECTION_MODE.ANY
+        project_card._tag_selection_mode = SELECTION_MODE.ANY
         datasets_any = project_card._tag_selector.get_tagged_datasets_any()
 
         # All datasets should have "common" tag based on our mock data
         assert len(datasets_any) >= 0  # Should find some datasets
 
         # Test ALL mode
-        project_card._tag_selection_mode = TAG_SELECTION_MODE.ALL
+        project_card._tag_selection_mode = SELECTION_MODE.ALL
         datasets_all = project_card._tag_selector.get_tagged_datasets_all()
 
         # Should return some valid result

@@ -16,17 +16,14 @@ class TestModuleSelectionPage:
         assert page._module_tiles == []
         assert page._tile_events == []
 
-    @patch("src.ui.pages.module_selection_page.widgets.Tab")
     @patch("src.ui.pages.module_selection_page.WidgetFactory")
-    def test_get_ui_success(
-        self, mock_factory, mock_tab, module_selection_page, mock_modules
-    ):
+    def test_get_ui_success(self, mock_factory, module_selection_page, mock_modules):
         mock_datasets = [Mock(), Mock()]
         mock_tab_widget = Mock()
         mock_tab_widget.children = []
         mock_tab_widget.add_class = Mock()
         mock_tab_widget.set_title = Mock()
-        mock_tab.return_value = mock_tab_widget
+        mock_factory.tab.return_value = mock_tab_widget
 
         module_selection_page.create_module_tile = Mock(
             side_effect=[Mock(), Mock(), Mock()]
@@ -50,15 +47,9 @@ class TestModuleSelectionPage:
         for module in mock_modules:
             module.check_if_viable.return_value = False
 
-        with patch("src.ui.pages.module_selection_page.widgets.Tab") as mock_tab:
-            mock_tab_widget = Mock()
-            mock_tab_widget.add_class = Mock()
-            mock_tab_widget.set_title = Mock()
-            mock_tab.return_value = mock_tab_widget
-
-            with patch("src.ui.pages.module_selection_page.WidgetFactory"):
-                module_selection_page.create_module_tile = Mock(return_value=Mock())
-                module_selection_page.get_ui([])
+        with patch("src.ui.pages.module_selection_page.WidgetFactory"):
+            module_selection_page.create_module_tile = Mock(return_value=Mock())
+            module_selection_page.get_ui([])
 
         module_selection_page._navigator.set_info_field_state.assert_called_once()
         call_kwargs = module_selection_page._navigator.set_info_field_state.call_args[1]
@@ -79,15 +70,9 @@ class TestModuleSelectionPage:
     def test_get_ui_module_without_group(self, module_selection_page, mock_modules):
         mock_modules[0].group_name = ""
 
-        with patch("src.ui.pages.module_selection_page.widgets.Tab") as mock_tab:
-            mock_tab_widget = Mock()
-            mock_tab_widget.add_class = Mock()
-            mock_tab_widget.set_title = Mock()
-            mock_tab.return_value = mock_tab_widget
-
-            with patch("src.ui.pages.module_selection_page.WidgetFactory"):
-                module_selection_page.create_module_tile = Mock(return_value=Mock())
-                module_selection_page.get_ui([])
+        with patch("src.ui.pages.module_selection_page.WidgetFactory"):
+            module_selection_page.create_module_tile = Mock(return_value=Mock())
+            module_selection_page.get_ui([])
 
     @patch("src.ui.pages.module_selection_page.WidgetFactory")
     @patch("src.ui.pages.module_selection_page.Event")
@@ -208,6 +193,7 @@ class TestModuleSelectionPage:
         module = Mock()
         module.module_name = "Test Module"
         module.module_version = "1.0.0"
+        module.button_style = {}  # Added to prevent TypeError
 
         result = module_selection_page.get_tile_html(
             module, "#FF0000", "#FFFFFF", is_viable=True
@@ -224,6 +210,7 @@ class TestModuleSelectionPage:
         module = Mock()
         module.module_name = "Test Module"
         module.module_version = "1.0.0"
+        module.button_style = {}  # Added to prevent TypeError
 
         result = module_selection_page.get_tile_html(
             module, "#FF0000", "#FFFFFF", is_viable=False

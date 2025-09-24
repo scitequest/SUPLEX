@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from typing_extensions import Self
 from ipywidgets import Box
 
 from martin_interface.dataset import Dataset
+from ipywidgets import widgets
 
 
 class SuplexModuleInterface(ABC):
@@ -86,13 +87,18 @@ class SuplexModuleInterface(ABC):
         ...
 
     @abstractmethod
-    def initiate_module(self, datasets: List[Dataset]) -> None:
+    def initiate_module(
+        self, datasets: List[Dataset], color_scheme: Any
+    ) -> widgets.Box:
         """
         Initiates module by loading datasets and generating the user interface.
 
         Args:
             datasets (List[Dataset]): A list of Dataset instances to be loaded into the module.
-            ui (ipywidgets.Box): Container for graphical representation and user interface of the module.
+            color_scheme (Any): A color scheme class object, used to design the module.
+
+        Returns:
+            Container with graphical representation and user interface of the module.
         """
         ...
 
