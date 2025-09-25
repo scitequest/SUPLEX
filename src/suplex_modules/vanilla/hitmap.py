@@ -1073,7 +1073,6 @@ class HitmapModule(SuplexModuleInterface):
         self._dynamic_hitmaps = {}
         
         for dataset in datasets:
-            logger.critical(f"Dataset: {dataset.id}")
             n_spotfields = dataset.general_parameters.number_of_spotfields
             if n_spotfields is None or attribute in DATA_STATISTICS_ATTRIBUTES:
                 n_spotfields = 1
