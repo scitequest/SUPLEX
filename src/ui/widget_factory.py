@@ -1644,12 +1644,11 @@ class WidgetFactory:
     ) -> widgets.HBox:
         """
         Create a styled horizontal box container.
-
         Args:
             children: List of child widgets to contain
             width: CSS width of the container
             height: CSS height of the container
-            gap: Gap between child elements
+            gap: Gap between child elements (used for placeholder width)
             align_items: CSS align-items property
             justify_content: CSS justify-content property
             overflow: CSS overflow property
@@ -1657,22 +1656,38 @@ class WidgetFactory:
             overflow_x: CSS overflow-x property
             layout: Custom layout (overrides width/height if provided)
             **kwargs: Additional arguments passed to the HBox widget
-
         Returns:
             Configured HBox widget with styling
         """
         if children is None:
             children = []
-
         logger.debug(
             "Creating HBox: children_count=%d, size=%sx%s", len(children), width, height
         )
-
         try:
             layout = WidgetFactory.get_layout(layout, width, height)
             layout.align_items = layout.align_items or align_items
             layout.justify_content = layout.justify_content or justify_content
-
+            
+            # Gap adds invisible placeholder elements of a given width
+            if gap and len(children) > 1:
+                gapped_children = []
+                for i, child in enumerate(children):
+                    gapped_children.append(child)
+                    if i < len(children) - 1:
+                        placeholder = widgets.HTML(
+                            value='',
+                            layout=widgets.Layout(
+                                width=gap,
+                                height="100%",
+                                margin="0",
+                                padding="0",
+                                border="none"
+                            )
+                        )
+                        gapped_children.append(placeholder)
+                children = gapped_children
+            
             hbox_widget = widgets.HBox(
                 children=children,
                 layout=layout,
@@ -1683,28 +1698,13 @@ class WidgetFactory:
             )
             hbox_widget.add_class("styled-widget")
             hbox_widget.add_class("styled-hbox")
-
             if overflow == "hidden":
                 hbox_widget.add_class("styled-overflow-hidden")
             if overflow_x == "hidden":
                 hbox_widget.add_class("styled-overflow-x-hidden")
             if overflow_y == "hidden":
                 hbox_widget.add_class("styled-overflow-y-hidden")
-
-            if gap and children:
-                for i, child in enumerate(children[:-1]):  # All except last child
-                    if hasattr(child, "layout") and hasattr(child.layout, "margin"):
-                        margin = child.layout.margin
-                        if margin is None:
-                            child.layout.margin = f"0 {gap} 0 0"
-                            continue
-
-                        margin_vals = list(set(re.findall(r"\d+", margin)))
-                        if len(margin_vals) == 1 and margin_vals[0] == "0":
-                            child.layout.margin = f"0 {gap} 0 0"
-
             return hbox_widget
-
         except Exception as e:
             logger.error("Failed to create HBox: %s", e, exc_info=True)
             raise
@@ -1725,12 +1725,11 @@ class WidgetFactory:
     ) -> widgets.VBox:
         """
         Create a styled vertical box container.
-
         Args:
             children: List of child widgets to contain
             width: CSS width of the container
             height: CSS height of the container
-            gap: Gap between child elements
+            gap: Gap between child elements (used for placeholder height)
             align_items: CSS align-items property
             justify_content: CSS justify-content property
             overflow: CSS overflow property
@@ -1738,22 +1737,38 @@ class WidgetFactory:
             overflow_x: CSS overflow-x property
             layout: Custom layout (overrides width/height if provided)
             **kwargs: Additional arguments passed to the VBox widget
-
         Returns:
             Configured VBox widget with styling
         """
         if children is None:
             children = []
-
         logger.debug(
             "Creating VBox: children_count=%d, size=%sx%s", len(children), width, height
         )
-
         try:
             layout = WidgetFactory.get_layout(layout, width, height)
             layout.align_items = layout.align_items or align_items
             layout.justify_content = layout.justify_content or justify_content
-
+            
+            # Gap adds invisible placeholder elements of a given height
+            if gap and len(children) > 1:
+                gapped_children = []
+                for i, child in enumerate(children):
+                    gapped_children.append(child)
+                    if i < len(children) - 1:
+                        placeholder = widgets.HTML(
+                            value="",
+                            layout=widgets.Layout(
+                                height=gap, 
+                                width="100%",
+                                margin="0",
+                                padding="0",
+                                border="none"
+                            )
+                        )
+                        gapped_children.append(placeholder)
+                children = gapped_children
+            
             vbox_widget = widgets.VBox(
                 children=children,
                 layout=layout,
@@ -1764,31 +1779,15 @@ class WidgetFactory:
             )
             vbox_widget.add_class("styled-widget")
             vbox_widget.add_class("styled-vbox")
-
             if overflow == "hidden":
                 vbox_widget.add_class("styled-overflow-hidden")
             if overflow_x == "hidden":
                 vbox_widget.add_class("styled-overflow-x-hidden")
             if overflow_y == "hidden":
                 vbox_widget.add_class("styled-overflow-y-hidden")
-
-            # Add gap using CSS margin on children if specified
-            if gap and children:
-                for i, child in enumerate(children[:-1]):  # All except last child
-                    if hasattr(child, "layout") and hasattr(child.layout, "margin"):
-                        margin = child.layout.margin
-                        if margin is None:
-                            child.layout.margin = f"0 0 {gap} 0"
-                            continue
-
-                        margin_vals = list(set(re.findall(r"\d+", margin)))
-                        if len(margin_vals) == 1 and margin_vals[0] == "0":
-                            child.layout.margin = f"0 0 {gap} 0"
-
             return vbox_widget
-
         except Exception as e:
-            logger.error("Failed to create VBox: %s", e, exc_info=True)
+            logger.error("Error creating VBox: %s", str(e))
             raise
 
     @staticmethod

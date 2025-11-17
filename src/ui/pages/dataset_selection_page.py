@@ -116,8 +116,7 @@ class DatasetSelectionPage:
                     for project_card in self._project_cards
                 ],
                 titles=[project_card.title for project_card in self._project_cards],
-                width="100%",
-                height="auto",
+                layout=widgets.Layout(width="100%", height="auto", padding="5px")
             )
 
             # Set fixed height for accordion items when opened
@@ -426,7 +425,7 @@ class ProjectCard:
             children= description_buttons,
             width="100%",
             height="50px",
-            gap="5px",
+            gap="0px",
             overflow_y="visible",
             overflow_x="visible",
         )
@@ -436,6 +435,7 @@ class ProjectCard:
             description="Select All",
             width="100%",
             height="30px",
+            layout=widgets.Layout(margin="0"),
             on_click=lambda b: self._dataset_selector.select_all(),
         )
 
@@ -443,6 +443,7 @@ class ProjectCard:
             description="Deselect All",
             width="100%",
             height="30px",
+            layout=widgets.Layout(margin="0"),
             on_click=lambda b: self._dataset_selector.clear_selection(),
         )
 
@@ -450,7 +451,7 @@ class ProjectCard:
             children=[select_all_button, deselect_all_button],
             width="100%",
             height="50px",
-            gap="5px",
+            gap="0px",
             overflow_y="visible",
             overflow_x="visible",
         )

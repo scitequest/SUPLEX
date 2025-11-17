@@ -804,6 +804,7 @@ def get_widget_styles(scheme: Any) -> widgets.HTML:
         .styled-widget.styled-hbox,
         .styled-widget .styled-hbox {{
             box-sizing: border-box !important;
+            gap: 5px !important;
         }}
 
         .styled-widget.styled-vbox,
