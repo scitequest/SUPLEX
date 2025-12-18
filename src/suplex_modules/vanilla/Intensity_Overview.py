@@ -1208,17 +1208,31 @@ class IntensityOverviewModule(SuplexModuleInterface):
             fig = self.generate_box_jitter_plot(plot_data=value_sets)
 
             buffer = io.BytesIO()
-            fig.savefig(buffer, format="png", dpi=fig.dpi, bbox_inches="tight")
+            fig.savefig(buffer, format="svg", bbox_inches="tight", transparent = True)
+            plt.close(fig)
             buffer.seek(0)
-            img_bytes = buffer.getvalue()
-            plt.close(fig)  # Close the figure to free memory
-            logger.debug("Plot generated successfully")
+            svg_bytes = buffer.getvalue()
+            svg_string = svg_bytes.decode("utf-8")
+            # This adjusts svg size to use 100% of the provided width
+            svg_string = svg_string.replace(
+                "<svg", 
+                "<svg style='width: 100%; height: auto; display: block;'", 
+                1
+            )
+            logger.debug("Plot generated successfully as SVG")
 
-            image_widget = widgets.Image(
-                value=img_bytes, format="png", width="100%", height="auto"
+            html_content = f"""
+            <div style="width: 100%; height: auto; background: white; box-sizing: border-box;">
+                    {svg_string}
+            </div>
+            """
+
+            html_widget = WidgetFactory.html_widget(
+                value=html_content,
+                layout=widgets.Layout(width="100%", height="auto")
             )
 
-            self._plot_box.children = [image_widget]
+            self._plot_box.children = [html_widget]
 
         except Exception as e:
             logger.error("Failed to generate plot: %s", e, exc_info=True)
