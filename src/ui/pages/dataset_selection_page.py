@@ -116,8 +116,7 @@ class DatasetSelectionPage:
                     for project_card in self._project_cards
                 ],
                 titles=[project_card.title for project_card in self._project_cards],
-                width="100%",
-                height="auto",
+                layout=widgets.Layout(width="100%", height="auto", padding="5px")
             )
 
             # Set fixed height for accordion items when opened
@@ -361,8 +360,8 @@ class ProjectCard:
                 children=[dataset_col_box, filter_col_box],
                 width="100%",
                 height="100%",
-                overflow_y="auto",
-                overflow_x="hidden",
+                overflow_y="visible",
+                overflow_x="visible",
             )
 
             logger.debug("Project card UI built successfully for: %s", self.title)
@@ -395,8 +394,7 @@ class ProjectCard:
             number=2,
             description=["ID", "Name"],
             i_toggled=0,
-            width="100%",
-            height="30px",
+            layout = widgets.Layout(width="100%", height="30px", margin = "0")
         )
 
         # Add click handlers for ID/Name buttons
@@ -424,29 +422,28 @@ class ProjectCard:
         description_buttons[1].on_click(on_name_clicked)
 
         descriptor_buttons_box = WidgetFactory.hbox(
-            children=[description_buttons[0], description_buttons[1]],
+            children= description_buttons,
             width="100%",
             height="50px",
-            gap="5px",
-            box_sizing="border-box",
-            align_items="center",
-            overflow_y="hidden",
+            gap="0px",
+            overflow_y="visible",
+            overflow_x="visible",
         )
 
         # Select/Deselect all buttons
         select_all_button = WidgetFactory.button_success(
             description="Select All",
-            overflow_y="hidden",
             width="100%",
             height="30px",
+            layout=widgets.Layout(margin="0"),
             on_click=lambda b: self._dataset_selector.select_all(),
         )
 
         deselect_all_button = WidgetFactory.button_danger(
             description="Deselect All",
-            overflow_y="hidden",
             width="100%",
             height="30px",
+            layout=widgets.Layout(margin="0"),
             on_click=lambda b: self._dataset_selector.clear_selection(),
         )
 
@@ -454,10 +451,9 @@ class ProjectCard:
             children=[select_all_button, deselect_all_button],
             width="100%",
             height="50px",
-            gap="5px",
-            box_sizing="border-box",
-            align_items="center",
-            overflow_y="hidden",
+            gap="0px",
+            overflow_y="visible",
+            overflow_x="visible",
         )
 
         selector_buttons = WidgetFactory.vbox(
@@ -467,9 +463,8 @@ class ProjectCard:
             gap="0px",
             margin="0px",
             padding="0px",
-            box_sizing="border-box",
-            align_items="center",
-            overflow_y="hidden",
+            overflow_y="visible",
+            overflow_x="visible",
         )
 
         # Add change listeners to checkboxes
@@ -491,7 +486,7 @@ class ProjectCard:
             children=[selector_buttons, dataset_selector_container],
             width="300px",
             height="100%",
-            padding="5px",
+            padding="10px",
             overflow_y="visible",
         )
 
@@ -519,15 +514,15 @@ class ProjectCard:
             width="100%",
             height="100%",
             overflow_y="auto",
-            overflow_x="hidden",
-            layout=widgets.Layout(padding="12px"),
+            overflow_x="visible",
+            layout=widgets.Layout(padding="10px"),
         )
 
         top_row_box = WidgetFactory.hbox(
             children=[date_filter_box, project_description],
             width="100%",
             height="250px",
-            padding="5px",
+            gap ="5px",
         )
 
         # Tag selection box
@@ -535,10 +530,11 @@ class ProjectCard:
 
         filter_col_box = WidgetFactory.vbox(
             children=[top_row_box, tag_box],
-            width="70%",
+            width="100%",
             height="100%",
-            overflow_x="hidden",
-            overflow_y="hidden",
+            overflow_x="visible",
+            overflow_y="visible",
+            gap = "5px",
         )
 
         return filter_col_box
@@ -590,8 +586,8 @@ class ProjectCard:
             children=[date_radio_buttons[0], date_radio_buttons[1]],
             width="auto",
             height="auto",
-            overflow="hidden",
-            layout=widgets.Layout(margin="0px", padding="0px"),
+            overflow="visible",
+            layout=widgets.Layout(margin="0px", padding="0px 0px 0px 10px"),
             gap="0px",
         )
 
@@ -603,7 +599,7 @@ class ProjectCard:
         start_date_picker = WidgetFactory.date_picker(
             value=self.get_earliest_date(DATASET_LABEL.CREATED_DATE),
             height="100%",
-            width="100px",
+            width="100%",
             layout=widgets.Layout(margin="0px", max_width="100%"),
         )
 
@@ -674,7 +670,7 @@ class ProjectCard:
         )
 
         return WidgetFactory.vbox(
-            children=[radio_buttons_box, date_picker_box, range_buttons_box],
+            children=[date_picker_box, radio_buttons_box, range_buttons_box],
             width="400px",
             height="100%",
             overflow="hidden",
@@ -695,8 +691,7 @@ class ProjectCard:
             number=2,
             description=["If Any", "If All"],
             i_toggled=0,
-            width="100%",
-            height="30px",
+            layout = widgets.Layout(width="100%", height="30px", padding = "0px", margin = "0px")
         )
 
         def on_tag_any_clicked(b):
@@ -750,8 +745,8 @@ class ProjectCard:
             ],
             width="100%",
             height="40px",
-            padding="5px 0px",
-            overflow="hidden",
+            gap="5px",
+            overflow="visible",
         )
 
         # Tag selector container with scrolling
@@ -769,8 +764,8 @@ class ProjectCard:
             children=[tag_buttons_box, tag_selector_container],
             width="100%",
             height="340px",
+            gap = "5px"
         )
-        tag_box.layout.padding = "5px"
 
         return tag_box
 

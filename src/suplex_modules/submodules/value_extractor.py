@@ -926,7 +926,7 @@ class ReferencePointSelector:
             step=1,
             description="",
             width="80px",
-            height="30px",
+            height="25px",
         )
 
         def on_add_clicked() -> None:
@@ -1069,14 +1069,14 @@ class ReferencePointSelector:
         title = WidgetFactory.label(value="Select Reference Indices:")
 
         input_box = WidgetFactory.hbox(
-            children=[self._reference_input, self._add_reference_button], gap="5px"
+            children=[self._reference_input, self._add_reference_button], gap="1px"
         )
 
         controls_box = WidgetFactory.hbox(
             children=[input_box, self._clear_references_button],
             width="100%",
-            height="40px",
-            layout=widgets.Layout(justify_content="space-between", padding="5px"),
+            height="30px",
+            layout=widgets.Layout(justify_content="space-between"),
             overflow_y="visible",
         )
 

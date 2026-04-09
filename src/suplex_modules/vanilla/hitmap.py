@@ -517,10 +517,9 @@ class HitmapModule(SuplexModuleInterface):
                     self.create_hitmap_filter_controls_section(),
                 ],
                 layout=widgets.Layout(
-                    height="100%",
+                    height="auto",
                     width="100%",
-                ),
-                gap="20px",
+                )
             )
 
             controls_content = WidgetFactory.vbox(
@@ -574,10 +573,19 @@ class HitmapModule(SuplexModuleInterface):
                 width="100%",
                 on_change=lambda b: self.auto_update(self.update_analysis)
             )
-        static_filter_widgets = WidgetFactory.vbox(
-            children=[static_filter_slider, 
-                      static_filter_invert_checkbox, 
+        checkboxes_box = WidgetFactory.hbox(
+            children=[static_filter_invert_checkbox, 
                       self._apply_static_filter_checkbox
+                     ],
+            gap="5px",
+            overflow="visible",
+            height="auto"
+        )
+        
+        static_filter_widgets = WidgetFactory.vbox(
+            children=[
+                static_filter_slider,
+                checkboxes_box
                      ],
             gap="5px",
             overflow="visible",
@@ -680,7 +688,6 @@ class HitmapModule(SuplexModuleInterface):
         )
         hitmap_filter_content.append(WidgetFactory.hbox(
             children=[propagation_widgets, continuity_widgets],
-            gap="5px",
             overflow="visible",
             height="auto",
             layout=widgets.Layout(padding=OPTION_INSET.BASELINE),
@@ -688,8 +695,7 @@ class HitmapModule(SuplexModuleInterface):
         
         return WidgetFactory.vbox(
                     children=hitmap_filter_content,
-                    layout=widgets.Layout(width="100%", height="auto"),
-                    gap = "20px"
+                    layout=widgets.Layout(width="100%", height="auto")
                 )
 
     def create_control_button_section(self):
@@ -704,8 +710,9 @@ class HitmapModule(SuplexModuleInterface):
             export_overview_plot_button = WidgetFactory.button_emphasis(
                 "Export Overview Plot",
                 on_click=lambda b: self.on_export_overview_plot(),
-                layout=widgets.Layout(padding="0px"),
+                layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             export_overview_csv_button = WidgetFactory.button_emphasis(
@@ -713,13 +720,15 @@ class HitmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.on_export_overview_csv(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             export_compound_plot_button = WidgetFactory.button_emphasis(
                 "Export Compound Plot",
                 on_click=lambda b: self.on_export_compound_plot(),
-                layout=widgets.Layout(padding="0px"),
+                layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             export_compound_csv_button = WidgetFactory.button_emphasis(
@@ -727,6 +736,7 @@ class HitmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.on_export_compound_csv(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             update_button = WidgetFactory.button_success(
@@ -734,6 +744,7 @@ class HitmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.update_analysis(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             self._auto_update_checkbox = WidgetFactory.checkbox(
@@ -742,6 +753,7 @@ class HitmapModule(SuplexModuleInterface):
                 indent=False,
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
             self._auto_update_checkbox.observe(
                 lambda b: self.auto_update(self.update_analysis), names="value"
@@ -749,27 +761,27 @@ class HitmapModule(SuplexModuleInterface):
 
             first_col = WidgetFactory.vbox(
                 children=[export_overview_plot_button, export_compound_plot_button, update_button],
-                height="100%",
+                height="auto",
                 width="100%",
                 overflow_y="visible",
-                gap="5px",
+                gap="2px",
             )
 
             second_col = WidgetFactory.vbox(
                 children=[export_overview_csv_button, export_compound_csv_button, self._auto_update_checkbox],
-                height="100%",
+                height="auto",
                 width="100%",
                 overflow_y="visible",
-                gap="5px",
+                gap="2px",
             )
 
 
             control_button_section = WidgetFactory.hbox(
                 children=[first_col, second_col],
-                height="130px",
+                height="auto",
                 width="100%",
                 overflow_y="visible",
-                gap="5px",
+                gap="2px",
             )
 
             logger.debug("Control button section created successfully")
