@@ -19,7 +19,7 @@ import pandas as pd
 from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
 from ui.widget_factory import WidgetFactory
-from suplex_modules.submodules.viability_rules import no_datasets_selected, sample_count_not_uniform, spot_count_is_not_uniform, has_insufficient_number_of_samples
+from suplex_modules.submodules.viability_rules import no_datasets_selected, sample_count_not_uniform, spot_count_is_not_uniform, has_insufficient_number_of_samples, has_negative_values
 from suplex_modules.submodules.value_extractor import (
     ValueExtractor,
     get_flat_value_list,
@@ -238,6 +238,14 @@ class HitmapModule(SuplexModuleInterface):
             self._module_hover_text = f"Cannot initiate {self.module_name}. Sample count is below three."
             logger.info(
                 "The module %s has been disabled. Sample count is below three.",
+                self.module_name,
+            )
+            return False
+
+        if has_negative_values(datasets):
+            self._module_hover_text = f"Cannot initiate {self.module_name} since datasets contain a negative value."
+            logger.info(
+                "The module %s has been disabled, since datasets contain a negative value.",
                 self.module_name,
             )
             return False

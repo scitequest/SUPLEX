@@ -13,7 +13,7 @@ import csv
 from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
 from ui.widget_factory import WidgetFactory
-from suplex_modules.submodules.viability_rules import no_datasets_selected
+from suplex_modules.submodules.viability_rules import no_datasets_selected, has_negative_values
 from suplex_modules.submodules.value_extractor import (
     ValueExtractor,
     extract_value_list_from_dataset,
@@ -230,6 +230,14 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             self._module_hover_text = f"Cannot initiate {self.module_name} since no datasets have been selected."
             logger.info(
                 "The module %s has been disabled, since no datasets have been selected.",
+                self.module_name,
+            )
+            return False
+
+        if has_negative_values(datasets):
+            self._module_hover_text = f"Cannot initiate {self.module_name} since datasets contain a negative value."
+            logger.info(
+                "The module %s has been disabled, since datasets contain a negative value.",
                 self.module_name,
             )
             return False
