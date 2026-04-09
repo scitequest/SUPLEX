@@ -1293,17 +1293,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             return
 
         try:
-            value_lists = self._filtered_values
-            if not self._general_graph_settings.include_empty_datasets:
-                value_lists = {
-                    key: value_list
-                    for key, value_list in value_lists.items()
-                    if value_list
-                    and not all(
-                        val is None or (val is not None and np.isnan(val))
-                        for val in value_list
-                    )
-                }
+            value_lists = self.filter_empty_datasets(self._filtered_values)
 
             if not value_lists:
                 logger.warning("No data available for plotting after filtering")
@@ -1399,14 +1389,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
         logger.debug("Exporting plot")
         try:
-            value_lists = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_lists = {
-                    key: value_list
-                    for key, value_list in value_lists.items()
-                    if value_list
-                }
+            value_lists = self.filter_empty_datasets(self._filtered_values)
 
             if not value_lists:
                 logger.warning("No data available for export")
@@ -1447,6 +1430,31 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             if "Image size" in str(e) and "too large" in str(e):
                 logger.warning("Failed to generate plot: %s", e, exc_info=True)
             logger.error("Failed to export plot: %s", e, exc_info=True)
+
+    def filter_empty_datasets(self, value_lists: Dict[Dataset, List[float]]) -> Dict[Dataset, List[float]]:
+        """
+        Remove datasets that contain only NaN/None values when the user has disabled the inclusion of empty datasets.
+
+        Args:
+            value_lists (Dict[Dataset, List[float]]): Dictionary with datasets as keys
+                and their (filtered) value lists as values.
+
+        Returns:
+            Dict[Dataset, List[float]]: The same dictionary with empty (all-NaN) datasets
+                removed if include_empty_datasets is False.
+        """
+        if self._general_graph_settings.include_empty_datasets:
+            return value_lists
+
+        return {
+            key: value_list
+            for key, value_list in value_lists.items()
+            if value_list
+            and not all(
+                val is None or (val is not None and np.isnan(val))
+                for val in value_list
+            )
+        }
 
     def get_collage(self, plot_data: Dict[Dataset, List[float]]) -> sg.SVGFigure:
         """
@@ -2145,14 +2153,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
         logger.debug("Exporting data as CSV")
         try:
-            value_lists = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_lists = {
-                    key: value_list
-                    for key, value_list in value_lists.items()
-                    if value_list
-                }
+            value_lists = self.filter_empty_datasets(self._filtered_values)
 
             if not value_lists:
                 logger.warning("No data available for export")
