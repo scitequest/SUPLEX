@@ -100,7 +100,7 @@ class Header:
             )
             icon_box = widgets.HBox(
                 [link_icons],
-                layout=widgets.Layout(width="auto", padding="0px 20px 0px 0px"),
+                layout=widgets.Layout(width="auto", height = "auto", padding="0px 20px 0px 0px", overflow = "visible"),
             )
             icon_box.add_class("icon-box")
 
@@ -122,9 +122,10 @@ class Header:
                 [icon_box, self._theme_dropdown],
                 layout=widgets.Layout(
                     width="auto",
+                    height = "40px",
                     align_items="center",
                     justify_content="flex-end",
-                    overflow_x="hidden",
+                    overflow="visible",
                 ),
             )
             right_bottom_section.add_class("header-right-bottom-section")

@@ -488,7 +488,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         logger.debug("Creating main control interface")
         try:
             title_html = WidgetFactory.html_widget(
-                value="<h2>Overview Heatmap</h2>", width="auto"
+                value="<h2>Heatmap Collage</h2>", width="auto"
             )
             controls_box = WidgetFactory.vbox(
                 children=[
@@ -498,8 +498,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 layout=widgets.Layout(
                     height="100%",
                     width="100%",
-                ),
-                gap="20px",
+                )
             )
 
             controls_content = WidgetFactory.vbox(
@@ -537,11 +536,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         try:
             logger.debug("Creating collage controls section")
 
-            # Title widget
-            title_widget = WidgetFactory.label(value="Collage Settings")
-
             # List to collect all top-level widgets
-            collage_widgets = [title_widget]
+            collage_widgets = []
 
             self._add_heatmaps_checkbox = WidgetFactory.checkbox(
                 value=True,
@@ -580,14 +576,20 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             self._add_full_images_checkbox.observe(
                 lambda b: self.auto_update(self.update_analysis), names="value"
             )
-
-            checkbox_container = WidgetFactory.vbox(
+            h_checkbox_container = WidgetFactory.hbox(
                 children=[
                     self._add_heatmaps_checkbox,
-                    self._add_annotated_images_checkbox,
                     self._add_full_images_checkbox,
                 ],
-                gap="5px",
+                overflow="visible",
+                height="auto"
+            )
+            
+            checkbox_container = WidgetFactory.vbox(
+                children=[
+                    h_checkbox_container,
+                    self._add_annotated_images_checkbox
+                ],
                 overflow="visible",
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
@@ -722,8 +724,9 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             export_plot_button = WidgetFactory.button_emphasis(
                 "Export Plot",
                 on_click=lambda b: self.on_export_plot(),
-                layout=widgets.Layout(padding="0px"),
+                layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             export_as_tsv_button = WidgetFactory.button_emphasis(
@@ -731,6 +734,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.on_export_csv(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             update_button = WidgetFactory.button_success(
@@ -738,6 +742,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.update_analysis(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             self._auto_update_checkbox = WidgetFactory.checkbox(
@@ -746,6 +751,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 indent=False,
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
             self._auto_update_checkbox.observe(
                 lambda b: self.auto_update(self.update_analysis), names="value"
