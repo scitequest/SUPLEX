@@ -1156,17 +1156,30 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 if not values:
                     continue
 
-                n_values = len(values)
-                n_values_total = sum(len(sample.spots) for sample in dataset.samples)
+                n_values = len(values) - np.sum(np.isnan(values)) # no filtered values
+
+                if attribute in DATA_STATISTICS_ATTRIBUTES:
+                    n_values_total = len(dataset.samples)
+                else:
+                    n_values_total = sum(len(sample.spots) for sample in dataset.samples)
+                
                 perc_excluded = (
                     (1 - n_values / n_values_total) * 100 if n_values_total > 0 else 0
                 )
 
-                stat_mean = np.nanmean(values)
-                stat_median = np.nanmedian(values)
-                stat_min = np.nanmin(values)
-                stat_max = np.nanmax(values)
-                stat_std = np.nanstd(values)
+                
+                if values and not np.all(np.isnan(values)):
+                    stat_mean = np.nanmean(values)
+                    stat_median = np.nanmedian(values)
+                    stat_min = np.nanmin(values)
+                    stat_max = np.nanmax(values)
+                    stat_std = np.nanstd(values)
+                else:
+                    stat_mean = np.nan
+                    stat_median = np.nan
+                    stat_min = np.nan
+                    stat_max = np.nan
+                    stat_std = np.nan
 
                 name = (
                     dataset.id
