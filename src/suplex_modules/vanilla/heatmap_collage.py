@@ -15,6 +15,7 @@ from PIL import Image
 import svgutils.transform as sg
 import tempfile
 import time
+import warnings
 
 from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
@@ -1764,28 +1765,30 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                     "orientation": self._heatmap_settings.cbar_orientation.value
                 }
 
-            # Generate the heatmap
-            heatmap = sns.heatmap(
-                data_2d,
-                ax=ax,
-                cmap=cmap,
-                annot=self._heatmap_settings.annot,
-                fmt=(
-                    f".{self._heatmap_settings.annot_digits}f"
-                    if self._heatmap_settings.annot
-                    else ""
-                ),
-                annot_kws=annot_kws if annot_kws else None,
-                cbar=show_cbar,
-                square=self._heatmap_settings.square,
-                vmin=vmin,
-                vmax=vmax,
-                center=center,
-                linewidths=self._heatmap_settings.linewidths,
-                linecolor=self._heatmap_settings.linecolor,
-                robust=self._heatmap_settings.robust,
-                cbar_kws=cbar_kws,
-            )
+            # Generate the heatmap and supress warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                heatmap = sns.heatmap(
+                    data_2d,
+                    ax=ax,
+                    cmap=cmap,
+                    annot=self._heatmap_settings.annot,
+                    fmt=(
+                        f".{self._heatmap_settings.annot_digits}f"
+                        if self._heatmap_settings.annot
+                        else ""
+                    ),
+                    annot_kws=annot_kws if annot_kws else None,
+                    cbar=show_cbar,
+                    square=self._heatmap_settings.square,
+                    vmin=vmin,
+                    vmax=vmax,
+                    center=center,
+                    linewidths=self._heatmap_settings.linewidths,
+                    linecolor=self._heatmap_settings.linecolor,
+                    robust=self._heatmap_settings.robust,
+                    cbar_kws=cbar_kws,
+                )
 
             # Changes labels to σ notation if gaussian option was used
 

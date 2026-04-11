@@ -8,6 +8,7 @@ from tkinter import filedialog, Tk
 import numpy as np
 import logging
 import csv
+import warnings
 
 from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
@@ -1097,13 +1098,18 @@ class IntensityOverviewModule(SuplexModuleInterface):
                     n_excluded = n_values_total - n_values
                     perc_excluded = (n_excluded / n_values_total) * 100
 
-                stat_mean = np.nanmean(value_sets_used[key]) if n_values > 0 else 0.0
-                stat_median = (
-                    np.nanmedian(value_sets_used[key]) if n_values > 0 else 0.0
-                )
-                stat_min = np.nanmin(value_sets_used[key]) if n_values > 0 else 0.0
-                stat_max = np.nanmax(value_sets_used[key]) if n_values > 0 else 0.0
-                stat_std = np.nanstd(value_sets_used[key]) if n_values > 0 else 0.0
+                if value_sets_used[key] and not np.all(np.isnan(value_sets_used[key])):                
+                    stat_mean = np.nanmean(value_sets_used[key])
+                    stat_median = np.nanmedian(value_sets_used[key])
+                    stat_min = np.nanmin(value_sets_used[key])
+                    stat_max = np.nanmax(value_sets_used[key])
+                    stat_std = np.nanstd(value_sets_used[key])
+                else:
+                    stat_mean = np.nan
+                    stat_median = np.nan
+                    stat_min = np.nan
+                    stat_max = np.nan
+                    stat_std = np.nan
 
                 dataset_stats.append(
                     {
@@ -1193,12 +1199,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         try:
             value_sets = self._unfiltered_values
             if self._apply_threshold_checkbox.value:
-                value_sets = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_sets = {
-                    key: value_set for key, value_set in value_sets.items() if value_set
-                }
+                value_sets = self.filter_empty_datasets(self._filtered_values)
 
             if not value_sets:
                 logger.warning("No data available for plotting after filtering")
@@ -1258,12 +1259,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         try:
             value_sets = self._unfiltered_values
             if self._apply_threshold_checkbox.value:
-                value_sets = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_sets = {
-                    key: value_set for key, value_set in value_sets.items() if value_set
-                }
+                value_sets = self.filter_empty_datasets(self._filtered_values)
 
             if not value_sets:
                 logger.warning("No data available for export")
@@ -1305,6 +1301,31 @@ class IntensityOverviewModule(SuplexModuleInterface):
         except Exception as e:
             logger.error("Failed to export plot: %s", e, exc_info=True)
 
+    def filter_empty_datasets(self, value_lists: Dict[Dataset, List[float]]) -> Dict[Dataset, List[float]]:
+        """
+        Remove datasets that contain only NaN/None values when the user has disabled the inclusion of empty datasets.
+
+        Args:
+            value_lists (Dict[Dataset, List[float]]): Dictionary with datasets as keys
+                and their (filtered) value lists as values.
+
+        Returns:
+            Dict[Dataset, List[float]]: The same dictionary with empty (all-NaN) datasets
+                removed if include_empty_datasets is False.
+        """
+        if self._general_graph_settings.include_empty_datasets:
+            return value_lists
+
+        return {
+            key: value_list
+            for key, value_list in value_lists.items()
+            if value_list
+            and not all(
+                val is None or (val is not None and np.isnan(val))
+                for val in value_list
+            )
+        }
+        
     def get_shortened_label(self, label: str, max_length: int) -> str:
         """
         Shorten a label if it exceeds the maximum length.
@@ -1471,18 +1492,21 @@ class IntensityOverviewModule(SuplexModuleInterface):
             else:
                 processed_data.append(data)
 
-        box_plot = ax.boxplot(
-            processed_data,
-            vert=self._general_graph_settings.swap_axes,
-            patch_artist=True,
-            labels=axis_labels,
-            widths=self._boxplot_settings.box_width,
-            whis=whis,
-            showfliers=self._boxplot_settings.show_outliers,
-        )
-        for patch, color in zip(box_plot["boxes"], colors):
-            patch.set_facecolor(color)
-            patch.set_alpha(self._boxplot_settings.box_alpha)
+        # Ignore warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            box_plot = ax.boxplot(
+                processed_data,
+                vert=self._general_graph_settings.swap_axes,
+                patch_artist=True,
+                labels=axis_labels,
+                widths=self._boxplot_settings.box_width,
+                whis=whis,
+                showfliers=self._boxplot_settings.show_outliers,
+            )
+            for patch, color in zip(box_plot["boxes"], colors):
+                patch.set_facecolor(color)
+                patch.set_alpha(self._boxplot_settings.box_alpha)
 
     def create_jitterplot(self, ax, plot_data, colors):
         """
@@ -1527,15 +1551,18 @@ class IntensityOverviewModule(SuplexModuleInterface):
             else:
                 y_axis = jitter_axis
 
-            ax.scatter(
-                x_axis,
-                y_axis,
-                alpha=point_alpha,
-                s=point_size,
-                color=colors[i],
-                edgecolors="black",
-                linewidth=0.5,
-            )
+            # Supress warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                ax.scatter(
+                    x_axis,
+                    y_axis,
+                    alpha=point_alpha,
+                    s=point_size,
+                    color=colors[i],
+                    edgecolors="black",
+                    linewidth=0.5,
+                )
 
     def add_thresholds(self, ax):
         """

@@ -15,6 +15,7 @@ import svgutils.transform as sg
 import tempfile
 import time
 import pandas as pd
+import warnings
 
 from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
@@ -1005,7 +1006,6 @@ class HitmapModule(SuplexModuleInterface):
         """
         if self._auto_update_checkbox.value:
             method()
-
     def update_analysis(self):
         """
         Update the full analysis including filters, overview, statistics, and graphs.
@@ -1991,35 +1991,37 @@ class HitmapModule(SuplexModuleInterface):
                       for group in range(max_group + 1)}
             color_map = [colors[group] for group in groups]
         
-        # Create the barplot
-        if self._general_graph_settings.swap_axes:
-            sns.barplot(
-                data=data, 
-                x="values", 
-                y="index", 
-                hue=None,
-                palette=None,
-                width = bar_width, 
-                alpha=1.0 - self._general_graph_settings.transparency, 
-                ax=ax,
-                legend=False)
-            ax.set_yticklabels([])
-            ax.set_yticks([])
-            ax.set_xlim(0, max_value)
-        else:
-            sns.barplot(
-                data=data, x="index", 
-                y="values",
-                hue="index",
-                width = bar_width,
-                palette=color_map, 
-                alpha=1.0 - self._general_graph_settings.transparency, 
-                ax=ax,
-                legend=False
-            )
-            ax.set_xticklabels([])
-            ax.set_xticks([])
-            ax.set_ylim(0, max_value)
+        # Create the barplot with supressed warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            if self._general_graph_settings.swap_axes:
+                sns.barplot(
+                    data=data, 
+                    x="values", 
+                    y="index", 
+                    hue=None,
+                    palette=None,
+                    width = bar_width, 
+                    alpha=1.0 - self._general_graph_settings.transparency, 
+                    ax=ax,
+                    legend=False)
+                ax.set_yticklabels([])
+                ax.set_yticks([])
+                ax.set_xlim(0, max_value)
+            else:
+                sns.barplot(
+                    data=data, x="index", 
+                    y="values",
+                    hue="index",
+                    width = bar_width,
+                    palette=color_map, 
+                    alpha=1.0 - self._general_graph_settings.transparency, 
+                    ax=ax,
+                    legend=False
+                )
+                ax.set_xticklabels([])
+                ax.set_xticks([])
+                ax.set_ylim(0, max_value)
     
         if self._general_graph_settings.show_title:
             ax.set_title(title, fontsize=base_font_size, color=self._collage.title_color.value)
@@ -2159,22 +2161,24 @@ class HitmapModule(SuplexModuleInterface):
             fmt = "" 
             if self._heatmap_settings.annot:
                 fmt = f".{self._heatmap_settings.annot_digits}f"
-            # Generate the heatmap
-            heatmap = sns.heatmap(
-                data_2d,
-                ax=ax,
-                vmin = min_value, 
-                vmax = max_value,
-                cmap=self._general_graph_settings.sequential_color_scheme.value,
-                annot=self._heatmap_settings.annot,
-                fmt=fmt,
-                annot_kws=annot_kws or None,
-                cbar=False,
-                square=self._heatmap_settings.square,
-                linewidths=self._heatmap_settings.linewidths,
-                linecolor=self._heatmap_settings.linecolor,
-                robust=self._heatmap_settings.robust,
-            )
+            # Generate heatmap with supressed warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                heatmap = sns.heatmap(
+                    data_2d,
+                    ax=ax,
+                    vmin = min_value, 
+                    vmax = max_value,
+                    cmap=self._general_graph_settings.sequential_color_scheme.value,
+                    annot=self._heatmap_settings.annot,
+                    fmt=fmt,
+                    annot_kws=annot_kws or None,
+                    cbar=False,
+                    square=self._heatmap_settings.square,
+                    linewidths=self._heatmap_settings.linewidths,
+                    linecolor=self._heatmap_settings.linecolor,
+                    robust=self._heatmap_settings.robust,
+                )
 
             # Set labels to row and column indices
             col_labels = range(n_cols)

@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import logging
 import csv
+import warnings
 
 from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
@@ -917,18 +918,30 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
                 if not values:
                     continue
-
-                n_values = len(values)
-                n_values_total = sum(len(sample.spots) for sample in dataset.samples)
+                    
+                n_values = len(values) - np.sum(np.isnan(values)) # no filtered values
+                
+                if attribute in DATA_STATISTICS_ATTRIBUTES:
+                    n_values_total = len(dataset.samples)
+                else:
+                    n_values_total = sum(len(sample.spots) for sample in dataset.samples)
+                
                 perc_excluded = (
                     (1 - n_values / n_values_total) * 100 if n_values_total > 0 else 0
                 )
 
-                stat_mean = np.nanmean(values)
-                stat_median = np.nanmedian(values)
-                stat_min = np.nanmin(values)
-                stat_max = np.nanmax(values)
-                stat_std = np.nanstd(values)
+                if values and not np.all(np.isnan(values)):
+                    stat_mean = np.nanmean(values)
+                    stat_median = np.nanmedian(values)
+                    stat_min = np.nanmin(values)
+                    stat_max = np.nanmax(values)
+                    stat_std = np.nanstd(values)
+                else:
+                    stat_mean = np.nan
+                    stat_median = np.nan
+                    stat_min = np.nan
+                    stat_max = np.nan
+                    stat_std = np.nan
 
                 stat = {
                     "name": (
@@ -1059,18 +1072,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             return
 
         try:
-            value_lists = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_lists = {
-                    key: value_list
-                    for key, value_list in value_lists.items()
-                    if value_list
-                    and not all(
-                        val is None or (val is not None and np.isnan(val))
-                        for val in value_list
-                    )
-                }
+            value_lists = self.filter_empty_datasets(self._filtered_values)
 
             if not value_lists:
                 logger.warning("No data available for plotting after filtering")
@@ -1140,14 +1142,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
         logger.debug("Exporting plot")
         try:
-            value_lists = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_lists = {
-                    key: value_list
-                    for key, value_list in value_lists.items()
-                    if value_list
-                }
+            value_lists = self.filter_empty_datasets(self._filtered_values)
 
             if not value_lists:
                 logger.warning("No data available for export")
@@ -1187,6 +1182,31 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 logger.warning("Failed to generate plot: %s", e, exc_info=True)
             logger.error("Failed to export plot: %s", e, exc_info=True)
 
+    def filter_empty_datasets(self, value_lists: Dict[Dataset, List[float]]) -> Dict[Dataset, List[float]]:
+        """
+        Remove datasets that contain only NaN/None values when the user has disabled the inclusion of empty datasets.
+
+        Args:
+            value_lists (Dict[Dataset, List[float]]): Dictionary with datasets as keys
+                and their (filtered) value lists as values.
+
+        Returns:
+            Dict[Dataset, List[float]]: The same dictionary with empty (all-NaN) datasets
+                removed if include_empty_datasets is False.
+        """
+        if self._general_graph_settings.include_empty_datasets:
+            return value_lists
+
+        return {
+            key: value_list
+            for key, value_list in value_lists.items()
+            if value_list
+            and not all(
+                val is None or (val is not None and np.isnan(val))
+                for val in value_list
+            )
+        }
+        
     def get_data_matrix(self, value_lists: Dict[Dataset, List[float]]):
         if not value_lists:
             raise ValueError("No data provided for heatmap generation")
@@ -1340,7 +1360,10 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         if self._heatmap_settings.annot and annot_color != ANNOTATION_COLOR.AUTO:
             sns_heatmap_kwargs["annot_kws"] = {"color": annot_color.value}
 
-        heatmap = sns.heatmap(df, **sns_heatmap_kwargs)
+        # ignore warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            heatmap = sns.heatmap(df, **sns_heatmap_kwargs)
 
         # Changes labels to σ notation if gaussian option was used
         if show_cbar and self._value_extractor.normalization in [
@@ -1444,14 +1467,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
         logger.debug("Exporting data as CSV")
         try:
-            value_lists = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_lists = {
-                    key: value_list
-                    for key, value_list in value_lists.items()
-                    if value_list
-                }
+            value_lists = self.filter_empty_datasets(self._filtered_values)
 
             if not value_lists:
                 logger.warning("No data available for export")
