@@ -1657,7 +1657,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         logger.debug(f"Generating heatmap for dataset: %s", dataset.id)
         try:
             # Edge case where there is only one non NaN value
-            if sum(~np.isnan(plot_values)) == 1:
+            if sum(~np.isnan(plot_values)) <= 1:
                 #changes NaN to zero to allow scaling of heatmap
                 plot_values = [0.0 if np.isnan(x) else x for x in plot_values]
                 
