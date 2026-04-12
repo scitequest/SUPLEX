@@ -1656,6 +1656,11 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         """
         logger.debug(f"Generating heatmap for dataset: %s", dataset.id)
         try:
+            # Edge case where there is only one non NaN value
+            if sum(~np.isnan(plot_values)) == 1:
+                #changes NaN to zero to allow scaling of heatmap
+                plot_values = [0.0 if np.isnan(x) else x for x in plot_values]
+                
             min_index = self._general_graph_settings.min_index
             max_index = self._general_graph_settings.max_index
             if min_index > max_index or min_index >= len(plot_values):
@@ -1665,7 +1670,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             else:
                 max_index = min(max_index, len(plot_values) - 1)
                 plot_values = plot_values[min_index : max_index + 1]
-
+            
             # Structure into 2D array based on n_cols
             n_cols = self._heatmap_settings.n_cols
             n_values = len(plot_values)
