@@ -1660,9 +1660,10 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             if sum(~np.isnan(plot_values)) <= 1:
                 #changes NaN to zero to allow scaling of heatmap
                 plot_values = [0.0 if np.isnan(x) else x for x in plot_values]
-                
+            
             min_index = self._general_graph_settings.min_index
             max_index = self._general_graph_settings.max_index
+            truncated = False
             if min_index > max_index or min_index >= len(plot_values):
                 logger.warning(
                     f"Could not apply index truncation to {dataset.id}. Number of values {len(plot_values)}, min_index {min_index}, max_index {max_index}."
@@ -1670,6 +1671,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             else:
                 max_index = min(max_index, len(plot_values) - 1)
                 plot_values = plot_values[min_index : max_index + 1]
+                truncated = True
             
             # Structure into 2D array based on n_cols
             n_cols = self._heatmap_settings.n_cols
@@ -1761,7 +1763,6 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 NORMALIZATION.RAW,
                 NORMALIZATION.CUSTOM,
                 NORMALIZATION.BY_POSITION,
-                NORMALIZATION.BY_POSITION,
                 NORMALIZATION.BY_POSITION_GAUSSIAN_PARTIAL,
             ]
             cbar_kws = None
@@ -1849,6 +1850,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                     _, decimals = calculate_step_size(vmin_cbar, vmax_cbar)
                     current_ticks = cbar.get_ticks()
                     labels = [f"{t:.{decimals}f}" for t in current_ticks]
+                    cbar.set_ticklabels(labels)
 
             # Set labels to row and column indices
             col_labels = range(n_cols)
@@ -1933,13 +1935,15 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
             if self._heatmap_settings.highlight_reference_points:
                 for ref_idx in self._value_extractor.references:
+                    if truncated:
+                        # adjust in case of truncation
+                        ref_idx -= min_index 
+                        if ref_idx >= len(plot_values) or ref_idx < 0:
+                            logger.warning(f"Reference index {ref_idx} outside of shown heatmap cells.")
+                            continue
+                    ref_row, ref_col = divmod(ref_idx, self._heatmap_settings.n_cols)
                     if self._general_graph_settings.swap_axes:
-                        # Adjust for swapped axes: original rows become columns
-                        ref_col = ref_idx // self._heatmap_settings.n_cols
-                        ref_row = ref_idx % self._heatmap_settings.n_cols
-                    else:
-                        ref_row = ref_idx // n_cols
-                        ref_col = ref_idx % n_cols
+                        ref_row, ref_col = ref_col, ref_row
                     # Draw a rectangle around the cell
                     rect = plt.Rectangle(
                         (ref_col, ref_row),
@@ -1953,16 +1957,11 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
             plt.tight_layout(pad=1.5)
 
-            logger.debug(f"Heatmap generated successfully for dataset: %s", dataset.id)
+            logger.debug(f"Heatmap generated successfully for dataset: {dataset.id}")
             return fig
 
         except Exception as e:
-            logger.error(
-                f"Failed to generate heatmap for dataset %s: %s",
-                dataset.id,
-                e,
-                exc_info=True,
-            )
+            logger.error(f"Failed to generate heatmap for dataset {dataset.id}: {e}", exc_info=True)
             return None
 
     def add_global_colorbar(
