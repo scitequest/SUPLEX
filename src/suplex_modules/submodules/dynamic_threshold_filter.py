@@ -3,7 +3,7 @@ import math
 import statistics
 from typing import List
 from dataclasses import dataclass
-from scipy.stats import shapiro, norm
+from scipy.stats import shapiro, norm, ks_2samp
 
 import numpy as np
 
@@ -16,7 +16,7 @@ class FilteredValue:
     GROUP_NR: int
     SIGNIFICANT: bool
 
-def apply_dynamic_filtering(value_list: List[float], use_broad_grouping: bool = True, alpha: float = 0.05) -> List[FilteredValue]:
+def apply_dynamic_filtering(value_list: List[float], use_broad_grouping: bool = True, alpha: float = 0.10, max_relevant_fraction: float = 0.5) -> List[FilteredValue]:
     """
     Applies dynamic filtering to a list of values by calculating deltas, grouping by contrast,
     and applying adaptive significance cutoffs. This is a convenience wrapper combining the core steps.
@@ -25,13 +25,23 @@ def apply_dynamic_filtering(value_list: List[float], use_broad_grouping: bool = 
         value_list (List[float]): List of numeric values to filter.
         use_broad_grouping (bool): If True, uses the lowest value among max-delta candidates for grouping thresholds;
                                    otherwise, uses the highest. Defaults to True.
+        max_relevant_fraction (float): Maximum fraction of values (0.0-1.0) that are allowed to be significant.
+                                       Default 0.5 means at most 50% of the values remain significant.
+        alpha (float): Significance level for the optional KS-merge test. Default is 0.1, meaning a p-value of 10 percent.
 
     Returns:
         List[FilteredValue]: List of filtered values with metadata, where SIGNIFICANT indicates if the value passed the cutoff.
     """
     delta_list = calculate_incremental_deltas(value_list = value_list)
     value_group_map = group_by_delta_contrast(value_list = value_list, delta_list = delta_list, use_broad_grouping = use_broad_grouping)
-    filtered_list = apply_adaptive_significance_cutoff(value_list = value_list, value_group_map = value_group_map, alpha = alpha)
+    # Old method
+    # filtered_list = apply_adaptive_significance_cutoff(value_list = value_list, value_group_map = value_group_map, alpha = alpha)
+    filtered_list = apply_sparsity_cutoff(
+        value_list=value_list,
+        value_group_map=value_group_map,
+        max_relevant_fraction=max_relevant_fraction,
+        alpha=alpha
+    )
     combined_list = []
     for i in range(len(value_list)):
         val = value_list[i]
@@ -42,7 +52,81 @@ def apply_dynamic_filtering(value_list: List[float], use_broad_grouping: bool = 
     
     return combined_list
     
+def apply_sparsity_cutoff(
+    value_list: List[float],
+    value_group_map: List[int],
+    max_relevant_fraction: float = 0.5,
+    alpha: float = 0.05
+) -> List[float]:
+    """
+    Given an estimate of signal sparsity by the user grouped data is split into significant and non-significant.
+    In addition a KS-test on log-scale is conducted to check if the groups above non-significant can be viewed as a fluctuations within the non-significant group.
+    If so they are merged into the non-significant group.
 
+    Args:
+        value_list (List[float]): Original list of values.
+        value_group_map (List[int]): Group numbers from group_by_delta_contrast.
+        max_relevant_fraction (float): Estimate of Fraction of values that are significant (0.0-1.0). Per default 50 percent.
+        alpha (float): Significance level for the KS-test in the optional merge step. Default is 0.05, meaning a p-value of 5 percent.
+
+    Returns:
+        List[float]: Filtered list where significant values are preserved; non-significant values are set to NaN.
+    """
+    if len(value_list) != len(value_group_map):
+        logger.error(f"Could not apply apply_sparsity_cutoff, value_list ({len(value_list)}) and value_group_map ({len(value_group_map)}) must have the same length. Empty list will be returned.")
+        return [math.nan] * len(value_list)
+
+    n = len(value_list)
+    if n == 0:
+        return []
+
+    max_relevant = max(1, int(n * max_relevant_fraction))
+
+    # Sort indices by value descending to find the cutoff position
+    indexed = sorted(
+        enumerate(zip(value_list, value_group_map)),
+        key=lambda x: x[1][0],
+        reverse=True
+    )
+
+    # Group number of the max_relevant-th highest value
+    cutoff_group = indexed[max_relevant - 1][1][1]
+    current_cutoff = cutoff_group
+
+    # count backwards from cutoff in decrements of one until all groups have been checked.
+    for above_group in range(cutoff_group - 1, -1, -1):
+        above_vals = [v for v, g in zip(value_list, value_group_map) if g == above_group]
+        non_sig_vals = [v for v, g in zip(value_list, value_group_map) if g >= current_cutoff]
+
+        # No reliable testing can be made since non-sig group is to small, default to it beeing the only non-significant group.
+        if len(non_sig_vals) < 5:
+            logger.info(f"Hitmap with non-significant signal group < 5 ({len(non_sig_vals)}), recommend increase of estimated significance sparsity.")
+            break
+            
+        if len(above_vals) < 5:
+            logger.debug(f"Group {above_group} too small for reliable KS test ({len(above_vals)} vs {len(non_sig_vals)}). Skipping check")
+            # if group size too small check next group if possible.
+            continue
+
+        # Log-scale + KS-test
+        above_log = np.log1p(above_vals)
+        non_sig_log = np.log1p(non_sig_vals)
+
+        # Two-sided KS test - we only merge if the distributions are statistically indistinguishable
+        _, p_value = ks_2samp(above_log, non_sig_log)
+
+        if p_value < alpha:
+            break
+            
+        logger.debug(f"Group {above_group} merged into background (KS p-value = {p_value:.4f} >= {alpha}). ")
+        current_cutoff = above_group
+
+
+    # Everything in cutoff_group and lower intensity groups becomes non-significant
+    filtered = [v if g < current_cutoff else math.nan for v, g in zip(value_list, value_group_map)]
+    
+    return filtered
+    
 def apply_adaptive_significance_cutoff(value_list: List[float], value_group_map: List[int], alpha: float = 0.05, min_elements_shapiro: int = 10) -> List[float]:
     """
     Applies an adaptive statistical cutoff to determine significant values based on group normality and distribution similarity.

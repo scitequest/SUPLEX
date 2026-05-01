@@ -596,16 +596,16 @@ class HitmapModule(SuplexModuleInterface):
         hitmap_filter_content += [static_filter_label, static_filter_widgets]
         
         # Dynamic Thresholding
-        dynamic_filter_label = WidgetFactory.label(value="Dynamic Thresholding:")
+        dynamic_filter_label = WidgetFactory.label(value="Maximum Signal to Noise Ratio:")
         
-        self._dynamic_filter_alpha_slider = WidgetFactory.float_slider(
-            value=0.05,
+        self._sparsity_sider = WidgetFactory.float_slider(
+            value=0.5,
             min_value=0.0,
             max_value=1.0,
-            step=0.001,
+            step=0.01,
             description="",
             readout=True,
-            readout_format=".3f",
+            readout_format=".2f",
             layout=widgets.Layout(width="100%", padding="0px 10px"),
             continuous_update=False,
             on_change=lambda b: self.auto_update(self.update_analysis)
@@ -621,7 +621,7 @@ class HitmapModule(SuplexModuleInterface):
             )
         
         dynamic_filter_widgets = WidgetFactory.vbox(
-            children=[self._dynamic_filter_alpha_slider, 
+            children=[self._sparsity_sider, 
                       self._apply_dynamic_filter_checkbox
                      ],
             gap="5px",
@@ -1102,7 +1102,7 @@ class HitmapModule(SuplexModuleInterface):
             # Split flat map into spotfield maps
             spot_field_values_lists = [value_map[i::n_spotfields] for i in range(n_spotfields)]
             # Apply dynamic filtering for each set of spotfield values
-            transformed_lists = [apply_dynamic_filtering(value_list = spot_field_values_list, alpha = self._dynamic_filter_alpha_slider.value) for spot_field_values_list in spot_field_values_lists]
+            transformed_lists = [apply_dynamic_filtering(value_list = spot_field_values_list, max_relevant_fraction = self._sparsity_sider.value) for spot_field_values_list in spot_field_values_lists]
             # Re-create flat list for later to fit the format of static filtering and heatmap generation.
             restored_list_transformed = []
             # This requires all samples to have the same number of spots
@@ -1297,7 +1297,7 @@ class HitmapModule(SuplexModuleInterface):
                 <li><strong>Static Filter Range:</strong> {threshold_min} - {threshold_max}</li>
                 <li><strong>Static Filter Inverted:</strong> {self._sample_spot_filter.invert}</li>
                 <li><strong>Dynamic Filter Active:</strong> {apply_dynamic_filter}</li>
-                <li><strong>Dynamic Filter Alpha:</strong> {self._dynamic_filter_alpha_slider.value}</li>
+                <li><strong>Dynamic Filter Sparsity:</strong> {self._sparsity_sider.value}</li>
                 <li><strong>Filter Propagation Mode:</strong> {self._compound_mode_dropdown.value}</li>
                 <li><strong>Values in Range:</strong> {n_values_included} / {n_values} ({n_values_included/n_values*100:.1f}%)</li>
                 <li><strong>Filtered Global Mean:</strong> {filtered_values_mean:.4f}</li>
