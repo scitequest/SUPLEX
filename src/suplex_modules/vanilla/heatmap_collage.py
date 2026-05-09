@@ -15,11 +15,12 @@ from PIL import Image
 import svgutils.transform as sg
 import tempfile
 import time
+import warnings
 
 from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
 from ui.widget_factory import WidgetFactory
-from suplex_modules.submodules.viability_rules import no_datasets_selected
+from suplex_modules.submodules.viability_rules import no_datasets_selected, has_negative_values
 from suplex_modules.submodules.value_extractor import (
     ValueExtractor,
     extract_value_list_from_dataset,
@@ -205,6 +206,14 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             self._module_hover_text = f"Cannot initiate {self.module_name} since no datasets have been selected."
             logger.info(
                 "The module %s has been disabled, since no datasets have been selected.",
+                self.module_name,
+            )
+            return False
+
+        if has_negative_values(datasets):
+            self._module_hover_text = f"Cannot initiate {self.module_name} since datasets contain a negative value."
+            logger.info(
+                "The module %s has been disabled, since datasets contain a negative value.",
                 self.module_name,
             )
             return False
@@ -488,7 +497,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         logger.debug("Creating main control interface")
         try:
             title_html = WidgetFactory.html_widget(
-                value="<h2>Overview Heatmap</h2>", width="auto"
+                value="<h2>Heatmap Collage</h2>", width="auto"
             )
             controls_box = WidgetFactory.vbox(
                 children=[
@@ -498,8 +507,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 layout=widgets.Layout(
                     height="100%",
                     width="100%",
-                ),
-                gap="20px",
+                )
             )
 
             controls_content = WidgetFactory.vbox(
@@ -537,11 +545,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         try:
             logger.debug("Creating collage controls section")
 
-            # Title widget
-            title_widget = WidgetFactory.label(value="Collage Settings")
-
             # List to collect all top-level widgets
-            collage_widgets = [title_widget]
+            collage_widgets = []
 
             self._add_heatmaps_checkbox = WidgetFactory.checkbox(
                 value=True,
@@ -580,14 +585,20 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             self._add_full_images_checkbox.observe(
                 lambda b: self.auto_update(self.update_analysis), names="value"
             )
-
-            checkbox_container = WidgetFactory.vbox(
+            h_checkbox_container = WidgetFactory.hbox(
                 children=[
                     self._add_heatmaps_checkbox,
-                    self._add_annotated_images_checkbox,
                     self._add_full_images_checkbox,
                 ],
-                gap="5px",
+                overflow="visible",
+                height="auto"
+            )
+            
+            checkbox_container = WidgetFactory.vbox(
+                children=[
+                    h_checkbox_container,
+                    self._add_annotated_images_checkbox
+                ],
                 overflow="visible",
                 height="auto",
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
@@ -722,8 +733,9 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             export_plot_button = WidgetFactory.button_emphasis(
                 "Export Plot",
                 on_click=lambda b: self.on_export_plot(),
-                layout=widgets.Layout(padding="0px"),
+                layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             export_as_tsv_button = WidgetFactory.button_emphasis(
@@ -731,6 +743,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.on_export_csv(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             update_button = WidgetFactory.button_success(
@@ -738,6 +751,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.update_analysis(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             self._auto_update_checkbox = WidgetFactory.checkbox(
@@ -746,6 +760,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 indent=False,
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
             self._auto_update_checkbox.observe(
                 lambda b: self.auto_update(self.update_analysis), names="value"
@@ -1142,17 +1157,30 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 if not values:
                     continue
 
-                n_values = len(values)
-                n_values_total = sum(len(sample.spots) for sample in dataset.samples)
+                n_values = len(values) - np.sum(np.isnan(values)) # no filtered values
+
+                if attribute in DATA_STATISTICS_ATTRIBUTES:
+                    n_values_total = len(dataset.samples)
+                else:
+                    n_values_total = sum(len(sample.spots) for sample in dataset.samples)
+                
                 perc_excluded = (
                     (1 - n_values / n_values_total) * 100 if n_values_total > 0 else 0
                 )
 
-                stat_mean = np.nanmean(values)
-                stat_median = np.nanmedian(values)
-                stat_min = np.nanmin(values)
-                stat_max = np.nanmax(values)
-                stat_std = np.nanstd(values)
+                
+                if values and not np.all(np.isnan(values)):
+                    stat_mean = np.nanmean(values)
+                    stat_median = np.nanmedian(values)
+                    stat_min = np.nanmin(values)
+                    stat_max = np.nanmax(values)
+                    stat_std = np.nanstd(values)
+                else:
+                    stat_mean = np.nan
+                    stat_median = np.nan
+                    stat_min = np.nan
+                    stat_max = np.nan
+                    stat_std = np.nan
 
                 name = (
                     dataset.id
@@ -1285,17 +1313,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             return
 
         try:
-            value_lists = self._filtered_values
-            if not self._general_graph_settings.include_empty_datasets:
-                value_lists = {
-                    key: value_list
-                    for key, value_list in value_lists.items()
-                    if value_list
-                    and not all(
-                        val is None or (val is not None and np.isnan(val))
-                        for val in value_list
-                    )
-                }
+            value_lists = self.filter_empty_datasets(self._filtered_values)
 
             if not value_lists:
                 logger.warning("No data available for plotting after filtering")
@@ -1391,14 +1409,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
         logger.debug("Exporting plot")
         try:
-            value_lists = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_lists = {
-                    key: value_list
-                    for key, value_list in value_lists.items()
-                    if value_list
-                }
+            value_lists = self.filter_empty_datasets(self._filtered_values)
 
             if not value_lists:
                 logger.warning("No data available for export")
@@ -1439,6 +1450,31 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             if "Image size" in str(e) and "too large" in str(e):
                 logger.warning("Failed to generate plot: %s", e, exc_info=True)
             logger.error("Failed to export plot: %s", e, exc_info=True)
+
+    def filter_empty_datasets(self, value_lists: Dict[Dataset, List[float]]) -> Dict[Dataset, List[float]]:
+        """
+        Remove datasets that contain only NaN/None values when the user has disabled the inclusion of empty datasets.
+
+        Args:
+            value_lists (Dict[Dataset, List[float]]): Dictionary with datasets as keys
+                and their (filtered) value lists as values.
+
+        Returns:
+            Dict[Dataset, List[float]]: The same dictionary with empty (all-NaN) datasets
+                removed if include_empty_datasets is False.
+        """
+        if self._general_graph_settings.include_empty_datasets:
+            return value_lists
+
+        return {
+            key: value_list
+            for key, value_list in value_lists.items()
+            if value_list
+            and not all(
+                val is None or (val is not None and np.isnan(val))
+                for val in value_list
+            )
+        }
 
     def get_collage(self, plot_data: Dict[Dataset, List[float]]) -> sg.SVGFigure:
         """
@@ -1620,8 +1656,14 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         """
         logger.debug(f"Generating heatmap for dataset: %s", dataset.id)
         try:
+            # Edge case where there is only one non NaN value
+            if sum(~np.isnan(plot_values)) <= 1:
+                #changes NaN to zero to allow scaling of heatmap
+                plot_values = [0.0 if np.isnan(x) else x for x in plot_values]
+            
             min_index = self._general_graph_settings.min_index
             max_index = self._general_graph_settings.max_index
+            truncated = False
             if min_index > max_index or min_index >= len(plot_values):
                 logger.warning(
                     f"Could not apply index truncation to {dataset.id}. Number of values {len(plot_values)}, min_index {min_index}, max_index {max_index}."
@@ -1629,7 +1671,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             else:
                 max_index = min(max_index, len(plot_values) - 1)
                 plot_values = plot_values[min_index : max_index + 1]
-
+                truncated = True
+            
             # Structure into 2D array based on n_cols
             n_cols = self._heatmap_settings.n_cols
             n_values = len(plot_values)
@@ -1720,7 +1763,6 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 NORMALIZATION.RAW,
                 NORMALIZATION.CUSTOM,
                 NORMALIZATION.BY_POSITION,
-                NORMALIZATION.BY_POSITION,
                 NORMALIZATION.BY_POSITION_GAUSSIAN_PARTIAL,
             ]
             cbar_kws = None
@@ -1729,28 +1771,30 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                     "orientation": self._heatmap_settings.cbar_orientation.value
                 }
 
-            # Generate the heatmap
-            heatmap = sns.heatmap(
-                data_2d,
-                ax=ax,
-                cmap=cmap,
-                annot=self._heatmap_settings.annot,
-                fmt=(
-                    f".{self._heatmap_settings.annot_digits}f"
-                    if self._heatmap_settings.annot
-                    else ""
-                ),
-                annot_kws=annot_kws if annot_kws else None,
-                cbar=show_cbar,
-                square=self._heatmap_settings.square,
-                vmin=vmin,
-                vmax=vmax,
-                center=center,
-                linewidths=self._heatmap_settings.linewidths,
-                linecolor=self._heatmap_settings.linecolor,
-                robust=self._heatmap_settings.robust,
-                cbar_kws=cbar_kws,
-            )
+            # Generate the heatmap and supress warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                heatmap = sns.heatmap(
+                    data_2d,
+                    ax=ax,
+                    cmap=cmap,
+                    annot=self._heatmap_settings.annot,
+                    fmt=(
+                        f".{self._heatmap_settings.annot_digits}f"
+                        if self._heatmap_settings.annot
+                        else ""
+                    ),
+                    annot_kws=annot_kws if annot_kws else None,
+                    cbar=show_cbar,
+                    square=self._heatmap_settings.square,
+                    vmin=vmin,
+                    vmax=vmax,
+                    center=center,
+                    linewidths=self._heatmap_settings.linewidths,
+                    linecolor=self._heatmap_settings.linecolor,
+                    robust=self._heatmap_settings.robust,
+                    cbar_kws=cbar_kws,
+                )
 
             # Changes labels to σ notation if gaussian option was used
 
@@ -1806,6 +1850,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                     _, decimals = calculate_step_size(vmin_cbar, vmax_cbar)
                     current_ticks = cbar.get_ticks()
                     labels = [f"{t:.{decimals}f}" for t in current_ticks]
+                    cbar.set_ticklabels(labels)
 
             # Set labels to row and column indices
             col_labels = range(n_cols)
@@ -1890,13 +1935,15 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
             if self._heatmap_settings.highlight_reference_points:
                 for ref_idx in self._value_extractor.references:
+                    if truncated:
+                        # adjust in case of truncation
+                        ref_idx -= min_index 
+                        if ref_idx >= len(plot_values) or ref_idx < 0:
+                            logger.warning(f"Reference index {ref_idx} outside of shown heatmap cells.")
+                            continue
+                    ref_row, ref_col = divmod(ref_idx, self._heatmap_settings.n_cols)
                     if self._general_graph_settings.swap_axes:
-                        # Adjust for swapped axes: original rows become columns
-                        ref_col = ref_idx // self._heatmap_settings.n_cols
-                        ref_row = ref_idx % self._heatmap_settings.n_cols
-                    else:
-                        ref_row = ref_idx // n_cols
-                        ref_col = ref_idx % n_cols
+                        ref_row, ref_col = ref_col, ref_row
                     # Draw a rectangle around the cell
                     rect = plt.Rectangle(
                         (ref_col, ref_row),
@@ -1910,16 +1957,11 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
             plt.tight_layout(pad=1.5)
 
-            logger.debug(f"Heatmap generated successfully for dataset: %s", dataset.id)
+            logger.debug(f"Heatmap generated successfully for dataset: {dataset.id}")
             return fig
 
         except Exception as e:
-            logger.error(
-                f"Failed to generate heatmap for dataset %s: %s",
-                dataset.id,
-                e,
-                exc_info=True,
-            )
+            logger.error(f"Failed to generate heatmap for dataset {dataset.id}: {e}", exc_info=True)
             return None
 
     def add_global_colorbar(
@@ -2137,14 +2179,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
         logger.debug("Exporting data as CSV")
         try:
-            value_lists = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_lists = {
-                    key: value_list
-                    for key, value_list in value_lists.items()
-                    if value_list
-                }
+            value_lists = self.filter_empty_datasets(self._filtered_values)
 
             if not value_lists:
                 logger.warning("No data available for export")

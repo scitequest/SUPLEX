@@ -1,3 +1,5 @@
+# DEPRECATED
+
 import logging
 from typing import List, Optional, Union, Dict, Any
 import ipywidgets as widgets

@@ -88,7 +88,7 @@ class DirectorySelectionPage:
             # Create stats box
             self._stats_box = WidgetFactory.info_field_default(
                 children=[self.get_updated_stats_box()],
-                width="95%",
+                width="100%",
                 height="100px",
                 padding="10px",
                 align_items="center",
@@ -98,7 +98,7 @@ class DirectorySelectionPage:
             
             bottom_box = WidgetFactory.vbox(
                 children=[controls_container, self._stats_box],
-                layout = widgets.Layout(width="100%", height="40%", justify_content="space-between", align_items="center"),
+                layout = widgets.Layout(width="100%", height="50%", min_height = "250px", justify_content="space-between", align_items="center"),
                 overflow="visible"
             )
 
@@ -187,14 +187,22 @@ class DirectorySelectionPage:
         # Dropdowns for search mode and depth
         search_options_section = self.create_search_options_section()
 
+        # Sample data button
+        sample_data_button = WidgetFactory.button_default(
+            description="Use Sample Data", layout=widgets.Layout(width="100%")
+        )
+        sample_data_button.on_click(lambda x: self.use_sample_data())
+        
         content_block = WidgetFactory.vbox(
-            children=[path_section, search_options_section],
-            width="100%",
-            max_width="600px",
-            gap="15px",
-            align_items="center",
-            padding="5px",
-            overflow="hidden",
+            children=[path_section, search_options_section, sample_data_button],
+            layout=widgets.Layout(
+                width="100%",
+                max_width="600px",
+                gap="5px",
+                align_items="center",
+                padding="5px"
+            ),
+            overflow="visible",
         )
 
         # Center the content block
@@ -225,7 +233,7 @@ class DirectorySelectionPage:
         path_container = WidgetFactory.info_field_default(
             children=[self._path_display],
             width="100%",
-            height="auto",
+            height="100%",
             align_items="flex-start",
             justify_content="center",
             overflow_x="hidden",
@@ -234,7 +242,7 @@ class DirectorySelectionPage:
         )
 
         dir_selector_button = WidgetFactory.button_emphasis(
-            description="Select Directory", width="150px", height="auto"
+            description="Select Directory", width="150px", height="100%"
         )
         dir_selector_button.on_click(lambda x: self.open_directory_dialog())
 
@@ -242,8 +250,7 @@ class DirectorySelectionPage:
             children=[path_container, dir_selector_button],
             align_items="stretch",
             justify_content="center",
-            gap="1px",
-            width="50%",
+            width="100%",
             height="50px",
             overflow="hidden",
         )
@@ -259,21 +266,21 @@ class DirectorySelectionPage:
         """
         logger.debug("Creating search options section")
 
-        search_mode_label = WidgetFactory.label("Mode")
+        search_mode_label = WidgetFactory.label(value = "Mode", width = "30px")
         search_mode_dropdown = WidgetFactory.dropdown(
             options=[(mode.name, mode) for mode in SEARCH_MODE],
             value=self._search_mode,
-            width="100%",
+            layout=widgets.Layout(width = "100%"),
             on_change=lambda change: self.search_dir(),
         )
 
-        search_depth_label = WidgetFactory.label("Depth")
+        search_depth_label = WidgetFactory.label(value = "Depth", width = "30px")
         search_depth_spinner = WidgetFactory.number_input(
             value=self._search_depth,
             min_value=0,
             max_value=30,
             step=1,
-            width="100%",
+            layout=widgets.Layout(width = "100%"),
             on_change=lambda change: self.search_dir(),
         )
 
@@ -283,30 +290,23 @@ class DirectorySelectionPage:
 
         search_mode_box = WidgetFactory.hbox(
             children=[search_mode_label, search_mode_dropdown],
-            width="100%",
+            width="70%",
             justify_content="flex-start",
-            gap="5px",
-            overflow="hidden",
+            overflow="visible",
         )
-
+        
         search_depth_box = WidgetFactory.hbox(
             children=[search_depth_label, search_depth_spinner],
-            width="50%",
+            width="30%",
             justify_content="flex-start",
             gap="5px",
-            overflow="hidden",
+            overflow="visible",
         )
-
-        # Sample data button
-        sample_data_button = WidgetFactory.button_default(
-            description="Use Sample Data", width="100%"
-        )
-        sample_data_button.on_click(lambda x: self.use_sample_data())
 
         search_options_row = WidgetFactory.hbox(
-            children=[search_mode_box, search_depth_box, sample_data_button],
+            children=[search_mode_box, search_depth_box],
             justify_content="space-between",
-            width="50%",
+            width="100%",
             gap="5px",
         )
 

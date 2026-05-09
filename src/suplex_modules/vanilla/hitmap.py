@@ -15,11 +15,12 @@ import svgutils.transform as sg
 import tempfile
 import time
 import pandas as pd
+import warnings
 
 from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
 from ui.widget_factory import WidgetFactory
-from suplex_modules.submodules.viability_rules import no_datasets_selected, sample_count_not_uniform, spot_count_is_not_uniform, has_insufficient_number_of_samples
+from suplex_modules.submodules.viability_rules import no_datasets_selected, sample_count_not_uniform, spot_count_is_not_uniform, has_insufficient_number_of_samples, has_negative_values
 from suplex_modules.submodules.value_extractor import (
     ValueExtractor,
     get_flat_value_list,
@@ -238,6 +239,14 @@ class HitmapModule(SuplexModuleInterface):
             self._module_hover_text = f"Cannot initiate {self.module_name}. Sample count is below three."
             logger.info(
                 "The module %s has been disabled. Sample count is below three.",
+                self.module_name,
+            )
+            return False
+
+        if has_negative_values(datasets):
+            self._module_hover_text = f"Cannot initiate {self.module_name} since datasets contain a negative value."
+            logger.info(
+                "The module %s has been disabled, since datasets contain a negative value.",
                 self.module_name,
             )
             return False
@@ -509,10 +518,9 @@ class HitmapModule(SuplexModuleInterface):
                     self.create_hitmap_filter_controls_section(),
                 ],
                 layout=widgets.Layout(
-                    height="100%",
+                    height="auto",
                     width="100%",
-                ),
-                gap="20px",
+                )
             )
 
             controls_content = WidgetFactory.vbox(
@@ -566,10 +574,19 @@ class HitmapModule(SuplexModuleInterface):
                 width="100%",
                 on_change=lambda b: self.auto_update(self.update_analysis)
             )
-        static_filter_widgets = WidgetFactory.vbox(
-            children=[static_filter_slider, 
-                      static_filter_invert_checkbox, 
+        checkboxes_box = WidgetFactory.hbox(
+            children=[static_filter_invert_checkbox, 
                       self._apply_static_filter_checkbox
+                     ],
+            gap="5px",
+            overflow="visible",
+            height="auto"
+        )
+        
+        static_filter_widgets = WidgetFactory.vbox(
+            children=[
+                static_filter_slider,
+                checkboxes_box
                      ],
             gap="5px",
             overflow="visible",
@@ -579,16 +596,16 @@ class HitmapModule(SuplexModuleInterface):
         hitmap_filter_content += [static_filter_label, static_filter_widgets]
         
         # Dynamic Thresholding
-        dynamic_filter_label = WidgetFactory.label(value="Dynamic Thresholding:")
+        dynamic_filter_label = WidgetFactory.label(value="Maximum Signal to Noise Ratio:")
         
-        self._dynamic_filter_alpha_slider = WidgetFactory.float_slider(
-            value=0.05,
+        self._sparsity_sider = WidgetFactory.float_slider(
+            value=0.5,
             min_value=0.0,
             max_value=1.0,
-            step=0.001,
+            step=0.01,
             description="",
             readout=True,
-            readout_format=".3f",
+            readout_format=".2f",
             layout=widgets.Layout(width="100%", padding="0px 10px"),
             continuous_update=False,
             on_change=lambda b: self.auto_update(self.update_analysis)
@@ -604,7 +621,7 @@ class HitmapModule(SuplexModuleInterface):
             )
         
         dynamic_filter_widgets = WidgetFactory.vbox(
-            children=[self._dynamic_filter_alpha_slider, 
+            children=[self._sparsity_sider, 
                       self._apply_dynamic_filter_checkbox
                      ],
             gap="5px",
@@ -672,7 +689,6 @@ class HitmapModule(SuplexModuleInterface):
         )
         hitmap_filter_content.append(WidgetFactory.hbox(
             children=[propagation_widgets, continuity_widgets],
-            gap="5px",
             overflow="visible",
             height="auto",
             layout=widgets.Layout(padding=OPTION_INSET.BASELINE),
@@ -680,8 +696,7 @@ class HitmapModule(SuplexModuleInterface):
         
         return WidgetFactory.vbox(
                     children=hitmap_filter_content,
-                    layout=widgets.Layout(width="100%", height="auto"),
-                    gap = "20px"
+                    layout=widgets.Layout(width="100%", height="auto")
                 )
 
     def create_control_button_section(self):
@@ -696,8 +711,9 @@ class HitmapModule(SuplexModuleInterface):
             export_overview_plot_button = WidgetFactory.button_emphasis(
                 "Export Overview Plot",
                 on_click=lambda b: self.on_export_overview_plot(),
-                layout=widgets.Layout(padding="0px"),
+                layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             export_overview_csv_button = WidgetFactory.button_emphasis(
@@ -705,13 +721,15 @@ class HitmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.on_export_overview_csv(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             export_compound_plot_button = WidgetFactory.button_emphasis(
                 "Export Compound Plot",
                 on_click=lambda b: self.on_export_compound_plot(),
-                layout=widgets.Layout(padding="0px"),
+                layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             export_compound_csv_button = WidgetFactory.button_emphasis(
@@ -719,6 +737,7 @@ class HitmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.on_export_compound_csv(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             update_button = WidgetFactory.button_success(
@@ -726,6 +745,7 @@ class HitmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.update_analysis(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
 
             self._auto_update_checkbox = WidgetFactory.checkbox(
@@ -734,6 +754,7 @@ class HitmapModule(SuplexModuleInterface):
                 indent=False,
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
+                height = "30px"
             )
             self._auto_update_checkbox.observe(
                 lambda b: self.auto_update(self.update_analysis), names="value"
@@ -741,27 +762,27 @@ class HitmapModule(SuplexModuleInterface):
 
             first_col = WidgetFactory.vbox(
                 children=[export_overview_plot_button, export_compound_plot_button, update_button],
-                height="100%",
+                height="auto",
                 width="100%",
                 overflow_y="visible",
-                gap="5px",
+                gap="2px",
             )
 
             second_col = WidgetFactory.vbox(
                 children=[export_overview_csv_button, export_compound_csv_button, self._auto_update_checkbox],
-                height="100%",
+                height="auto",
                 width="100%",
                 overflow_y="visible",
-                gap="5px",
+                gap="2px",
             )
 
 
             control_button_section = WidgetFactory.hbox(
                 children=[first_col, second_col],
-                height="130px",
+                height="auto",
                 width="100%",
                 overflow_y="visible",
-                gap="5px",
+                gap="2px",
             )
 
             logger.debug("Control button section created successfully")
@@ -985,7 +1006,6 @@ class HitmapModule(SuplexModuleInterface):
         """
         if self._auto_update_checkbox.value:
             method()
-
     def update_analysis(self):
         """
         Update the full analysis including filters, overview, statistics, and graphs.
@@ -1082,7 +1102,7 @@ class HitmapModule(SuplexModuleInterface):
             # Split flat map into spotfield maps
             spot_field_values_lists = [value_map[i::n_spotfields] for i in range(n_spotfields)]
             # Apply dynamic filtering for each set of spotfield values
-            transformed_lists = [apply_dynamic_filtering(value_list = spot_field_values_list, alpha = self._dynamic_filter_alpha_slider.value) for spot_field_values_list in spot_field_values_lists]
+            transformed_lists = [apply_dynamic_filtering(value_list = spot_field_values_list, max_relevant_fraction = self._sparsity_sider.value) for spot_field_values_list in spot_field_values_lists]
             # Re-create flat list for later to fit the format of static filtering and heatmap generation.
             restored_list_transformed = []
             # This requires all samples to have the same number of spots
@@ -1277,7 +1297,7 @@ class HitmapModule(SuplexModuleInterface):
                 <li><strong>Static Filter Range:</strong> {threshold_min} - {threshold_max}</li>
                 <li><strong>Static Filter Inverted:</strong> {self._sample_spot_filter.invert}</li>
                 <li><strong>Dynamic Filter Active:</strong> {apply_dynamic_filter}</li>
-                <li><strong>Dynamic Filter Alpha:</strong> {self._dynamic_filter_alpha_slider.value}</li>
+                <li><strong>Dynamic Filter Sparsity:</strong> {self._sparsity_sider.value}</li>
                 <li><strong>Filter Propagation Mode:</strong> {self._compound_mode_dropdown.value}</li>
                 <li><strong>Values in Range:</strong> {n_values_included} / {n_values} ({n_values_included/n_values*100:.1f}%)</li>
                 <li><strong>Filtered Global Mean:</strong> {filtered_values_mean:.4f}</li>
@@ -1971,35 +1991,37 @@ class HitmapModule(SuplexModuleInterface):
                       for group in range(max_group + 1)}
             color_map = [colors[group] for group in groups]
         
-        # Create the barplot
-        if self._general_graph_settings.swap_axes:
-            sns.barplot(
-                data=data, 
-                x="values", 
-                y="index", 
-                hue=None,
-                palette=None,
-                width = bar_width, 
-                alpha=1.0 - self._general_graph_settings.transparency, 
-                ax=ax,
-                legend=False)
-            ax.set_yticklabels([])
-            ax.set_yticks([])
-            ax.set_xlim(0, max_value)
-        else:
-            sns.barplot(
-                data=data, x="index", 
-                y="values",
-                hue="index",
-                width = bar_width,
-                palette=color_map, 
-                alpha=1.0 - self._general_graph_settings.transparency, 
-                ax=ax,
-                legend=False
-            )
-            ax.set_xticklabels([])
-            ax.set_xticks([])
-            ax.set_ylim(0, max_value)
+        # Create the barplot with supressed warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            if self._general_graph_settings.swap_axes:
+                sns.barplot(
+                    data=data, 
+                    x="values", 
+                    y="index", 
+                    hue=None,
+                    palette=None,
+                    width = bar_width, 
+                    alpha=1.0 - self._general_graph_settings.transparency, 
+                    ax=ax,
+                    legend=False)
+                ax.set_yticklabels([])
+                ax.set_yticks([])
+                ax.set_xlim(0, max_value)
+            else:
+                sns.barplot(
+                    data=data, x="index", 
+                    y="values",
+                    hue="index",
+                    width = bar_width,
+                    palette=color_map, 
+                    alpha=1.0 - self._general_graph_settings.transparency, 
+                    ax=ax,
+                    legend=False
+                )
+                ax.set_xticklabels([])
+                ax.set_xticks([])
+                ax.set_ylim(0, max_value)
     
         if self._general_graph_settings.show_title:
             ax.set_title(title, fontsize=base_font_size, color=self._collage.title_color.value)
@@ -2139,22 +2161,24 @@ class HitmapModule(SuplexModuleInterface):
             fmt = "" 
             if self._heatmap_settings.annot:
                 fmt = f".{self._heatmap_settings.annot_digits}f"
-            # Generate the heatmap
-            heatmap = sns.heatmap(
-                data_2d,
-                ax=ax,
-                vmin = min_value, 
-                vmax = max_value,
-                cmap=self._general_graph_settings.sequential_color_scheme.value,
-                annot=self._heatmap_settings.annot,
-                fmt=fmt,
-                annot_kws=annot_kws or None,
-                cbar=False,
-                square=self._heatmap_settings.square,
-                linewidths=self._heatmap_settings.linewidths,
-                linecolor=self._heatmap_settings.linecolor,
-                robust=self._heatmap_settings.robust,
-            )
+            # Generate heatmap with supressed warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                heatmap = sns.heatmap(
+                    data_2d,
+                    ax=ax,
+                    vmin = min_value, 
+                    vmax = max_value,
+                    cmap=self._general_graph_settings.sequential_color_scheme.value,
+                    annot=self._heatmap_settings.annot,
+                    fmt=fmt,
+                    annot_kws=annot_kws or None,
+                    cbar=False,
+                    square=self._heatmap_settings.square,
+                    linewidths=self._heatmap_settings.linewidths,
+                    linecolor=self._heatmap_settings.linecolor,
+                    robust=self._heatmap_settings.robust,
+                )
 
             # Set labels to row and column indices
             col_labels = range(n_cols)

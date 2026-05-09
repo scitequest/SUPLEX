@@ -386,6 +386,25 @@ def get_widget_styles(scheme: Any) -> widgets.HTML:
             vertical-align: middle !important;
         }}
         
+        .styled-widget.styled-checkbox input[type="checkbox"]:disabled,
+        .styled-widget .styled-checkbox input[type="checkbox"]:disabled {{
+            border: 1px solid {hex_to_rgba(scheme.LAYOUT_COLOR.WIDGET.CHECKBOX.BORDER, 0.3)} !important;
+            background-color: {hex_to_rgba(scheme.LAYOUT_COLOR.WIDGET.CHECKBOX.BACKGROUND, 0.5)} !important;
+            cursor: not-allowed !important;
+            opacity: 0.6 !important;
+        }}
+        
+        .styled-widget.styled-checkbox input[type="checkbox"]:disabled:checked::before,
+        .styled-widget .styled-checkbox input[type="checkbox"]:disabled:checked::before {{
+            color: {hex_to_rgba(scheme.LAYOUT_COLOR.WIDGET.CHECKBOX.CHECKED, 0.5)} !important;
+        }}
+        
+        .styled-widget.styled-checkbox input[type="checkbox"]:disabled + label,
+        .styled-widget .styled-checkbox input[type="checkbox"]:disabled + label {{
+            color: {hex_to_rgba(scheme.TEXT.COLOR.DEFAULT, 0.5)} !important;
+            cursor: not-allowed !important;
+            opacity: 0.6 !important;
+        }}
         
         /* SLIDER STYLES*/
 
@@ -804,6 +823,7 @@ def get_widget_styles(scheme: Any) -> widgets.HTML:
         .styled-widget.styled-hbox,
         .styled-widget .styled-hbox {{
             box-sizing: border-box !important;
+            gap: 5px !important;
         }}
 
         .styled-widget.styled-vbox,

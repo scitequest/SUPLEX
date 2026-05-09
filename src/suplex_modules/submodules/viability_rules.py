@@ -238,3 +238,87 @@ def has_inconsistent_incubation_parameters(datasets: List[Dataset]) -> bool:
                 return True
 
     return False
+
+def has_negative_data_values(datasets: List[Dataset]) -> bool:
+    """
+    Checks if any of the numerical values contained within spot data of a list of datasets is below zero.
+    
+    Args:
+        datasets: List of datasets to check
+
+    Returns:
+        bool: True if any of the data values contains a negative number. False if otherwise.
+    """
+    for dataset in datasets:
+        for sample in dataset.samples:
+            for spot in sample.spots:
+                if (
+                    spot.mean_minus_min < 0 or 
+                    spot.normalized_mean < 0 or 
+                    spot.min_val < 0 or 
+                    spot.max_val < 0 or 
+                    spot.mean_val < 0 or 
+                    spot.std_deviation < 0
+                ):
+                    return True
+    return False
+    
+def has_negative_data_statistics_values(datasets: List[Dataset]) -> bool:
+    """
+    Checks if any of the numerical values contained within spot statistics of a list of datasets is below zero.
+    
+    Args:
+        datasets: List of datasets to check
+
+    Returns:
+        bool: True if any of the data statistics values contains a negative number. False if otherwise.
+    """
+    for dataset in datasets:
+        for sample in dataset.samples:
+            data_statistics = sample.data_statistics
+            if (
+                data_statistics.row < 0 or
+                data_statistics.col < 0 or
+                data_statistics.adjusted_average < 0 or
+                data_statistics.adjusted_average_std_deviation < 0 or
+                data_statistics.relative_adjusted_average_std_deviation < 0 or
+                data_statistics.normalized_average < 0 or
+                data_statistics.normalized_average_std_deviation < 0 or
+                data_statistics.relative_normalized_average_std_deviation < 0
+            ):
+                return True
+    return False
+    
+def has_negative_spot_coordinates(datasets: List[Dataset]) -> bool:
+    """
+    Checks if any of the numerical values contained within spot coordinates of a list of datasets is below zero.
+    
+    Args:
+        datasets: List of datasets to check
+
+    Returns:
+        bool: True if any of the spot coordinates contains a negative number. False if otherwise.
+    """
+    for dataset in datasets:
+        for sample in dataset.samples:
+            for spot in sample.spots:
+                for coordinate in spot.coordinates:
+                    if (
+                        coordinate.x < 0 or 
+                        coordinate.y < 0
+                    ):
+                        return True
+    return False
+
+def has_negative_values(datasets: List[Dataset]) -> bool:
+    """
+    Checks if any of the numerical values contained within a list of datasets is below zero.
+    This method uses has_negative_data_values, has_negative_data_statistics_values and has_negative_spot_coordinates.
+    
+    Args:
+        datasets: List of datasets to check
+
+    Returns:
+        bool: True if any of the datasets checked contains a negative number. False if otherwise.
+    """
+    return has_negative_data_values(datasets = datasets) or has_negative_data_statistics_values(datasets = datasets) or has_negative_spot_coordinates(datasets = datasets)
