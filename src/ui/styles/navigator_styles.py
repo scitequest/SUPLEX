@@ -25,9 +25,7 @@ def get_navigator_styles(scheme: Any) -> widgets.HTML:
     Returns:
         HTML widget containing navigator CSS styles with zero dimensions
     """
-    logger.debug(
-        "Generating navigator styles for scheme: %s", getattr(scheme, "NAME", "Unknown")
-    )
+    logger.debug("Generating navigator styles for scheme: %s", getattr(scheme, "NAME", "Unknown"))
 
     try:
         css_content = f"""

@@ -1,22 +1,51 @@
 import pytest
-from src.martin_interface.martin_interface_constants import *
+from enum import Enum
+from src.martin_interface.martin_interface_constants import (
+    MARTIN_MEASURE_DIR_DEPTH,
+    STANDARD_READOUT_FILES,
+    TOLERANCE,
+    SEARCH_MODE,
+    IMAGE_EXTENSIONS,
+    DATA_FIELDS,
+    DATA_STATISTICS_FIELDS,
+    PARAMETERS_FIELDS_POLYGON,
+    PARAMETERS_FIELDS_CIRCLE,
+    METADATA_FIELDS_REQUIRED,
+    PROJECT_FIELDS,
+    INCUBATION_FIELDS,
+    SUPLEX_FIELDS,
+)
 
 
-class TestInterfaceConstants:
+class TestMartinInterfaceConstants:
+    """Tests for all constants and data structures defined in martin_interface_constants.py."""
+
+    # -------------------------------------------------------------------------
+    # Basic constants
+    # -------------------------------------------------------------------------
+
     def test_martin_measure_dir_depth(self):
+        """MARTIN_MEASURE_DIR_DEPTH is set to the expected integer value (3)."""
         assert MARTIN_MEASURE_DIR_DEPTH == 3
         assert isinstance(MARTIN_MEASURE_DIR_DEPTH, int)
 
     def test_standard_readout_files(self):
+        """STANDARD_READOUT_FILES contains the two minimum required MARTin readout files."""
         assert "data.json" in STANDARD_READOUT_FILES
         assert "data.tsv" in STANDARD_READOUT_FILES
         assert len(STANDARD_READOUT_FILES) == 2
 
     def test_tolerance(self):
+        """TOLERANCE is set to the expected floating-point precision value."""
         assert TOLERANCE == 1e-6
         assert isinstance(TOLERANCE, float)
 
+    # -------------------------------------------------------------------------
+    # SEARCH_MODE enum
+    # -------------------------------------------------------------------------
+
     def test_search_mode_enum(self):
+        """SEARCH_MODE is a proper Enum with all four expected members and correct string values."""
         assert issubclass(SEARCH_MODE, Enum)
 
         assert hasattr(SEARCH_MODE, "RECURSIVE")
@@ -31,7 +60,12 @@ class TestInterfaceConstants:
 
         assert len(SEARCH_MODE) == 4
 
+    # -------------------------------------------------------------------------
+    # Image extensions
+    # -------------------------------------------------------------------------
+
     def test_image_extensions(self):
+        """IMAGE_EXTENSIONS contains all supported image file extensions as a set."""
         assert ".jpg" in IMAGE_EXTENSIONS
         assert ".jpeg" in IMAGE_EXTENSIONS
         assert ".png" in IMAGE_EXTENSIONS
@@ -40,7 +74,12 @@ class TestInterfaceConstants:
 
         assert isinstance(IMAGE_EXTENSIONS, set)
 
+    # -------------------------------------------------------------------------
+    # Data fields structures
+    # -------------------------------------------------------------------------
+
     def test_data_fields_structure(self):
+        """DATA_FIELDS has the correct nested structure and type annotations for MARTin data files."""
         assert isinstance(DATA_FIELDS, dict)
         assert "values" in DATA_FIELDS
         assert isinstance(DATA_FIELDS["values"], list)
@@ -67,6 +106,7 @@ class TestInterfaceConstants:
         assert fields["std_deviation"] == float
 
     def test_data_statistics_fields_structure(self):
+        """DATA_STATISTICS_FIELDS has the correct nested structure and type annotations."""
         assert isinstance(DATA_STATISTICS_FIELDS, dict)
         assert "values" in DATA_STATISTICS_FIELDS
         assert isinstance(DATA_STATISTICS_FIELDS["values"], list)
@@ -88,7 +128,12 @@ class TestInterfaceConstants:
         assert "relative_normalized_average_std_deviation" in fields
         assert fields["relative_normalized_average_std_deviation"] == float
 
+    # -------------------------------------------------------------------------
+    # Parameters fields structures
+    # -------------------------------------------------------------------------
+
     def test_parameters_fields_polygon_structure(self):
+        """PARAMETERS_FIELDS_POLYGON matches the expected structure for polygonal spot definitions."""
         assert isinstance(PARAMETERS_FIELDS_POLYGON, dict)
         assert "invert_lut" in PARAMETERS_FIELDS_POLYGON
         assert PARAMETERS_FIELDS_POLYGON["invert_lut"] == bool
@@ -116,6 +161,7 @@ class TestInterfaceConstants:
         assert bg_rect["coordinates"] == [[float]]
 
     def test_parameters_fields_circle_structure(self):
+        """PARAMETERS_FIELDS_CIRCLE matches the expected structure for circular spot definitions."""
         assert isinstance(PARAMETERS_FIELDS_CIRCLE, dict)
         assert "invert_lut" in PARAMETERS_FIELDS_CIRCLE
         assert PARAMETERS_FIELDS_CIRCLE["invert_lut"] == bool
@@ -144,7 +190,12 @@ class TestInterfaceConstants:
         assert "coordinates" in bg_rect
         assert bg_rect["coordinates"] == [[float]]
 
+    # -------------------------------------------------------------------------
+    # Metadata & related fields
+    # -------------------------------------------------------------------------
+
     def test_metadata_fields_required_structure(self):
+        """METADATA_FIELDS_REQUIRED defines the mandatory fields and their expected types."""
         assert isinstance(METADATA_FIELDS_REQUIRED, dict)
         assert "version" in METADATA_FIELDS_REQUIRED
         assert METADATA_FIELDS_REQUIRED["version"] == str
@@ -175,6 +226,7 @@ class TestInterfaceConstants:
         assert isinstance(METADATA_FIELDS_REQUIRED["incubations"], list)
 
     def test_project_fields_structure(self):
+        """PROJECT_FIELDS defines the optional project section of metadata."""
         assert isinstance(PROJECT_FIELDS, dict)
         assert "project" in PROJECT_FIELDS
         assert isinstance(PROJECT_FIELDS["project"], dict)
@@ -185,6 +237,7 @@ class TestInterfaceConstants:
         assert project["description"] == str
 
     def test_incubation_fields_structure(self):
+        """INCUBATION_FIELDS defines the structure of individual incubation entries."""
         assert isinstance(INCUBATION_FIELDS, dict)
         assert "solution" in INCUBATION_FIELDS
         assert INCUBATION_FIELDS["solution"] == str
@@ -206,6 +259,7 @@ class TestInterfaceConstants:
         assert INCUBATION_FIELDS["incubation_time"] == str
 
     def test_suplex_fields_structure(self):
+        """SUPLEX_FIELDS defines the internal suplex.json structure used by Suplex modules."""
         assert isinstance(SUPLEX_FIELDS, dict)
         assert "tags" in SUPLEX_FIELDS
         assert isinstance(SUPLEX_FIELDS["tags"], list)

@@ -178,9 +178,7 @@ def sweep_dirs(
                             queue.append((entry.path, depth + 1))
 
                     elif entry.is_file():
-                        if should_ignore_file(
-                            entry.name, ignore_files, ignore_extensions
-                        ):
+                        if should_ignore_file(entry.name, ignore_files, ignore_extensions):
                             logger.debug(f"Ignoring file: {entry.path}")
                             continue
                         if entry.name.endswith(filetype):
@@ -223,9 +221,7 @@ def should_ignore_directory(dir_name: str, ignore_dirs: Set[str]) -> bool:
     return False
 
 
-def should_ignore_file(
-    file_name: str, ignore_files: Set[str], ignore_extensions: Set[str]
-) -> bool:
+def should_ignore_file(file_name: str, ignore_files: Set[str], ignore_extensions: Set[str]) -> bool:
     """
     Check if a file should be ignored based on ignore patterns.
     As we only search for very specific file types this method is a bit redundant.
@@ -261,9 +257,7 @@ def should_ignore_file(
     return False
 
 
-def should_collect_at_depth(
-    mode: SEARCH_MODE, current_depth: int, max_depth: int
-) -> bool:
+def should_collect_at_depth(mode: SEARCH_MODE, current_depth: int, max_depth: int) -> bool:
     """
     Determine if files should be collected at the current depth based on search mode.
 
@@ -316,17 +310,13 @@ def try_get_module(file_path: str) -> List[SuplexModuleInterface]:
 
         # Find SuplexModuleInterface implementations.
         for name, obj in inspect.getmembers(module, inspect.isclass):
-            if is_valid_suplex_module_class(
-                obj, python_module_name, SuplexModuleInterface
-            ):
+            if is_valid_suplex_module_class(obj, python_module_name, SuplexModuleInterface):
                 try:
                     instance = obj()
                     module_objects.append(instance)
                     logger.debug(f"Successfully loaded {name} from {file_path}")
                 except Exception as e:
-                    logger.warning(
-                        f"Failed to instantiate {name} from {file_path}: {e}"
-                    )
+                    logger.warning(f"Failed to instantiate {name} from {file_path}: {e}")
 
     # Do not load from erroneus files
     except (OSError, SyntaxError, ImportError) as e:
@@ -407,10 +397,7 @@ def has_suplex_interface_classes(file_path: str) -> bool:
                 # Might have multiple base classes, check if any references SuplexModuleInterface
                 for base in item.bases:
                     # Check for simple import of interface
-                    if (
-                        isinstance(base, ast.Name)
-                        and "SuplexModuleInterface" in base.id
-                    ):
+                    if isinstance(base, ast.Name) and "SuplexModuleInterface" in base.id:
                         return True
                     if isinstance(base, ast.Name) and base.id in aliases:
                         return True
@@ -419,14 +406,10 @@ def has_suplex_interface_classes(file_path: str) -> bool:
                         current = base
                         # Decode AST structure into usable string
                         while isinstance(current, ast.Attribute):
-                            attr_name = current.attr + (
-                                "." + attr_name if attr_name else ""
-                            )
+                            attr_name = current.attr + ("." + attr_name if attr_name else "")
                             current = current.value
                         if isinstance(current, ast.Name):
-                            attr_name = current.id + (
-                                "." + attr_name if attr_name else ""
-                            )
+                            attr_name = current.id + ("." + attr_name if attr_name else "")
                         if "SuplexModuleInterface" in attr_name:
                             return True
 
@@ -437,9 +420,7 @@ def has_suplex_interface_classes(file_path: str) -> bool:
         return False
 
 
-def is_valid_suplex_module_class(
-    obj: Any, module_name: str, interface_class: Type
-) -> bool:
+def is_valid_suplex_module_class(obj: Any, module_name: str, interface_class: Type) -> bool:
     """
     Checks if an object is a valid SUPLEX plugin class.
 

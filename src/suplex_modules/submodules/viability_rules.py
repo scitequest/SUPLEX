@@ -1,6 +1,6 @@
 """
-A suite of methods for analyzing the composition of multiple datasets. 
-These methods enable the development of a rules-based system to ensure modules are loaded only with compatible data. 
+A suite of methods for analyzing the composition of multiple datasets.
+These methods enable the development of a rules-based system to ensure modules are loaded only with compatible data.
 For simplicity, all methods return False when data is usable and True when data is not usable.
 """
 
@@ -20,9 +20,7 @@ def no_datasets_selected(datasets: List[Dataset]) -> bool:
     return not datasets
 
 
-def has_insufficient_number_of_datasets(
-    datasets: List[Dataset], min_count: int = 2
-) -> bool:
+def has_insufficient_number_of_datasets(datasets: List[Dataset], min_count: int = 2) -> bool:
     """
     Checks if there are fewer datasets than the minimum required.
     Args:
@@ -34,9 +32,7 @@ def has_insufficient_number_of_datasets(
     return len(datasets) < min_count
 
 
-def has_insufficient_number_of_samples(
-    datasets: List[Dataset], min_count: int = 2
-) -> bool:
+def has_insufficient_number_of_samples(datasets: List[Dataset], min_count: int = 2) -> bool:
     """
     Checks if any of the datasets selected has fewer samples than required.
     Args:
@@ -51,9 +47,7 @@ def has_insufficient_number_of_samples(
     return False
 
 
-def has_insufficient_number_of_spots(
-    datasets: List[Dataset], min_count: int = 2
-) -> bool:
+def has_insufficient_number_of_spots(datasets: List[Dataset], min_count: int = 2) -> bool:
     """
     Checks if any of the datasets selected has fewer spots per sample than required.
     Args:
@@ -157,9 +151,7 @@ def has_inconsistent_imaging_parameters(datasets: List[Dataset]) -> bool:
         if dataset.metadata:
             binning_values.add(dataset.metadata.pixel_binning)
             exposure_str = (
-                str(dataset.metadata.exposure_time)
-                if dataset.metadata.exposure_time
-                else None
+                str(dataset.metadata.exposure_time) if dataset.metadata.exposure_time else None
             )
             exposure_times.add(exposure_str)
 
@@ -217,19 +209,15 @@ def has_inconsistent_incubation_parameters(datasets: List[Dataset]) -> bool:
 
             # Check stock concentration value and unit
             if (
-                ref_incub.stock_concentration.value
-                != curr_incub.stock_concentration.value
-                or ref_incub.stock_concentration.unit
-                != curr_incub.stock_concentration.unit
+                ref_incub.stock_concentration.value != curr_incub.stock_concentration.value
+                or ref_incub.stock_concentration.unit != curr_incub.stock_concentration.unit
             ):
                 return True
 
             # Check final concentration value and unit
             if (
-                ref_incub.final_concentration.value
-                != curr_incub.final_concentration.value
-                or ref_incub.final_concentration.unit
-                != curr_incub.final_concentration.unit
+                ref_incub.final_concentration.value != curr_incub.final_concentration.value
+                or ref_incub.final_concentration.unit != curr_incub.final_concentration.unit
             ):
                 return True
 
@@ -239,10 +227,11 @@ def has_inconsistent_incubation_parameters(datasets: List[Dataset]) -> bool:
 
     return False
 
+
 def has_negative_data_values(datasets: List[Dataset]) -> bool:
     """
     Checks if any of the numerical values contained within spot data of a list of datasets is below zero.
-    
+
     Args:
         datasets: List of datasets to check
 
@@ -253,20 +242,21 @@ def has_negative_data_values(datasets: List[Dataset]) -> bool:
         for sample in dataset.samples:
             for spot in sample.spots:
                 if (
-                    spot.mean_minus_min < 0 or 
-                    spot.normalized_mean < 0 or 
-                    spot.min_val < 0 or 
-                    spot.max_val < 0 or 
-                    spot.mean_val < 0 or 
-                    spot.std_deviation < 0
+                    spot.mean_minus_min < 0
+                    or spot.normalized_mean < 0
+                    or spot.min_val < 0
+                    or spot.max_val < 0
+                    or spot.mean_val < 0
+                    or spot.std_deviation < 0
                 ):
                     return True
     return False
-    
+
+
 def has_negative_data_statistics_values(datasets: List[Dataset]) -> bool:
     """
     Checks if any of the numerical values contained within spot statistics of a list of datasets is below zero.
-    
+
     Args:
         datasets: List of datasets to check
 
@@ -277,22 +267,23 @@ def has_negative_data_statistics_values(datasets: List[Dataset]) -> bool:
         for sample in dataset.samples:
             data_statistics = sample.data_statistics
             if (
-                data_statistics.row < 0 or
-                data_statistics.col < 0 or
-                data_statistics.adjusted_average < 0 or
-                data_statistics.adjusted_average_std_deviation < 0 or
-                data_statistics.relative_adjusted_average_std_deviation < 0 or
-                data_statistics.normalized_average < 0 or
-                data_statistics.normalized_average_std_deviation < 0 or
-                data_statistics.relative_normalized_average_std_deviation < 0
+                data_statistics.row < 0
+                or data_statistics.col < 0
+                or data_statistics.adjusted_average < 0
+                or data_statistics.adjusted_average_std_deviation < 0
+                or data_statistics.relative_adjusted_average_std_deviation < 0
+                or data_statistics.normalized_average < 0
+                or data_statistics.normalized_average_std_deviation < 0
+                or data_statistics.relative_normalized_average_std_deviation < 0
             ):
                 return True
     return False
-    
+
+
 def has_negative_spot_coordinates(datasets: List[Dataset]) -> bool:
     """
     Checks if any of the numerical values contained within spot coordinates of a list of datasets is below zero.
-    
+
     Args:
         datasets: List of datasets to check
 
@@ -303,22 +294,24 @@ def has_negative_spot_coordinates(datasets: List[Dataset]) -> bool:
         for sample in dataset.samples:
             for spot in sample.spots:
                 for coordinate in spot.coordinates:
-                    if (
-                        coordinate.x < 0 or 
-                        coordinate.y < 0
-                    ):
+                    if coordinate.x < 0 or coordinate.y < 0:
                         return True
     return False
+
 
 def has_negative_values(datasets: List[Dataset]) -> bool:
     """
     Checks if any of the numerical values contained within a list of datasets is below zero.
     This method uses has_negative_data_values, has_negative_data_statistics_values and has_negative_spot_coordinates.
-    
+
     Args:
         datasets: List of datasets to check
 
     Returns:
         bool: True if any of the datasets checked contains a negative number. False if otherwise.
     """
-    return has_negative_data_values(datasets = datasets) or has_negative_data_statistics_values(datasets = datasets) or has_negative_spot_coordinates(datasets = datasets)
+    return (
+        has_negative_data_values(datasets=datasets)
+        or has_negative_data_statistics_values(datasets=datasets)
+        or has_negative_spot_coordinates(datasets=datasets)
+    )

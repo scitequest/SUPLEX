@@ -1,10 +1,17 @@
 import pytest
-from src.martin_interface.holder import PathHolder, FileHolder
 from dataclasses import is_dataclass
+from src.martin_interface.holder import PathHolder, FileHolder
 
 
 class TestHolders:
+    """Tests for the immutable dataclasses PathHolder and FileHolder used throughout the MARTin interface."""
+
+    # -------------------------------------------------------------------------
+    # PathHolder tests
+    # -------------------------------------------------------------------------
+
     def test_path_holder_creation_complete(self):
+        """Creates a fully populated PathHolder with all optional paths and verifies every field."""
         path_holder = PathHolder(
             dataset_path="/test/dataset",
             data_path="/test/dataset/data.json",
@@ -27,9 +34,8 @@ class TestHolders:
         assert path_holder.suplex_path == "/test/dataset/suplex.json"
 
     def test_path_holder_creation_minimal(self):
-        path_holder = PathHolder(
-            dataset_path="/test/dataset", data_path="/test/dataset/data.json"
-        )
+        """Creates a minimal PathHolder (only required fields) and confirms all optional fields default to None."""
+        path_holder = PathHolder(dataset_path="/test/dataset", data_path="/test/dataset/data.json")
 
         assert path_holder.dataset_path == "/test/dataset"
         assert path_holder.data_path == "/test/dataset/data.json"
@@ -41,12 +47,18 @@ class TestHolders:
         assert path_holder.suplex_path is None
 
     def test_path_holder_is_frozen(self):
+        """PathHolder is frozen (immutable) and raises AttributeError on mutation attempts."""
         path_holder = PathHolder(dataset_path="/test", data_path="/test/data.json")
         assert is_dataclass(path_holder)
         with pytest.raises(AttributeError):
             path_holder.dataset_path = "/new/path"
 
+    # -------------------------------------------------------------------------
+    # FileHolder tests
+    # -------------------------------------------------------------------------
+
     def test_file_holder_creation_complete(self):
+        """Creates a fully populated FileHolder and verifies all fields plus their expected Python types."""
         file_holder = FileHolder(
             data_file=[{"test": "data"}],
             data_statistics_file=[{"test": "stats"}],
@@ -75,6 +87,7 @@ class TestHolders:
         assert isinstance(file_holder.suplex_file, dict)
 
     def test_file_holder_creation_minimal(self):
+        """Creates a minimal FileHolder (only the required data_file) and confirms all optional fields default to None."""
         file_holder = FileHolder(data_file=[{"test": "data"}])
 
         assert file_holder.data_file == [{"test": "data"}]
@@ -87,6 +100,7 @@ class TestHolders:
         assert file_holder.suplex_file is None
 
     def test_file_holder_frozen(self):
+        """FileHolder is frozen (immutable) and raises AttributeError on mutation attempts."""
         file_holder = FileHolder(data_file=[{"test": "data"}])
 
         with pytest.raises(AttributeError):

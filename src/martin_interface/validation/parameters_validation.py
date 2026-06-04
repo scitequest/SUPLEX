@@ -36,9 +36,7 @@ def try_get_validated_parameters(
     if isinstance(parameters_file, dict):
         # Allows for compatibility with older versions of MARTin which had a typo, namely 'subract'.
         if "subract_background" in parameters_file.keys():
-            parameters_file["subtract_background"] = parameters_file.pop(
-                "subract_background"
-            )
+            parameters_file["subtract_background"] = parameters_file.pop("subract_background")
         # A Parameters-file can have two distinct formats, here we check which one we have to use.
         keymap = PARAMETERS_FIELDS_POLYGON
         spots_are_circular = False
@@ -107,9 +105,7 @@ def try_typecast_parameters_file(
     try:
         typecasted_data = {
             "invert_lut": typecast_to_bool(parameters_file["invert_lut"]),
-            "subtract_background": typecast_to_bool(
-                parameters_file["subtract_background"]
-            ),
+            "subtract_background": typecast_to_bool(parameters_file["subtract_background"]),
             "number_of_spotfields": int(parameters_file["number_of_spotfields"]),
             "columns_per_spotfield": int(parameters_file["columns_per_spotfield"]),
             "spots_per_spotfield": int(parameters_file["spots_per_spotfield"]),
@@ -132,15 +128,12 @@ def try_typecast_parameters_file(
                 typecasted_spot = {
                     "type": str(spot["type"]),
                     "coordinates": [
-                        [float(coord) for coord in sublist]
-                        for sublist in spot["coordinates"]
+                        [float(coord) for coord in sublist] for sublist in spot["coordinates"]
                     ],
                 }
             typecasted_data["spots"].append(typecasted_spot)
         except Exception as e:
-            logger.error(
-                f"Typecasting failed for {parameters_file_path} on spot {i}: {str(e)}"
-            )
+            logger.error(f"Typecasting failed for {parameters_file_path} on spot {i}: {str(e)}")
             return None
 
     for i, rectangle in enumerate(parameters_file["background_rectangles"]):

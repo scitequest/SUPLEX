@@ -52,8 +52,7 @@ def extract_value_list_from_dataset(
     # Basic Data Values (2D lists: [ [values per spot in sample] per sample ])
     if attribute == DATASET_ATTRIBUTE.MEAN_MINUS_MIN:
         value_list = [
-            [spot.spot_values.mean_minus_min for spot in sample.spots]
-            for sample in dataset.samples
+            [spot.spot_values.mean_minus_min for spot in sample.spots] for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.NORMALIZED_MEAN:
         value_list = [
@@ -62,34 +61,27 @@ def extract_value_list_from_dataset(
         ]
     elif attribute == DATASET_ATTRIBUTE.MIN:
         value_list = [
-            [spot.spot_values.min_val for spot in sample.spots]
-            for sample in dataset.samples
+            [spot.spot_values.min_val for spot in sample.spots] for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.MAX:
         value_list = [
-            [spot.spot_values.max_val for spot in sample.spots]
-            for sample in dataset.samples
+            [spot.spot_values.max_val for spot in sample.spots] for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.MEAN:
         value_list = [
-            [spot.spot_values.mean_val for spot in sample.spots]
-            for sample in dataset.samples
+            [spot.spot_values.mean_val for spot in sample.spots] for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.STD_DEV:
         value_list = [
-            [spot.spot_values.std_deviation for spot in sample.spots]
-            for sample in dataset.samples
+            [spot.spot_values.std_deviation for spot in sample.spots] for sample in dataset.samples
         ]
 
     # Data Statistics Values (1D lists: [value per sample])
     elif attribute == DATASET_ATTRIBUTE.ADJUSTED_AVERAGE:
-        value_list = [
-            sample.data_statistics.adjusted_average for sample in dataset.samples
-        ]
+        value_list = [sample.data_statistics.adjusted_average for sample in dataset.samples]
     elif attribute == DATASET_ATTRIBUTE.ADJUSTED_AVERAGE_STD_DEVIATION:
         value_list = [
-            sample.data_statistics.adjusted_average_std_deviation
-            for sample in dataset.samples
+            sample.data_statistics.adjusted_average_std_deviation for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.RELATIVE_ADJUSTED_AVERAGE_STD_DEVIATION:
         value_list = [
@@ -97,13 +89,10 @@ def extract_value_list_from_dataset(
             for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.NORMALIZED_AVERAGE:
-        value_list = [
-            sample.data_statistics.normalized_average for sample in dataset.samples
-        ]
+        value_list = [sample.data_statistics.normalized_average for sample in dataset.samples]
     elif attribute == DATASET_ATTRIBUTE.NORMALIZED_AVERAGE_STD_DEVIATION:
         value_list = [
-            sample.data_statistics.normalized_average_std_deviation
-            for sample in dataset.samples
+            sample.data_statistics.normalized_average_std_deviation for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.RELATIVE_NORMALIZED_AVERAGE_STD_DEVIATION:
         value_list = [
@@ -130,18 +119,12 @@ def extract_value_list_from_dataset(
         # Extract coordinates
         if attribute == DATASET_ATTRIBUTE.SPOT_COORDINATES_X:
             value_list = [
-                [
-                    [coord.x for coord in spot.spot_parameters.coordinates]
-                    for spot in sample.spots
-                ]
+                [[coord.x for coord in spot.spot_parameters.coordinates] for spot in sample.spots]
                 for sample in dataset.samples
             ]
         elif attribute == DATASET_ATTRIBUTE.SPOT_COORDINATES_Y:
             value_list = [
-                [
-                    [coord.y for coord in spot.spot_parameters.coordinates]
-                    for spot in sample.spots
-                ]
+                [[coord.y for coord in spot.spot_parameters.coordinates] for spot in sample.spots]
                 for sample in dataset.samples
             ]
 
@@ -173,9 +156,7 @@ def extract_value_list_from_dataset(
         logger.warning(f"Unknown attribute: {attribute}")
         return []
 
-    logger.debug(
-        f"Extracted value list for attribute {attribute} with length: {len(value_list)}"
-    )
+    logger.debug(f"Extracted value list for attribute {attribute} with length: {len(value_list)}")
     return value_list
 
 
@@ -241,10 +222,7 @@ def get_flat_value_list(dataset: Dataset, attribute: DATASET_ATTRIBUTE) -> List[
         DATASET_ATTRIBUTE.SPOT_COORDINATES_Y,
     ]:
         avg_coords_list = [
-            sum(coords) / len(coords)
-            for spots in value_list
-            for coords in spots
-            if coords
+            sum(coords) / len(coords) for spots in value_list for coords in spots if coords
         ]
         return avg_coords_list
 
@@ -288,9 +266,7 @@ def apply_normalization(
             logger.warning("Custom factor not provided for CUSTOM normalization.")
             return value_lists
         if custom_factor == 0:
-            logger.warning(
-                "Custom factor cannot be zero. Normalization will not be applied."
-            )
+            logger.warning("Custom factor cannot be zero. Normalization will not be applied.")
             return value_lists
         normalized_values = {
             key: normalize_by_factor(value_list, custom_factor)
@@ -302,9 +278,7 @@ def apply_normalization(
         normalized_values = {}
         for key, value_list in value_lists.items():
             if len(value_list) > 0:
-                normalized_values[key] = normalize_by_factor(
-                    value_list, np.nanmax(value_list)
-                )
+                normalized_values[key] = normalize_by_factor(value_list, np.nanmax(value_list))
             else:
                 normalized_values[key] = value_list
         return normalized_values
@@ -329,14 +303,11 @@ def apply_normalization(
             return value_lists
 
         ref_stats = {
-            key: get_reference_statistics(v, reference_indices)
-            for key, v in value_lists.items()
+            key: get_reference_statistics(v, reference_indices) for key, v in value_lists.items()
         }
 
         normalized_values = {
-            key: reference_normalization(
-                value_lists[key], ref_stats[key], normalization_method
-            )
+            key: reference_normalization(value_lists[key], ref_stats[key], normalization_method)
             for key in value_lists.keys()
         }
 
@@ -459,9 +430,7 @@ def reference_normalization(
         return [float("nan") for value in value_list]
 
     if avg == 0:
-        logger.warning(
-            "Reference value avg is zero. Normalization will not be applied."
-        )
+        logger.warning("Reference value avg is zero. Normalization will not be applied.")
         return value_list
 
     if stdev == 0:
@@ -550,9 +519,7 @@ class ValueExtractor:
 
         self._normalization_enabled = normalization_methods is not None
         normalization_methods = (
-            normalization_methods
-            if self._normalization_enabled
-            else list(NORMALIZATION)
+            normalization_methods if self._normalization_enabled else list(NORMALIZATION)
         )
         self._normalization_methods = normalization_methods
 
@@ -588,9 +555,7 @@ class ValueExtractor:
             options=options,
             value=options[0],
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         norm_options = [option.value for option in self._normalization_methods]
@@ -599,9 +564,7 @@ class ValueExtractor:
             options=norm_options,
             value=norm_options[0],
             description="",
-            layout=widgets.Layout(
-                height="30px", width="100%", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="100%", margin="0px", padding="0px"),
         )
 
         self._custom_factor_input = WidgetFactory.number_input(
@@ -833,9 +796,7 @@ class ValueExtractor:
 
         attribute = attribute or self.attribute
         normalization_method = normalization_method or self.normalization
-        value_lists = {
-            dataset: get_flat_value_list(dataset, attribute) for dataset in datasets
-        }
+        value_lists = {dataset: get_flat_value_list(dataset, attribute) for dataset in datasets}
         reference_indices = reference_indices or self.references
 
         return self.normalize_values(
@@ -873,21 +834,19 @@ class ValueExtractor:
         if normalization_method == NORMALIZATION.RAW:
             return value_lists
 
-        custom_factor = 1.0
+        cf = 1.0
         if normalization_method == NORMALIZATION.CUSTOM:
-            custom_factor = (
-                custom_factor if custom_factor is not None else self.custom_factor
-            )
+            cf = custom_factor if custom_factor is not None else self.custom_factor
 
-        reference_indices = []
+        ri = []
         if normalization_method in NORMALIZATION_REFERENCE_POINT:
-            reference_indices = reference_indices or self.references
+            ri = reference_indices or self.references
 
         normalized_value_lists = apply_normalization(
             value_lists=value_lists,
             normalization_method=normalization_method,
-            custom_factor=custom_factor,
-            reference_indices=reference_indices,
+            custom_factor=cf,
+            reference_indices=ri,
         )
 
         return normalized_value_lists

@@ -77,9 +77,7 @@ class HeatmapSettings:
         square = square if self._square_enabled else False
 
         self._symmetric_scaling_enabled = symmetric_scaling is not None
-        symmetric_scaling = (
-            symmetric_scaling if self._symmetric_scaling_enabled else True
-        )
+        symmetric_scaling = symmetric_scaling if self._symmetric_scaling_enabled else True
 
         self._annot_enabled = annot is not None
         annot = annot if self._annot_enabled else False
@@ -113,9 +111,7 @@ class HeatmapSettings:
         robust = robust if self._robust_enabled else False
 
         self._cbar_enabled = cbar_options is not None
-        cbar_orientations = (
-            cbar_options if self._cbar_enabled else list(CBAR_ORIENTATION)
-        )
+        cbar_orientations = cbar_options if self._cbar_enabled else list(CBAR_ORIENTATION)
 
         self._cbar_tick_modes_enabled = cbar_tick_options is not None
         cbar_tick_options = (
@@ -154,9 +150,7 @@ class HeatmapSettings:
             use_custom_row_labels if self._use_custom_row_labels_enabled else False
         )
 
-        self._highlight_reference_points_enabled = (
-            highlight_reference_points is not None
-        )
+        self._highlight_reference_points_enabled = highlight_reference_points is not None
         highlight_reference_points = bool(highlight_reference_points)
 
         self._highlight_color_enabled = bool(highlight_colors)
@@ -228,27 +222,21 @@ class HeatmapSettings:
             value=square,
             description="Square Cells",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._symmetric_scaling_widget = WidgetFactory.checkbox(
             value=symmetric_scaling,
             description="Symmetric Scaling around Center",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._highlight_reference_points_widget = WidgetFactory.checkbox(
             value=highlight_reference_points,
             description="Highlight Reference Points",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
         self._highlight_reference_points_widget.observe(
             self.update_heatmap_settings_display, names="value"
@@ -258,9 +246,7 @@ class HeatmapSettings:
             options=[e.value for e in highlight_colors],
             value=highlight_colors[0].value,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
             disabled=not highlight_reference_points,
         )
 
@@ -268,9 +254,7 @@ class HeatmapSettings:
             value=annot,
             description="Annotate Values",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
         self._annot_widget.observe(self.update_heatmap_settings_display, names="value")
 
@@ -280,9 +264,7 @@ class HeatmapSettings:
             max_value=50.0,
             step=0.01,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
             disabled=not annot,
         )
 
@@ -292,9 +274,7 @@ class HeatmapSettings:
             max_value=5,
             step=1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
             disabled=not annot,
         )
 
@@ -302,9 +282,7 @@ class HeatmapSettings:
             options=[e.value for e in ANNOTATION_COLOR],
             value=annot_color,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
             disabled=not annot,
         )
 
@@ -314,9 +292,7 @@ class HeatmapSettings:
             max_value=10.0,
             step=0.01,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._linewidths_widget = WidgetFactory.number_input(
@@ -324,27 +300,21 @@ class HeatmapSettings:
             min_value=0.0,
             step=0.1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._linecolor_widget = WidgetFactory.dropdown(
             options=[e.value for e in LINE_COLOR],
             value=linecolor,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._robust_widget = WidgetFactory.checkbox(
             value=robust,
             description="Robust Scaling",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         cbar_options = [c_option.value for c_option in cbar_orientations]
@@ -352,9 +322,7 @@ class HeatmapSettings:
             options=cbar_options,
             value=cbar_options[0],
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         cbar_tick_modes = [c_option.value for c_option in cbar_tick_options]
@@ -362,36 +330,28 @@ class HeatmapSettings:
             options=cbar_tick_modes,
             value=cbar_tick_modes[0],
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._use_letter_annotation_x_widget = WidgetFactory.checkbox(
             value=use_letter_annotation_x,
             description="Use Letter Annotation X",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._use_letter_annotation_y_widget = WidgetFactory.checkbox(
             value=use_letter_annotation_y,
             description="Use Letter Annotation Y",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._start_at_index_0_widget = WidgetFactory.checkbox(
             value=start_at_index_0,
             description="Start at Index 0",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._n_cols_widget = WidgetFactory.number_input(
@@ -399,18 +359,14 @@ class HeatmapSettings:
             min_value=1,
             step=1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._use_custom_col_labels_widget = WidgetFactory.checkbox(
             value=use_custom_col_labels,
             description="Use Custom Column Labels",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
         self._use_custom_col_labels_widget.observe(
             self.update_heatmap_settings_display, names="value"
@@ -420,9 +376,7 @@ class HeatmapSettings:
             value=use_custom_row_labels,
             description="Use Custom Row Labels",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
         self._use_custom_row_labels_widget.observe(
             self.update_heatmap_settings_display, names="value"
@@ -431,18 +385,14 @@ class HeatmapSettings:
         self._col_labels_widget = WidgetFactory.text_input(
             value=col_labels,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
             disabled=not use_custom_col_labels,
         )
 
         self._row_labels_widget = WidgetFactory.text_input(
             value=row_labels,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
             disabled=not use_custom_row_labels,
         )
 
@@ -462,12 +412,9 @@ class HeatmapSettings:
         self._row_labels_widget.disabled = not self._use_custom_row_labels_widget.value
 
         self._highlight_color_widget.disabled = (
-            not self._highlight_reference_points_widget.value
-            or not self._highlight_color_enabled
+            not self._highlight_reference_points_widget.value or not self._highlight_color_enabled
         )
-        self._highlight_reference_points_widget.disabled = (
-            not self._highlight_color_enabled
-        )
+        self._highlight_reference_points_widget.disabled = not self._highlight_color_enabled
 
     def get_active_widgets(self) -> List[widgets.Widget]:
         """

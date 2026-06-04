@@ -37,9 +37,7 @@ class GUI:
             content: IPython widget Box to contain the GUI layout
             popup_logger: Logger instance for popup notifications
         """
-        logger.debug(
-            f"Initialising GUI with {len(modules)} modules and {len(schemes)} schemes"
-        )
+        logger.debug(f"Initialising GUI with {len(modules)} modules and {len(schemes)} schemes")
 
         self._modules = modules
         self._schemes = schemes
@@ -106,9 +104,7 @@ class GUI:
             self._content_area.add_class("gui-content-area")
 
             # Initialize navigator
-            self._navigator = Navigator(
-                gui=self, scheme=default_scheme, modules=self._modules
-            )
+            self._navigator = Navigator(gui=self, scheme=default_scheme, modules=self._modules)
             self._navigator.initialize_pages()
 
             # Create info field for status messages
@@ -226,9 +222,7 @@ class GUI:
         Args:
             new_content: The new content to display in the content holder
         """
-        logger.debug(
-            "Updating content holder with new content: %s", type(new_content).__name__
-        )
+        logger.debug("Updating content holder with new content: %s", type(new_content).__name__)
 
         try:
             self._content_holder.children = [new_content]
@@ -355,9 +349,7 @@ class GUI:
             self._content_area.children = new_content_area
 
             # Update main content styles
-            new_content = (
-                get_gui_styles(self._current_scheme),
-            ) + self._content.children[1:]
+            new_content = (get_gui_styles(self._current_scheme),) + self._content.children[1:]
             self._content.children = new_content
 
             # Update component schemes

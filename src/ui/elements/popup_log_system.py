@@ -243,9 +243,7 @@ class PopupLogger:
             self._save_button.add_class("popup-button-save")
             self._save_button.on_click(lambda b: self.save_logs())
 
-            button_box = widgets.HBox(
-                [self._clear_button, self._copy_button, self._save_button]
-            )
+            button_box = widgets.HBox([self._clear_button, self._copy_button, self._save_button])
 
             self._message_counter = widgets.HTML("0 messages")
             self._message_counter.add_class("popup-message-counter")
@@ -354,9 +352,7 @@ class PopupLogger:
             filtered_messages = [
                 msg for msg in self._log_messages if msg["level"] >= self._min_log_level
             ]
-            recent_messages = filtered_messages[
-                -100:
-            ]  # Show last 100 filtered messages
+            recent_messages = filtered_messages[-100:]  # Show last 100 filtered messages
 
             if not recent_messages:
                 content = f"<div class='popup-log-empty'>{self._scheme.ICON.STORE} No logged messages yet</div>"
@@ -364,9 +360,7 @@ class PopupLogger:
                 log_entries = []
 
                 for msg in recent_messages:
-                    level_icon, level_class, level_name = self.get_level_info(
-                        msg["level"]
-                    )
+                    level_icon, level_class, level_name = self.get_level_info(msg["level"])
 
                     log_entry = f"""
                     <div class="popup-log-entry {level_class}">
@@ -521,9 +515,7 @@ class PopupLogger:
             lines = []
             for log_entry in self._log_messages:
                 level_name = logging.getLevelName(log_entry["level"])
-                line = (
-                    f"{level_name} - {log_entry['timestamp']}: {log_entry['message']}"
-                )
+                line = f"{level_name} - {log_entry['timestamp']}: {log_entry['message']}"
                 lines.append(line)
 
             return "\n".join(lines)
@@ -598,17 +590,15 @@ class PopupLogger:
 
             # Update panel styles
             if self._popup_panel:
-                new_panel = (
-                    get_popup_logger_styles(self._scheme),
-                ) + self._popup_panel.children[1:]
+                new_panel = (get_popup_logger_styles(self._scheme),) + self._popup_panel.children[
+                    1:
+                ]
                 self._popup_panel.children = new_panel
 
             logger.debug("Popup logger color scheme updated successfully")
 
         except Exception as e:
-            logger.error(
-                "Failed to update popup logger color scheme: %s", e, exc_info=True
-            )
+            logger.error("Failed to update popup logger color scheme: %s", e, exc_info=True)
 
 
 class PopupLogHandler(logging.Handler):

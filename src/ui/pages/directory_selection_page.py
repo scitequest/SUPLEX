@@ -95,27 +95,36 @@ class DirectorySelectionPage:
                 justify_content="center",
                 overflow="hidden",
             )
-            
+
             bottom_box = WidgetFactory.vbox(
                 children=[controls_container, self._stats_box],
-                layout = widgets.Layout(width="100%", height="50%", min_height = "250px", justify_content="space-between", align_items="center"),
-                overflow="visible"
+                layout=widgets.Layout(
+                    width="100%",
+                    height="50%",
+                    min_height="250px",
+                    justify_content="space-between",
+                    align_items="center",
+                ),
+                overflow="visible",
             )
 
             # Main page layout
             page = WidgetFactory.vbox(
                 children=[title_container, bottom_box],
-                layout = widgets.Layout(width="100%", height="100%", justify_content="space-between", align_items="center"),
-                overflow="auto"
+                layout=widgets.Layout(
+                    width="100%",
+                    height="100%",
+                    justify_content="space-between",
+                    align_items="center",
+                ),
+                overflow="auto",
             )
 
             logger.debug("Directory selection page UI built successfully")
             return page
 
         except Exception as e:
-            logger.error(
-                "Failed to build directory selection page UI: %s", e, exc_info=True
-            )
+            logger.error("Failed to build directory selection page UI: %s", e, exc_info=True)
             return WidgetFactory.html_widget(
                 value="<div style='text-align: center; padding: 40px;'>Error loading directory selection page</div>",
                 width="100%",
@@ -169,7 +178,7 @@ class DirectorySelectionPage:
         return WidgetFactory.vbox(
             children=[title, subtitle],
             layout=widgets.Layout(width="100%", height="60%", justify_content="center"),
-            overflow="visible"
+            overflow="visible",
         )
 
     def create_controls(self) -> widgets.HBox:
@@ -192,15 +201,11 @@ class DirectorySelectionPage:
             description="Use Sample Data", layout=widgets.Layout(width="100%")
         )
         sample_data_button.on_click(lambda x: self.use_sample_data())
-        
+
         content_block = WidgetFactory.vbox(
             children=[path_section, search_options_section, sample_data_button],
             layout=widgets.Layout(
-                width="100%",
-                max_width="600px",
-                gap="5px",
-                align_items="center",
-                padding="5px"
+                width="100%", max_width="600px", gap="5px", align_items="center", padding="5px"
             ),
             overflow="visible",
         )
@@ -226,9 +231,7 @@ class DirectorySelectionPage:
 
         dir_path = "..." if not self._selected_path else self._selected_path
 
-        self._path_display = WidgetFactory.html_widget(
-            value=dir_path, width="auto", height="auto"
-        )
+        self._path_display = WidgetFactory.html_widget(value=dir_path, width="auto", height="auto")
 
         path_container = WidgetFactory.info_field_default(
             children=[self._path_display],
@@ -266,21 +269,21 @@ class DirectorySelectionPage:
         """
         logger.debug("Creating search options section")
 
-        search_mode_label = WidgetFactory.label(value = "Mode", width = "30px")
+        search_mode_label = WidgetFactory.label(value="Mode", width="30px")
         search_mode_dropdown = WidgetFactory.dropdown(
             options=[(mode.name, mode) for mode in SEARCH_MODE],
             value=self._search_mode,
-            layout=widgets.Layout(width = "100%"),
+            layout=widgets.Layout(width="100%"),
             on_change=lambda change: self.search_dir(),
         )
 
-        search_depth_label = WidgetFactory.label(value = "Depth", width = "30px")
+        search_depth_label = WidgetFactory.label(value="Depth", width="30px")
         search_depth_spinner = WidgetFactory.number_input(
             value=self._search_depth,
             min_value=0,
             max_value=30,
             step=1,
-            layout=widgets.Layout(width = "100%"),
+            layout=widgets.Layout(width="100%"),
             on_change=lambda change: self.search_dir(),
         )
 
@@ -294,7 +297,7 @@ class DirectorySelectionPage:
             justify_content="flex-start",
             overflow="visible",
         )
-        
+
         search_depth_box = WidgetFactory.hbox(
             children=[search_depth_label, search_depth_spinner],
             width="30%",
@@ -395,9 +398,7 @@ class DirectorySelectionPage:
                 else os.path.expanduser("~")
             )
 
-            selected_dir = filedialog.askdirectory(
-                title="Select Directory", initialdir=initial_dir
-            )
+            selected_dir = filedialog.askdirectory(title="Select Directory", initialdir=initial_dir)
 
             root.destroy()
 
@@ -450,9 +451,7 @@ class DirectorySelectionPage:
                 self._search_depth,
             )
 
-            adapter = Adapter(
-                path=path, mode=self._search_mode, search_depth=self._search_depth
-            )
+            adapter = Adapter(path=path, mode=self._search_mode, search_depth=self._search_depth)
 
             if adapter.datasets:
                 self._n_datasets = len(adapter.datasets)
@@ -500,9 +499,7 @@ class DirectorySelectionPage:
             sample_data_path = Path(__file__).parent.parent.parent / "sample_data"
 
             if not sample_data_path.exists():
-                logger.error(
-                    "Sample data directory does not exist: %s", sample_data_path
-                )
+                logger.error("Sample data directory does not exist: %s", sample_data_path)
                 self._navigator.set_info_field_state(
                     message="Sample data directory does not exist.",
                     info_color=self._navigator.current_scheme.LAYOUT_COLOR.INFO_FIELD.ERROR,
@@ -522,9 +519,7 @@ class DirectorySelectionPage:
                 )
                 return
 
-            logger.info(
-                "Sample data loaded successfully: %d datasets", len(adapter.datasets)
-            )
+            logger.info("Sample data loaded successfully: %d datasets", len(adapter.datasets))
             self._navigator.set_info_field_state(
                 message="Loaded sample data!",
                 info_color=self._navigator.current_scheme.LAYOUT_COLOR.INFO_FIELD.INFO,
@@ -548,6 +543,4 @@ class DirectorySelectionPage:
         """
         logger.debug("Resetting directory selection page")
 
-        return DirectorySelectionPage(
-            navigator=self._navigator, n_modules=self._n_modules
-        )
+        return DirectorySelectionPage(navigator=self._navigator, n_modules=self._n_modules)

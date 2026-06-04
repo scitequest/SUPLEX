@@ -9,15 +9,13 @@ from datetime import datetime, timedelta
 import isodate
 import logging
 
-# Configure logging for tests
+# Configure logging for tests (only active during test runs)
 logging.basicConfig(level=logging.DEBUG)
 
 
 @pytest.fixture
 def temp_dir():
-    """
-    Create a temporary directory for test files.
-    """
+    """Create and automatically clean up a temporary directory for test files."""
     temp_dir = tempfile.mkdtemp()
     yield temp_dir
     shutil.rmtree(temp_dir)
@@ -25,9 +23,7 @@ def temp_dir():
 
 @pytest.fixture
 def sample_data_dict():
-    """
-    Sample data dictionary for testing.
-    """
+    """Sample data.json content (numeric values) used across MARTin data tests."""
     return {
         "values": [
             {
@@ -80,9 +76,7 @@ def sample_data_dict():
 
 @pytest.fixture
 def sample_data_dict_raw():
-    """
-    Sample data dictionary for testing.
-    """
+    """Same as sample_data_dict but with all values as strings (raw JSON state)."""
     return {
         "values": [
             {
@@ -135,9 +129,7 @@ def sample_data_dict_raw():
 
 @pytest.fixture
 def sample_data_tsv():
-    """
-    Sample data as TSV string containing string values.
-    """
+    """Sample data as TSV string (string values) for parser tests."""
     lines = [
         "mean_minus_min\tnormalized_mean\tspot\trow\tcol\tmin\tmax\tmean\tstd_deviation",
         "100.5\t0.5\t0\t0\t0\t50.0\t200.0\t150.5\t25.3",
@@ -150,10 +142,7 @@ def sample_data_tsv():
 
 @pytest.fixture
 def sample_data_statistics_dict():
-    """
-    Sample data statistics dictionary for testing.
-    The values of this dict have been derived from the sample data dictionary.
-    """
+    """Sample data_statistics.json content (numeric values)."""
     return {
         "values": [
             {
@@ -182,10 +171,7 @@ def sample_data_statistics_dict():
 
 @pytest.fixture
 def sample_data_statistics_dict_raw():
-    """
-    Variant of sample_data_statistics_dict.
-    All values are stored as strings.
-    """
+    """Same as sample_data_statistics_dict but with all values as strings."""
     return {
         "values": [
             {
@@ -214,9 +200,7 @@ def sample_data_statistics_dict_raw():
 
 @pytest.fixture
 def sample_data_statistics_tsv():
-    """
-    Sample data_statistics as TSV string containing string values.
-    """
+    """Sample data_statistics as TSV string (string values)."""
     lines = [
         "row\tcol\tadjusted_average\tadjusted_average_std_deviation\trelative_adjusted_average_std_deviation\tnormalized_average\tnormalized_average_std_deviation\trelative_normalized_average_std_deviation",
         "0\t0\t110.6\t14.28355698\t12.9146085\t0.55\t0.070710678\t12.8564869",
@@ -227,9 +211,7 @@ def sample_data_statistics_tsv():
 
 @pytest.fixture
 def sample_metadata_dict():
-    """
-    Complete metadata with parsed datetime and duration.
-    """
+    """Complete parsed metadata dict (datetime + isodate objects)."""
     return {
         "version": "1.0",
         "datetime": datetime.fromisoformat("1998-07-13T10:30:00"),
@@ -254,11 +236,7 @@ def sample_metadata_dict():
 
 @pytest.fixture
 def sample_metadata_dict_natural():
-    """
-    A Metadata dict without any objects.
-    Datetime and duration are not parsed and kept as strings.
-    This is the state metadata.json files should be in.
-    """
+    """Raw metadata dict as it appears on disk (strings, no parsed objects)."""
     return {
         "version": "1.0",
         "datetime": "1998-07-13T10:30:00",
@@ -283,11 +261,7 @@ def sample_metadata_dict_natural():
 
 @pytest.fixture
 def sample_metadata_dict_raw():
-    """
-    Variant of sample_data_statistics_dict.
-    All values are stored as strings.
-    No incubations and no project field - this is the minimal state of a metadata file.
-    """
+    """Minimal raw metadata (no incubations/project) used for edge-case parsing."""
     return {
         "version": "1.0",
         "datetime": "1998-07-13T10:30:00",
@@ -304,10 +278,7 @@ def sample_metadata_dict_raw():
 
 @pytest.fixture
 def sample_incubation_dict_raw():
-    """
-    Variant of the incubations field of sample_data_statistics_dict.
-    All values are stored as strings.
-    """
+    """Raw incubation entry (strings) for metadata parser tests."""
     return {
         "solution": "Antibody Solution",
         "stock_concentration": {"value": "1000.0", "unit": "µg/mL"},
@@ -318,18 +289,13 @@ def sample_incubation_dict_raw():
 
 @pytest.fixture
 def sample_project_dict_raw():
-    """
-    Variant of the project field of sample_data_statistics_dict.
-    All values are stored as strings.
-    """
+    """Raw project field (strings) for metadata parser tests."""
     return {"name": "TestProject", "description": "Test project description"}
 
 
 @pytest.fixture
 def sample_parameters_dict_polygon():
-    """
-    Sample parameters dictionary with polygonal spots.
-    """
+    """Sample parameters.json with POLYGON spots (numeric values)."""
     return {
         "invert_lut": False,
         "subtract_background": True,
@@ -375,9 +341,7 @@ def sample_parameters_dict_polygon():
 
 @pytest.fixture
 def sample_parameters_dict_polygon_raw():
-    """
-    Sample parameters dictionary with polygonal spots.
-    """
+    """Raw parameters.json with POLYGON spots (string values)."""
     return {
         "invert_lut": "False",
         "subtract_background": "True",
@@ -438,10 +402,7 @@ def sample_parameters_dict_polygon_raw():
 
 @pytest.fixture
 def sample_parameters_dict_circle():
-    """
-    Sample parameters dictionary with circular spots.
-    Added typo `subract` for compatibility testing of MARTin v1.0.
-    """
+    """Sample parameters.json with CIRCLE spots (includes MARTin v1.0 typo compatibility)."""
     return {
         "invert_lut": True,
         "subtract_background": False,
@@ -465,10 +426,7 @@ def sample_parameters_dict_circle():
 
 @pytest.fixture
 def sample_parameters_dict_circle_raw():
-    """
-    Sample parameters dictionary with circular spots.
-    Added typo `subract` for compatibility testing of MARTin v1.0.
-    """
+    """Raw parameters.json with CIRCLE spots (string values)."""
     return {
         "invert_lut": "True",
         "subtract_background": "False",
@@ -497,9 +455,7 @@ def sample_parameters_dict_circle_raw():
 
 @pytest.fixture
 def sample_suplex_dict():
-    """
-    Sample suplex dictionary for testing.
-    """
+    """Sample suplex.json content used in FileHolder and metadata tests."""
     return {
         "tags": ["analysis1", "validated"],
         "row_labels": ["A", "B"],
@@ -509,9 +465,7 @@ def sample_suplex_dict():
 
 @pytest.fixture
 def mock_path_holder():
-    """
-    Mock PathHolder object.
-    """
+    """Fully populated mock PathHolder for dataset path tests."""
     from src.martin_interface.holder import PathHolder
 
     return PathHolder(
@@ -534,9 +488,7 @@ def mock_file_holder(
     sample_parameters_dict_polygon,
     sample_suplex_dict,
 ):
-    """
-    Mock FileHolder object.
-    """
+    """Fully populated mock FileHolder using the sample data fixtures."""
     from src.martin_interface.holder import FileHolder
 
     return FileHolder(
@@ -557,9 +509,7 @@ def create_sample_files(
     sample_parameters_dict_polygon,
     sample_suplex_dict,
 ):
-    """
-    Generates testfiles in a temporary directory
-    """
+    """Creates a complete set of realistic MARTin files in a temporary directory."""
     # Create data.json
     data_path = os.path.join(temp_dir, "data.json")
     with open(data_path, "w") as f:

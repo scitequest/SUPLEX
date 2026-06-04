@@ -171,25 +171,19 @@ class GeneralGraphSettings:
 
         self._x_scale_enabled = x_scale is not None
         self._x_scale = (
-            x_scale
-            if self._x_scale_enabled and x_scale in SCALE_TYPE
-            else SCALE_TYPE.LINEAR
+            x_scale if self._x_scale_enabled and x_scale in SCALE_TYPE else SCALE_TYPE.LINEAR
         )
         x_scale = self._x_scale
 
         self._y_scale_enabled = y_scale is not None
         self._y_scale = (
-            y_scale
-            if self._y_scale_enabled and y_scale in SCALE_TYPE
-            else SCALE_TYPE.LINEAR
+            y_scale if self._y_scale_enabled and y_scale in SCALE_TYPE else SCALE_TYPE.LINEAR
         )
         y_scale = self._y_scale
 
         self._z_scale_enabled = z_scale is not None
         self._z_scale = (
-            z_scale
-            if self._z_scale_enabled and z_scale in SCALE_TYPE
-            else SCALE_TYPE.LINEAR
+            z_scale if self._z_scale_enabled and z_scale in SCALE_TYPE else SCALE_TYPE.LINEAR
         )
         z_scale = self._z_scale
 
@@ -371,25 +365,19 @@ class GeneralGraphSettings:
         self._col_descriptor_widget = WidgetFactory.text_input(
             value=col_descriptor,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._row_descriptor_widget = WidgetFactory.text_input(
             value=row_descriptor,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._z_descriptor_widget = WidgetFactory.text_input(
             value=z_descriptor,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._invert_x_axis_widget = WidgetFactory.checkbox(
@@ -517,9 +505,7 @@ class GeneralGraphSettings:
             max_value=4000,
             step=100,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._resolution_height_widget = WidgetFactory.number_input(
@@ -528,9 +514,7 @@ class GeneralGraphSettings:
             max_value=4000,
             step=100,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._dpi_widget = WidgetFactory.number_input(
@@ -539,9 +523,7 @@ class GeneralGraphSettings:
             max_value=10000,
             step=1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._transparency_widget = WidgetFactory.number_input(
@@ -550,49 +532,37 @@ class GeneralGraphSettings:
             max_value=1.0,
             step=0.1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._title_widget = WidgetFactory.text_input(
             value=title,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._x_label_widget = WidgetFactory.text_input(
             value=x_label,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._y_label_widget = WidgetFactory.text_input(
             value=y_label,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._z_label_widget = WidgetFactory.text_input(
             value=z_label,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._colorbar_label_widget = WidgetFactory.text_input(
             value=colorbar_label,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._max_label_length_widget = WidgetFactory.number_input(
@@ -601,9 +571,7 @@ class GeneralGraphSettings:
             max_value=100,
             step=1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         scale_types = [stype.value for stype in SCALE_TYPE]
@@ -639,9 +607,7 @@ class GeneralGraphSettings:
             step=1,
             min_value=x_range[0],
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._x_range_max_widget = WidgetFactory.float_number_input(
@@ -649,45 +615,35 @@ class GeneralGraphSettings:
             step=1,
             max_value=x_range[1],
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._y_range_min_widget = WidgetFactory.float_number_input(
             value=y_range[0],
             step=0.1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._y_range_max_widget = WidgetFactory.float_number_input(
             value=y_range[1],
             step=0.1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._z_range_min_widget = WidgetFactory.float_number_input(
             value=z_range[0],
             step=0.1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._z_range_max_widget = WidgetFactory.float_number_input(
             value=z_range[1],
             step=0.1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._min_index_widget = WidgetFactory.int_number_input(
@@ -696,9 +652,7 @@ class GeneralGraphSettings:
             max_value=max_index,
             step=1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._max_index_widget = WidgetFactory.int_number_input(
@@ -707,9 +661,7 @@ class GeneralGraphSettings:
             max_value=max_index,
             step=1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._marker_size_widget = WidgetFactory.float_number_input(
@@ -718,9 +670,7 @@ class GeneralGraphSettings:
             max_value=50.0,
             step=1.0,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._line_width_widget = WidgetFactory.float_number_input(
@@ -729,9 +679,7 @@ class GeneralGraphSettings:
             max_value=10.0,
             step=0.5,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._base_font_size_widget = WidgetFactory.float_number_input(
@@ -740,9 +688,7 @@ class GeneralGraphSettings:
             max_value=36,
             step=1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._title_font_size_widget = WidgetFactory.number_input(
@@ -751,9 +697,7 @@ class GeneralGraphSettings:
             max_value=36,
             step=1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._label_font_size_widget = WidgetFactory.number_input(
@@ -762,9 +706,7 @@ class GeneralGraphSettings:
             max_value=36,
             step=1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._tick_font_size_widget = WidgetFactory.number_input(
@@ -773,9 +715,7 @@ class GeneralGraphSettings:
             max_value=36,
             step=1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         aspect_ratios = [ar.name for ar in ASPECT_RATIO]
@@ -1245,9 +1185,7 @@ class GeneralGraphSettings:
         """
         logger.debug("Getting UI for GeneralGraphSettings")
         general_widgets = []
-        general_widgets.append(
-            WidgetFactory.html_widget(value="<h3>General Graph Options</h3>")
-        )
+        general_widgets.append(WidgetFactory.html_widget(value="<h3>General Graph Options</h3>"))
 
         # Axis Descriptors
         descriptor_children = []
@@ -1419,9 +1357,7 @@ class GeneralGraphSettings:
                                             gap="5px",
                                             overflow="visible",
                                             height="auto",
-                                            layout=widgets.Layout(
-                                                padding=OPTION_INSET.PRIMARY
-                                            ),
+                                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
                                         ),
                                     ],
                                     gap="5px",
@@ -1437,9 +1373,7 @@ class GeneralGraphSettings:
                                             gap="5px",
                                             overflow="visible",
                                             height="auto",
-                                            layout=widgets.Layout(
-                                                padding=OPTION_INSET.PRIMARY
-                                            ),
+                                            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
                                         ),
                                     ],
                                     gap="5px",

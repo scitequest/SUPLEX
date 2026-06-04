@@ -52,9 +52,7 @@ class DatasetSelector:
 
         try:
             self.setup_checkboxes()
-            logger.debug(
-                "Dataset selector initialized successfully in %s mode", mode.value
-            )
+            logger.debug("Dataset selector initialized successfully in %s mode", mode.value)
         except Exception as e:
             logger.error("Failed to initialize dataset selector: %s", e, exc_info=True)
             raise
@@ -99,10 +97,7 @@ class DatasetSelector:
                     label_components.append(dataset.metadata.pat_id)
 
             if DATASET_LABEL.CREATED_DATE in self._label_parts:
-                if (
-                    hasattr(dataset, "image_creation_date")
-                    and dataset.image_creation_date
-                ):
+                if hasattr(dataset, "image_creation_date") and dataset.image_creation_date:
                     label_components.append(str(dataset.image_creation_date.date()))
 
             if DATASET_LABEL.MEASURE_DATE in self._label_parts:
@@ -110,9 +105,7 @@ class DatasetSelector:
                     label_components.append(str(dataset.measure_date.date()))
 
             label = " - ".join(label_components)
-            logger.debug(
-                "Generated label for dataset: %s", label[:50]
-            )  # Truncate for logging
+            logger.debug("Generated label for dataset: %s", label[:50])  # Truncate for logging
             return label if label else "Unknown Dataset"
 
         except Exception as e:
@@ -196,9 +189,7 @@ class DatasetSelector:
                 # Remove oldest selection (triggers this method again)
                 oldest_checkbox = self._checkbox_queue[0]
                 oldest_checkbox.value = False
-                logger.debug(
-                    "Removed oldest selection due to limit (%d)", self._checkbox_limit
-                )
+                logger.debug("Removed oldest selection due to limit (%d)", self._checkbox_limit)
 
         except Exception as e:
             logger.error("Error handling checkbox change: %s", e, exc_info=True)
@@ -213,9 +204,7 @@ class DatasetSelector:
         logger.debug("Building dataset selector UI")
 
         try:
-            header = WidgetFactory.html_widget(
-                value="<b>Datasets</b>", width="100%", height="auto"
-            )
+            header = WidgetFactory.html_widget(value="<b>Datasets</b>", width="100%", height="auto")
 
             checkbox_elements = [header] + self._checkboxes
 
@@ -297,9 +286,7 @@ class DatasetSelector:
         except Exception as e:
             logger.error("Error clearing selections: %s", e, exc_info=True)
 
-    def get_checkbox_of_dataset(
-        self, target_dataset: Dataset
-    ) -> Optional[widgets.Checkbox]:
+    def get_checkbox_of_dataset(self, target_dataset: Dataset) -> Optional[widgets.Checkbox]:
         """
         Find the checkbox widget associated with a specific dataset.
 
@@ -469,9 +456,7 @@ class DatasetSelector:
         """
         return self._label_parts.copy()
 
-    def update_dataset_labels(
-        self, label_parts: Optional[List[DATASET_LABEL]] = None
-    ) -> None:
+    def update_dataset_labels(self, label_parts: Optional[List[DATASET_LABEL]] = None) -> None:
         """
         Update the display labels for all datasets.
 

@@ -17,8 +17,14 @@ from src.ui.elements.navigator import Navigator
 from src.ui.elements.header import Header
 
 
+# =============================================================================
+# Scheme mocks
+# =============================================================================
+
+
 @pytest.fixture
 def mock_scheme_class():
+    """Legacy simple scheme class used in some older tests."""
     scheme_class = type("TestScheme", (), {})
     scheme_class.__module__ = "test_module"
     scheme_class.NAME = "TestScheme"
@@ -48,9 +54,11 @@ def mock_scheme_class():
 
 @pytest.fixture
 def mock_scheme():
+    """Detailed mock of a color scheme used by most UI components."""
     scheme = Mock()
     scheme.NAME = "TestScheme"
 
+    # TEXT section
     scheme.TEXT = Mock()
     scheme.TEXT.FONT = Mock()
     scheme.TEXT.FONT.MAIN_TITLE = "Arial"
@@ -135,6 +143,7 @@ def mock_scheme():
     scheme.TEXT.COLOR.WIDGET.OUTPUT = "#000000"
     scheme.TEXT.COLOR.WIDGET.DROPDOWN = "#000000"
 
+    # LAYOUT_COLOR section
     scheme.LAYOUT_COLOR = Mock()
     scheme.LAYOUT_COLOR.BACKGROUND = "#FFFFFF"
     scheme.LAYOUT_COLOR.HEADER = "#F0F0F0"
@@ -234,7 +243,7 @@ def mock_scheme():
     scheme.LAYOUT_COLOR.WIDGET.DROPDOWN.BACKGROUND = "#FFFFFF"
     scheme.LAYOUT_COLOR.WIDGET.DROPDOWN.BORDER = "#CCCCCC"
 
-    # Icons
+    # ICON section
     scheme.ICON = Mock()
     scheme.ICON.DEFAULT = "📄"
     scheme.ICON.INFO = "ℹ️"
@@ -266,6 +275,7 @@ def mock_scheme():
     scheme.ICON.SVG.GITHUB = "<svg>GitHub</svg>"
     scheme.ICON.SVG.X = "<svg>X</svg>"
 
+    # OPACITY section
     scheme.OPACITY = Mock()
     scheme.OPACITY.FULL = 1.0
     scheme.OPACITY.STRONG = 0.9
@@ -281,9 +291,11 @@ def mock_scheme():
 
 @pytest.fixture
 def alt_mock_scheme():
+    """Alternative (Dark) scheme for testing scheme switching."""
     scheme = Mock()
     scheme.NAME = "Dark"
 
+    # TEXT section (dark theme)
     scheme.TEXT = Mock()
     scheme.TEXT.FONT = Mock()
     scheme.TEXT.FONT.MAIN_TITLE = "Roboto"
@@ -368,6 +380,7 @@ def alt_mock_scheme():
     scheme.TEXT.COLOR.WIDGET.OUTPUT = "#1A1A1A"
     scheme.TEXT.COLOR.WIDGET.DROPDOWN = "#1A1A1A"
 
+    # LAYOUT_COLOR (dark theme)
     scheme.LAYOUT_COLOR = Mock()
     scheme.LAYOUT_COLOR.BACKGROUND = "#F8F8F8"
     scheme.LAYOUT_COLOR.HEADER = "#E8E8E8"
@@ -467,6 +480,7 @@ def alt_mock_scheme():
     scheme.LAYOUT_COLOR.WIDGET.DROPDOWN.BACKGROUND = "#F8F8F8"
     scheme.LAYOUT_COLOR.WIDGET.DROPDOWN.BORDER = "#BBBBBB"
 
+    # ICON section (dark theme)
     scheme.ICON = Mock()
     scheme.ICON.DEFAULT = "📝"
     scheme.ICON.INFO = "ℹ️"
@@ -498,6 +512,7 @@ def alt_mock_scheme():
     scheme.ICON.SVG.GITHUB = "<svg>AltGitHub</svg>"
     scheme.ICON.SVG.X = "<svg>AltX</svg>"
 
+    # OPACITY section (dark theme)
     scheme.OPACITY = Mock()
     scheme.OPACITY.FULL = 1.0
     scheme.OPACITY.STRONG = 0.85
@@ -513,11 +528,18 @@ def alt_mock_scheme():
 
 @pytest.fixture
 def mock_schemes(mock_scheme, alt_mock_scheme):
+    """Dictionary of available schemes (Default + Dark)."""
     return {"Default": mock_scheme, "Dark": alt_mock_scheme}
+
+
+# =============================================================================
+# Widget & component mocks
+# =============================================================================
 
 
 @pytest.fixture
 def mock_widgets():
+    """Comprehensive mock for ipywidgets used in UI tests."""
     with patch("ipywidgets") as mock:
         # Create mock widget classes that behave like real widgets
         def create_widget_mock(widget_type):
@@ -525,9 +547,7 @@ def mock_widgets():
             widget._dom_classes = []
             widget.layout = MagicMock()
             widget.children = []
-            widget.add_class = MagicMock(
-                side_effect=lambda x: widget._dom_classes.append(x)
-            )
+            widget.add_class = MagicMock(side_effect=lambda x: widget._dom_classes.append(x))
             widget.remove_class = MagicMock(
                 side_effect=lambda x: (
                     widget._dom_classes.remove(x) if x in widget._dom_classes else None
@@ -582,24 +602,16 @@ def mock_widgets():
 
             return widget
 
-        mock.Button = MagicMock(
-            side_effect=lambda *args, **kwargs: create_widget_mock("Button")
-        )
-        mock.Text = MagicMock(
-            side_effect=lambda *args, **kwargs: create_widget_mock("Text")
-        )
+        mock.Button = MagicMock(side_effect=lambda *args, **kwargs: create_widget_mock("Button"))
+        mock.Text = MagicMock(side_effect=lambda *args, **kwargs: create_widget_mock("Text"))
         mock.Textarea = MagicMock(
             side_effect=lambda *args, **kwargs: create_widget_mock("Textarea")
         )
         mock.Password = MagicMock(
             side_effect=lambda *args, **kwargs: create_widget_mock("Password")
         )
-        mock.IntText = MagicMock(
-            side_effect=lambda **kwargs: create_widget_mock("IntText")
-        )
-        mock.FloatText = MagicMock(
-            side_effect=lambda **kwargs: create_widget_mock("FloatText")
-        )
+        mock.IntText = MagicMock(side_effect=lambda **kwargs: create_widget_mock("IntText"))
+        mock.FloatText = MagicMock(side_effect=lambda **kwargs: create_widget_mock("FloatText"))
         mock.Dropdown = MagicMock(
             side_effect=lambda *args, **kwargs: create_widget_mock("Dropdown")
         )
@@ -621,42 +633,23 @@ def mock_widgets():
         mock.FloatProgress = MagicMock(
             side_effect=lambda *args, **kwargs: create_widget_mock("FloatProgress")
         )
-        mock.Tab = MagicMock(
-            side_effect=lambda *args, **kwargs: create_widget_mock("Tab")
-        )
+        mock.Tab = MagicMock(side_effect=lambda *args, **kwargs: create_widget_mock("Tab"))
         mock.Accordion = MagicMock(
             side_effect=lambda *args, **kwargs: create_widget_mock("Accordion")
         )
-        mock.Output = MagicMock(
-            side_effect=lambda *args, **kwargs: create_widget_mock("Output")
-        )
-        mock.HTML = MagicMock(
-            side_effect=lambda *args, **kwargs: create_widget_mock("HTML")
-        )
-        mock.HBox = MagicMock(
-            side_effect=lambda *args, **kwargs: create_widget_mock("HBox")
-        )
-        mock.VBox = MagicMock(
-            side_effect=lambda *args, **kwargs: create_widget_mock("VBox")
-        )
-        mock.Box = MagicMock(
-            side_effect=lambda *args, **kwargs: create_widget_mock("Box")
-        )
-        mock.Label = MagicMock(
-            side_effect=lambda *args, **kwargs: create_widget_mock("Label")
-        )
+        mock.Output = MagicMock(side_effect=lambda *args, **kwargs: create_widget_mock("Output"))
+        mock.HTML = MagicMock(side_effect=lambda *args, **kwargs: create_widget_mock("HTML"))
+        mock.HBox = MagicMock(side_effect=lambda *args, **kwargs: create_widget_mock("HBox"))
+        mock.VBox = MagicMock(side_effect=lambda *args, **kwargs: create_widget_mock("VBox"))
+        mock.Box = MagicMock(side_effect=lambda *args, **kwargs: create_widget_mock("Box"))
+        mock.Label = MagicMock(side_effect=lambda *args, **kwargs: create_widget_mock("Label"))
         mock.Layout = MagicMock(side_effect=lambda *args, **kwargs: MagicMock())
         yield mock
 
 
 @pytest.fixture
-def gui(mock_modules, mock_schemes, mock_content, mock_popup_logger):
-    gui = GUI(mock_modules, mock_schemes, mock_content, mock_popup_logger)
-    return gui
-
-
-@pytest.fixture
 def mock_content():
+    """Mock content container (widgets.Box) used by GUI."""
     content = Mock(spec=widgets.Box)
     content.children = []
     content.layout = Mock()
@@ -665,6 +658,7 @@ def mock_content():
 
 @pytest.fixture
 def mock_popup_logger():
+    """Mock PopupLogger with toggle button and popup panel."""
     logger = Mock()
 
     logger.toggle_button = Mock(spec=widgets.Button)
@@ -687,7 +681,7 @@ def mock_popup_logger():
 
     logger.popup_panel = Mock(spec=widgets.Box)
     logger.popup_panel._dom_classes = []
-    logger.popup_panel.model_id = "mock_panel_id_123"  # Füge model_id hinzu
+    logger.popup_panel.model_id = "mock_panel_id_123"
     logger.popup_panel.children = []
     logger.popup_panel.add_class = Mock(
         side_effect=lambda x: logger.popup_panel._dom_classes.append(x)
@@ -703,8 +697,21 @@ def mock_popup_logger():
     return logger
 
 
+# =============================================================================
+# GUI & Navigator fixtures
+# =============================================================================
+
+
+@pytest.fixture
+def gui(mock_modules, mock_schemes, mock_content, mock_popup_logger):
+    """Real GUI instance with mocked dependencies."""
+    gui = GUI(mock_modules, mock_schemes, mock_content, mock_popup_logger)
+    return gui
+
+
 @pytest.fixture
 def mock_gui():
+    """Mock GUI for testing components that depend on it."""
     gui = Mock()
     gui.update_content_holder = Mock()
     gui.set_info_field_state = Mock()
@@ -718,6 +725,7 @@ def mock_gui():
 
 @pytest.fixture
 def mock_navigator():
+    """Fully mocked Navigator with all common methods stubbed."""
     navigator = Mock()
     navigator.set_info_field_state = Mock()
     navigator.clear_hover_text = Mock()
@@ -747,16 +755,12 @@ def mock_navigator():
 
 @pytest.fixture
 def navigator(mock_gui, mock_scheme, mock_modules):
-    """Create a real Navigator instance with mocked dependencies for testing."""
+    """Real Navigator instance with mocked page classes (for integration-style tests)."""
     with patch("src.ui.elements.navigator.widgets.Button") as mock_button:
         with patch("src.ui.elements.navigator.widgets.HBox") as mock_hbox:
             with patch("src.ui.elements.navigator.widgets.HTML") as mock_html:
-                with patch(
-                    "src.ui.elements.navigator.get_navigator_styles"
-                ) as mock_styles:
-                    with patch(
-                        "src.ui.elements.navigator.AboutPage"
-                    ) as mock_about_page:
+                with patch("src.ui.elements.navigator.get_navigator_styles") as mock_styles:
+                    with patch("src.ui.elements.navigator.AboutPage") as mock_about_page:
                         with patch(
                             "src.ui.elements.navigator.DirectorySelectionPage"
                         ) as mock_dir_page:
@@ -767,9 +771,7 @@ def navigator(mock_gui, mock_scheme, mock_modules):
                                     "src.ui.elements.navigator.ModuleSelectionPage"
                                 ) as mock_module_page:
                                     mock_about_instance = Mock()
-                                    mock_about_instance.get_ui = Mock(
-                                        return_value=Mock()
-                                    )
+                                    mock_about_instance.get_ui = Mock(return_value=Mock())
                                     mock_about_page.return_value = mock_about_instance
 
                                     mock_dir_instance = Mock()
@@ -778,23 +780,15 @@ def navigator(mock_gui, mock_scheme, mock_modules):
                                     mock_dir_page.return_value = mock_dir_instance
 
                                     mock_dataset_instance = Mock()
-                                    mock_dataset_instance.get_ui = Mock(
-                                        return_value=Mock()
-                                    )
-                                    mock_dataset_instance.reset_keep_dataset_selections = (
-                                        Mock()
-                                    )
+                                    mock_dataset_instance.get_ui = Mock(return_value=Mock())
+                                    mock_dataset_instance.reset_keep_dataset_selections = Mock()
                                     mock_dataset_instance.get_selected_datasets = Mock(
                                         return_value=[]
                                     )
-                                    mock_dataset_page.return_value = (
-                                        mock_dataset_instance
-                                    )
+                                    mock_dataset_page.return_value = mock_dataset_instance
 
                                     mock_module_instance = Mock()
-                                    mock_module_instance.get_ui = Mock(
-                                        return_value=Mock()
-                                    )
+                                    mock_module_instance.get_ui = Mock(return_value=Mock())
                                     mock_module_page.return_value = mock_module_instance
 
                                     mock_back_button = Mock()
@@ -802,14 +796,9 @@ def navigator(mock_gui, mock_scheme, mock_modules):
                                     mock_forward_button = Mock()
                                     mock_forward_button.disabled = False
 
-                                    button_instances = [
-                                        mock_back_button,
-                                        mock_forward_button,
-                                    ]
+                                    button_instances = [mock_back_button, mock_forward_button]
                                     mock_button.side_effect = lambda *args, **kwargs: (
-                                        button_instances.pop(0)
-                                        if button_instances
-                                        else Mock()
+                                        button_instances.pop(0) if button_instances else Mock()
                                     )
 
                                     mock_container = Mock()
@@ -818,9 +807,7 @@ def navigator(mock_gui, mock_scheme, mock_modules):
 
                                     from src.ui.elements.navigator import Navigator
 
-                                    navigator = Navigator(
-                                        mock_gui, mock_scheme, mock_modules
-                                    )
+                                    navigator = Navigator(mock_gui, mock_scheme, mock_modules)
 
                                     navigator.update_breadcrumb = Mock()
                                     navigator.update_navigation_state = Mock()
@@ -841,6 +828,7 @@ def navigator(mock_gui, mock_scheme, mock_modules):
 
 @pytest.fixture
 def header(mock_gui, mock_schemes):
+    """Real Header instance."""
     with patch.object(Header, "update_ui_element"):
         header = Header(mock_gui, mock_schemes)
         return header
@@ -848,16 +836,21 @@ def header(mock_gui, mock_schemes):
 
 @pytest.fixture
 def popup_logger(mock_scheme):
+    """Real PopupLogger instance."""
     with patch("src.ui.elements.popup_log_system.widgets"):
         with patch("src.ui.elements.popup_log_system.get_popup_logger_styles"):
-            logger = PopupLogger(
-                scheme=mock_scheme, max_messages=100, min_log_level=logging.INFO
-            )
+            logger = PopupLogger(scheme=mock_scheme, max_messages=100, min_log_level=logging.INFO)
             return logger
+
+
+# =============================================================================
+# Page fixtures
+# =============================================================================
 
 
 @pytest.fixture
 def about_page():
+    """Real AboutPage instance."""
     with patch("src.ui.pages.about_page.hex_to_rgba") as mock_hex_to_rgba:
         mock_hex_to_rgba.return_value = "rgba(230, 243, 255, 0.8)"
         page = AboutPage()
@@ -887,8 +880,14 @@ def dataset_selection_page(mock_navigator):
     return DatasetSelectionPage(navigator=mock_navigator)
 
 
+# =============================================================================
+# Project / Dataset helpers
+# =============================================================================
+
+
 @pytest.fixture
 def mock_project():
+    """Simple project mock."""
     project = Mock()
     project.name = "Test Project"
     project.description = "Test project description"
@@ -898,6 +897,7 @@ def mock_project():
 
 @pytest.fixture
 def mock_dataset():
+    """Simple dataset mock."""
     dataset = Mock()
     dataset.id = "test_dataset_001"
     dataset.name = "Test Dataset"
@@ -909,6 +909,7 @@ def mock_dataset():
 
 @pytest.fixture
 def mock_modules():
+    """Three representative modules for module selection tests."""
     module1 = Mock()
     module1.module_name = "Module 1"
     module1.module_version = "1.0.0"
@@ -938,6 +939,7 @@ def mock_modules():
 
 @pytest.fixture
 def mock_adapter():
+    """Basic adapter mock."""
     adapter = Mock()
     adapter.path = "/test/path"
     adapter.datasets = []
@@ -946,70 +948,8 @@ def mock_adapter():
 
 
 @pytest.fixture
-def sample_hex_colors():
-    return {
-        "red": "#FF0000",
-        "green": "#00FF00",
-        "blue": "#0000FF",
-        "white": "#FFFFFF",
-        "black": "#000000",
-        "gray": "#808080",
-    }
-
-
-@pytest.fixture
-def sample_rgb_colors():
-    return {
-        "red": (255, 0, 0),
-        "green": (0, 255, 0),
-        "blue": (0, 0, 255),
-        "white": (255, 255, 255),
-        "black": (0, 0, 0),
-        "gray": (128, 128, 128),
-    }
-
-
-@pytest.fixture
-def temp_scheme_dir(tmp_path):
-    scheme_dir = tmp_path / "schemes"
-    scheme_dir.mkdir()
-    return scheme_dir
-
-
-@pytest.fixture
-def mock_page():
-    page = Mock()
-    page.navigator = Mock()
-    page.navigator.current_scheme = Mock()
-    page.navigator.current_scheme.LAYOUT_COLOR = Mock()
-    page.navigator.current_scheme.LAYOUT_COLOR.WIDGET = Mock()
-    page.navigator.current_scheme.LAYOUT_COLOR.WIDGET.ACCORDION = Mock()
-    page.navigator.current_scheme.LAYOUT_COLOR.WIDGET.ACCORDION.LINES = "#CCCCCC"
-    page.handle_dataset_selection_changed = Mock()
-    return page
-
-
-@pytest.fixture
 def mock_project_with_datasets():
-    project = Mock()
-    project.name = "Test Project"
-    project.description = "Test Description"
-
-    # Create mock datasets
-    dataset1 = Mock()
-    dataset1.image_creation_date = datetime(2023, 1, 1)
-    dataset1.measure_date = datetime(2023, 1, 2)
-
-    dataset2 = Mock()
-    dataset2.image_creation_date = datetime(2023, 2, 1)
-    dataset2.measure_date = datetime(2023, 2, 2)
-
-    project.datasets = [dataset1, dataset2]
-    return project
-
-
-@pytest.fixture
-def mock_project_with_datasets():
+    """Project with 5 realistic datasets – used by ProjectCard and DatasetSelectionPage tests."""
     project = Mock()
     project.name = "Test Project"
     project.description = "Test project for widget integration"
@@ -1039,8 +979,27 @@ def project_card(mock_page, mock_project_with_datasets):
 
 
 @pytest.fixture
+def mock_page():
+    """Minimal page mock required by ProjectCard."""
+    page = Mock()
+    page.navigator = Mock()
+    page.navigator.current_scheme = Mock()
+    page.navigator.current_scheme.LAYOUT_COLOR = Mock()
+    page.navigator.current_scheme.LAYOUT_COLOR.WIDGET = Mock()
+    page.navigator.current_scheme.LAYOUT_COLOR.WIDGET.ACCORDION = Mock()
+    page.navigator.current_scheme.LAYOUT_COLOR.WIDGET.ACCORDION.LINES = "#CCCCCC"
+    page.handle_dataset_selection_changed = Mock()
+    return page
+
+
+# =============================================================================
+# Complex / integration data fixtures
+# =============================================================================
+
+
+@pytest.fixture
 def mock_adapter_complex_data():
-    """Create a mock adapter with complex, realistic data structure."""
+    """Adapter with 10 datasets split into two projects – useful for pagination / filtering tests."""
     adapter = Mock()
 
     datasets = []
@@ -1077,6 +1036,81 @@ def mock_adapter_complex_data():
 
 
 @pytest.fixture
+def mock_adapter_with_data():
+    """Small adapter with two datasets in one project."""
+    adapter = Mock()
+
+    dataset1 = Mock()
+    dataset1.id = "dataset_001"
+    dataset1.name = "Test Dataset 1"
+    dataset1.image_creation_date = datetime(2023, 1, 15, 10, 0, 0)
+    dataset1.measure_date = datetime(2023, 1, 16, 14, 30, 0)
+    dataset1.tags = ["tag1", "tag2"]
+    dataset1.suplex_tags = ["suplex_tag1", "suplex_tag2"]
+    dataset1.metadata = Mock()
+    dataset1.metadata.name = "Test Dataset 1"
+    dataset1.metadata.pat_id = "PAT_001"
+
+    dataset2 = Mock()
+    dataset2.id = "dataset_002"
+    dataset2.name = "Test Dataset 2"
+    dataset2.image_creation_date = datetime(2023, 1, 17, 10, 0, 0)
+    dataset2.measure_date = datetime(2023, 1, 18, 14, 30, 0)
+    dataset2.tags = ["tag2", "tag3"]
+    dataset2.suplex_tags = ["suplex_tag2", "suplex_tag3"]
+    dataset2.metadata = Mock()
+    dataset2.metadata.name = "Test Dataset 2"
+    dataset2.metadata.pat_id = "PAT_002"
+
+    project = Mock()
+    project.name = "Test Project"
+    project.description = "Test project description"
+    project.datasets = [dataset1, dataset2]
+
+    adapter.datasets = [dataset1, dataset2]
+    adapter.projects = [project]
+    adapter.path = "/test/path"
+
+    return adapter
+
+
+@pytest.fixture
+def sample_hex_colors():
+    return {
+        "red": "#FF0000",
+        "green": "#00FF00",
+        "blue": "#0000FF",
+        "white": "#FFFFFF",
+        "black": "#000000",
+        "gray": "#808080",
+    }
+
+
+@pytest.fixture
+def sample_rgb_colors():
+    return {
+        "red": (255, 0, 0),
+        "green": (0, 255, 0),
+        "blue": (0, 0, 255),
+        "white": (255, 255, 255),
+        "black": (0, 0, 0),
+        "gray": (128, 128, 128),
+    }
+
+
+@pytest.fixture
+def temp_scheme_dir(tmp_path):
+    scheme_dir = tmp_path / "schemes"
+    scheme_dir.mkdir()
+    return scheme_dir
+
+
+# =============================================================================
+# Integrated GUI fixtures (for higher-level tests)
+# =============================================================================
+
+
+@pytest.fixture
 def integrated_gui_with_data(mock_modules, mock_schemes, mock_popup_logger):
     content = Mock()
     content.children = []
@@ -1086,11 +1120,7 @@ def integrated_gui_with_data(mock_modules, mock_schemes, mock_popup_logger):
 
     with patch.object(gui, "build_gui"):
         mock_navigator = Mock()
-
-        def get_adapter(self):
-            return getattr(self, "_adapter", None)
-
-        type(mock_navigator).adapter = property(get_adapter)
+        type(mock_navigator).adapter = property(lambda self: getattr(self, "_adapter", None))
         mock_navigator._adapter = None
         mock_navigator.current_scheme = mock_schemes["Default"]
         mock_navigator.set_info_field_state = Mock()
@@ -1141,6 +1171,7 @@ def gui_with_logging(mock_modules, mock_schemes, integrated_logging_setup):
 
 @pytest.fixture
 def integrated_gui(mock_modules, mock_schemes, mock_popup_logger):
+    """Fully built GUI (used in integration tests)."""
     content = Mock(spec=widgets.Box)
     content.children = []
     content.layout = Mock()
@@ -1152,41 +1183,3 @@ def integrated_gui(mock_modules, mock_schemes, mock_popup_logger):
                 gui.build_gui()
 
     return gui
-
-
-@pytest.fixture
-def mock_adapter_with_data():
-    adapter = Mock()
-
-    dataset1 = Mock()
-    dataset1.id = "dataset_001"
-    dataset1.name = "Test Dataset 1"
-    dataset1.image_creation_date = datetime(2023, 1, 15, 10, 0, 0)
-    dataset1.measure_date = datetime(2023, 1, 16, 14, 30, 0)
-    dataset1.tags = ["tag1", "tag2"]
-    dataset1.suplex_tags = ["suplex_tag1", "suplex_tag2"]
-    dataset1.metadata = Mock()
-    dataset1.metadata.name = "Test Dataset 1"
-    dataset1.metadata.pat_id = "PAT_001"
-
-    dataset2 = Mock()
-    dataset2.id = "dataset_002"
-    dataset2.name = "Test Dataset 2"
-    dataset2.image_creation_date = datetime(2023, 1, 17, 10, 0, 0)
-    dataset2.measure_date = datetime(2023, 1, 18, 14, 30, 0)
-    dataset2.tags = ["tag2", "tag3"]
-    dataset2.suplex_tags = ["suplex_tag2", "suplex_tag3"]
-    dataset2.metadata = Mock()
-    dataset2.metadata.name = "Test Dataset 2"
-    dataset2.metadata.pat_id = "PAT_002"
-
-    project = Mock()
-    project.name = "Test Project"
-    project.description = "Test project description"
-    project.datasets = [dataset1, dataset2]
-
-    adapter.datasets = [dataset1, dataset2]
-    adapter.projects = [project]
-    adapter.path = "/test/path"
-
-    return adapter
