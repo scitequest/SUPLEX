@@ -55,9 +55,7 @@ def sort_datasets(
 
     try:
         paired_data = list(zip(datasets, reference_list))
-        sorted_pairs = sorted(
-            paired_data, key=lambda pair: pair[1], reverse=invert_order
-        )
+        sorted_pairs = sorted(paired_data, key=lambda pair: pair[1], reverse=invert_order)
 
         sorted_datasets = [pair[0] for pair in sorted_pairs]
         sorted_reference = [pair[1] for pair in sorted_pairs]
@@ -92,9 +90,7 @@ def sort_by_avg_value(
         avg = np.nanmean(ref_list) if ref_list else 0
         reference_list.append(avg)
 
-    sorted_datasets, sorted_reference = sort_datasets(
-        datasets, reference_list, invert_order
-    )
+    sorted_datasets, sorted_reference = sort_datasets(datasets, reference_list, invert_order)
     return sorted_datasets, sorted_reference
 
 
@@ -120,9 +116,7 @@ def sort_by_cumulative_value(
         cum = np.nansum(ref_list) if ref_list else 0
         reference_list.append(cum)
 
-    sorted_datasets, sorted_reference = sort_datasets(
-        datasets, reference_list, invert_order
-    )
+    sorted_datasets, sorted_reference = sort_datasets(datasets, reference_list, invert_order)
     return sorted_datasets, sorted_reference
 
 
@@ -148,9 +142,7 @@ def sort_by_max_value(
         max_val = np.nanmax(ref_list) if ref_list else 0
         reference_list.append(max_val)
 
-    sorted_datasets, sorted_reference = sort_datasets(
-        datasets, reference_list, invert_order
-    )
+    sorted_datasets, sorted_reference = sort_datasets(datasets, reference_list, invert_order)
     return sorted_datasets, sorted_reference
 
 
@@ -176,9 +168,7 @@ def sort_by_min_value(
         min_val = np.nanmin(ref_list) if ref_list else 0
         reference_list.append(min_val)
 
-    sorted_datasets, sorted_reference = sort_datasets(
-        datasets, reference_list, invert_order
-    )
+    sorted_datasets, sorted_reference = sort_datasets(datasets, reference_list, invert_order)
     return sorted_datasets, sorted_reference
 
 
@@ -204,9 +194,7 @@ def sort_by_median_value(
         median = np.nanmedian(ref_list) if ref_list else 0
         reference_list.append(median)
 
-    sorted_datasets, sorted_reference = sort_datasets(
-        datasets, reference_list, invert_order
-    )
+    sorted_datasets, sorted_reference = sort_datasets(datasets, reference_list, invert_order)
     return sorted_datasets, sorted_reference
 
 
@@ -232,9 +220,7 @@ def sort_by_number_of_values(
         num = len(ref_list)
         reference_list.append(num)
 
-    sorted_datasets, sorted_reference = sort_datasets(
-        datasets, reference_list, invert_order
-    )
+    sorted_datasets, sorted_reference = sort_datasets(datasets, reference_list, invert_order)
     return sorted_datasets, sorted_reference
 
 
@@ -287,11 +273,7 @@ def sort_alphanumerically(
         ]
     elif descriptor == DATASET_DESCRIPTOR.MEASURE_DATE:
         reference_list = [
-            (
-                dataset.measure_date.isoformat()
-                if dataset.measure_date
-                else "0000-00-00T00:00:00"
-            )
+            (dataset.measure_date.isoformat() if dataset.measure_date else "0000-00-00T00:00:00")
             for dataset in datasets
         ]
     elif descriptor == DATASET_DESCRIPTOR.IMAGE_CREATION_DATE:
@@ -311,9 +293,7 @@ def sort_alphanumerically(
         return datasets.copy(), []
 
     # Have to invert order to sort from A-Z and earliest to latest.
-    sorted_datasets, sorted_reference = sort_datasets(
-        datasets, reference_list, invert_order
-    )
+    sorted_datasets, sorted_reference = sort_datasets(datasets, reference_list, invert_order)
 
     return sorted_datasets, sorted_reference
 
@@ -334,9 +314,7 @@ def sort_by_has_tag(
         Tuple containing sorted list of datasets and sorted reference list of booleans
     """
     logger.debug("Sorting by has_tag '%s', invert_order: %s", tag, invert_order)
-    reference_list = [
-        tag in (dataset.tags + dataset.suplex_tags) for dataset in datasets
-    ]
+    reference_list = [tag in (dataset.tags + dataset.suplex_tags) for dataset in datasets]
 
     sorted_datasets, sorted_reference = sort_datasets(
         datasets, reference_list, invert_order=invert_order
@@ -412,15 +390,11 @@ class SortStep:
 
         attributes = allowed_attributes or list(DATASET_ATTRIBUTE)
         attribute_options = (
-            [attr.value for attr in attributes]
-            if attributes
-            else ["No Attributes Enabled"]
+            [attr.value for attr in attributes] if attributes else ["No Attributes Enabled"]
         )
         self._value_extractor = ValueExtractor(attributes=allowed_attributes)
         self._attribute_dropdown = self._value_extractor.get_attribute_widget()
-        self._attribute_dropdown.layout = widgets.Layout(
-            margin="0px 5px 0px 0px", padding="0px"
-        )
+        self._attribute_dropdown.layout = widgets.Layout(margin="0px 5px 0px 0px", padding="0px")
 
         self._tags = tags or []
         tag_options = self._tags if self._tags else ["No Tags Available"]
@@ -472,9 +446,7 @@ class SortStep:
         logger.debug("Retrieving UI for SortStep")
         return WidgetFactory.vbox(
             children=[self._step_label, self._ui_box],
-            layout=widgets.Layout(
-                margin="0px", padding=OPTION_INSET.PRIMARY, gap="5px"
-            ),
+            layout=widgets.Layout(margin="0px", padding=OPTION_INSET.PRIMARY, gap="5px"),
         )
 
     def get_sorted_datasets(self, datasets: List[Dataset]) -> List[Dataset]:
@@ -550,13 +522,9 @@ class SortStep:
         elif sort_method == SORT_METHOD.MIN_VALUE_SORT:
             sorted_datasets, _ = sort_by_min_value(datasets, reference_lists, invert)
         elif sort_method == SORT_METHOD.CUMULATIVE_VALUE_SORT:
-            sorted_datasets, _ = sort_by_cumulative_value(
-                datasets, reference_lists, invert
-            )
+            sorted_datasets, _ = sort_by_cumulative_value(datasets, reference_lists, invert)
         elif sort_method == SORT_METHOD.NUMBER_OF_VALUES_SORT:
-            sorted_datasets, _ = sort_by_number_of_values(
-                datasets, reference_lists, invert
-            )
+            sorted_datasets, _ = sort_by_number_of_values(datasets, reference_lists, invert)
         else:
             logger.warning("Unsupported sort method: %s", sort_method)
             return datasets.copy()
@@ -646,9 +614,7 @@ class DatasetSorter:
             sections.append(sorting_widgets)
 
         if not sections:
-            sections.append(
-                WidgetFactory.html_widget(value="No sorting settings configured")
-            )
+            sections.append(WidgetFactory.html_widget(value="No sorting settings configured"))
 
         self._ui_container = WidgetFactory.vbox(
             children=sections,
@@ -681,9 +647,7 @@ class DatasetSorter:
             min_value=1,
             max_value=self._max_num_levels,
             step=1,
-            on_change=lambda b: self.update_sorting_steps(
-                n_steps=n_levels_widget.value
-            ),
+            on_change=lambda b: self.update_sorting_steps(n_steps=n_levels_widget.value),
             layout=widgets.Layout(margin="0px", padding="0px"),
         )
         n_levels_widget_box = WidgetFactory.vbox(
@@ -707,9 +671,7 @@ class DatasetSorter:
             children=[n_sorting_steps_box, self._sort_steps_box],
             width="100%",
             height="auto",
-            layout=widgets.Layout(
-                margin="0px", padding=OPTION_INSET.BASELINE, gap="5px"
-            ),
+            layout=widgets.Layout(margin="0px", padding=OPTION_INSET.BASELINE, gap="5px"),
         )
         logger.debug("Sorting section created")
         return sorting_section
@@ -732,9 +694,7 @@ class DatasetSorter:
                 tags=self._tags,
             )
             self._sorting_steps.append(new_step)
-        self._sort_steps_box.children = [
-            step.get_ui() for step in self._sorting_steps[:n_steps]
-        ]
+        self._sort_steps_box.children = [step.get_ui() for step in self._sorting_steps[:n_steps]]
         self._num_levels = n_steps
         logger.debug("Sorting steps updated to %d", n_steps)
 

@@ -1,5 +1,5 @@
 """
-This submodule contains functions for sample and spot-level filtering as well as a SampleSpotFilter 
+This submodule contains functions for sample and spot-level filtering as well as a SampleSpotFilter
 class which enables storage and provides filtering widgets for hierarchical threshold-based filtering.
 """
 
@@ -68,16 +68,12 @@ def get_sample_threshold_map(
     )
 
     for i, dataset in enumerate(datasets):
-        value_list = extract_value_list_from_dataset(
-            dataset=dataset, attribute=attribute
-        )
+        value_list = extract_value_list_from_dataset(dataset=dataset, attribute=attribute)
         samples_map = []
 
         for stat_value in value_list:
             comp_val = stat_value / normalization_factors[i]
-            sample_state = THRESHOLD_FILTER_STATE.evaluate(
-                comp_val, min_threshold, max_threshold
-            )
+            sample_state = THRESHOLD_FILTER_STATE.evaluate(comp_val, min_threshold, max_threshold)
             samples_map.append(sample_state)
 
         threshold_map[dataset] = samples_map
@@ -232,9 +228,7 @@ def get_spot_data_threshold_map(
     threshold_map = {}
 
     for i, dataset in enumerate(datasets):
-        value_list = extract_value_list_from_dataset(
-            dataset=dataset, attribute=attribute
-        )
+        value_list = extract_value_list_from_dataset(dataset=dataset, attribute=attribute)
         samples_map = []
 
         for sample in value_list:
@@ -247,9 +241,7 @@ def get_spot_data_threshold_map(
 
         threshold_map[dataset] = samples_map
 
-    logger.debug(
-        f"Generated spot data threshold map with {len(threshold_map)} datasets"
-    )
+    logger.debug(f"Generated spot data threshold map with {len(threshold_map)} datasets")
     return threshold_map
 
 
@@ -280,9 +272,7 @@ def get_spot_coords_threshold_map(
     threshold_map = {}
 
     for i, dataset in enumerate(datasets):
-        value_list = extract_value_list_from_dataset(
-            dataset=dataset, attribute=attribute
-        )
+        value_list = extract_value_list_from_dataset(dataset=dataset, attribute=attribute)
         samples_map = []
 
         for sample in value_list:
@@ -304,9 +294,7 @@ def get_spot_coords_threshold_map(
 
         threshold_map[dataset] = samples_map
 
-    logger.debug(
-        f"Generated spot coords threshold map with {len(threshold_map)} datasets"
-    )
+    logger.debug(f"Generated spot coords threshold map with {len(threshold_map)} datasets")
     return threshold_map
 
 
@@ -325,9 +313,7 @@ def aggregate_filter_states_any(
         THRESHOLD_FILTER_STATE: Aggregated filter state.
     """
     if not threshold_states:
-        logger.warning(
-            f"ANY: Aggregation list contains no elements. Defaults to WITHIN_RANGE."
-        )
+        logger.warning(f"ANY: Aggregation list contains no elements. Defaults to WITHIN_RANGE.")
         return THRESHOLD_FILTER_STATE.WITHIN_RANGE
 
     if THRESHOLD_FILTER_STATE.WITHIN_RANGE in threshold_states:
@@ -366,18 +352,14 @@ def aggregate_filter_states_all(
         THRESHOLD_FILTER_STATE: Aggregated filter state.
     """
     if not threshold_states:
-        logger.warning(
-            f"ANY: Aggregation list contains no elements. Defaults to WITHIN_RANGE."
-        )
+        logger.warning(f"ANY: Aggregation list contains no elements. Defaults to WITHIN_RANGE.")
         return THRESHOLD_FILTER_STATE.WITHIN_RANGE
 
     below = THRESHOLD_FILTER_STATE.BELOW_RANGE in threshold_states
     above = THRESHOLD_FILTER_STATE.ABOVE_RANGE in threshold_states
     outside = THRESHOLD_FILTER_STATE.OUTSIDE_RANGE in threshold_states
 
-    if THRESHOLD_FILTER_STATE.WITHIN_RANGE in threshold_states and not (
-        below or above or outside
-    ):
+    if THRESHOLD_FILTER_STATE.WITHIN_RANGE in threshold_states and not (below or above or outside):
         return THRESHOLD_FILTER_STATE.WITHIN_RANGE
 
     if below and above:
@@ -665,12 +647,8 @@ class SampleSpotFilter:
         self,
         datasets: List[Dataset],
         attribute: DATASET_ATTRIBUTE,
-        sample_threshold_map: Optional[
-            Dict[Dataset, List[THRESHOLD_FILTER_STATE]]
-        ] = None,
-        spot_threshold_map: Optional[
-            Dict[Dataset, List[List[THRESHOLD_FILTER_STATE]]]
-        ] = None,
+        sample_threshold_map: Optional[Dict[Dataset, List[THRESHOLD_FILTER_STATE]]] = None,
+        spot_threshold_map: Optional[Dict[Dataset, List[List[THRESHOLD_FILTER_STATE]]]] = None,
         below_replacement_value: Optional[float] = None,
         above_replacement_value: Optional[float] = None,
         outside_replacement_value: Optional[float] = None,
@@ -701,9 +679,7 @@ class SampleSpotFilter:
             sample_threshold_map = sample_threshold_map or self.get_default_sample_map(
                 datasets=datasets
             )
-            spot_threshold_map = spot_threshold_map or self.get_default_spot_map(
-                datasets=datasets
-            )
+            spot_threshold_map = spot_threshold_map or self.get_default_spot_map(datasets=datasets)
             if outside_replacement_value is None:
                 # By default we use the below value for unspecific replacements if its available else we use above_replacement_value
                 outside_replacement_value = (
@@ -759,11 +735,7 @@ class SampleSpotFilter:
                                     DATASET_ATTRIBUTE.SPOT_COORDINATES_Y,
                                 ]:
                                     # Use average X/Y Coordinate to flatten list
-                                    avg_value = (
-                                        np.nanmean(spot_values)
-                                        if spot_values
-                                        else np.nan
-                                    )
+                                    avg_value = np.nanmean(spot_values) if spot_values else np.nan
                                     dataset_values.append(avg_value)
                                 else:
                                     dataset_values.append(spot_values)
@@ -840,9 +812,7 @@ class SampleSpotFilter:
                 self._sample_filter_mode_dropdown,
                 propagation_mode_label_suffix,
             ],
-            layout=widgets.Layout(
-                padding=OPTION_INSET.PRIMARY, justify_content="flex-start"
-            ),
+            layout=widgets.Layout(padding=OPTION_INSET.PRIMARY, justify_content="flex-start"),
             gap="5px",
         )
 
@@ -912,22 +882,14 @@ class SampleSpotFilter:
                 DATASET_ATTRIBUTE.SPOT_COORDINATES_Y,
             ]:
                 value_list = extract_value_list_from_dataset(dataset, attribute)
-                avgs = [
-                    np.nanmean(spot) for sample in value_list for spot in sample if spot
-                ]
-                all_values_flat_normalized += [
-                    avg / normalization_factors[i] for avg in avgs
-                ]
+                avgs = [np.nanmean(spot) for sample in value_list for spot in sample if spot]
+                all_values_flat_normalized += [avg / normalization_factors[i] for avg in avgs]
             else:
-                all_values_flat_normalized += [
-                    value / normalization_factors[i] for value in values
-                ]
+                all_values_flat_normalized += [value / normalization_factors[i] for value in values]
 
         max_range = np.nanmax(all_values_flat_normalized)
         min_range = np.nanmin(all_values_flat_normalized)
-        step_size, decimals = calculate_step_size(
-            min_value=min_range, max_value=max_range
-        )
+        step_size, decimals = calculate_step_size(min_value=min_range, max_value=max_range)
 
         # Values are automatically clamped when changing min and max
         # If statement prevents trait error when min > max_range or max < min_range
@@ -1003,27 +965,17 @@ class SampleSpotFilter:
         normalization_method = normalization_method or self.normalization_method
         sample_filter_mode = sample_filter_mode or self.sample_filter_mode
 
-        min_threshold = (
-            min_threshold if min_threshold is not None else self.min_threshold
-        )
-        max_threshold = (
-            max_threshold if max_threshold is not None else self.max_threshold
-        )
+        min_threshold = min_threshold if min_threshold is not None else self.min_threshold
+        max_threshold = max_threshold if max_threshold is not None else self.max_threshold
 
         normalization_factor = (
-            normalization_factor
-            if normalization_factor is not None
-            else self.normalization_factor
+            normalization_factor if normalization_factor is not None else self.normalization_factor
         )
         sample_affects_spots = (
-            sample_affects_spots
-            if sample_affects_spots is not None
-            else self.sample_affects_spots
+            sample_affects_spots if sample_affects_spots is not None else self.sample_affects_spots
         )
         spots_affect_sample = (
-            spots_affect_sample
-            if spots_affect_sample is not None
-            else self.spots_affect_sample
+            spots_affect_sample if spots_affect_sample is not None else self.spots_affect_sample
         )
 
         if attribute in DATA_STATISTICS_ATTRIBUTES:
@@ -1060,18 +1012,12 @@ class SampleSpotFilter:
         if attribute in spot_attributes and spots_affect_sample:
             if sample_filter_mode == SELECTION_MODE.ANY:
                 sample_threshold_map = {
-                    dataset: [
-                        aggregate_filter_states_any(sample_spots)
-                        for sample_spots in samples
-                    ]
+                    dataset: [aggregate_filter_states_any(sample_spots) for sample_spots in samples]
                     for dataset, samples in spot_threshold_map.items()
                 }
             elif sample_filter_mode == SELECTION_MODE.ALL:
                 sample_threshold_map = {
-                    dataset: [
-                        aggregate_filter_states_all(sample_spots)
-                        for sample_spots in samples
-                    ]
+                    dataset: [aggregate_filter_states_all(sample_spots) for sample_spots in samples]
                     for dataset, samples in spot_threshold_map.items()
                 }
 

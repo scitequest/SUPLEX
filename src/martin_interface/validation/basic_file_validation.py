@@ -135,9 +135,7 @@ def is_Key_Structure_Identical(
                 # Structure has to be the same as keymap
                 if not isinstance(file[key][0], dict):
                     return False
-                sub_is_identical = is_Key_Structure_Identical(
-                    file_path, file[key][0], content[0]
-                )
+                sub_is_identical = is_Key_Structure_Identical(file_path, file[key][0], content[0])
                 if not sub_is_identical:
                     return False
                 list_is_uniform = is_dict_list_uniform(file_path, file[key])
@@ -146,9 +144,7 @@ def is_Key_Structure_Identical(
         elif isinstance(content, dict):
             if not isinstance(file[key], dict):
                 return False
-            sub_is_identical = is_Key_Structure_Identical(
-                file_path, file[key], keymap[key]
-            )
+            sub_is_identical = is_Key_Structure_Identical(file_path, file[key], keymap[key])
             if not sub_is_identical:
                 return False
         else:

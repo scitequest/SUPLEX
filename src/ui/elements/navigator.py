@@ -158,9 +158,7 @@ class Navigator:
                 navigator=self, n_modules=len(self._modules)
             )
             self._dataset_selection_page = DatasetSelectionPage(navigator=self)
-            self._module_selection_page = ModuleSelectionPage(
-                navigator=self, modules=self._modules
-            )
+            self._module_selection_page = ModuleSelectionPage(navigator=self, modules=self._modules)
 
             self.navigate_to_dir_selection()
             logger.debug("Navigator pages initialized successfully")
@@ -213,9 +211,7 @@ class Navigator:
 
                 # Add separators between step buttons
                 if i < len(self._steps) - 1:
-                    separator = widgets.HTML(
-                        value="<div class='step-separator'>▶</div>"
-                    )
+                    separator = widgets.HTML(value="<div class='step-separator'>▶</div>")
                     breadcrumb_items.append(separator)
 
             self._breadcrumb_container = widgets.HBox(
@@ -310,9 +306,7 @@ class Navigator:
             self.update_navigation_state()
 
         except Exception as e:
-            logger.error(
-                "Failed to navigate to directory selection: %s", e, exc_info=True
-            )
+            logger.error("Failed to navigate to directory selection: %s", e, exc_info=True)
 
     def navigate_to_dataset_selection(self) -> None:
         """
@@ -349,9 +343,7 @@ class Navigator:
             self.update_navigation_state()
 
         except Exception as e:
-            logger.error(
-                "Failed to navigate to dataset selection: %s", e, exc_info=True
-            )
+            logger.error("Failed to navigate to dataset selection: %s", e, exc_info=True)
 
     def navigate_to_module_selection(self) -> None:
         """
@@ -365,9 +357,7 @@ class Navigator:
                 len(selected_datasets),
             )
 
-            self._gui.update_content_holder(
-                self._module_selection_page.get_ui(selected_datasets)
-            )
+            self._gui.update_content_holder(self._module_selection_page.get_ui(selected_datasets))
 
             self._current_step = PAGE.MODULE_SELECTION
             self._steps[0]["status"] = "completed"
@@ -388,9 +378,7 @@ class Navigator:
         """
         try:
             logger.debug("Navigating to module: %s", module.module_name)
-            self._current_module = (
-                module.reset_module()
-            )  # Always returns a fresh module instance
+            self._current_module = module.reset_module()  # Always returns a fresh module instance
             selected_datasets = self._dataset_selection_page.get_selected_datasets()
 
             module_ui = self._current_module.initiate_module(
@@ -419,15 +407,10 @@ class Navigator:
                 self._back_button.disabled = True
                 self._forward_button.disabled = False
             # Dir selection without a dir selected
-            elif (
-                self._current_step is PAGE.DIRECTORY_SELECTION and self._adapter is None
-            ):
+            elif self._current_step is PAGE.DIRECTORY_SELECTION and self._adapter is None:
                 self._back_button.disabled = False
                 self._forward_button.disabled = True
-            elif (
-                self._current_step is PAGE.MODULE_SELECTION
-                or self._current_step == PAGE.MODULE
-            ):
+            elif self._current_step is PAGE.MODULE_SELECTION or self._current_step == PAGE.MODULE:
                 self._back_button.disabled = False
                 self._forward_button.disabled = True
             else:
@@ -569,9 +552,7 @@ class Navigator:
 
             self.update_breadcrumb()
 
-            new_navigator = (
-                get_navigator_styles(self._scheme),
-            ) + self._nav_container.children[1:]
+            new_navigator = (get_navigator_styles(self._scheme),) + self._nav_container.children[1:]
             self._nav_container.children = new_navigator
 
             # Non-standard style updates.
@@ -579,10 +560,7 @@ class Navigator:
             # The following are only exceptions.
             if self._current_step == PAGE.ABOUT and self._about_page:
                 self._gui.update_content_holder(self._about_page.get_ui(self._scheme))
-            elif (
-                self._current_step == PAGE.DATASET_SELECTION
-                and self._dataset_selection_page
-            ):
+            elif self._current_step == PAGE.DATASET_SELECTION and self._dataset_selection_page:
                 self._dataset_selection_page.update_scheme(self._scheme)
             elif self._current_step == PAGE.MODULE and self._current_module:
                 self._current_module.update_scheme(self._scheme)
@@ -590,9 +568,7 @@ class Navigator:
             logger.debug("Navigator color scheme updated successfully")
 
         except Exception as e:
-            logger.error(
-                "Failed to update navigator color scheme: %s", e, exc_info=True
-            )
+            logger.error("Failed to update navigator color scheme: %s", e, exc_info=True)
 
     @property
     def adapter(self) -> Optional[Adapter]:

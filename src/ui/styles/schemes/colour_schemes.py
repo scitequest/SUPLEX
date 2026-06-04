@@ -508,16 +508,10 @@ class TEAL_SCHEME:
 
     class TEXT:
         class FONT:
-            MAIN_TITLE = (
-                "Source Sans Pro, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-            )
+            MAIN_TITLE = "Source Sans Pro, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             HEADER = "Source Sans Pro, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-            SUB_HEADER = (
-                "Source Sans Pro, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-            )
-            SUB_SUB_HEADER = (
-                "Source Sans Pro, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-            )
+            SUB_HEADER = "Source Sans Pro, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+            SUB_SUB_HEADER = "Source Sans Pro, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             DEFAULT = "Source Sans Pro, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             LABEL = "Source Sans Pro, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
 

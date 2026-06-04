@@ -47,9 +47,7 @@ class Adapter:
         file_dirs = set()
         if mode is SEARCH_MODE.RECURSIVE:
             logger.debug(f"Initiated recursive search of {path} for {readout_files}.")
-            delve_dirs(
-                path=path, target_files=readout_files, detected_file_dirs=file_dirs
-            )
+            delve_dirs(path=path, target_files=readout_files, detected_file_dirs=file_dirs)
         elif isinstance(mode, SEARCH_MODE):  # Ensure proper mode is selected.
             if mode is SEARCH_MODE.ITERATIVE_UNBOUND:
                 logger.debug(
@@ -80,9 +78,7 @@ class Adapter:
                 continue
             file_holder = self.validate_files(path_holder)
             if file_holder:
-                self.establish_project_structure(
-                    path_holder=path_holder, file_holder=file_holder
-                )
+                self.establish_project_structure(path_holder=path_holder, file_holder=file_holder)
 
     def scan_for_files(self, folder_path: str) -> PathHolder:
         """
@@ -198,9 +194,7 @@ class Adapter:
 
         return file_holder
 
-    def establish_project_structure(
-        self, path_holder: PathHolder, file_holder: FileHolder
-    ) -> None:
+    def establish_project_structure(self, path_holder: PathHolder, file_holder: FileHolder) -> None:
         """
         Given the presence of a data file, the following code instantiates datasets as objects of `Dataset` and links them bi-directionally to instances of `project`.
         Any new dataset or project is appended to the `datasets` or `projects` attribute of this class, respectively.
@@ -218,9 +212,7 @@ class Adapter:
 
         # The standard name for no project in MARTin is none.
         project_name = "none"
-        project_description = (
-            "Measurements which do not belong to any project in particular."
-        )
+        project_description = "Measurements which do not belong to any project in particular."
 
         # If there is no metadata file or no project field a measurement will automatically be listed as none.
         if file_holder.metadata_file is not None:
@@ -229,9 +221,7 @@ class Adapter:
                 # Incase for some reason we have an actual project dict where the name is "none".
                 # Under normal circumstances this should not happen.
                 if project_name != "none":
-                    project_description = file_holder.metadata_file["project"][
-                        "description"
-                    ]
+                    project_description = file_holder.metadata_file["project"]["description"]
 
         # Get a list of all project names, and return its reference if the project of the current measurement is already listed.
         existing_projects = [proj.name for proj in self._projects]
@@ -246,9 +236,7 @@ class Adapter:
             self._projects.append(project)
 
         # Establishes bi-directional relationship between datasets and their projects.
-        dataset = Dataset(
-            path_holder=path_holder, file_holder=file_holder, project=project
-        )
+        dataset = Dataset(path_holder=path_holder, file_holder=file_holder, project=project)
         project.add_dataset(dataset)
         self.datasets.append(dataset)
 

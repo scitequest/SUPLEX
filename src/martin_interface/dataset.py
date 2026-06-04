@@ -29,9 +29,7 @@ class Dataset:
         _suplex_file (Any): File used to store analyses and additional information added via `SUPLEX` modules.
     """
 
-    def __init__(
-        self, path_holder: PathHolder, file_holder: FileHolder, project: Project
-    ) -> None:
+    def __init__(self, path_holder: PathHolder, file_holder: FileHolder, project: Project) -> None:
         self._path_holder = path_holder
         self._file_holder = file_holder
         self._project = project
@@ -121,9 +119,7 @@ class Dataset:
             if spot["spot"] == 0:
                 data_statistics[spotfield_index]["row"] = spot["row"]
                 data_statistics[spotfield_index]["col"] = spot["col"]
-            data_statistics[spotfield_index]["mean_minus_min_values"].append(
-                spot["mean_minus_min"]
-            )
+            data_statistics[spotfield_index]["mean_minus_min_values"].append(spot["mean_minus_min"])
             data_statistics[spotfield_index]["normalized_mean_values"].append(
                 spot["normalized_mean"]
             )
@@ -135,9 +131,7 @@ class Dataset:
             # Calculating mean_minus_min_values
             adjusted_average = statistics.mean(mean_minus_min_values)
             adjusted_average_std_deviation = (
-                statistics.stdev(mean_minus_min_values)
-                if len(mean_minus_min_values) > 1
-                else 0
+                statistics.stdev(mean_minus_min_values) if len(mean_minus_min_values) > 1 else 0
             )
             relative_adjusted_average_std_deviation = (
                 (adjusted_average_std_deviation * 100 / adjusted_average)
@@ -150,9 +144,7 @@ class Dataset:
             # Calculating normalized_mean_values
             normalized_average = statistics.mean(normalized_mean_values)
             normalized_average_std_deviation = (
-                statistics.stdev(normalized_mean_values)
-                if len(normalized_mean_values) > 1
-                else 0
+                statistics.stdev(normalized_mean_values) if len(normalized_mean_values) > 1 else 0
             )
             relative_normalized_average_std_deviation = (
                 (normalized_average_std_deviation * 100 / normalized_average)
@@ -169,9 +161,7 @@ class Dataset:
                 relative_adjusted_average_std_deviation
             )
             d_stat["normalized_average"] = normalized_average
-            d_stat["normalized_average_std_deviation"] = (
-                normalized_average_std_deviation
-            )
+            d_stat["normalized_average_std_deviation"] = normalized_average_std_deviation
             d_stat["relative_normalized_average_std_deviation"] = (
                 relative_normalized_average_std_deviation
             )
@@ -206,8 +196,8 @@ class Dataset:
             # Last spot will always be of the highest i spotfield
             number_of_spotfields = data[-1]["spot"] + 1
             spots_per_spotfield = int(len(data) / number_of_spotfields)
-            columns_per_spotfield = max(spot["col"] for spot in data) +1        
-            
+            columns_per_spotfield = max(spot["col"] for spot in data) + 1
+
             parameters_file = {
                 "invert_lut": False,
                 "subtract_background": False,
@@ -254,7 +244,7 @@ class Dataset:
             "name": metadata_file["patient"]["name"],
             "tags": metadata_file["patient"]["tags"],
         }
-        
+
         if self._file_holder.data_statistics_file is None:
             patient["tags"].append("no_data_statistics_file")
         if self._file_holder.parameters_file is None:
@@ -290,7 +280,7 @@ class Dataset:
             Dict with default metadata values.
         """
         now = datetime.now().astimezone()
-        
+
         alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         ts = int(now.timestamp() * 1_000_000)
         timestamp_id = ""
@@ -304,34 +294,34 @@ class Dataset:
             "patient": {
                 "id": timestamp_id,
                 "name": "Invalid Metadata - " + timestamp_id,
-                "tags": ["default_metadata_file"]
+                "tags": ["default_metadata_file"],
             },
             "image": {
                 "created": now,
                 "imager": "unknown",
                 "pixel_binning": 1,
-                "exposure_time": timedelta()
+                "exposure_time": timedelta(),
             },
             "incubations": [],
             "project": {
                 "name": "none",
-                "description": "Measurements which do not belong to any project in particular."
-            }
+                "description": "Measurements which do not belong to any project in particular.",
+            },
         }
 
         # Write to file so that id stays consistent between different runs of the software.
         # We do not overwrite already existing, but invalid metadata files
         if self._path_holder.metadata_path == None:
             metadata_dict["patient"]["name"] = "Default Metadata - " + timestamp_id
-            
+
             root_path = self._path_holder.dataset_path
             try:
                 file_path = Path(root_path) / "metadata.json"
-                with open(file_path, "w", encoding = "utf-8") as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     json.dump(metadata_dict, f, indent=4)
             except Exception as e:
-                logger.error("Failed to store default metadata JSON: %s", e, exc_info=True)    
-        
+                logger.error("Failed to store default metadata JSON: %s", e, exc_info=True)
+
         return metadata_dict
 
     def get_name_label(self) -> str:

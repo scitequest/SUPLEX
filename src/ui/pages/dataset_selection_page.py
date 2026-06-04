@@ -70,9 +70,7 @@ class DatasetSelectionPage:
 
             adapter = self._navigator.adapter
             if adapter is None:
-                logger.error(
-                    "Cannot load dataset selection page - no adapter initialized"
-                )
+                logger.error("Cannot load dataset selection page - no adapter initialized")
                 return WidgetFactory.html_widget(
                     value="<div style='text-align: center; padding: 40px;'><h3>No adapter available</h3></div>",
                     width="100%",
@@ -108,15 +106,12 @@ class DatasetSelectionPage:
 
             # Sort project cards alphanumerically
             self._project_cards.sort(key=lambda x: x.title.lower())
-            
+
             # Create accordion using WidgetFactory
             accordion = WidgetFactory.accordion(
-                children=[
-                    project_card.get_ui_element()
-                    for project_card in self._project_cards
-                ],
+                children=[project_card.get_ui_element() for project_card in self._project_cards],
                 titles=[project_card.title for project_card in self._project_cards],
-                layout=widgets.Layout(width="100%", height="auto", padding="5px")
+                layout=widgets.Layout(width="100%", height="auto", padding="5px"),
             )
 
             # Set fixed height for accordion items when opened
@@ -140,9 +135,7 @@ class DatasetSelectionPage:
             return main_container
 
         except Exception as e:
-            logger.error(
-                "Failed to build dataset selection page UI: %s", e, exc_info=True
-            )
+            logger.error("Failed to build dataset selection page UI: %s", e, exc_info=True)
             return WidgetFactory.html_widget(
                 value="<div style='text-align: center; padding: 40px;'>Error loading dataset selection page</div>",
                 width="100%",
@@ -223,9 +216,7 @@ class DatasetSelectionPage:
             )
 
         except Exception as e:
-            logger.error(
-                "Error handling dataset selection change: %s", e, exc_info=True
-            )
+            logger.error("Error handling dataset selection change: %s", e, exc_info=True)
 
     def update_scheme(self, new_scheme: Any) -> None:
         """
@@ -253,9 +244,7 @@ class DatasetSelectionPage:
 
             for project_card in self._project_cards:
                 try:
-                    reset_card = project_card.reset_keep_dataset_selection(
-                        page=new_page
-                    )
+                    reset_card = project_card.reset_keep_dataset_selection(page=new_page)
                     project_cards.append(reset_card)
                 except Exception as e:
                     logger.error(
@@ -270,9 +259,7 @@ class DatasetSelectionPage:
             return new_page
 
         except Exception as e:
-            logger.error(
-                "Error during reset with preserved selections: %s", e, exc_info=True
-            )
+            logger.error("Error during reset with preserved selections: %s", e, exc_info=True)
             return DatasetSelectionPage(navigator=self._navigator)
 
     def reset(self) -> "DatasetSelectionPage":
@@ -394,7 +381,7 @@ class ProjectCard:
             number=2,
             description=["ID", "Name"],
             i_toggled=0,
-            layout = widgets.Layout(width="100%", height="30px", margin = "0")
+            layout=widgets.Layout(width="100%", height="30px", margin="0"),
         )
 
         # Add click handlers for ID/Name buttons
@@ -422,7 +409,7 @@ class ProjectCard:
         description_buttons[1].on_click(on_name_clicked)
 
         descriptor_buttons_box = WidgetFactory.hbox(
-            children= description_buttons,
+            children=description_buttons,
             width="100%",
             height="50px",
             gap="0px",
@@ -479,7 +466,9 @@ class ProjectCard:
             overflow_y="auto",
             overflow_x="hidden",
         )
-        dataset_selector_container.layout.border = f"1px solid {self._page.navigator.current_scheme.LAYOUT_COLOR.WIDGET.ACCORDION.LINES}"
+        dataset_selector_container.layout.border = (
+            f"1px solid {self._page.navigator.current_scheme.LAYOUT_COLOR.WIDGET.ACCORDION.LINES}"
+        )
         self._borders.append(dataset_selector_container.layout)
 
         dataset_col_box = WidgetFactory.vbox(
@@ -522,7 +511,7 @@ class ProjectCard:
             children=[date_filter_box, project_description],
             width="100%",
             height="250px",
-            gap ="5px",
+            gap="5px",
         )
 
         # Tag selection box
@@ -534,7 +523,7 @@ class ProjectCard:
             height="100%",
             overflow_x="visible",
             overflow_y="visible",
-            gap = "5px",
+            gap="5px",
         )
 
         return filter_col_box
@@ -611,9 +600,7 @@ class ProjectCard:
             gap=None,
         )
 
-        end_date_label = WidgetFactory.label(
-            value="End Date:", layout=widgets.Layout(margin="0px")
-        )
+        end_date_label = WidgetFactory.label(value="End Date:", layout=widgets.Layout(margin="0px"))
 
         end_date_picker = WidgetFactory.date_picker(
             value=self.get_latest_date(DATASET_LABEL.CREATED_DATE),
@@ -691,7 +678,7 @@ class ProjectCard:
             number=2,
             description=["If Any", "If All"],
             i_toggled=0,
-            layout = widgets.Layout(width="100%", height="30px", padding = "0px", margin = "0px")
+            layout=widgets.Layout(width="100%", height="30px", padding="0px", margin="0px"),
         )
 
         def on_tag_any_clicked(b):
@@ -757,14 +744,16 @@ class ProjectCard:
             overflow_y="auto",
             overflow_x="hidden",
         )
-        tag_selector_container.layout.border = f"1px solid {self._page.navigator.current_scheme.LAYOUT_COLOR.WIDGET.ACCORDION.LINES}"
+        tag_selector_container.layout.border = (
+            f"1px solid {self._page.navigator.current_scheme.LAYOUT_COLOR.WIDGET.ACCORDION.LINES}"
+        )
         self._borders.append(tag_selector_container.layout)
 
         tag_box = WidgetFactory.vbox(
             children=[tag_buttons_box, tag_selector_container],
             width="100%",
             height="340px",
-            gap = "5px"
+            gap="5px",
         )
 
         return tag_box
@@ -842,9 +831,7 @@ class ProjectCard:
         """
         try:
             for border in self._borders:
-                border.border = (
-                    f"1px solid {new_scheme.LAYOUT_COLOR.WIDGET.ACCORDION.LINES}"
-                )
+                border.border = f"1px solid {new_scheme.LAYOUT_COLOR.WIDGET.ACCORDION.LINES}"
         except Exception as e:
             logger.error(
                 "Error updating scheme for project card %s: %s",
@@ -863,9 +850,7 @@ class ProjectCard:
         logger.debug("Resetting project card: %s", self.title)
         return ProjectCard(page=self._page, project=self._project)
 
-    def reset_keep_dataset_selection(
-        self, page: "DatasetSelectionPage"
-    ) -> "ProjectCard":
+    def reset_keep_dataset_selection(self, page: "DatasetSelectionPage") -> "ProjectCard":
         """
         Reset the project card while preserving dataset selections.
 

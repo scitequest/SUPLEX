@@ -30,9 +30,7 @@ def get_gui_styles(scheme: Any) -> widgets.HTML:
         (invisible but applies global styles)
 
     """
-    logger.debug(
-        "Generating GUI styles for scheme: %s", getattr(scheme, "NAME", "Unknown")
-    )
+    logger.debug("Generating GUI styles for scheme: %s", getattr(scheme, "NAME", "Unknown"))
 
     try:
         # Generate complete CSS content for the SUPLEX interface

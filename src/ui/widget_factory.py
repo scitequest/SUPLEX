@@ -17,9 +17,7 @@ class WidgetFactory:
     """
 
     @staticmethod
-    def get_layout(
-        layout: Optional[widgets.Layout], width: str, height: str
-    ) -> widgets.Layout:
+    def get_layout(layout: Optional[widgets.Layout], width: str, height: str) -> widgets.Layout:
         """
         Helper method to get or create a layout with specified width and height.
 
@@ -433,9 +431,7 @@ class WidgetFactory:
         Returns:
             List of Button widgets configured as radio buttons
         """
-        logger.debug(
-            "Creating custom radio buttons: count=%d, selected=%d", number, i_toggled
-        )
+        logger.debug("Creating custom radio buttons: count=%d, selected=%d", number, i_toggled)
 
         if number < 1:
             logger.warning("Invalid number of radio buttons requested: %d", number)
@@ -940,9 +936,7 @@ class WidgetFactory:
         Returns:
             Configured Checkbox widget with styling
         """
-        logger.debug(
-            "Creating checkbox: description='%s', value=%s", description, value
-        )
+        logger.debug("Creating checkbox: description='%s', value=%s", description, value)
 
         try:
             checkbox_widget = widgets.Checkbox(
@@ -995,9 +989,7 @@ class WidgetFactory:
 
             for i, option in enumerate(options):
                 value = i == i_selected
-                checkbox = WidgetFactory.checkbox(
-                    value=value, description=option, **kwargs
-                )
+                checkbox = WidgetFactory.checkbox(value=value, description=option, **kwargs)
                 checkboxes.append(checkbox)
 
             # Using a list allows us to store a mutable ignore flag
@@ -1661,14 +1653,12 @@ class WidgetFactory:
         """
         if children is None:
             children = []
-        logger.debug(
-            "Creating HBox: children_count=%d, size=%sx%s", len(children), width, height
-        )
+        logger.debug("Creating HBox: children_count=%d, size=%sx%s", len(children), width, height)
         try:
             layout = WidgetFactory.get_layout(layout, width, height)
             layout.align_items = layout.align_items or align_items
             layout.justify_content = layout.justify_content or justify_content
-            
+
             # Gap adds invisible placeholder elements of a given width
             if gap and len(children) > 1:
                 gapped_children = []
@@ -1676,18 +1666,14 @@ class WidgetFactory:
                     gapped_children.append(child)
                     if i < len(children) - 1:
                         placeholder = widgets.HTML(
-                            value='',
+                            value="",
                             layout=widgets.Layout(
-                                width=gap,
-                                height="100%",
-                                margin="0",
-                                padding="0",
-                                border="none"
-                            )
+                                width=gap, height="100%", margin="0", padding="0", border="none"
+                            ),
                         )
                         gapped_children.append(placeholder)
                 children = gapped_children
-            
+
             hbox_widget = widgets.HBox(
                 children=children,
                 layout=layout,
@@ -1742,14 +1728,12 @@ class WidgetFactory:
         """
         if children is None:
             children = []
-        logger.debug(
-            "Creating VBox: children_count=%d, size=%sx%s", len(children), width, height
-        )
+        logger.debug("Creating VBox: children_count=%d, size=%sx%s", len(children), width, height)
         try:
             layout = WidgetFactory.get_layout(layout, width, height)
             layout.align_items = layout.align_items or align_items
             layout.justify_content = layout.justify_content or justify_content
-            
+
             # Gap adds invisible placeholder elements of a given height
             if gap and len(children) > 1:
                 gapped_children = []
@@ -1759,16 +1743,12 @@ class WidgetFactory:
                         placeholder = widgets.HTML(
                             value="",
                             layout=widgets.Layout(
-                                height=gap, 
-                                width="100%",
-                                margin="0",
-                                padding="0",
-                                border="none"
-                            )
+                                height=gap, width="100%", margin="0", padding="0", border="none"
+                            ),
                         )
                         gapped_children.append(placeholder)
                 children = gapped_children
-            
+
             vbox_widget = widgets.VBox(
                 children=children,
                 layout=layout,

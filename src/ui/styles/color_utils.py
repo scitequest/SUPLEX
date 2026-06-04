@@ -34,9 +34,7 @@ def hex_to_rgb(hex_color: str) -> Optional[Tuple[int, int, int]]:
             return rgb_tuple
 
         else:
-            logger.error(
-                "Invalid hex color format: '%s'. Must be 3 or 6 characters.", hex_color
-            )
+            logger.error("Invalid hex color format: '%s'. Must be 3 or 6 characters.", hex_color)
             return None
 
     except ValueError as e:
@@ -75,9 +73,7 @@ def rgb_to_hex(r: int, g: int, b: int) -> str:
         return hex_color
 
     except Exception as e:
-        logger.error(
-            "Failed to convert RGB(%s, %s, %s) to hex: %s", r, g, b, e, exc_info=True
-        )
+        logger.error("Failed to convert RGB(%s, %s, %s) to hex: %s", r, g, b, e, exc_info=True)
         return "#000000"  # Return black as fallback
 
 
@@ -241,9 +237,7 @@ def get_emphasized_hex_color(hex_color: str, emphasis_factor: float = 0.15) -> s
         return emphasized_color
 
     except Exception as e:
-        logger.error(
-            "Failed to create emphasized color for %s: %s", hex_color, e, exc_info=True
-        )
+        logger.error("Failed to create emphasized color for %s: %s", hex_color, e, exc_info=True)
         return hex_color  # Return original on error
 
 
@@ -261,9 +255,7 @@ def hex_to_rgba(hex_color: str, alpha: float = 0.1) -> str:
     try:
         rgb = hex_to_rgb(hex_color)
         if rgb is None:
-            logger.warning(
-                "Failed to parse hex color for RGBA conversion: %s", hex_color
-            )
+            logger.warning("Failed to parse hex color for RGBA conversion: %s", hex_color)
             return f"rgba(0, 0, 0, {alpha})"  # Return black with alpha as fallback
 
         r, g, b = rgb

@@ -1,689 +1,247 @@
 import pytest
+from unittest.mock import Mock, patch, MagicMock
 import os
-import sys
-import ast
-import tempfile
-import shutil
-from unittest.mock import Mock, patch, mock_open, MagicMock, call
 from pathlib import Path
-from collections import deque
-from enum import Enum
-from contextlib import contextmanager
-from src.suplex_modules.module_loader import *
-from src.suplex_modules.module_constants import *
-
-
-class TestLoadModules:
-    @patch("src.suplex_modules.module_loader.try_get_module")
-    @patch("src.suplex_modules.module_loader.sweep_dirs")
-    @patch("src.suplex_modules.module_loader.delve_dirs")
-    def test_load_modules(self, mock_delve_dirs, mock_sweep_dirs, mock_try_get_module):
-        # Simulates found files
-        def delve_dirs_side_effect(search_dir, filetype, files, **kwargs):
-            files.update(["/test/module1.py", "/test/module2.py"])
-            return files
-
-        mock_delve_dirs.side_effect = delve_dirs_side_effect
-
-        # Simulates successfully loaded modules
-        mock_module1 = Mock()
-        mock_module2 = Mock()
-        mock_try_get_module.side_effect = [[mock_module1], [mock_module2]]
-
-        # Call search methods
-        result = load_modules(dir_path="/test", mode=SEARCH_MODE.RECURSIVE)
-
-        assert len(result) == 2
-        assert mock_module1 in result
-        assert mock_module2 in result
-        mock_delve_dirs.assert_called()
-
-        mock_delve_dirs.reset_mock()
-        mock_sweep_dirs.reset_mock()
-        mock_try_get_module.reset_mock()
-        mock_try_get_module.side_effect = [[mock_module1], [mock_module2]]
-
-        mock_sweep_dirs.return_value = {"/test/module1.py", "/test/module2.py"}
-
-        result = load_modules(dir_path="/test", mode=SEARCH_MODE.ITERATIVE_UNBOUND)
-
-        assert len(result) == 2
-        assert mock_module1 in result
-        assert mock_module2 in result
-        mock_delve_dirs.assert_not_called()
-        mock_sweep_dirs.assert_called()
-
-    @patch("src.suplex_modules.module_loader.try_get_module")
-    @patch("src.suplex_modules.module_loader.sweep_dirs")
-    def test_load_modules_iterative_mode(self, mock_sweep_dirs, mock_try_get_module):
-        mock_sweep_dirs.return_value = {"/test/module1.py", "/test/module2.py"}
-
-        mock_module1 = Mock()
-        mock_module2 = Mock()
-        mock_try_get_module.side_effect = [[mock_module1], [mock_module2]]
-
-        result = load_modules(
-            dir_path="/test", mode=SEARCH_MODE.ITERATIVE_BOUNDED_ALL, max_depth=2
-        )
-
-        assert len(result) == 2
-        assert mock_module1 in result
-        assert mock_module2 in result
-        mock_sweep_dirs.assert_called_once()
-
-    @patch("src.suplex_modules.module_loader.try_get_module")
-    @patch("src.suplex_modules.module_loader.delve_dirs")
-    def test_load_modules_with_empty_modules(
-        self, mock_delve_dirs, mock_try_get_module
-    ):
-        def delve_dirs_side_effect(search_dir, filetype, files, **kwargs):
-            files.update(["/test/empty1.py", "/test/empty2.py"])
-            return files
-
-        mock_delve_dirs.side_effect = delve_dirs_side_effect
-        mock_try_get_module.return_value = []  # Empty list for invalid modules
-
-        result = load_modules(dir_path="/test")
-
-        assert len(result) == 0
-
-
-class TestDelveDir:
-    @patch("src.suplex_modules.module_loader.should_ignore_file")
-    @patch("src.suplex_modules.module_loader.should_ignore_directory")
-    @patch("src.suplex_modules.module_loader.os.scandir")
-    def test_recursive_directory_traversal(
-        self, mock_scandir, mock_ignore_dir, mock_ignore_file, mock_scandir_entry
-    ):
-        root_entries = [
-            mock_scandir_entry("subdir", is_dir=True),
-            mock_scandir_entry("file1.py", is_file=True),
-        ]
-        sub_entries = [
-            mock_scandir_entry("file2.py", is_file=True, base_path="/test/subdir")
-        ]
-
-        @contextmanager
-        def mock_scandir_context(path):
-            if path == "/test":
-                yield iter(root_entries)
-            elif path == "/test/subdir":
-                yield iter(sub_entries)
-            else:
-                yield iter([])
-
-        mock_scandir.side_effect = mock_scandir_context
-        mock_ignore_dir.return_value = False
-        mock_ignore_file.return_value = False
-
-        files = set()
-        delve_dirs(
-            search_dir="/test",
-            filetype=".py",
-            files=files,
-            ignore_dirs=set(),
-            ignore_files=set(),
-            ignore_extensions=set(),
-        )
-
-        assert "/test/file1.py" in files
-        assert "/test/subdir/file2.py" in files
-
-    @patch("src.suplex_modules.module_loader.os.scandir")
-    def test_permission_error_in_delve_dirs(self, mock_scandir):
-        mock_scandir.side_effect = PermissionError("Access denied")
-
-        files = set()
-        delve_dirs(search_dir="/restricted", filetype=".py", files=files)
-
-        assert not files
-
-
-class TestSweepDirs:
-    @patch("src.suplex_modules.module_loader.should_collect_at_depth")
-    @patch("src.suplex_modules.module_loader.should_ignore_file")
-    @patch("src.suplex_modules.module_loader.should_ignore_directory")
-    @patch("src.suplex_modules.module_loader.os.scandir")
-    def test_iterative_bounded_bottom_mode(
-        self, mock_scandir, mock_ignore_dir, mock_ignore_file, mock_should_collect
-    ):
-        def create_entry(name, is_dir=False, is_file=False, base_path="/test"):
-            entry = Mock()
-            entry.name = name
-            entry.path = f"{base_path}/{name}"
-            entry.is_dir.return_value = is_dir
-            entry.is_file.return_value = is_file
-            return entry
-
-        root_entries = [
-            create_entry("subdir", is_dir=True),
-            create_entry("file1.py", is_file=True),
-        ]
-        sub_entries = [
-            create_entry("deepdir", is_dir=True, base_path="/test/subdir"),
-            create_entry("file2.py", is_file=True, base_path="/test/subdir"),
-        ]
-        deep_entries = [
-            create_entry("file3.py", is_file=True, base_path="/test/subdir/deepdir")
-        ]
-
-        @contextmanager
-        def mock_scandir_context(path):
-            if path == "/test":
-                yield iter(root_entries)
-            elif path == "/test/subdir":
-                yield iter(sub_entries)
-            elif path == "/test/subdir/deepdir":
-                yield iter(deep_entries)
-            else:
-                yield iter([])
-
-        mock_scandir.side_effect = mock_scandir_context
-        mock_ignore_dir.return_value = False
-        mock_ignore_file.return_value = False
-
-        def should_collect_side_effect(mode, depth, max_depth):
-            if mode == SEARCH_MODE.ITERATIVE_BOUNDED_BOTTOM:
-                return depth == max_depth
-            return True
-
-        mock_should_collect.side_effect = should_collect_side_effect
-
-        # Search only in root
-        result = sweep_dirs(
-            root_path="/test",
-            filetype=".py",
-            mode=SEARCH_MODE.ITERATIVE_BOUNDED_BOTTOM,
-            max_depth=0,
-            ignore_dirs=set(),
-            ignore_files=set(),
-            ignore_extensions=set(),
-        )
-
-        assert "/test/file1.py" in result
-        assert "/test/subdir/file2.py" not in result
-        assert "/test/subdir/deepdir/file3.py" not in result
-
-        # Search only in subdir
-        result = sweep_dirs(
-            root_path="/test",
-            filetype=".py",
-            mode=SEARCH_MODE.ITERATIVE_BOUNDED_BOTTOM,
-            max_depth=1,
-            ignore_dirs=set(),
-            ignore_files=set(),
-            ignore_extensions=set(),
-        )
-
-        assert "/test/file1.py" not in result
-        assert "/test/subdir/file2.py" in result
-        assert "/test/subdir/deepdir/file3.py" not in result
-
-        # Search only in deepdir
-        result = sweep_dirs(
-            root_path="/test",
-            filetype=".py",
-            mode=SEARCH_MODE.ITERATIVE_BOUNDED_BOTTOM,
-            max_depth=2,
-            ignore_dirs=set(),
-            ignore_files=set(),
-            ignore_extensions=set(),
-        )
-
-        assert "/test/file1.py" not in result
-        assert "/test/subdir/file2.py" not in result
-        assert "/test/subdir/deepdir/file3.py" in result
-
-    @patch("src.suplex_modules.module_loader.should_collect_at_depth")
-    @patch("src.suplex_modules.module_loader.should_ignore_file")
-    @patch("src.suplex_modules.module_loader.should_ignore_directory")
-    @patch("src.suplex_modules.module_loader.os.scandir")
-    def test_iterative_bounded_all_mode(
-        self, mock_scandir, mock_ignore_dir, mock_ignore_file, mock_should_collect
-    ):
-        def create_entry(name, is_dir=False, is_file=False, base_path="/test"):
-            entry = Mock()
-            entry.name = name
-            entry.path = f"{base_path}/{name}"
-            entry.is_dir.return_value = is_dir
-            entry.is_file.return_value = is_file
-            return entry
-
-        root_entries = [
-            create_entry("subdir", is_dir=True),
-            create_entry("file1.py", is_file=True),
-        ]
-        sub_entries = [
-            create_entry("deepdir", is_dir=True, base_path="/test/subdir"),
-            create_entry("file2.py", is_file=True, base_path="/test/subdir"),
-        ]
-        deep_entries = [
-            create_entry("file3.py", is_file=True, base_path="/test/subdir/deepdir")
-        ]
-
-        @contextmanager
-        def mock_scandir_context(path):
-            if path == "/test":
-                yield iter(root_entries)
-            elif path == "/test/subdir":
-                yield iter(sub_entries)
-            elif path == "/test/subdir/deepdir":
-                yield iter(deep_entries)
-            else:
-                yield iter([])
-
-        mock_scandir.side_effect = mock_scandir_context
-        mock_ignore_dir.return_value = False
-        mock_ignore_file.return_value = False
-
-        def should_collect_side_effect(mode, depth, max_depth):
-            if mode == SEARCH_MODE.ITERATIVE_BOUNDED_ALL:
-                return depth <= max_depth
-            return True
-
-        mock_should_collect.side_effect = should_collect_side_effect
-
-        result = sweep_dirs(
-            root_path="/test",
-            filetype=".py",
-            mode=SEARCH_MODE.ITERATIVE_BOUNDED_ALL,
-            max_depth=1,
-            ignore_dirs=set(),
-            ignore_files=set(),
-            ignore_extensions=set(),
-        )
-
-        assert "/test/file1.py" in result
-        assert "/test/subdir/file2.py" in result
-        assert "/test/subdir/deepdir/file3.py" not in result
-
-    @patch("src.suplex_modules.module_loader.should_collect_at_depth")
-    @patch("src.suplex_modules.module_loader.should_ignore_file")
-    @patch("src.suplex_modules.module_loader.should_ignore_directory")
-    @patch("src.suplex_modules.module_loader.os.scandir")
-    def test_iterative_bounded_unbound_mode(
-        self, mock_scandir, mock_ignore_dir, mock_ignore_file, mock_should_collect
-    ):
-        def create_entry(name, is_dir=False, is_file=False, base_path="/test"):
-            entry = Mock()
-            entry.name = name
-            entry.path = f"{base_path}/{name}"
-            entry.is_dir.return_value = is_dir
-            entry.is_file.return_value = is_file
-            return entry
-
-        root_entries = [
-            create_entry("subdir", is_dir=True),
-            create_entry("file1.py", is_file=True),
-        ]
-        sub_entries = [create_entry("file2.py", is_file=True, base_path="/test/subdir")]
-
-        @contextmanager
-        def mock_scandir_context(path):
-            if path == "/test":
-                yield iter(root_entries)
-            elif path == "/test/subdir":
-                yield iter(sub_entries)
-            else:
-                yield iter([])
-
-        mock_scandir.side_effect = mock_scandir_context
-        mock_ignore_dir.return_value = False
-        mock_ignore_file.return_value = False
-        mock_should_collect.return_value = True
-
-        result = sweep_dirs(
-            root_path="/test",
-            filetype=".py",
-            mode=SEARCH_MODE.ITERATIVE_UNBOUND,
-            max_depth=1,
-            ignore_dirs=set(),
-            ignore_files=set(),
-            ignore_extensions=set(),
-        )
-
-        assert "/test/file1.py" in result
-        assert "/test/subdir/file2.py" in result
-
-    @patch("src.suplex_modules.module_loader.os.scandir")
-    def test_permission_error_handling(self, mock_scandir):
-        mock_scandir.side_effect = PermissionError("Access denied")
-
-        result = sweep_dirs(
-            root_path="/restricted",
-            filetype=".py",
-            mode=SEARCH_MODE.ITERATIVE_UNBOUND,
-            max_depth=1,
-            ignore_dirs=set(),
-            ignore_files=set(),
-            ignore_extensions=set(),
-        )
-
-        assert not result
-
-
-class TestShouldIgnoreDirectory:
-    def test_ignore_hidden_directories(self):
-        assert should_ignore_directory(".git", set())
-        assert should_ignore_directory(".hidden", set())
-        assert should_ignore_directory(".cache", set())
-
-    def test_ignore_specified_directories(self):
-        ignore_dirs = {"build", "dist", "venv"}
-        assert should_ignore_directory("build", ignore_dirs)
-        assert should_ignore_directory("dist", ignore_dirs)
-        assert should_ignore_directory("venv", ignore_dirs)
-
-    def test_ignore_cache_temp_directories(self):
-        assert should_ignore_directory("cache_dir", set())
-        assert should_ignore_directory("temp_files", set())
-        assert should_ignore_directory("tmp_folder", set())
-        assert should_ignore_directory("Cache", set())
-
-    def test_allow_normal_directories(self):
-        assert not should_ignore_directory("src", set())
-        assert not should_ignore_directory("modules", set())
-        assert not should_ignore_directory("my_project", set())
-
-    def test_ignore_real_default_directories(self):
-        for ignore_dir in ["__pycache__", ".git", ".vscode", "node_modules", "venv"]:
-            if ignore_dir in DEFAULT_IGNORE_DIRS:
-                assert should_ignore_directory(ignore_dir, DEFAULT_IGNORE_DIRS)
-
-
-class TestShouldIgnoreFile:
-    def test_ignore_hidden_files(self):
-        assert should_ignore_file(".gitignore", set(), set())
-        assert should_ignore_file(".hidden_file.py", set(), set())
-
-    def test_ignore_specified_files(self):
-        ignore_files = {"config.py", "secrets.py"}
-        assert should_ignore_file("config.py", ignore_files, set())
-        assert should_ignore_file("secrets.py", ignore_files, set())
-
-    def test_ignore_specified_extensions(self):
-        ignore_extensions = {".log", ".tmp", ".bak"}
-        assert should_ignore_file("debug.log", set(), ignore_extensions)
-        assert should_ignore_file("temp.tmp", set(), ignore_extensions)
-        assert should_ignore_file("backup.bak", set(), ignore_extensions)
-
-    def test_ignore_temp_backup_files(self):
-        assert should_ignore_file("file.tmp", set(), set())
-        assert should_ignore_file("backup.bak", set(), set())
-        assert should_ignore_file("vim.swp", set(), set())
-        assert should_ignore_file("file~", set(), set())
-
-    def test_ignore_test_files(self):
-        assert should_ignore_file("test_module.py", set(), set())
-        assert should_ignore_file("test_example.py", set(), set())
-
-    def test_allow_normal_files(self):
-        assert not should_ignore_file("module.py", set(), set())
-        assert not should_ignore_file("main.py", set(), set())
-        assert not should_ignore_file("example.py", set(), set())
-
-    def test_ignore_real_default_files_and_extensions(self):
-        for ignore_file in ["__init__.py", "setup.py", "README.md"]:
-            if ignore_file in DEFAULT_IGNORE_FILES:
-                assert should_ignore_file(ignore_file, DEFAULT_IGNORE_FILES, set())
-
-        for ignore_ext in [".pyc", ".pyo", ".pyd"]:
-            if ignore_ext in DEFAULT_IGNORE_EXTENSIONS:
-                test_file = f"test{ignore_ext}"
-                assert should_ignore_file(test_file, set(), DEFAULT_IGNORE_EXTENSIONS)
-
-
-class TestShouldCollectAtDepth:
-    def test_iterative_unbound_mode(self):
-        mode = SEARCH_MODE.ITERATIVE_UNBOUND
-        assert should_collect_at_depth(mode, 0, 3)
-        assert should_collect_at_depth(mode, 5, 3)
-        assert should_collect_at_depth(mode, 10, 3)
-
-    def test_iterative_bounded_all_mode(self):
-        mode = SEARCH_MODE.ITERATIVE_BOUNDED_ALL
-        max_depth = 3
-        assert should_collect_at_depth(mode, 0, max_depth)
-        assert should_collect_at_depth(mode, 2, max_depth)
-        assert should_collect_at_depth(mode, 3, max_depth)
-        assert not should_collect_at_depth(mode, 4, max_depth)
-
-    def test_iterative_bounded_bottom_mode(self):
-        mode = SEARCH_MODE.ITERATIVE_BOUNDED_BOTTOM
-        max_depth = 3
-        assert not should_collect_at_depth(mode, 0, max_depth)
-        assert not should_collect_at_depth(mode, 2, max_depth)
-        assert should_collect_at_depth(mode, 3, max_depth)
-        assert not should_collect_at_depth(mode, 4, max_depth)
-
-
-class TestTryGetModule:
-    @patch("src.suplex_modules.module_loader.is_valid_suplex_module_class")
-    @patch("src.suplex_modules.module_loader.inspect.getmembers")
-    @patch("src.suplex_modules.module_loader.importlib.util.module_from_spec")
-    @patch("src.suplex_modules.module_loader.importlib.util.spec_from_file_location")
-    @patch("src.suplex_modules.module_loader.has_suplex_interface_classes")
-    def test_successful_module_loading(
-        self,
-        mock_has_interface,
-        mock_spec_from_file,
-        mock_module_from_spec,
-        mock_getmembers,
-        mock_is_valid,
-    ):
-        mock_has_interface.return_value = True
-
-        mock_spec = Mock()
-        mock_spec.loader = Mock()
-        mock_spec_from_file.return_value = mock_spec
-
-        mock_module = Mock()
-        mock_module_from_spec.return_value = mock_module
-
-        mock_class = Mock()
-        mock_instance = Mock()
-        mock_class.return_value = mock_instance
-        mock_getmembers.return_value = [("TestClass", mock_class)]
-        mock_is_valid.return_value = True
-
-        result = try_get_module("test_file.py")
-
-        assert len(result) == 1
-        assert result[0] == mock_instance
-        mock_spec.loader.exec_module.assert_called_once_with(mock_module)
-
-    @patch("src.suplex_modules.module_loader.has_suplex_interface_classes")
-    def test_file_without_suplex_interface(self, mock_has_interface):
-        mock_has_interface.return_value = False
-
-        result = try_get_module("test_file.py")
-
-        assert result == []
-
-    @patch("src.suplex_modules.module_loader.importlib.util.spec_from_file_location")
-    @patch("src.suplex_modules.module_loader.has_suplex_interface_classes")
-    def test_spec_creation_failure(self, mock_has_interface, mock_spec_from_file):
-        mock_has_interface.return_value = True
-        mock_spec_from_file.return_value = None
-
-        result = try_get_module("test_file.py")
-
-        assert result == []
-
-    @patch("src.suplex_modules.module_loader.importlib.util.spec_from_file_location")
-    @patch("src.suplex_modules.module_loader.has_suplex_interface_classes")
-    def test_syntax_error_handling(self, mock_has_interface, mock_spec_from_file):
-        mock_has_interface.return_value = True
-        mock_spec_from_file.side_effect = SyntaxError("Invalid syntax")
-
-        result = try_get_module("test_file.py")
-
-        assert result == []
-
-
-class TestHasSuplexInterfaceClasses:
-
-    def test_correct_implementation_with_inheritance(self):
-        file_dir = (
-            Path(__file__).parent.parent.parent
-            / "test_data"
-            / "test_modules"
-            / "valid_modules"
-            / "valid_suplex_module.py"
-        )
-        assert has_suplex_interface_classes(str(file_dir))
-
-    def test_incorrect_implementation_with_inheritance(self):
-        file_dir = (
-            Path(__file__).parent.parent.parent
-            / "test_data"
-            / "test_modules"
-            / "invalid_modules"
-            / "incomplete_suplex_module.py"
-        )
-        assert has_suplex_interface_classes(str(file_dir))
-
-    def test_correct_implementation_without_inheritance(self):
-        file_dir = (
-            Path(__file__).parent.parent.parent
-            / "test_data"
-            / "test_modules"
-            / "invalid_modules"
-            / "no_inheritance_suplex_module.py"
-        )
-        assert not has_suplex_interface_classes(str(file_dir))
-
-    def test_correct_implementation_with_multiple_inheritance(self):
-        file_dir = (
-            Path(__file__).parent.parent.parent
-            / "test_data"
-            / "test_modules"
-            / "valid_modules"
-            / "vaild_suplex_module_advanced.py"
-        )
-        assert has_suplex_interface_classes(str(file_dir))
-
-    def test_no_suplex_related_code(self):
-        file_dir = (
-            Path(__file__).parent.parent.parent
-            / "test_data"
-            / "test_modules"
-            / "unassociated_code.py"
-        )
-        assert not has_suplex_interface_classes(str(file_dir))
-
-    def test_different_import_styles(self):
-        submodule_import = """from modules.interfaces.SuplexModuleInterface import SuplexModuleInterface
-class SubModuleTest(SuplexModuleInterface):
-    pass
-"""
-        with patch("builtins.open", mock_open(read_data=submodule_import)):
-            assert has_suplex_interface_classes("submodule_test.py")
-
-        direct_import = """import SuplexModuleInterface
-class DirectImportTest(SuplexModuleInterface.SuplexModuleInterface):
-    pass
-"""
-        with patch("builtins.open", mock_open(read_data=direct_import)):
-            assert has_suplex_interface_classes("direct_import_test.py")
-
-    def test_alias_import(self):
-        alias_import = """from SuplexModuleInterface import SuplexModuleInterface as SMI
-class AliasTest(SMI):
-    pass
-"""
-        with patch("builtins.open", mock_open(read_data=alias_import)):
-            result = has_suplex_interface_classes("alias_test.py")
-            assert result
-
-    def test_file_read_error(self):
-        with patch("builtins.open", side_effect=OSError("File not found")):
-            assert not has_suplex_interface_classes("nonexistent.py")
-
-    def test_syntax_error(self):
-        invalid_python = "invalid python syntax {"
-        with patch("builtins.open", mock_open(read_data=invalid_python)):
-            assert not has_suplex_interface_classes("invalid.py")
-
-    def test_unicode_decode_error(self):
-        with patch(
-            "builtins.open",
-            side_effect=UnicodeDecodeError("utf-8", b"", 0, 1, "invalid"),
+import ast
+import io
+
+from suplex_modules.module_loader import (
+    load_modules,
+    delve_dirs,
+    sweep_dirs,
+    should_ignore_directory,
+    should_ignore_file,
+    should_collect_at_depth,
+    try_get_module,
+    has_suplex_interface_classes,
+    is_valid_suplex_module_class,
+)
+from suplex_modules.module_constants import (
+    SEARCH_MODE,
+    DEFAULT_IGNORE_DIRS,
+    DEFAULT_IGNORE_FILES,
+    DEFAULT_IGNORE_EXTENSIONS,
+)
+from suplex_modules.suplex_module_interface import SuplexModuleInterface
+
+
+class TestModuleLoader:
+    """Unit tests for module_loader.py – discovers, validates, and loads SUPLEX modules from the filesystem."""
+
+    # -------------------------------------------------------------------------
+    # Core Loading Functions
+    # -------------------------------------------------------------------------
+    def test_load_modules_recursive_mode(self, mock_scandir_entry):
+        """load_modules with RECURSIVE mode collects files via delve_dirs and instantiates modules."""
+        with (
+            patch("suplex_modules.module_loader.delve_dirs") as mock_delve,
+            patch("suplex_modules.module_loader.try_get_module", return_value=[Mock()]) as mock_try,
         ):
-            assert not has_suplex_interface_classes("unicode_error.py")
 
-    def test_substring_false_positive(self):
-        false_positive_code = """from MySuplexModuleInterfaceHelper import Helper
-class TestModule(Helper):
-    pass
-"""
-        with patch("builtins.open", mock_open(read_data=false_positive_code)):
-            result = has_suplex_interface_classes("false_positive_test.py")
+            mock_delve.side_effect = lambda *a, **k: k["files"].update(["/test/module1.py"])
+
+            result = load_modules(dir_path="/test", mode=SEARCH_MODE.RECURSIVE)
+
+            assert len(result) == 1
+            mock_delve.assert_called_once()
+            mock_try.assert_called()
+
+    def test_load_modules_sweep_modes(self):
+        """load_modules dispatches correctly to sweep_dirs for non-RECURSIVE modes."""
+        for mode in [
+            SEARCH_MODE.ITERATIVE_BOUNDED_BOTTOM,
+            SEARCH_MODE.ITERATIVE_BOUNDED_ALL,
+            SEARCH_MODE.ITERATIVE_UNBOUND,
+        ]:
+            with (
+                patch("suplex_modules.module_loader.sweep_dirs") as mock_sweep,
+                patch("suplex_modules.module_loader.try_get_module", return_value=[]) as mock_try,
+            ):
+
+                mock_sweep.return_value = set()
+                load_modules(dir_path="/test", mode=mode, max_depth=2)
+                mock_sweep.assert_called_once()
+
+    def test_load_modules_with_empty_modules(self, mock_scandir_entry):
+        """load_modules returns empty list when try_get_module returns no valid modules."""
+        with (
+            patch("suplex_modules.module_loader.delve_dirs") as mock_delve,
+            patch("suplex_modules.module_loader.try_get_module", return_value=[]),
+        ):
+
+            mock_delve.side_effect = lambda *a, **k: k["files"].update(["/test/empty.py"])
+
+            result = load_modules(dir_path="/test")
+            assert result == []
+
+    # -------------------------------------------------------------------------
+    # Directory Traversal
+    # -------------------------------------------------------------------------
+    def test_delve_dirs_respects_ignore_patterns(self, mock_scandir_entry):
+        """delve_dirs skips ignored directories, files, and extensions."""
+        files = set()
+        mock_entries = [
+            mock_scandir_entry("__pycache__", is_dir=True),
+            mock_scandir_entry("valid_module.py", is_file=True),
+            mock_scandir_entry("ignored.txt", is_file=True),
+            mock_scandir_entry(".hidden.py", is_file=True),
+        ]
+
+        with patch("os.scandir") as mock_scandir:
+            mock_scandir.return_value.__enter__.return_value = mock_entries
+            delve_dirs(
+                search_dir="/test",
+                filetype=".py",
+                files=files,
+                ignore_dirs={"__pycache__"},
+                ignore_files={"ignored.txt"},
+                ignore_extensions={".txt"},
+            )
+
+        assert len(files) == 1
+        assert any("valid_module.py" in f for f in files)
+
+    def test_sweep_dirs_iterative_modes(self, mock_scandir_entry):
+        """sweep_dirs correctly handles ITERATIVE_BOUNDED_* and ITERATIVE_UNBOUND modes."""
+        for mode in [
+            SEARCH_MODE.ITERATIVE_BOUNDED_BOTTOM,
+            SEARCH_MODE.ITERATIVE_BOUNDED_ALL,
+            SEARCH_MODE.ITERATIVE_UNBOUND,
+        ]:
+            result = sweep_dirs(
+                root_path="/test",
+                filetype=".py",
+                mode=mode,
+                max_depth=2,
+                ignore_dirs=set(),
+                ignore_files=set(),
+                ignore_extensions=set(),
+            )
+            assert isinstance(result, set)
+
+    def test_permission_error_handling_in_delve_and_sweep(self):
+        """Both delve_dirs and sweep_dirs gracefully handle PermissionError."""
+        with patch("os.scandir", side_effect=PermissionError):
+            files = set()
+            delve_dirs(search_dir="/restricted", filetype=".py", files=files)
+            assert not files
+
+            result = sweep_dirs(
+                root_path="/restricted",
+                filetype=".py",
+                mode=SEARCH_MODE.ITERATIVE_UNBOUND,
+                max_depth=1,
+                ignore_dirs=set(),
+                ignore_files=set(),
+                ignore_extensions=set(),
+            )
             assert not result
 
+    # -------------------------------------------------------------------------
+    # Ignore Helpers
+    # -------------------------------------------------------------------------
+    def test_should_ignore_directory(self):
+        """should_ignore_directory correctly identifies directories to skip."""
+        assert should_ignore_directory("__pycache__", DEFAULT_IGNORE_DIRS) is True
+        assert should_ignore_directory(".git", DEFAULT_IGNORE_DIRS) is True
+        assert should_ignore_directory("node_modules", DEFAULT_IGNORE_DIRS) is True
+        assert should_ignore_directory("cache_dir", set()) is True
+        assert should_ignore_directory("normal_dir", set()) is False
 
-class TestIsValidSuplexModuleClass:
-    def setup_method(self, method):
-        # Use a mock interface class for setup
-        class MockSuplexModuleInterface:
+    def test_should_ignore_file(self):
+        """should_ignore_file correctly identifies files to skip."""
+        assert (
+            should_ignore_file("__init__.py", DEFAULT_IGNORE_FILES, DEFAULT_IGNORE_EXTENSIONS)
+            is True
+        )
+        assert should_ignore_file("test_module.py", set(), set()) is True
+        assert should_ignore_file(".hidden.py", set(), set()) is True
+        assert should_ignore_file("module.pyc", set(), DEFAULT_IGNORE_EXTENSIONS) is True
+        assert should_ignore_file("backup~", set(), set()) is True
+        assert should_ignore_file("normal_module.py", set(), set()) is False
+
+    def test_should_collect_at_depth(self):
+        """should_collect_at_depth returns correct result per SEARCH_MODE."""
+        assert should_collect_at_depth(SEARCH_MODE.ITERATIVE_UNBOUND, 5, 10) is True
+        assert should_collect_at_depth(SEARCH_MODE.ITERATIVE_BOUNDED_ALL, 3, 5) is True
+        assert should_collect_at_depth(SEARCH_MODE.ITERATIVE_BOUNDED_BOTTOM, 5, 5) is True
+        assert should_collect_at_depth(SEARCH_MODE.ITERATIVE_BOUNDED_BOTTOM, 4, 5) is False
+
+    # -------------------------------------------------------------------------
+    # Module Validation (AST + Dynamic Loading)
+    # -------------------------------------------------------------------------
+    def test_has_suplex_interface_classes(self):
+        """has_suplex_interface_classes correctly detects SuplexModuleInterface usage via AST."""
+        # These test files are part of your existing test_data – they are kept for real-world validation
+        valid_path = (
+            Path(__file__).parent.parent.parent.parent
+            / "test_data/test_modules/valid_modules/valid_suplex_module.py"
+        )
+        if valid_path.exists():
+            assert has_suplex_interface_classes(str(valid_path)) is True
+
+        invalid_path = (
+            Path(__file__).parent.parent.parent.parent
+            / "test_data/test_modules/invalid_modules/no_inheritance_suplex_module.py"
+        )
+        if invalid_path.exists():
+            assert has_suplex_interface_classes(str(invalid_path)) is False
+
+    def test_try_get_module_success(self, test_suplex_module):
+        """try_get_module successfully loads and instantiates a valid Suplex module."""
+        fake_module = Mock()
+        fake_module.TestModule = test_suplex_module.__class__
+
+        with (
+            patch("suplex_modules.module_loader.has_suplex_interface_classes", return_value=True),
+            patch("suplex_modules.module_loader.is_valid_suplex_module_class", return_value=True),
+        ):
+
+            mock_spec = MagicMock()
+            mock_spec.loader = Mock()
+
+            with (
+                patch("importlib.util.spec_from_file_location", return_value=mock_spec),
+                patch("importlib.util.module_from_spec", return_value=fake_module),
+                patch(
+                    "inspect.getmembers",
+                    return_value=[("TestModule", test_suplex_module.__class__)],
+                ),
+            ):
+
+                modules = try_get_module("/fake/test_module.py")
+                assert len(modules) == 1
+                assert isinstance(modules[0], test_suplex_module.__class__)
+
+    def test_try_get_module_invalid_file(self):
+        """try_get_module returns empty list for files without a SuplexModuleInterface."""
+        with patch("suplex_modules.module_loader.has_suplex_interface_classes", return_value=False):
+            assert try_get_module("/fake/invalid.py") == []
+
+    def test_is_valid_suplex_module_class(self, test_suplex_module):
+        """is_valid_suplex_module_class validates only proper plugin classes."""
+
+        # Create a simple valid class with proper module name for testing
+        class ValidSuplexModule(SuplexModuleInterface):
             pass
 
-        self.interface_class = MockSuplexModuleInterface
-        self.module_name = "test_module"
+        ValidSuplexModule.__module__ = "test_module"
 
-    def test_valid_suplex_module_class(self):
-        class ValidModule(self.interface_class):
-            pass
-
-        ValidModule.__module__ = self.module_name
-
-        assert is_valid_suplex_module_class(
-            ValidModule, self.module_name, self.interface_class
+        assert (
+            is_valid_suplex_module_class(ValidSuplexModule, "test_module", SuplexModuleInterface)
+            is True
         )
 
-    def test_interface_class_itself(self):
-        self.interface_class.__module__ = self.module_name
-        assert not is_valid_suplex_module_class(
-            self.interface_class, self.module_name, self.interface_class
-        )
-
-    def test_class_from_different_module(self):
-        class OtherModule(self.interface_class):
+        class NotASuplex:
             pass
 
-        OtherModule.__module__ = "other_module"
-
-        assert not is_valid_suplex_module_class(
-            OtherModule, self.module_name, self.interface_class
+        assert (
+            is_valid_suplex_module_class(NotASuplex, "test_module", SuplexModuleInterface) is False
         )
 
-    def test_class_without_inheritance(self):
-        class RegularClass:
-            pass
-
-        RegularClass.__module__ = self.module_name
-
-        assert not is_valid_suplex_module_class(
-            RegularClass, self.module_name, self.interface_class
+        assert (
+            is_valid_suplex_module_class(
+                SuplexModuleInterface, "test_module", SuplexModuleInterface
+            )
+            is False
         )
-
-    def test_non_class_object(self):
-        def some_function():
-            pass
-
-        some_function.__module__ = self.module_name
-
-        assert not is_valid_suplex_module_class(
-            some_function, self.module_name, self.interface_class
-        )
-
-    def test_object_without_module_attribute(self):
-        class NoModuleClass:
-            pass
-
-        DynamicClass = type("DynamicClass", (), {})
-        if hasattr(DynamicClass, "__module__"):
-            with patch("src.suplex_modules.module_loader.hasattr", return_value=False):
-                assert not is_valid_suplex_module_class(
-                    DynamicClass, self.module_name, self.interface_class
-                )

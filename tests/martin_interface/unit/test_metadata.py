@@ -11,7 +11,14 @@ from dataclasses import is_dataclass
 
 
 class TestMetadataDataclasses:
+    """Tests for all dataclasses in the metadata module (Patient, Image, Concentration, Incubation, Metadata) and their properties."""
+
+    # -------------------------------------------------------------------------
+    # Patient tests
+    # -------------------------------------------------------------------------
+
     def test_patient_creation(self, sample_metadata_dict):
+        """Creates a Patient dataclass from raw metadata and verifies all fields."""
         patient_data = sample_metadata_dict["patient"]
         patient = Patient(
             pat_id=patient_data["id"],
@@ -25,6 +32,7 @@ class TestMetadataDataclasses:
         assert patient.tags == patient_data["tags"]
 
     def test_patient_frozen(self, sample_metadata_dict):
+        """Patient dataclass is frozen (immutable) and raises AttributeError on mutation."""
         patient_data = sample_metadata_dict["patient"]
         patient = Patient(
             pat_id=patient_data["id"],
@@ -35,7 +43,12 @@ class TestMetadataDataclasses:
         with pytest.raises(AttributeError):
             patient.pat_id = "PAT002"
 
+    # -------------------------------------------------------------------------
+    # Image tests
+    # -------------------------------------------------------------------------
+
     def test_image_creation(self, sample_metadata_dict):
+        """Creates an Image dataclass from raw metadata and verifies all fields."""
         image_data = sample_metadata_dict["image"]
 
         image = Image(
@@ -51,7 +64,12 @@ class TestMetadataDataclasses:
         assert image.pixel_binning == image_data["pixel_binning"]
         assert image.exposure_time == image_data["exposure_time"]
 
+    # -------------------------------------------------------------------------
+    # Concentration tests
+    # -------------------------------------------------------------------------
+
     def test_concentration_creation(self, sample_incubation_dict_raw):
+        """Creates a Concentration dataclass from raw incubation data."""
         conc_data = sample_incubation_dict_raw["stock_concentration"]
         conc = Concentration(value=float(conc_data["value"]), unit=conc_data["unit"])
 
@@ -60,7 +78,12 @@ class TestMetadataDataclasses:
         assert conc.value == float(conc_data["value"])
         assert conc.unit == conc_data["unit"]
 
+    # -------------------------------------------------------------------------
+    # Incubation tests
+    # -------------------------------------------------------------------------
+
     def test_incubation_creation(self, sample_metadata_dict):
+        """Creates a full Incubation dataclass (including nested Concentration objects)."""
         incub_data = sample_metadata_dict["incubations"][0]
         stock = Concentration(
             incub_data["stock_concentration"]["value"],
@@ -81,24 +104,21 @@ class TestMetadataDataclasses:
         assert is_dataclass(incubation)
 
         assert incubation.solution == incub_data["solution"]
-        assert (
-            incubation.stock_concentration.value
-            == incub_data["stock_concentration"]["value"]
-        )
-        assert (
-            incubation.final_concentration.value
-            == incub_data["final_concentration"]["value"]
-        )
+        assert incubation.stock_concentration.value == incub_data["stock_concentration"]["value"]
+        assert incubation.final_concentration.value == incub_data["final_concentration"]["value"]
         assert incubation.incubation_time == incub_data["incubation_time"]
 
+    # -------------------------------------------------------------------------
+    # Metadata tests
+    # -------------------------------------------------------------------------
+
     def test_metadata_creation_and_properties(self, sample_metadata_dict):
+        """Creates a complete Metadata instance and verifies all top-level fields + delegated properties."""
         patient_data = sample_metadata_dict["patient"]
         image_data = sample_metadata_dict["image"]
         incub_data = sample_metadata_dict["incubations"][0]
 
-        patient = Patient(
-            patient_data["id"], patient_data["name"], patient_data["tags"]
-        )
+        patient = Patient(patient_data["id"], patient_data["name"], patient_data["tags"])
         image = Image(
             image_data["created"],
             image_data["imager"],

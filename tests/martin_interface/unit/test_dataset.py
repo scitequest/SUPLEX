@@ -7,8 +7,15 @@ from src.martin_interface.holder import PathHolder, FileHolder
 
 
 class TestDataset:
+    """Tests for the Dataset class — the central container for a single MARTin measurement (samples, metadata, parameters, etc.)."""
+
+    # -------------------------------------------------------------------------
+    # Test-specific fixtures (used only in this file)
+    # -------------------------------------------------------------------------
+
     @pytest.fixture
     def basic_file_holder(self, sample_data_dict):
+        """Minimal FileHolder with only a data_file (no statistics, metadata, or parameters)."""
         return FileHolder(
             data_file=sample_data_dict,
             data_statistics_file=None,
@@ -19,14 +26,18 @@ class TestDataset:
 
     @pytest.fixture
     def mock_project(self):
+        """Mock Project object used for Dataset initialization tests."""
         project = Mock()
         project.name = "TestProject"
         project.description = "Test Description"
         return project
 
-    def test_dataset_initialization(
-        self, mock_path_holder, basic_file_holder, mock_project
-    ):
+    # -------------------------------------------------------------------------
+    # Dataset initialization
+    # -------------------------------------------------------------------------
+
+    def test_dataset_initialization(self, mock_path_holder, basic_file_holder, mock_project):
+        """Initializes a Dataset with minimal file holder and verifies core attributes."""
         dataset = Dataset(mock_path_holder, basic_file_holder, mock_project)
 
         assert dataset.path_holder == mock_path_holder
@@ -34,21 +45,22 @@ class TestDataset:
         assert dataset.project == mock_project
         assert len(dataset.samples) > 0
 
-    def test_init_samples_basic(
-        self, mock_path_holder, basic_file_holder, mock_project
-    ):
+    def test_init_samples_basic(self, mock_path_holder, basic_file_holder, mock_project):
+        """init_samples correctly groups spots into Sample objects (basic case with 2 samples)."""
         dataset = Dataset(mock_path_holder, basic_file_holder, mock_project)
         assert len(dataset.samples) == 2
 
-    def test_init_samples_with_statistics(
-        self, mock_path_holder, mock_file_holder, mock_project
-    ):
+    def test_init_samples_with_statistics(self, mock_path_holder, mock_file_holder, mock_project):
+        """init_samples attaches DataStatistics when a data_statistics_file is present."""
         dataset = Dataset(mock_path_holder, mock_file_holder, mock_project)
         assert dataset.samples[0].data_statistics is not None
 
-    def test_generate_data_statistics(
-        self, mock_path_holder, mock_file_holder, mock_project
-    ):
+    # -------------------------------------------------------------------------
+    # Data statistics generation (fallback when no data_statistics_file)
+    # -------------------------------------------------------------------------
+
+    def test_generate_data_statistics(self, mock_path_holder, mock_file_holder, mock_project):
+        """generate_data_statistics produces correct statistical values matching MARTin logic (with tolerance)."""
         dataset = Dataset(mock_path_holder, mock_file_holder, mock_project)
         stats = dataset.generate_data_statistics()
 
@@ -61,9 +73,7 @@ class TestDataset:
         assert all("relative_adjusted_average_std_deviation" in stat for stat in stats)
         assert all("normalized_average" in stat for stat in stats)
         assert all("normalized_average_std_deviation" in stat for stat in stats)
-        assert all(
-            "relative_normalized_average_std_deviation" in stat for stat in stats
-        )
+        assert all("relative_normalized_average_std_deviation" in stat for stat in stats)
 
         stats = [DataStatistics(**stats[0]), DataStatistics(**stats[1])]
         # Check if values are correct with tolerance
@@ -76,14 +86,10 @@ class TestDataset:
         assert dataset.data_statistics[0].normalized_average == pytest.approx(
             stats[0].normalized_average
         )
-        assert dataset.data_statistics[
-            0
-        ].relative_adjusted_average_std_deviation == pytest.approx(
+        assert dataset.data_statistics[0].relative_adjusted_average_std_deviation == pytest.approx(
             stats[0].relative_adjusted_average_std_deviation
         )
-        assert dataset.data_statistics[
-            0
-        ].normalized_average_std_deviation == pytest.approx(
+        assert dataset.data_statistics[0].normalized_average_std_deviation == pytest.approx(
             stats[0].normalized_average_std_deviation
         )
         assert dataset.data_statistics[
@@ -101,14 +107,10 @@ class TestDataset:
         assert dataset.data_statistics[1].normalized_average == pytest.approx(
             stats[1].normalized_average
         )
-        assert dataset.data_statistics[
-            1
-        ].relative_adjusted_average_std_deviation == pytest.approx(
+        assert dataset.data_statistics[1].relative_adjusted_average_std_deviation == pytest.approx(
             stats[1].relative_adjusted_average_std_deviation
         )
-        assert dataset.data_statistics[
-            1
-        ].normalized_average_std_deviation == pytest.approx(
+        assert dataset.data_statistics[1].normalized_average_std_deviation == pytest.approx(
             stats[1].normalized_average_std_deviation
         )
         assert dataset.data_statistics[
@@ -117,20 +119,31 @@ class TestDataset:
             stats[1].relative_normalized_average_std_deviation
         )
 
-    def test_init_general_parameters_none(
-        self, mock_path_holder, basic_file_holder, mock_project
-    ):
+    # -------------------------------------------------------------------------
+    # General parameters initialization
+    # -------------------------------------------------------------------------
+
+    def test_init_general_parameters_none(self, mock_path_holder, basic_file_holder, mock_project):
+        """When no parameters_file exists, general_parameters falls back to sensible defaults derived from the data_file."""
         dataset = Dataset(mock_path_holder, basic_file_holder, mock_project)
-        assert dataset.general_parameters is None
+        params = dataset.general_parameters
+        assert params is not None
+        assert params.invert_lut is False
+        assert params.subtract_background is False
+        assert params.number_of_spotfields == 2
+        assert params.columns_per_spotfield == 2
+        assert params.spots_per_spotfield == 2
+        assert len(params.background_rectangles) == 0
 
     def test_init_general_parameters_with_data(
         self, mock_path_holder, mock_file_holder, mock_project
     ):
+        """init_general_parameters correctly parses parameters_file (including background rectangles)."""
         dataset = Dataset(mock_path_holder, mock_file_holder, mock_project)
 
         params = dataset.general_parameters
         assert params is not None
-        # Same as sample_parameters_dict_circle in polygon
+        # Same as sample_parameters_dict_polygon
         assert params.invert_lut == False
         assert params.subtract_background == True
         assert params.number_of_spotfields == 2
@@ -138,15 +151,26 @@ class TestDataset:
         assert params.spots_per_spotfield == 2
         assert len(params.background_rectangles) == 1
 
-    def test_init_metadata_none(
-        self, mock_path_holder, basic_file_holder, mock_project
-    ):
+    # -------------------------------------------------------------------------
+    # Metadata initialization
+    # -------------------------------------------------------------------------
+
+    def test_init_metadata_none(self, mock_path_holder, basic_file_holder, mock_project):
+        """When no metadata_file exists, metadata falls back to defaults (with additional tags indicating missing files)."""
         dataset = Dataset(mock_path_holder, basic_file_holder, mock_project)
-        assert dataset.metadata is None
+        metadata = dataset.metadata
+        assert metadata is not None
+        assert metadata.version == "0.0.0"
+        assert metadata.imager == "unknown"
+        assert metadata.pixel_binning == 1
+        assert "default_metadata_file" in metadata.tags
+        assert "no_data_statistics_file" in metadata.tags
+        assert "no_parameters_file" in metadata.tags
 
     def test_init_metadata_with_data(
         self, mock_path_holder, mock_file_holder, mock_project, sample_metadata_dict
     ):
+        """init_metadata correctly builds a Metadata object and exposes all delegated properties."""
         dataset = Dataset(mock_path_holder, mock_file_holder, mock_project)
 
         metadata = dataset.metadata
@@ -166,7 +190,12 @@ class TestDataset:
         assert isinstance(dataset.spots, list)
         assert isinstance(dataset.data_statistics, list)
 
+    # -------------------------------------------------------------------------
+    # Label and tag helper methods
+    # -------------------------------------------------------------------------
+
     def test_get_name_label(self, mock_path_holder, mock_file_holder, mock_project):
+        """get_name_label returns the expected 'PAT001 - Test Patient' format for GUI display."""
         dataset = Dataset(mock_path_holder, mock_file_holder, mock_project)
 
         label = dataset.get_name_label()
@@ -174,6 +203,7 @@ class TestDataset:
         assert "Test Patient" in label
 
     def test_has_some_tags(self, mock_path_holder, mock_file_holder, mock_project):
+        """has_some_tags returns True if at least one tag matches (including suplex_tags)."""
         dataset = Dataset(mock_path_holder, mock_file_holder, mock_project)
 
         assert dataset.has_some_tags(["tag1", "nonexistent"]) is True
@@ -182,6 +212,7 @@ class TestDataset:
         assert dataset.has_some_tags(["analysis1"]) is True
 
     def test_has_all_tags(self, mock_path_holder, mock_file_holder, mock_project):
+        """has_all_tags returns True only if every provided tag is present (empty list = False)."""
         dataset = Dataset(mock_path_holder, mock_file_holder, mock_project)
 
         assert dataset.has_all_tags(["tag1"]) is True
@@ -190,7 +221,12 @@ class TestDataset:
         assert dataset.has_all_tags(["tag1", "nonexistent"]) is False
         assert dataset.has_all_tags([]) is False
 
+    # -------------------------------------------------------------------------
+    # Timeframe filtering
+    # -------------------------------------------------------------------------
+
     def test_is_in_timeframe(self, mock_path_holder, mock_file_holder, mock_project):
+        """is_in_timeframe correctly checks both measure_date and image_creation_date against a range."""
         dataset = Dataset(mock_path_holder, mock_file_holder, mock_project)
 
         # Metadata "datetime" = "1998-07-13T10:30:00"
