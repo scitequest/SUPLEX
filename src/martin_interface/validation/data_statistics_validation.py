@@ -27,9 +27,7 @@ def try_get_validated_data_statistics(
         None: If the file is invalid or fails critical validation checks.
     """
 
-    logging.debug(
-        f"Initiated data_statistics file validation for {data_statistics_file_path}"
-    )
+    logging.debug(f"Initiated data_statistics file validation for {data_statistics_file_path}")
     data_statistics_file = get_data_file(file_path=data_statistics_file_path)
     if data_statistics_file is None:
         return None
@@ -96,13 +94,9 @@ def try_typecast_data_statistics_file(
 
     for dataset in data_statistics_file["values"]:
         try:
-            typecasted_data.append(
-                {key: type_fields[key](value) for key, value in dataset.items()}
-            )
+            typecasted_data.append({key: type_fields[key](value) for key, value in dataset.items()})
         except Exception as e:
-            logger.error(
-                f"Typecasting failed for {data_statistics_file_path}: {str(e)}"
-            )
+            logger.error(f"Typecasting failed for {data_statistics_file_path}: {str(e)}")
             return None
 
     return {"values": typecasted_data}
@@ -253,9 +247,7 @@ def check_external_consistency(
     consistent = True
     for i, spot in enumerate(data_statistics):
         adjusted_average = spot["adjusted_average"]
-        if not math.isclose(
-            adjusted_average, validation_adjusted_averages[i], abs_tol=TOLERANCE
-        ):
+        if not math.isclose(adjusted_average, validation_adjusted_averages[i], abs_tol=TOLERANCE):
             logging.debug(
                 f"Inconsistency: {data_statistics_file_path} at entry {i} adjusted_average file = {adjusted_average}; calculated = {validation_adjusted_averages[i]}."
             )

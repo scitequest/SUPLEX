@@ -100,7 +100,9 @@ class Header:
             )
             icon_box = widgets.HBox(
                 [link_icons],
-                layout=widgets.Layout(width="auto", height = "auto", padding="0px 20px 0px 0px", overflow = "visible"),
+                layout=widgets.Layout(
+                    width="auto", height="auto", padding="0px 20px 0px 0px", overflow="visible"
+                ),
             )
             icon_box.add_class("icon-box")
 
@@ -122,7 +124,7 @@ class Header:
                 [icon_box, self._theme_dropdown],
                 layout=widgets.Layout(
                     width="auto",
-                    height = "40px",
+                    height="40px",
                     align_items="center",
                     justify_content="flex-end",
                     overflow="visible",
@@ -193,9 +195,7 @@ class Header:
             return f'<img src="data:{mime};base64,{encoded}" style="height: {size}px;">'
 
         except Exception as e:
-            logger.error(
-                "Could not load header icon: %s - %s", file_path, e, exc_info=True
-            )
+            logger.error("Could not load header icon: %s - %s", file_path, e, exc_info=True)
             return f'<div style="width: {size}px; height: {size}px; background: #ddd; border-radius: 4px;"></div>'
 
     def update_theme_dropdown(self) -> None:
@@ -233,9 +233,7 @@ class Header:
                 self.update_ui_element()
                 self._gui.update_scheme(self.current_scheme)
 
-            self._theme_dropdown.observe(
-                lambda change: on_theme_change(), names="value"
-            )
+            self._theme_dropdown.observe(lambda change: on_theme_change(), names="value")
             logger.debug("Theme dropdown updated successfully")
 
         except Exception as e:

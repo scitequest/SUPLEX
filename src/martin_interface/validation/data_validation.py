@@ -47,9 +47,7 @@ def try_get_validated_data(data_file_path: str) -> dict[str, List[dict[str, Any]
         return None
 
     if not check_value_consistency(data_file_path=data_file_path, data_file=data_file):
-        logger.error(
-            f"Data file at {data_file_path} was not loaded due to value inconsistencies"
-        )
+        logger.error(f"Data file at {data_file_path} was not loaded due to value inconsistencies")
         return None
 
     return data_file
@@ -74,9 +72,7 @@ def try_typecast_data_file(
 
     for dataset in data_file["values"]:
         try:
-            typecasted_data.append(
-                {key: type_fields[key](value) for key, value in dataset.items()}
-            )
+            typecasted_data.append({key: type_fields[key](value) for key, value in dataset.items()})
         except Exception as e:
             logger.error(f"Typecasting failed for {data_file_path}: {str(e)}")
             return None
@@ -128,9 +124,7 @@ def check_value_consistency(
     # Check if all spot fields have the same number of entries.
 
     # Split measurement data each spot_field beeing one set of copies.
-    n_spot_fields = (
-        data[-1]["spot"] + 1
-    )  # last entry will be part of the highest index spot_field
+    n_spot_fields = data[-1]["spot"] + 1  # last entry will be part of the highest index spot_field
     spot_fields = [[] for _ in range(n_spot_fields)]
     # Confusing terminology, spot in measurement files is a shorthand for spot-field
     for spot in data:
@@ -139,9 +133,7 @@ def check_value_consistency(
     spot_field_length = len(spot_fields[0])
     for sField in spot_fields:
         if len(sField) != spot_field_length:
-            logger.error(
-                f"{data_file_path}: Spotfields have a varying number of entries."
-            )
+            logger.error(f"{data_file_path}: Spotfields have a varying number of entries.")
             return False
 
     # Dictionaries to collect NaN and infinite indices per field, this shortens the log.
@@ -189,14 +181,10 @@ def check_value_consistency(
     for key in keymap:
         if nan_indices[key]:
             indices_str = ", ".join(map(str, nan_indices[key]))
-            logger.warning(
-                f"{data_file_path}: {key} has NaN values at entries: {indices_str}"
-            )
+            logger.warning(f"{data_file_path}: {key} has NaN values at entries: {indices_str}")
 
         if inf_indices[key]:
             indices_str = ", ".join(map(str, inf_indices[key]))
-            logger.warning(
-                f"{data_file_path}: {key} has infinite values at entries: {indices_str}"
-            )
+            logger.warning(f"{data_file_path}: {key} has infinite values at entries: {indices_str}")
 
     return True

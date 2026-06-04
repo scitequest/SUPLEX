@@ -86,9 +86,7 @@ class ModuleSelectionPage:
 
                     # Check if module is viable for the selected datasets
                     is_viable = module.check_if_viable(datasets)
-                    logger.debug(
-                        "Module %s viability check: %s", module_name, is_viable
-                    )
+                    logger.debug("Module %s viability check: %s", module_name, is_viable)
 
                     total_count += 1
                     if is_viable:
@@ -107,9 +105,7 @@ class ModuleSelectionPage:
                         tabs[group_name].append(tile_widget)
                         module_names[group_name].append(module_name.lower())
                     else:
-                        logger.warning(
-                            "Failed to create tile for module %s", module_name
-                        )
+                        logger.warning("Failed to create tile for module %s", module_name)
 
                 except Exception as e:
                     logger.error("Error processing module %d: %s", i, e, exc_info=True)
@@ -131,26 +127,24 @@ class ModuleSelectionPage:
             if not tabs:
                 logger.warning("No valid modules found after processing")
                 return WidgetFactory.vbox(
-                    children=[
-                        WidgetFactory.html_widget(value="<h3>No modules available</h3>")
-                    ],
+                    children=[WidgetFactory.html_widget(value="<h3>No modules available</h3>")],
                     width="100%",
                     height="100%",
                 )
-                
+
             # Apply sorting to tabs - case insensitive
             tabs = dict(sorted(tabs.items(), key=lambda item: item[0].lower()))
             if "Adapters" in tabs:
                 tabs = {"Adapters": tabs.pop("Adapters")} | tabs  # second
-            
+
             if "Vanilla" in tabs:
-                tabs = {"Vanilla": tabs.pop("Vanilla")} | tabs    # first
-            
+                tabs = {"Vanilla": tabs.pop("Vanilla")} | tabs  # first
+
             if "No group" in tabs:
                 tabs = tabs | {"No group": tabs.pop("No group")}  # last
 
             module_names[group_name].append(module_name)
-            
+
             # Sort Modules per tab alphabetically
             for key in module_names:
                 if key in tabs:
@@ -163,9 +157,7 @@ class ModuleSelectionPage:
             tab_titles = []
 
             for group_name, tiles in tabs.items():
-                logger.debug(
-                    "Creating tab content for %s with %d tiles", group_name, len(tiles)
-                )
+                logger.debug("Creating tab content for %s with %d tiles", group_name, len(tiles))
 
                 # Create grid container for module tiles
                 group_content = WidgetFactory.grid_container(
@@ -180,9 +172,7 @@ class ModuleSelectionPage:
                 tab_children.append(group_content)
                 tab_titles.append(group_name)
 
-            logger.debug(
-                "Creating tab widget with %d tabs: %s", len(tab_children), tab_titles
-            )
+            logger.debug("Creating tab widget with %d tabs: %s", len(tab_children), tab_titles)
 
             # Create main tab widget
             tab_widget = WidgetFactory.tab(
@@ -200,9 +190,7 @@ class ModuleSelectionPage:
                 if i < len(tab_children):
                     tab_widget.set_title(i, title)
 
-            logger.debug(
-                "Module selection UI built successfully with %d groups", len(tab_titles)
-            )
+            logger.debug("Module selection UI built successfully with %d groups", len(tab_titles))
             return tab_widget
 
         except Exception as e:
@@ -213,9 +201,7 @@ class ModuleSelectionPage:
                 height="100%",
             )
 
-    def create_module_tile(
-        self, module: Any, is_viable: bool
-    ) -> Optional[widgets.Widget]:
+    def create_module_tile(self, module: Any, is_viable: bool) -> Optional[widgets.Widget]:
         """
         Creates a styled HTML widget representing the module with hover effects,
         click handlers, and visual indicators for viability status.
@@ -227,9 +213,7 @@ class ModuleSelectionPage:
         Returns:
             Widget containing the module tile, or None if creation fails
         """
-        logger.debug(
-            "Creating tile for module: %s (viable: %s)", module.module_name, is_viable
-        )
+        logger.debug("Creating tile for module: %s (viable: %s)", module.module_name, is_viable)
 
         try:
             # Get module styling
@@ -241,12 +225,9 @@ class ModuleSelectionPage:
 
             # Current implementation ignores widget factory. Might change this later to be more responsive to desing schemes
             tile_html = widgets.HTML(
-                value=self.get_tile_html(
-                    module, background_color, text_color, is_viable
-                ),
-                layout= widgets.Layout(width = "280px", height = "160px")
+                value=self.get_tile_html(module, background_color, text_color, is_viable),
+                layout=widgets.Layout(width="280px", height="160px"),
             )
-
 
             # Set up event handlers
             events = []
@@ -273,9 +254,7 @@ class ModuleSelectionPage:
                     lambda event, mod=module: self._navigator.navigate_to_module(mod)
                 )
                 events.append(click_event)
-                logger.debug(
-                    "Added click handler for viable module: %s", module.module_name
-                )
+                logger.debug("Added click handler for viable module: %s", module.module_name)
 
             # Store events for cleanup
             self._tile_events.extend(events)
@@ -338,9 +317,7 @@ class ModuleSelectionPage:
                 # Check file size to avoid huge Base64 strings
                 file_size = os.path.getsize(icon)
                 if file_size > 500 * 1024:  # 500KB limit
-                    logger.warning(
-                        "Icon file too large (%d bytes): %s", file_size, icon
-                    )
+                    logger.warning("Icon file too large (%d bytes): %s", file_size, icon)
                     return default_icon
 
                 with open(icon, "rb") as img_file:
@@ -399,7 +376,9 @@ class ModuleSelectionPage:
             module_name = module.module_name
             module_version = module.module_version
 
-            background_gradient = f"linear-gradient(135deg, {background_color} 0%, {background_color}CC 100%)"
+            background_gradient = (
+                f"linear-gradient(135deg, {background_color} 0%, {background_color}CC 100%)"
+            )
             icon = self.get_module_icon(module)
 
             # Configure hover effects and cursor based on viability

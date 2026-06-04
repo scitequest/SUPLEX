@@ -138,18 +138,14 @@ class BoxplotSettings:
             value=show_boxplot,
             description="Show Boxplot",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._show_outliers_widget = WidgetFactory.checkbox(
             value=show_outliers,
             description="Show Outliers",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         modes = [mode.value for mode in WHISKER_MODE]
@@ -164,9 +160,7 @@ class BoxplotSettings:
             min_value=0.0,
             step=0.1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._percentile_min_widget = WidgetFactory.number_input(
@@ -175,9 +169,7 @@ class BoxplotSettings:
             max_value=100,
             step=1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._percentile_max_widget = WidgetFactory.number_input(
@@ -186,9 +178,7 @@ class BoxplotSettings:
             max_value=100,
             step=1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._box_alpha_widget = WidgetFactory.number_input(
@@ -197,9 +187,7 @@ class BoxplotSettings:
             max_value=1.0,
             step=0.05,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._box_width_widget = WidgetFactory.number_input(
@@ -208,9 +196,7 @@ class BoxplotSettings:
             max_value=1.0,
             step=0.05,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._iqr_container = WidgetFactory.vbox(
@@ -355,9 +341,7 @@ class BoxplotSettings:
         """
         logger.debug("Getting UI for BoxplotSettings")
         boxplot_widgets = []
-        boxplot_widgets.append(
-            WidgetFactory.html_widget(value="<h3>Boxplot Options</h3>")
-        )
+        boxplot_widgets.append(WidgetFactory.html_widget(value="<h3>Boxplot Options</h3>"))
 
         checkboxes = []
         if self._show_boxplot_enabled or self._show_all_options:

@@ -2,13 +2,20 @@ import pytest
 import os
 import tempfile
 import json
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 from src.martin_interface.search_directories import delve_dirs, sweep_dirs
 from src.martin_interface.martin_interface_constants import SEARCH_MODE
 
 
 class TestSearchDirectories:
+    """Tests for the directory searching functions `delve_dirs` and `sweep_dirs`."""
+
+    # -------------------------------------------------------------------------
+    # delve_dirs tests
+    # -------------------------------------------------------------------------
+
     def test_delve_dirs_basic(self, temp_dir, sample_data_dict):
+        """Basic case: finds a single directory containing the target data.json file."""
         subdir = os.path.join(temp_dir, "subdir")
         os.makedirs(subdir)
 
@@ -22,6 +29,7 @@ class TestSearchDirectories:
         assert subdir in detected
 
     def test_delve_dirs_multiple_targets(self, temp_dir, sample_data_dict):
+        """Finds directories when multiple different target files are present."""
         sub1 = os.path.join(temp_dir, "sub1")
         sub2 = os.path.join(temp_dir, "sub2")
         os.makedirs(sub1)
@@ -40,6 +48,7 @@ class TestSearchDirectories:
         assert sub2 in detected
 
     def test_delve_dirs_nested(self, temp_dir, sample_data_dict):
+        """Handles deeply nested directories correctly."""
         deep_path = os.path.join(temp_dir, "level1", "level2", "level3")
         os.makedirs(deep_path)
 
@@ -53,6 +62,7 @@ class TestSearchDirectories:
         assert deep_path in detected
 
     def test_delve_dirs_multiple_branches(self, temp_dir, sample_data_dict):
+        """Finds target files across multiple branches of the directory tree."""
         paths = [
             os.path.join(temp_dir, "branch1", "sub1"),
             os.path.join(temp_dir, "branch1", "sub2", "deep"),
@@ -81,18 +91,15 @@ class TestSearchDirectories:
         assert len(detected) == 6, f"Expected 6 directories, but found {len(detected)}"
 
         for expected_path in paths:
-            assert (
-                expected_path in detected
-            ), f"Path {expected_path} not found in detected paths"
+            assert expected_path in detected, f"Path {expected_path} not found in detected paths"
 
         for detected_path in detected:
             data_json_path = os.path.join(detected_path, "data.json")
-            assert os.path.exists(
-                data_json_path
-            ), f"data.json not found in {detected_path}"
+            assert os.path.exists(data_json_path), f"data.json not found in {detected_path}"
 
     @patch("os.listdir")
     def test_delve_dirs_permission_error(self, mock_listdir):
+        """Gracefully handles PermissionError during directory traversal and logs a warning."""
         mock_listdir.side_effect = PermissionError("Access denied")
 
         detected = set()
@@ -100,7 +107,12 @@ class TestSearchDirectories:
             delve_dirs("/test/path", ["data.json"], detected)
             mock_logger.warning.assert_called()
 
-    def ttest_sweep_dirs_unbound(self, temp_dir, sample_data_dict):
+    # -------------------------------------------------------------------------
+    # sweep_dirs tests
+    # -------------------------------------------------------------------------
+
+    def test_sweep_dirs_unbound(self, temp_dir, sample_data_dict):
+        """ITERATIVE_UNBOUND mode finds all target files regardless of depth."""
         paths = [
             os.path.join(temp_dir, "branch1", "sub1"),
             os.path.join(temp_dir, "branch1", "sub2", "deep"),
@@ -129,17 +141,14 @@ class TestSearchDirectories:
         assert len(detected) == 6, f"Expected 6 directories, but found {len(detected)}"
 
         for expected_path in paths:
-            assert (
-                expected_path in detected
-            ), f"Path {expected_path} not found in detected paths"
+            assert expected_path in detected, f"Path {expected_path} not found in detected paths"
 
         for detected_path in detected:
             data_json_path = os.path.join(detected_path, "data.json")
-            assert os.path.exists(
-                data_json_path
-            ), f"data.json not found in {detected_path}"
+            assert os.path.exists(data_json_path), f"data.json not found in {detected_path}"
 
     def test_sweep_dirs_bounded_all(self, temp_dir, sample_data_dict):
+        """ITERATIVE_BOUNDED_ALL mode respects max_depth and finds files up to that depth."""
         sub1 = os.path.join(temp_dir, "sub1")
         sub2 = os.path.join(sub1, "sub2")
         sub3 = os.path.join(sub2, "sub3")
@@ -165,6 +174,7 @@ class TestSearchDirectories:
         assert sub3 not in detected
 
     def test_sweep_dirs_bounded_bottom(self, temp_dir, sample_data_dict):
+        """ITERATIVE_BOUNDED_BOTTOM mode only returns files exactly at max_depth."""
         sub1 = os.path.join(temp_dir, "sub1")
         sub2 = os.path.join(sub1, "sub2")
         os.makedirs(sub2)
@@ -185,6 +195,7 @@ class TestSearchDirectories:
 
     @patch("os.scandir")
     def test_sweep_dirs_permission_error(self, mock_scandir):
+        """Gracefully handles PermissionError in sweep_dirs and returns empty set."""
         mock_scandir.side_effect = PermissionError("Access denied")
 
         with patch("src.martin_interface.search_directories.logger") as mock_logger:

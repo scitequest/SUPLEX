@@ -58,9 +58,7 @@ def load_all_schemes(directory: Path) -> Dict[str, Any]:
             for scheme in file_schemes:
                 if hasattr(scheme, "NAME"):
                     schemes[scheme.NAME] = scheme
-                    logger.debug(
-                        "Loaded scheme '%s' from file: %s", scheme.NAME, file_path.name
-                    )
+                    logger.debug("Loaded scheme '%s' from file: %s", scheme.NAME, file_path.name)
                 else:
                     logger.warning(
                         "Scheme class missing NAME attribute in file: %s",
@@ -119,14 +117,10 @@ def validate_scheme_files(python_files: List[Path]) -> List[Path]:
             logger.debug("Validated file for scheme loading: %s", file_path.name)
 
         except Exception as e:
-            logger.error(
-                "Error validating file '%s': %s", file_path.name, e, exc_info=True
-            )
+            logger.error("Error validating file '%s': %s", file_path.name, e, exc_info=True)
             continue
 
-    logger.debug(
-        "Validated %d files out of %d candidates", len(valid_files), len(python_files)
-    )
+    logger.debug("Validated %d files out of %d candidates", len(valid_files), len(python_files))
     return valid_files
 
 
@@ -210,9 +204,7 @@ def try_load_schemes_from_file(file_path: Path) -> List[Any]:
         try:
             spec.loader.exec_module(module)
         except Exception as e:
-            logger.error(
-                "Failed to execute module '%s': %s", file_path, e, exc_info=True
-            )
+            logger.error("Failed to execute module '%s': %s", file_path, e, exc_info=True)
             return scheme_classes
         finally:
             # Clean up sys.modules to avoid pollution
@@ -257,9 +249,7 @@ def try_load_schemes_from_file(file_path: Path) -> List[Any]:
     return scheme_classes
 
 
-def validate_against_schema(
-    schema: Dict[str, Any], test_obj: Any, path: str = ""
-) -> bool:
+def validate_against_schema(schema: Dict[str, Any], test_obj: Any, path: str = "") -> bool:
     """
     Recursively checks that the object has all required attributes and that
     nested objects (classes) also match their expected structure. This ensures
@@ -305,9 +295,7 @@ def validate_against_schema(
                     return False
 
                 # Recursively validate nested class structure
-                if not validate_against_schema(
-                    expected_type, attribute_value, current_path
-                ):
+                if not validate_against_schema(expected_type, attribute_value, current_path):
                     logger.debug("Nested validation failed for '%s'", current_path)
                     return False
 
@@ -326,19 +314,13 @@ def validate_against_schema(
             elif callable(expected_type):
                 try:
                     if not expected_type(attribute_value):
-                        logger.debug(
-                            "Validation function failed for '%s'", current_path
-                        )
+                        logger.debug("Validation function failed for '%s'", current_path)
                         return False
                 except Exception as e:
-                    logger.debug(
-                        "Error in validation function for '%s': %s", current_path, e
-                    )
+                    logger.debug("Error in validation function for '%s': %s", current_path, e)
                     return False
             else:
-                logger.warning(
-                    "Unknown expected type for '%s': %s", current_path, expected_type
-                )
+                logger.warning("Unknown expected type for '%s': %s", current_path, expected_type)
 
         logger.debug(
             "Schema validation passed for object: %s",

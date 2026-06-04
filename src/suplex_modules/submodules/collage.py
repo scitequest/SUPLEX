@@ -23,9 +23,7 @@ from ui.widget_factory import WidgetFactory
 logger = logging.getLogger(__name__)
 
 
-def format_image_to_svg(
-    input_item: Union[Image.Image, plt.Figure], dpi: int = 300
-) -> sg.SVGFigure:
+def format_image_to_svg(input_item: Union[Image.Image, plt.Figure], dpi: int = 300) -> sg.SVGFigure:
     """
     Formats a PIL image or Matplotlib figure to an SVGFigure.
 
@@ -73,9 +71,7 @@ def format_image_to_svg(
         raise ValueError("Conversion to figure failed")
 
 
-def scale_svgs(
-    svgs: List[sg.SVGFigure], scale_option: SCALE_OPTION
-) -> List[sg.SVGFigure]:
+def scale_svgs(svgs: List[sg.SVGFigure], scale_option: SCALE_OPTION) -> List[sg.SVGFigure]:
     """
     Scales SVGFigures according to the specified scale option while preserving or ignoring aspect ratio.
 
@@ -139,9 +135,7 @@ def scale_svgs(
             new_w = width_max
             new_h = height_max
         else:
-            logger.warning(
-                f"Unknown scale option: {scale_option}, returning original SVG"
-            )
+            logger.warning(f"Unknown scale option: {scale_option}, returning original SVG")
             scaled_svgs.append(svg)
             continue
 
@@ -200,9 +194,7 @@ def add_padding_to_svgs(
     return padded_svgs
 
 
-def get_gridded_svgs(
-    svgs: List[sg.SVGFigure], layout: COLLAGE_LAYOUT
-) -> List[sg.SVGFigure]:
+def get_gridded_svgs(svgs: List[sg.SVGFigure], layout: COLLAGE_LAYOUT) -> List[sg.SVGFigure]:
     """
     Adjusts sizes of SVGFigures based on the layout by adding padding to equalize dimensions.
 
@@ -449,9 +441,7 @@ def add_title_to_svg(
     elements.append(plot)
 
     title_color_tuple = get_color_tuple(title_color, use_alpha=True)
-    title_color_rgb = (
-        f"rgb({title_color_tuple[0]},{title_color_tuple[1]},{title_color_tuple[2]})"
-    )
+    title_color_rgb = f"rgb({title_color_tuple[0]},{title_color_tuple[1]},{title_color_tuple[2]})"
 
     if title_position == TITLE_POSITION.TOP:
         title_x = new_width / 2
@@ -655,30 +645,22 @@ class Collage:
         enabled_scaling = scaling if self._scaling_enabled else list(SCALE_OPTION)
 
         self._padding_horizontal_enabled = padding_horizontal is not None
-        padding_horizontal = (
-            padding_horizontal if self._padding_horizontal_enabled else 0
-        )
+        padding_horizontal = padding_horizontal if self._padding_horizontal_enabled else 0
         max_padding_horizontal = (
             max_padding_horizontal if max_padding_horizontal is not None else 100
         )
 
         self._padding_vertical_enabled = padding_vertical is not None
         padding_vertical = padding_vertical if self._padding_vertical_enabled else 0
-        max_padding_vertical = (
-            max_padding_vertical if max_padding_vertical is not None else 100
-        )
+        max_padding_vertical = max_padding_vertical if max_padding_vertical is not None else 100
 
         self._margin_vertical_enabled = margin_vertical is not None
         margin_vertical = margin_vertical if self._margin_vertical_enabled else 0
-        max_margin_vertical = (
-            max_margin_vertical if max_margin_vertical is not None else 100
-        )
+        max_margin_vertical = max_margin_vertical if max_margin_vertical is not None else 100
 
         self._margin_horizontal_enabled = margin_horizontal is not None
         margin_horizontal = margin_horizontal if self._margin_horizontal_enabled else 0
-        max_margin_horizontal = (
-            max_margin_horizontal if max_margin_horizontal is not None else 100
-        )
+        max_margin_horizontal = max_margin_horizontal if max_margin_horizontal is not None else 100
 
         self._title_enabled = title != ""
         title = title if self._title_enabled else ""
@@ -689,9 +671,7 @@ class Collage:
         )
 
         self._title_colors_enabled = title_colors is not None
-        enabled_title_colors = (
-            title_colors if self._title_colors_enabled else list(COLOR)
-        )
+        enabled_title_colors = title_colors if self._title_colors_enabled else list(COLOR)
 
         self._font_size_enabled = font_size is not None
         font_size = font_size if self._font_size_enabled else 12
@@ -774,9 +754,7 @@ class Collage:
             options=layout_options,
             value=layout_options[0],
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._n_columns_input = WidgetFactory.int_number_input(
@@ -784,9 +762,7 @@ class Collage:
             min_value=1,
             max_value=max_columns,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="100%", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="100%", margin="0px", padding="0px"),
         )
 
         scale_options = [scale.value for scale in scaling]
@@ -794,9 +770,7 @@ class Collage:
             options=scale_options,
             value=scale_options[0],
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._padding_horizontal_input = WidgetFactory.int_number_input(
@@ -804,9 +778,7 @@ class Collage:
             min_value=0,
             max_value=max_padding_horizontal,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="100%", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="100%", margin="0px", padding="0px"),
         )
 
         self._padding_vertical_input = WidgetFactory.int_number_input(
@@ -814,9 +786,7 @@ class Collage:
             min_value=0,
             max_value=max_padding_vertical,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="100%", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="100%", margin="0px", padding="0px"),
         )
 
         self._margin_vertical_input = WidgetFactory.int_number_input(
@@ -824,9 +794,7 @@ class Collage:
             min_value=0,
             max_value=max_margin_vertical,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="100%", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="100%", margin="0px", padding="0px"),
         )
 
         self._margin_horizontal_input = WidgetFactory.int_number_input(
@@ -834,29 +802,21 @@ class Collage:
             min_value=0,
             max_value=max_margin_horizontal,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="100%", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="100%", margin="0px", padding="0px"),
         )
 
         self._title_input = WidgetFactory.text_input(
             value=title,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
-        title_position_options = [
-            title_position.value for title_position in title_positions
-        ]
+        title_position_options = [title_position.value for title_position in title_positions]
         self._title_position_dropdown = WidgetFactory.dropdown(
             options=title_position_options,
             value=title_position_options[0],
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         title_color_options = [title_color.value for title_color in title_colors]
@@ -864,9 +824,7 @@ class Collage:
             options=title_color_options,
             value=title_color_options[0],
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._font_size_input = WidgetFactory.int_number_input(
@@ -874,21 +832,15 @@ class Collage:
             min_value=0,
             max_value=max_font_size,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="100%", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="100%", margin="0px", padding="0px"),
         )
 
-        reading_order_options = [
-            reading_order.value for reading_order in reading_orders
-        ]
+        reading_order_options = [reading_order.value for reading_order in reading_orders]
         self._reading_order_dropdown = WidgetFactory.dropdown(
             options=reading_order_options,
             value=reading_order_options[0],
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
     @property
@@ -1297,19 +1249,13 @@ class Collage:
             columns = columns or self.columns
             scale_option = scale_option or self.scale_option
             padding_horizontal = (
-                padding_horizontal
-                if padding_horizontal is not None
-                else self.padding_horizontal
+                padding_horizontal if padding_horizontal is not None else self.padding_horizontal
             )
             padding_vertical = (
-                padding_vertical
-                if padding_vertical is not None
-                else self.padding_vertical
+                padding_vertical if padding_vertical is not None else self.padding_vertical
             )
             horizontal_margin = (
-                horizontal_margin
-                if horizontal_margin is not None
-                else self.horizontal_margin
+                horizontal_margin if horizontal_margin is not None else self.horizontal_margin
             )
             vertical_margin = (
                 vertical_margin if vertical_margin is not None else self.vertical_margin
