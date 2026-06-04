@@ -31,9 +31,7 @@ from suplex_modules.submodules.submodule_utils import (
 logger = logging.getLogger(__name__)
 
 
-def has_flat_distribution(
-    value_set: List[Union[int, float]], threshold: Union[int, float]
-) -> bool:
+def has_flat_distribution(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
     """
     Check if the value set has a flat distribution based on average to max ratio.
 
@@ -44,9 +42,7 @@ def has_flat_distribution(
     Returns:
         True if the distribution is considered flat (ratio >= threshold).
     """
-    logger.debug(
-        f"Checking if value set has flat distribution with threshold: {threshold}"
-    )
+    logger.debug(f"Checking if value set has flat distribution with threshold: {threshold}")
     if not value_set or len(value_set) == 0:
         return True
 
@@ -64,9 +60,7 @@ def has_flat_distribution(
     return result
 
 
-def has_low_variance(
-    value_set: List[Union[int, float]], threshold: Union[int, float]
-) -> bool:
+def has_low_variance(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
     """
     Check if the variance of the value set is below the threshold.
 
@@ -87,9 +81,7 @@ def has_low_variance(
     return result
 
 
-def contains_value_above(
-    value_set: List[Union[int, float]], threshold: Union[int, float]
-) -> bool:
+def contains_value_above(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
     """
     Check if the value set contains any value above the threshold.
 
@@ -109,9 +101,7 @@ def contains_value_above(
     return result
 
 
-def contains_value_below(
-    value_set: List[Union[int, float]], threshold: Union[int, float]
-) -> bool:
+def contains_value_below(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
     """
     Check if the value set contains any value below the threshold.
 
@@ -131,9 +121,7 @@ def contains_value_below(
     return result
 
 
-def is_avg_value_above(
-    value_set: List[Union[int, float]], threshold: Union[int, float]
-) -> bool:
+def is_avg_value_above(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
     """
     Check if the average value of the set is above the threshold.
 
@@ -154,9 +142,7 @@ def is_avg_value_above(
     return result
 
 
-def is_avg_value_below(
-    value_set: List[Union[int, float]], threshold: Union[int, float]
-) -> bool:
+def is_avg_value_below(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
     """
     Check if the average value of the set is below the threshold.
 
@@ -177,9 +163,7 @@ def is_avg_value_below(
     return result
 
 
-def is_max_value_above(
-    value_set: List[Union[int, float]], threshold: Union[int, float]
-) -> bool:
+def is_max_value_above(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
     """
     Check if the maximum value of the set is above the threshold.
 
@@ -200,9 +184,7 @@ def is_max_value_above(
     return result
 
 
-def is_max_value_below(
-    value_set: List[Union[int, float]], threshold: Union[int, float]
-) -> bool:
+def is_max_value_below(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
     """
     Check if the maximum value of the set is below the threshold.
 
@@ -223,9 +205,7 @@ def is_max_value_below(
     return result
 
 
-def is_min_value_above(
-    value_set: List[Union[int, float]], threshold: Union[int, float]
-) -> bool:
+def is_min_value_above(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
     """
     Check if the minimum value of the set is above the threshold.
 
@@ -246,9 +226,7 @@ def is_min_value_above(
     return result
 
 
-def is_min_value_below(
-    value_set: List[Union[int, float]], threshold: Union[int, float]
-) -> bool:
+def is_min_value_below(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
     """
     Check if the minimum value of the set is below the threshold.
 
@@ -315,9 +293,7 @@ class DatasetFilter:
 
         self._value_extractor = ValueExtractor(attributes=included_attributes)
         self._attribute_dropdown = self._value_extractor.get_attribute_widget()
-        self._attribute_dropdown.layout = widgets.Layout(
-            width="100%", padding="0px 10px 0px 0px"
-        )
+        self._attribute_dropdown.layout = widgets.Layout(width="100%", padding="0px 10px 0px 0px")
 
         self._invert_checkbox = WidgetFactory.checkbox(
             description="Invert Filter",
@@ -464,9 +440,7 @@ class DatasetFilter:
             max_range = np.nanmax(avgs) if avgs else 1.0
         elif method == FILTER_METHOD.LOW_VARIANCE:
             # Calculate the variance for each dataset use the max as the slider limit
-            variances = [
-                np.nanvar(sublist) for sublist in all_values if len(sublist) > 1
-            ]
+            variances = [np.nanvar(sublist) for sublist in all_values if len(sublist) > 1]
             max_range = np.nanmax(variances) if variances else 1
         elif all_values:
             # Max value of all values across datasets
@@ -481,9 +455,7 @@ class DatasetFilter:
         self.update_slider_range(min_range=min_range, max_range=max_range)
         logger.debug(f"Updated slider range: min={min_range}, max={max_range}")
 
-    def update_slider_range(
-        self, min_range: float, max_range: float, max_step: float = 1
-    ) -> None:
+    def update_slider_range(self, min_range: float, max_range: float, max_step: float = 1) -> None:
         logger.debug(
             f"Updating slider range: min={min_range}, max={max_range}, max_step={max_step}"
         )

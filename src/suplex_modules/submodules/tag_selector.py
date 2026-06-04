@@ -44,12 +44,8 @@ class TagSelector:
 
         try:
             # Create checkboxes for different tag types
-            self._martin_checkboxes = self.create_tag_checkboxes(
-                self.get_all_martin_tags()
-            )
-            self._suplex_checkboxes = self.create_tag_checkboxes(
-                self.get_all_suplex_tags()
-            )
+            self._martin_checkboxes = self.create_tag_checkboxes(self.get_all_martin_tags())
+            self._suplex_checkboxes = self.create_tag_checkboxes(self.get_all_suplex_tags())
 
             # Combine all checkboxes
             checkboxes = self._martin_checkboxes + self._suplex_checkboxes
@@ -236,12 +232,8 @@ class TagSelector:
                     dataset_suplex_tags = set(getattr(dataset, "suplex_tags", []))
 
                     # Check if dataset has any of the selected tags
-                    has_martin_tags = bool(
-                        dataset_martin_tags.intersection(selected_martin_tags)
-                    )
-                    has_suplex_tags = bool(
-                        dataset_suplex_tags.intersection(selected_suplex_tags)
-                    )
+                    has_martin_tags = bool(dataset_martin_tags.intersection(selected_martin_tags))
+                    has_suplex_tags = bool(dataset_suplex_tags.intersection(selected_suplex_tags))
 
                     if has_martin_tags or has_suplex_tags:
                         matching_datasets.append(dataset)
@@ -250,15 +242,11 @@ class TagSelector:
                     logger.warning("Error checking tags for dataset: %s", e)
                     continue
 
-            logger.debug(
-                "Found %d datasets with any selected tags", len(matching_datasets)
-            )
+            logger.debug("Found %d datasets with any selected tags", len(matching_datasets))
             return matching_datasets
 
         except Exception as e:
-            logger.error(
-                "Error finding datasets with any selected tags: %s", e, exc_info=True
-            )
+            logger.error("Error finding datasets with any selected tags: %s", e, exc_info=True)
             return []
 
     def get_tagged_datasets_all(self) -> List[Dataset]:
@@ -287,12 +275,8 @@ class TagSelector:
                     dataset_suplex_tags = set(getattr(dataset, "suplex_tags", []))
 
                     # Check if dataset has all selected tags
-                    has_all_martin_tags = set(selected_martin_tags).issubset(
-                        dataset_martin_tags
-                    )
-                    has_all_suplex_tags = set(selected_suplex_tags).issubset(
-                        dataset_suplex_tags
-                    )
+                    has_all_martin_tags = set(selected_martin_tags).issubset(dataset_martin_tags)
+                    has_all_suplex_tags = set(selected_suplex_tags).issubset(dataset_suplex_tags)
 
                     if has_all_martin_tags and has_all_suplex_tags:
                         matching_datasets.append(dataset)
@@ -301,15 +285,11 @@ class TagSelector:
                     logger.warning("Error checking tags for dataset: %s", e)
                     continue
 
-            logger.debug(
-                "Found %d datasets with all selected tags", len(matching_datasets)
-            )
+            logger.debug("Found %d datasets with all selected tags", len(matching_datasets))
             return matching_datasets
 
         except Exception as e:
-            logger.error(
-                "Error finding datasets with all selected tags: %s", e, exc_info=True
-            )
+            logger.error("Error finding datasets with all selected tags: %s", e, exc_info=True)
             return []
 
     def clear_selection(self) -> None:
@@ -340,9 +320,7 @@ class TagSelector:
         except Exception as e:
             logger.error("Error selecting all tags: %s", e, exc_info=True)
 
-    def select_tags(
-        self, martin_tags: List[str] = None, suplex_tags: List[str] = None
-    ) -> None:
+    def select_tags(self, martin_tags: List[str] = None, suplex_tags: List[str] = None) -> None:
         """
         Programmatically select specific tags.
 

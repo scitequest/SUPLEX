@@ -118,18 +118,14 @@ class JitterplotSettings:
             value=show_jitterplot,
             description="Show Jitterplot",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._apply_jitter_widget = WidgetFactory.checkbox(
             value=apply_jitter,
             description="Apply Jitter",
             indent=False,
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         types = [jtype.value for jtype in JITTER_TYPE]
@@ -144,9 +140,7 @@ class JitterplotSettings:
             min_value=0.0,
             step=0.05,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._point_size_widget = WidgetFactory.number_input(
@@ -155,9 +149,7 @@ class JitterplotSettings:
             max_value=100,
             step=1,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         self._point_alpha_widget = WidgetFactory.number_input(
@@ -166,9 +158,7 @@ class JitterplotSettings:
             max_value=1.0,
             step=0.05,
             description="",
-            layout=widgets.Layout(
-                height="30px", width="auto", margin="0px", padding="0px"
-            ),
+            layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
         )
 
         for button in self._jitter_type_radio:
@@ -220,9 +210,7 @@ class JitterplotSettings:
         """
         logger.debug("Getting UI for JitterplotSettings")
         jitterplot_widgets = []
-        jitterplot_widgets.append(
-            WidgetFactory.html_widget(value="<h3>Jitterplot Options</h3>")
-        )
+        jitterplot_widgets.append(WidgetFactory.html_widget(value="<h3>Jitterplot Options</h3>"))
 
         checkboxes = []
         if self._show_jitterplot_enabled or self._show_all_options:

@@ -87,9 +87,7 @@ class SuplexModuleInterface(ABC):
         ...
 
     @abstractmethod
-    def initiate_module(
-        self, datasets: List[Dataset], color_scheme: Any
-    ) -> widgets.Box:
+    def initiate_module(self, datasets: List[Dataset], color_scheme: Any) -> widgets.Box:
         """
         Initiates module by loading datasets and generating the user interface.
 

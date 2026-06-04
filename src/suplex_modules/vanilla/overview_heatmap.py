@@ -9,11 +9,12 @@ import numpy as np
 import pandas as pd
 import logging
 import csv
+import warnings
 
 from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
 from ui.widget_factory import WidgetFactory
-from suplex_modules.submodules.viability_rules import no_datasets_selected
+from suplex_modules.submodules.viability_rules import no_datasets_selected, has_negative_values
 from suplex_modules.submodules.value_extractor import (
     ValueExtractor,
     extract_value_list_from_dataset,
@@ -87,10 +88,10 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         self._filtered_values = {}
         self._unfiltered_values = {}
 
-        self._DEFAULT_HOVER_TEXT = (
-            "Generates an overview heatmap of all dataset values."
-        )
+        self._DEFAULT_HOVER_TEXT = "Generates an overview heatmap of all dataset values."
         self._module_hover_text = self._DEFAULT_HOVER_TEXT
+
+        self._is_active = False
 
         # UI Elements
         self._value_extractor = None
@@ -227,9 +228,21 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         logger.debug("Checking viability of module: %s", self.module_name)
 
         if no_datasets_selected(datasets):
-            self._module_hover_text = f"Cannot initiate {self.module_name} since no datasets have been selected."
+            self._module_hover_text = (
+                f"Cannot initiate {self.module_name} since no datasets have been selected."
+            )
             logger.info(
                 "The module %s has been disabled, since no datasets have been selected.",
+                self.module_name,
+            )
+            return False
+
+        if has_negative_values(datasets):
+            self._module_hover_text = (
+                f"Cannot initiate {self.module_name} since datasets contain a negative value."
+            )
+            logger.info(
+                "The module %s has been disabled, since datasets contain a negative value.",
                 self.module_name,
             )
             return False
@@ -247,9 +260,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         """
         return self._module_hover_text
 
-    def initiate_module(
-        self, datasets: List[Dataset], color_scheme: Any
-    ) -> widgets.Box:
+    def initiate_module(self, datasets: List[Dataset], color_scheme: Any) -> widgets.Box:
         """
         Initialize module with datasets.
 
@@ -260,9 +271,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         Returns:
             widgets.Box: The module UI widget.
         """
-        logger.debug(
-            "Initiating module %s with %d datasets", self.module_name, len(datasets)
-        )
+        logger.debug("Initiating module %s with %d datasets", self.module_name, len(datasets))
         try:
             self._datasets = datasets
             self._included_datasets = datasets.copy()
@@ -274,9 +283,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             all_tags = sorted(list(all_tags))
 
             # Initialize DatasetSorter with all options and collected tags
-            self._dataset_sorter = DatasetSorter(
-                tags=all_tags, num_levels=1, max_num_levels=10
-            )
+            self._dataset_sorter = DatasetSorter(tags=all_tags, num_levels=1, max_num_levels=10)
             attributes = (
                 DATA_ATTRIBUTES
                 + DATA_STATISTICS_ATTRIBUTES
@@ -294,8 +301,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             # Sets up slider dimensions
             self._sample_spot_filter.on_filter_params_changed(self._datasets)
 
-            self._sample_threshold_map = (
-                self._sample_spot_filter.get_default_sample_map(self._included_datasets)
+            self._sample_threshold_map = self._sample_spot_filter.get_default_sample_map(
+                self._included_datasets
             )
             self._spot_threshold_map = self._sample_spot_filter.get_default_spot_map(
                 self._included_datasets
@@ -303,10 +310,13 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
             normalization_methods = list(NORMALIZATION)
             normalization_methods.remove(NORMALIZATION.CUSTOM)
-            max_index = max(
-                sum(len(sample.spots) for sample in dataset.samples)
-                for dataset in self._datasets
-            )
+            if self._datasets:
+                max_index = max(
+                    sum(len(sample.spots) for sample in dataset.samples)
+                    for dataset in self._datasets
+                )
+            else:
+                max_index = 0
             self._value_extractor = ValueExtractor(
                 attributes=attributes,
                 normalization_methods=normalization_methods,
@@ -319,9 +329,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 if self._use_displayed_dataset_filter_checkbox.value:
                     attribute = self._value_extractor.attribute
 
-                self._dataset_filter.on_filter_changed(
-                    datasets=self._datasets, attribute=attribute
-                )
+                self._dataset_filter.on_filter_changed(datasets=self._datasets, attribute=attribute)
                 self._ignore_events = False
                 self.update_analysis()
 
@@ -399,12 +407,11 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             # Main layout: controls on left, tabs on right
             module_ui = WidgetFactory.hbox(
                 [controls, self._tabs],
-                layout=widgets.Layout(
-                    height="100%", width="100%", gap="0px", overflow="hidden"
-                ),
+                layout=widgets.Layout(height="100%", width="100%", gap="0px", overflow="hidden"),
             )
 
             logger.debug("Module UI initialized successfully")
+            self._is_active = True
             self.update_analysis()
             return module_ui
 
@@ -421,9 +428,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         """
         logger.debug("Creating main control interface")
         try:
-            title_html = WidgetFactory.html_widget(
-                value="<h2>Overview Heatmap</h2>", width="auto"
-            )
+            title_html = WidgetFactory.html_widget(value="<h2>Overview Heatmap</h2>", width="auto")
             controls_box = WidgetFactory.vbox(
                 children=[
                     self._value_extractor.get_ui(),
@@ -456,9 +461,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             logger.debug("Main control interface created successfully")
             return control_interface
         except Exception as e:
-            logger.error(
-                "Failed to create main control interface: %s", e, exc_info=True
-            )
+            logger.error("Failed to create main control interface: %s", e, exc_info=True)
             raise
 
     def create_dataset_filter_section(self) -> widgets.Widget:
@@ -508,9 +511,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             logger.debug("Dataset filter section created successfully")
             return dataset_filter_section
         except Exception as e:
-            logger.error(
-                "Failed to create dataset filter section: %s", e, exc_info=True
-            )
+            logger.error("Failed to create dataset filter section: %s", e, exc_info=True)
             raise
 
     def create_control_button_section(self):
@@ -544,9 +545,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             logger.debug("Control button section created successfully")
             return control_button_section
         except Exception as e:
-            logger.error(
-                "Failed to create control button section: %s", e, exc_info=True
-            )
+            logger.error("Failed to create control button section: %s", e, exc_info=True)
             raise
 
     def create_sort_filter_tab(self) -> widgets.Widget:
@@ -563,21 +562,15 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         sample_spot_filter_ui = self._sample_spot_filter.get_ui()
 
         self._sample_spot_filter.get_attribute_dropdown().observe(
-            lambda b: self._sample_spot_filter.on_filter_params_changed(
-                datasets=self._datasets
-            ),
+            lambda b: self._sample_spot_filter.on_filter_params_changed(datasets=self._datasets),
             names="value",
         )
         self._sample_spot_filter.get_normalization_dropdown().observe(
-            lambda b: self._sample_spot_filter.on_filter_params_changed(
-                datasets=self._datasets
-            ),
+            lambda b: self._sample_spot_filter.on_filter_params_changed(datasets=self._datasets),
             names="value",
         )
         self._sample_spot_filter.get_normalization_factor_input().observe(
-            lambda b: self._sample_spot_filter.on_filter_params_changed(
-                datasets=self._datasets
-            ),
+            lambda b: self._sample_spot_filter.on_filter_params_changed(datasets=self._datasets),
             names="value",
         )
 
@@ -617,12 +610,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             self._dataset_descriptor = new_descriptor
             self.update_analysis()
 
-        self._descriptor_radio[0].on_click(
-            lambda b: on_change_descriptor(DATASET_LABEL.ID)
-        )
-        self._descriptor_radio[1].on_click(
-            lambda b: on_change_descriptor(DATASET_LABEL.NAME)
-        )
+        self._descriptor_radio[0].on_click(lambda b: on_change_descriptor(DATASET_LABEL.ID))
+        self._descriptor_radio[1].on_click(lambda b: on_change_descriptor(DATASET_LABEL.NAME))
 
         radio_button_box = WidgetFactory.hbox(
             children=self._descriptor_radio,
@@ -707,22 +696,18 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             self._sample_spot_filter.get_filter_maps(datasets=datasets)
         )
 
-        self._filtered_values = (
-            self._sample_spot_filter.extract_filtered_values_from_datasets(
-                datasets=datasets,
-                attribute=attribute,
-                sample_threshold_map=self._sample_threshold_map,
-                spot_threshold_map=self._spot_threshold_map,
-                outside_replacement_value=float("nan"),
-            )
+        self._filtered_values = self._sample_spot_filter.extract_filtered_values_from_datasets(
+            datasets=datasets,
+            attribute=attribute,
+            sample_threshold_map=self._sample_threshold_map,
+            spot_threshold_map=self._spot_threshold_map,
+            outside_replacement_value=float("nan"),
         )
 
-        self._unfiltered_values = (
-            self._sample_spot_filter.extract_filtered_values_from_datasets(
-                datasets=datasets,
-                attribute=attribute,
-                outside_replacement_value=float("nan"),
-            )
+        self._unfiltered_values = self._sample_spot_filter.extract_filtered_values_from_datasets(
+            datasets=datasets,
+            attribute=attribute,
+            outside_replacement_value=float("nan"),
         )
 
     def normalize_values(self):
@@ -814,13 +799,13 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             value_threshold_title = "Value Threshold"
             if self._dataset_filter_checkbox.value and not self._included_datasets:
                 html_content += f"<h3>{value_threshold_title}</h3>"
-                html_content += "<ul><li><strong>No Values Left for Value Filtering</strong></li></ul>"
+                html_content += (
+                    "<ul><li><strong>No Values Left for Value Filtering</strong></li></ul>"
+                )
                 self._overview_box.children = [WidgetFactory.html_widget(html_content)]
                 return
 
-            value_filter_attribute_text = (
-                self._sample_spot_filter.get_attribute_dropdown().value
-            )
+            value_filter_attribute_text = self._sample_spot_filter.get_attribute_dropdown().value
 
             value_filter_normalization_text = (
                 self._sample_spot_filter.get_normalization_dropdown().value
@@ -850,15 +835,9 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             filtered_values_flat = [
                 item for sublist in self._filtered_values.values() for item in sublist
             ]
-            filtered_values_mean = (
-                np.nanmean(filtered_values_flat) if filtered_values_flat else 0.0
-            )
-            filtered_values_min = (
-                np.nanmin(filtered_values_flat) if filtered_values_flat else 0.0
-            )
-            filtered_values_max = (
-                np.nanmax(filtered_values_flat) if filtered_values_flat else 0.0
-            )
+            filtered_values_mean = np.nanmean(filtered_values_flat) if filtered_values_flat else 0.0
+            filtered_values_min = np.nanmin(filtered_values_flat) if filtered_values_flat else 0.0
+            filtered_values_max = np.nanmax(filtered_values_flat) if filtered_values_flat else 0.0
 
             html_content += f"""
             <h3>{value_threshold_title}</h3>
@@ -903,30 +882,36 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
             for dataset in self._sorted_datasets:
                 values = self._filtered_values.get(dataset, [])
-                unfiltered_values = self._unfiltered_values.get(
-                    dataset, []
-                )  # For reference stats
+                unfiltered_values = self._unfiltered_values.get(dataset, [])  # For reference stats
 
                 if not values:
                     continue
 
-                n_values = len(values)
-                n_values_total = sum(len(sample.spots) for sample in dataset.samples)
-                perc_excluded = (
-                    (1 - n_values / n_values_total) * 100 if n_values_total > 0 else 0
-                )
+                n_values = len(values) - np.sum(np.isnan(values))  # no filtered values
 
-                stat_mean = np.nanmean(values)
-                stat_median = np.nanmedian(values)
-                stat_min = np.nanmin(values)
-                stat_max = np.nanmax(values)
-                stat_std = np.nanstd(values)
+                if attribute in DATA_STATISTICS_ATTRIBUTES:
+                    n_values_total = len(dataset.samples)
+                else:
+                    n_values_total = sum(len(sample.spots) for sample in dataset.samples)
+
+                perc_excluded = (1 - n_values / n_values_total) * 100 if n_values_total > 0 else 0
+
+                if values and not np.all(np.isnan(values)):
+                    stat_mean = np.nanmean(values)
+                    stat_median = np.nanmedian(values)
+                    stat_min = np.nanmin(values)
+                    stat_max = np.nanmax(values)
+                    stat_std = np.nanstd(values)
+                else:
+                    stat_mean = np.nan
+                    stat_median = np.nan
+                    stat_min = np.nan
+                    stat_max = np.nan
+                    stat_std = np.nan
 
                 stat = {
                     "name": (
-                        dataset.id
-                        if self._dataset_descriptor == DATASET_LABEL.ID
-                        else dataset.name
+                        dataset.id if self._dataset_descriptor == DATASET_LABEL.ID else dataset.name
                     ),
                     "n_values": n_values,
                     "n_values_total": n_values_total,
@@ -1051,18 +1036,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             return
 
         try:
-            value_lists = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_lists = {
-                    key: value_list
-                    for key, value_list in value_lists.items()
-                    if value_list
-                    and not all(
-                        val is None or (val is not None and np.isnan(val))
-                        for val in value_list
-                    )
-                }
+            value_lists = self.filter_empty_datasets(self._filtered_values)
 
             if not value_lists:
                 logger.warning("No data available for plotting after filtering")
@@ -1086,9 +1060,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             svg_string = buffer.getvalue()
             # This adjusts svg size to use 100% of the provided width
             svg_string = svg_string.replace(
-                "<svg", 
-                "<svg style='width: 100%; height: auto; display: block;'", 
-                1
+                "<svg", "<svg style='width: 100%; height: auto; display: block;'", 1
             )
             logger.debug("Plot generated successfully as SVG")
 
@@ -1099,8 +1071,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             """
 
             html_widget = WidgetFactory.html_widget(
-                value=html_content,
-                layout=widgets.Layout(width="100%", height="auto")
+                value=html_content, layout=widgets.Layout(width="100%", height="auto")
             )
 
             self._plot_box.children = [html_widget]
@@ -1125,21 +1096,12 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             self._value_extractor.normalization in NORMALIZATION_REFERENCE_POINT
             and len(self._value_extractor.references) == 0
         ):
-            logger.info(
-                "Could not export plot since no indices for export were selected."
-            )
+            logger.info("Could not export plot since no indices for export were selected.")
             return
 
         logger.debug("Exporting plot")
         try:
-            value_lists = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_lists = {
-                    key: value_list
-                    for key, value_list in value_lists.items()
-                    if value_list
-                }
+            value_lists = self.filter_empty_datasets(self._filtered_values)
 
             if not value_lists:
                 logger.warning("No data available for export")
@@ -1157,7 +1119,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             root = Tk()
             root.withdraw()
             root.lift()
-            root.attributes('-topmost', True)
+            root.attributes("-topmost", True)
             root.focus_force()
             default_filename = f"Overview_Heatmap_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
             file_path = filedialog.asksaveasfilename(
@@ -1166,7 +1128,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 initialfile=default_filename,
                 title="Save Plot As",
             )
-            root.attributes('-topmost', False)
+            root.attributes("-topmost", False)
             root.destroy()
             if file_path:
                 with open(file_path, "wb") as f:
@@ -1178,6 +1140,30 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             if "Image size" in str(e) and "too large" in str(e):
                 logger.warning("Failed to generate plot: %s", e, exc_info=True)
             logger.error("Failed to export plot: %s", e, exc_info=True)
+
+    def filter_empty_datasets(
+        self, value_lists: Dict[Dataset, List[float]]
+    ) -> Dict[Dataset, List[float]]:
+        """
+        Remove datasets that contain only NaN/None values when the user has disabled the inclusion of empty datasets.
+
+        Args:
+            value_lists (Dict[Dataset, List[float]]): Dictionary with datasets as keys
+                and their (filtered) value lists as values.
+
+        Returns:
+            Dict[Dataset, List[float]]: The same dictionary with empty (all-NaN) datasets
+                removed if include_empty_datasets is False.
+        """
+        if self._general_graph_settings.include_empty_datasets:
+            return value_lists
+
+        return {
+            key: value_list
+            for key, value_list in value_lists.items()
+            if value_list
+            and not all(val is None or (val is not None and np.isnan(val)) for val in value_list)
+        }
 
     def get_data_matrix(self, value_lists: Dict[Dataset, List[float]]):
         if not value_lists:
@@ -1215,11 +1201,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         max_label_length = self._general_graph_settings.max_label_length
         y_labels = [
             get_shortened_label(
-                (
-                    dataset.id
-                    if self._dataset_descriptor == DATASET_LABEL.ID
-                    else dataset.name
-                ),
+                (dataset.id if self._dataset_descriptor == DATASET_LABEL.ID else dataset.name),
                 max_label_length,
             )
             for dataset in datasets
@@ -1261,9 +1243,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         est_width_pixels = fig_width * current_dpi
         est_height_pixels = fig_height * current_dpi
 
-        if (est_width_pixels > MAX_PIXELS_GRAPH) or (
-            est_height_pixels > MAX_PIXELS_GRAPH
-        ):
+        if (est_width_pixels > MAX_PIXELS_GRAPH) or (est_height_pixels > MAX_PIXELS_GRAPH):
             min_dpi_width = MAX_PIXELS_GRAPH / fig_width
             min_dpi_height = MAX_PIXELS_GRAPH / fig_height
             min_dpi = max(50, min(min_dpi_width, min_dpi_height))
@@ -1311,9 +1291,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             "square": self._heatmap_settings.square,
             "annot": self._heatmap_settings.annot,
             "fmt": (
-                f".{self._heatmap_settings.annot_digits}f"
-                if self._heatmap_settings.annot
-                else ""
+                f".{self._heatmap_settings.annot_digits}f" if self._heatmap_settings.annot else ""
             ),
             "annot_kws": (
                 {"fontsize": self._heatmap_settings.annot_fontsize}
@@ -1332,7 +1310,10 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         if self._heatmap_settings.annot and annot_color != ANNOTATION_COLOR.AUTO:
             sns_heatmap_kwargs["annot_kws"] = {"color": annot_color.value}
 
-        heatmap = sns.heatmap(df, **sns_heatmap_kwargs)
+        # ignore warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            heatmap = sns.heatmap(df, **sns_heatmap_kwargs)
 
         # Changes labels to σ notation if gaussian option was used
         if show_cbar and self._value_extractor.normalization in [
@@ -1346,14 +1327,11 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             allowed_ticks = [-3, -2, -1, 0, 1, 2, 3]
             # Prevents overflowing ticks
             vmin, vmax = cbar.mappable.get_clim()
-            integer_ticks = [
-                t for t in current_ticks if t in allowed_ticks and vmin <= t <= vmax
-            ]
+            integer_ticks = [t for t in current_ticks if t in allowed_ticks and vmin <= t <= vmax]
 
             # Change to σ notation
             labels = [
-                f"−σ{int(-t)}" if t < 0 else f"σ{int(t)}" if t > 0 else "0"
-                for t in integer_ticks
+                f"−σ{int(-t)}" if t < 0 else f"σ{int(t)}" if t > 0 else "0" for t in integer_ticks
             ]
 
             cbar.set_ticks(integer_ticks)
@@ -1429,21 +1407,12 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             self._value_extractor.normalization in NORMALIZATION_REFERENCE_POINT
             and len(self._value_extractor.references) == 0
         ):
-            logger.info(
-                "Could not export csv since no indices for export were selected."
-            )
+            logger.info("Could not export csv since no indices for export were selected.")
             return
 
         logger.debug("Exporting data as CSV")
         try:
-            value_lists = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_lists = {
-                    key: value_list
-                    for key, value_list in value_lists.items()
-                    if value_list
-                }
+            value_lists = self.filter_empty_datasets(self._filtered_values)
 
             if not value_lists:
                 logger.warning("No data available for export")
@@ -1478,18 +1447,16 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             root = Tk()
             root.withdraw()
             root.lift()
-            root.attributes('-topmost', True)
+            root.attributes("-topmost", True)
             root.focus_force()
-            default_filename = (
-                f"Overview_Heatmap_{attribute.value}_{normalization.value}.csv"
-            )
+            default_filename = f"Overview_Heatmap_{attribute.value}_{normalization.value}.csv"
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".csv",
                 filetypes=[("CSV files", "*.csv")],
                 initialfile=default_filename,
                 title="Save CSV As",
             )
-            root.attributes('-topmost', False)
+            root.attributes("-topmost", False)
             root.destroy()
 
             if not file_path:
@@ -1502,13 +1469,9 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
                 for i, dataset in enumerate(datasets):
                     descriptor = (
-                        dataset.id
-                        if self._dataset_descriptor == DATASET_LABEL.ID
-                        else dataset.name
+                        dataset.id if self._dataset_descriptor == DATASET_LABEL.ID else dataset.name
                     )
-                    row = [descriptor] + [
-                        "" if np.isnan(val) else val for val in data_matrix[i]
-                    ]
+                    row = [descriptor] + ["" if np.isnan(val) else val for val in data_matrix[i]]
                     writer.writerow(row)
 
             logger.info("CSV exported successfully to %s", file_path)
@@ -1523,8 +1486,11 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             new_scheme: New color scheme to apply.
         """
         self._color_scheme = new_scheme
-        # Currently this only forces a re-color of our table
-        self.update_analysis()
+        # Only trigger full analysis refresh if the module has been initiated
+        # (otherwise collaborators like _dataset_sorter are still None)
+        # We do this so our tests run properly.
+        if getattr(self, "_dataset_sorter", None) is not None:
+            self.update_analysis()
 
     def reset_module(self) -> Optional[Self]:
         """

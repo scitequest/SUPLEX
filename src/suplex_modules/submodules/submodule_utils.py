@@ -136,10 +136,7 @@ def apply_normalization(
 
     if normalization_method == NORMALIZATION.GLOBAL:
         all_items = [
-            item
-            for sublist in value_sets.values()
-            for item in sublist
-            if math.isfinite(item)
+            item for sublist in value_sets.values() for item in sublist if math.isfinite(item)
         ]
         normalization_factor = max(all_items) if all_items else 1.0
         logger.debug("Global normalization factor calculated: %f", normalization_factor)

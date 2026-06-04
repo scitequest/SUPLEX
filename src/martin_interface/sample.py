@@ -89,9 +89,7 @@ class Sample:
             if parameters is not None:
                 shape = parameters[i]["type"]
                 if shape == "POLYGON":
-                    coordinates = [
-                        Coordinates(*coord) for coord in parameters[i]["coordinates"]
-                    ]
+                    coordinates = [Coordinates(*coord) for coord in parameters[i]["coordinates"]]
                     diameter = None
                 elif shape == "CIRCLE":
                     coordinates = [Coordinates(*parameters[i]["position"])]

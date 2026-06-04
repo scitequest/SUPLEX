@@ -181,8 +181,10 @@ class AboutPage:
             license_path = Path(__file__).parent.parent.parent / "LICENSE"
             license_text = license_path.read_text(encoding="utf-8")
         except FileNotFoundError:
-            license_text = "LICENSE file not found. Please see the repository for license information."
-        
+            license_text = (
+                "LICENSE file not found. Please see the repository for license information."
+            )
+
         return WidgetFactory.html_widget(
             value=f"""
             <div style="

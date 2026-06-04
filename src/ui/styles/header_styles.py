@@ -25,9 +25,7 @@ def get_header_styles(scheme: Any) -> widgets.HTML:
     Returns:
         HTML widget containing header CSS styles with zero dimensions
     """
-    logger.debug(
-        "Generating header styles for scheme: %s", getattr(scheme, "NAME", "Unknown")
-    )
+    logger.debug("Generating header styles for scheme: %s", getattr(scheme, "NAME", "Unknown"))
 
     try:
         css_content = f"""

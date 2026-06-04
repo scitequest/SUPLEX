@@ -87,9 +87,7 @@ def try_typecast_metadata_file(
             },
         }
     except Exception as e:
-        logger.error(
-            f"Typecasting failed for general data of {metadata_file_path}: {str(e)}"
-        )
+        logger.error(f"Typecasting failed for general data of {metadata_file_path}: {str(e)}")
         return None
 
     try:
@@ -105,9 +103,7 @@ def try_typecast_metadata_file(
         typecasted_patient["tags"] = typecasted_tags
         typecasted_data["patient"] = typecasted_patient
     except Exception as e:
-        logger.error(
-            f"Typecasting failed for patient data of {metadata_file_path}: {str(e)}"
-        )
+        logger.error(f"Typecasting failed for patient data of {metadata_file_path}: {str(e)}")
         return None
 
     try:
@@ -115,15 +111,11 @@ def try_typecast_metadata_file(
             "created": datetime.fromisoformat(metadata_file["image"]["created"]),
             "imager": str(metadata_file["image"]["imager"]),
             "pixel_binning": int(metadata_file["image"]["pixel_binning"]),
-            "exposure_time": isodate.parse_duration(
-                metadata_file["image"]["exposure_time"]
-            ),
+            "exposure_time": isodate.parse_duration(metadata_file["image"]["exposure_time"]),
         }
         typecasted_data["image"] = typecasted_image
     except Exception as e:
-        logger.error(
-            f"Typecasting failed for image data of {metadata_file_path}: {str(e)}"
-        )
+        logger.error(f"Typecasting failed for image data of {metadata_file_path}: {str(e)}")
         return None
 
     try:
@@ -140,16 +132,12 @@ def try_typecast_metadata_file(
                         "value": float(incubation["final_concentration"]["value"]),
                         "unit": str(incubation["final_concentration"]["unit"]),
                     },
-                    "incubation_time": isodate.parse_duration(
-                        incubation["incubation_time"]
-                    ),
+                    "incubation_time": isodate.parse_duration(incubation["incubation_time"]),
                 }
             )
         typecasted_data["incubations"] = typecasted_incubations
     except Exception as e:
-        logger.error(
-            f"Typecasting failed for incubation data of {metadata_file_path}: {str(e)}"
-        )
+        logger.error(f"Typecasting failed for incubation data of {metadata_file_path}: {str(e)}")
         return None
 
     if "project" in metadata_file.keys():
@@ -160,9 +148,7 @@ def try_typecast_metadata_file(
             }
             typecasted_data["project"] = typecasted_project
         except Exception as e:
-            logger.error(
-                f"Typecasting failed for project data of {metadata_file_path}: {str(e)}"
-            )
+            logger.error(f"Typecasting failed for project data of {metadata_file_path}: {str(e)}")
             return None
 
     return typecasted_data

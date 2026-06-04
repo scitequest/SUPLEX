@@ -1,3 +1,5 @@
+# DEPRECATED
+
 import logging
 from typing import List, Optional, Union, Dict, Any
 import ipywidgets as widgets
@@ -41,8 +43,7 @@ def extract_value_list_from_dataset(
     # Basic Data Values (2D lists: [ [values per spot in sample] per sample ])
     if attribute == DATASET_ATTRIBUTE.MEAN_MINUS_MIN:
         value_list = [
-            [spot.spot_values.mean_minus_min for spot in sample.spots]
-            for sample in dataset.samples
+            [spot.spot_values.mean_minus_min for spot in sample.spots] for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.NORMALIZED_MEAN:
         value_list = [
@@ -51,34 +52,27 @@ def extract_value_list_from_dataset(
         ]
     elif attribute == DATASET_ATTRIBUTE.MIN:
         value_list = [
-            [spot.spot_values.min_val for spot in sample.spots]
-            for sample in dataset.samples
+            [spot.spot_values.min_val for spot in sample.spots] for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.MAX:
         value_list = [
-            [spot.spot_values.max_val for spot in sample.spots]
-            for sample in dataset.samples
+            [spot.spot_values.max_val for spot in sample.spots] for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.MEAN:
         value_list = [
-            [spot.spot_values.mean_val for spot in sample.spots]
-            for sample in dataset.samples
+            [spot.spot_values.mean_val for spot in sample.spots] for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.STD_DEV:
         value_list = [
-            [spot.spot_values.std_deviation for spot in sample.spots]
-            for sample in dataset.samples
+            [spot.spot_values.std_deviation for spot in sample.spots] for sample in dataset.samples
         ]
 
     # Data Statistics Values (1D lists: [value per sample])
     elif attribute == DATASET_ATTRIBUTE.ADJUSTED_AVERAGE:
-        value_list = [
-            sample.data_statistics.adjusted_average for sample in dataset.samples
-        ]
+        value_list = [sample.data_statistics.adjusted_average for sample in dataset.samples]
     elif attribute == DATASET_ATTRIBUTE.ADJUSTED_AVERAGE_STD_DEVIATION:
         value_list = [
-            sample.data_statistics.adjusted_average_std_deviation
-            for sample in dataset.samples
+            sample.data_statistics.adjusted_average_std_deviation for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.RELATIVE_ADJUSTED_AVERAGE_STD_DEVIATION:
         value_list = [
@@ -86,13 +80,10 @@ def extract_value_list_from_dataset(
             for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.NORMALIZED_AVERAGE:
-        value_list = [
-            sample.data_statistics.normalized_average for sample in dataset.samples
-        ]
+        value_list = [sample.data_statistics.normalized_average for sample in dataset.samples]
     elif attribute == DATASET_ATTRIBUTE.NORMALIZED_AVERAGE_STD_DEVIATION:
         value_list = [
-            sample.data_statistics.normalized_average_std_deviation
-            for sample in dataset.samples
+            sample.data_statistics.normalized_average_std_deviation for sample in dataset.samples
         ]
     elif attribute == DATASET_ATTRIBUTE.RELATIVE_NORMALIZED_AVERAGE_STD_DEVIATION:
         value_list = [
@@ -119,18 +110,12 @@ def extract_value_list_from_dataset(
         # Extract coordinates
         if attribute == DATASET_ATTRIBUTE.SPOT_COORDINATES_X:
             value_list = [
-                [
-                    [coord.x for coord in spot.spot_parameters.coordinates]
-                    for spot in sample.spots
-                ]
+                [[coord.x for coord in spot.spot_parameters.coordinates] for spot in sample.spots]
                 for sample in dataset.samples
             ]
         elif attribute == DATASET_ATTRIBUTE.SPOT_COORDINATES_Y:
             value_list = [
-                [
-                    [coord.y for coord in spot.spot_parameters.coordinates]
-                    for spot in sample.spots
-                ]
+                [[coord.y for coord in spot.spot_parameters.coordinates] for spot in sample.spots]
                 for sample in dataset.samples
             ]
 
@@ -162,9 +147,7 @@ def extract_value_list_from_dataset(
         logger.warning("Unknown attribute: %s", attribute)
         return []
 
-    logger.debug(
-        f"Extracted value list for attribute {attribute} with length: {len(value_list)}"
-    )
+    logger.debug(f"Extracted value list for attribute {attribute} with length: {len(value_list)}")
     return value_list
 
 
@@ -225,9 +208,7 @@ def get_flat_value_list(dataset: Dataset, attribute: DATASET_ATTRIBUTE) -> List[
         return flat_list
 
     if attribute in DATA_STATISTICS_ATTRIBUTES:
-        logger.debug(
-            f"Returning DATA_STATISTICS_ATTRIBUTES list length: {len(value_list)}"
-        )
+        logger.debug(f"Returning DATA_STATISTICS_ATTRIBUTES list length: {len(value_list)}")
         return value_list
 
     if attribute in [
@@ -235,10 +216,7 @@ def get_flat_value_list(dataset: Dataset, attribute: DATASET_ATTRIBUTE) -> List[
         DATASET_ATTRIBUTE.SPOT_COORDINATES_Y,
     ]:
         avg_coords_list = [
-            sum(coords) / len(coords)
-            for spots in value_list
-            for coords in spots
-            if coords
+            sum(coords) / len(coords) for spots in value_list for coords in spots if coords
         ]
         logger.debug(f"Averaged SPOT_COORDINATES list length: {len(avg_coords_list)}")
         return avg_coords_list
@@ -325,9 +303,7 @@ class AttributeSelector:
         Returns:
             A Dropdown widget
         """
-        logger.debug(
-            f"Creating dropdown widget with {len(included_attributes)} options"
-        )
+        logger.debug(f"Creating dropdown widget with {len(included_attributes)} options")
 
         options = [field.value for field in included_attributes]
 
@@ -356,16 +332,12 @@ class AttributeSelector:
         Returns:
             List of checkbox widgets
         """
-        logger.debug(
-            f"Creating checkbox widgets with {len(included_attributes)} options"
-        )
+        logger.debug(f"Creating checkbox widgets with {len(included_attributes)} options")
         options = [field.value for field in included_attributes]
 
         checkboxes = []
         for option in options:
-            checkbox = WidgetFactory.checkbox(
-                value=False, description=option, layout=layout
-            )
+            checkbox = WidgetFactory.checkbox(value=False, description=option, layout=layout)
             self._widgets.append(checkbox)
             checkboxes.append(checkbox)
 
@@ -386,18 +358,14 @@ class AttributeSelector:
         Returns:
             List of checkbox widgets configured as radio buttons
         """
-        logger.debug(
-            f"Creating radio button widgets with {len(included_attributes)} options"
-        )
+        logger.debug(f"Creating radio button widgets with {len(included_attributes)} options")
         # Add all attributes by default
         if not included_attributes:
             included_attributes = list(DATASET_ATTRIBUTE)
 
         options = [field.value for field in included_attributes]
 
-        radio_buttons = WidgetFactory.radio_buttons(
-            options=options, i_selected=0, layout=layout
-        )
+        radio_buttons = WidgetFactory.radio_buttons(options=options, i_selected=0, layout=layout)
         self._widgets += radio_buttons
 
         return radio_buttons

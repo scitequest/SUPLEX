@@ -4,9 +4,12 @@ from .roi_elements import Spot, RoiParameters, Coordinates
 from .general_parameters import GeneralParameters
 from .metadata import *
 from .project import Project
+from typing import Any, List, Dict
 
 import copy
-from datetime import datetime
+import json
+from pathlib import Path
+from datetime import datetime, timedelta
 import statistics
 import math
 
@@ -26,9 +29,7 @@ class Dataset:
         _suplex_file (Any): File used to store analyses and additional information added via `SUPLEX` modules.
     """
 
-    def __init__(
-        self, path_holder: PathHolder, file_holder: FileHolder, project: Project
-    ) -> None:
+    def __init__(self, path_holder: PathHolder, file_holder: FileHolder, project: Project) -> None:
         self._path_holder = path_holder
         self._file_holder = file_holder
         self._project = project
@@ -51,14 +52,14 @@ class Dataset:
         data_statistics = None
         if self._file_holder.data_statistics_file is not None:
             data_statistics = self._file_holder.data_statistics_file["values"]
-
-        # Incase there has been no file or the file could not be read in.
-        if data_statistics is None:
+        else:
             data_statistics = self.generate_data_statistics()
 
         spot_parameters = None
         if self._file_holder.parameters_file is not None:
             spot_parameters = self._file_holder.parameters_file["spots"]
+        else:
+            spot_parameters = self.generate_default_spot_parameters()
 
         samples = []
         # Calculate number of spots using the highest index spot.
@@ -118,9 +119,7 @@ class Dataset:
             if spot["spot"] == 0:
                 data_statistics[spotfield_index]["row"] = spot["row"]
                 data_statistics[spotfield_index]["col"] = spot["col"]
-            data_statistics[spotfield_index]["mean_minus_min_values"].append(
-                spot["mean_minus_min"]
-            )
+            data_statistics[spotfield_index]["mean_minus_min_values"].append(spot["mean_minus_min"])
             data_statistics[spotfield_index]["normalized_mean_values"].append(
                 spot["normalized_mean"]
             )
@@ -132,9 +131,7 @@ class Dataset:
             # Calculating mean_minus_min_values
             adjusted_average = statistics.mean(mean_minus_min_values)
             adjusted_average_std_deviation = (
-                statistics.stdev(mean_minus_min_values)
-                if len(mean_minus_min_values) > 1
-                else 0
+                statistics.stdev(mean_minus_min_values) if len(mean_minus_min_values) > 1 else 0
             )
             relative_adjusted_average_std_deviation = (
                 (adjusted_average_std_deviation * 100 / adjusted_average)
@@ -147,9 +144,7 @@ class Dataset:
             # Calculating normalized_mean_values
             normalized_average = statistics.mean(normalized_mean_values)
             normalized_average_std_deviation = (
-                statistics.stdev(normalized_mean_values)
-                if len(normalized_mean_values) > 1
-                else 0
+                statistics.stdev(normalized_mean_values) if len(normalized_mean_values) > 1 else 0
             )
             relative_normalized_average_std_deviation = (
                 (normalized_average_std_deviation * 100 / normalized_average)
@@ -166,14 +161,24 @@ class Dataset:
                 relative_adjusted_average_std_deviation
             )
             d_stat["normalized_average"] = normalized_average
-            d_stat["normalized_average_std_deviation"] = (
-                normalized_average_std_deviation
-            )
+            d_stat["normalized_average_std_deviation"] = normalized_average_std_deviation
             d_stat["relative_normalized_average_std_deviation"] = (
                 relative_normalized_average_std_deviation
             )
 
         return data_statistics
+
+    def generate_default_spot_parameters(self) -> List[Dict[str, Any]]:
+        """
+        Generates default spot metadata.
+        Every spot is placed at coordinate (0,0) as a circle with a diameter of 0.
+
+        Returns:
+            List of Dicts with default spot parameters.
+        """
+        default_spot_param = {"type": "CIRCLE", "position": [0, 0], "diameter": 0}
+        num_spots = len(self._file_holder.data_file["values"])
+        return [default_spot_param.copy() for _ in range(num_spots)]
 
     def init_general_parameters(self) -> GeneralParameters:
         """
@@ -185,7 +190,22 @@ class Dataset:
         """
         parameters_file = self._file_holder.parameters_file
         if parameters_file is None:
-            return None
+            # Default values incase we don't have a parameters file
+            data = self._file_holder.data_file["values"]
+
+            # Last spot will always be of the highest i spotfield
+            number_of_spotfields = data[-1]["spot"] + 1
+            spots_per_spotfield = int(len(data) / number_of_spotfields)
+            columns_per_spotfield = max(spot["col"] for spot in data) + 1
+
+            parameters_file = {
+                "invert_lut": False,
+                "subtract_background": False,
+                "number_of_spotfields": number_of_spotfields,
+                "columns_per_spotfield": columns_per_spotfield,
+                "spots_per_spotfield": spots_per_spotfield,
+                "background_rectangles": [],
+            }
 
         background_rectangles = []
         for b_rect in parameters_file["background_rectangles"]:
@@ -216,7 +236,7 @@ class Dataset:
         """
         metadata_file = self._file_holder.metadata_file
         if metadata_file is None:
-            return None
+            metadata_file = self.generate_default_metadata()
 
         # Explicit since we have to rename id to pat_id
         patient = {
@@ -224,6 +244,11 @@ class Dataset:
             "name": metadata_file["patient"]["name"],
             "tags": metadata_file["patient"]["tags"],
         }
+
+        if self._file_holder.data_statistics_file is None:
+            patient["tags"].append("no_data_statistics_file")
+        if self._file_holder.parameters_file is None:
+            patient["tags"].append("no_parameters_file")
 
         incubations = []
         for incub in metadata_file["incubations"]:
@@ -244,6 +269,60 @@ class Dataset:
         }
 
         return Metadata(**metadata)
+
+    def generate_default_metadata(self) -> Dict[str, Any]:
+        """
+        Generates a default metadata dict for datasets without a metadata file.
+        A unique id is generated from a now timestamp.
+        The default metadata is stored in the same directory as every other file to allow for identification between different runs of the software.
+
+        Returns:
+            Dict with default metadata values.
+        """
+        now = datetime.now().astimezone()
+
+        alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        ts = int(now.timestamp() * 1_000_000)
+        timestamp_id = ""
+        while ts:
+            ts, i = divmod(ts, 62)
+            timestamp_id = alphabet[i] + timestamp_id
+
+        metadata_dict = {
+            "version": "0.0.0",
+            "datetime": now,
+            "patient": {
+                "id": timestamp_id,
+                "name": "Invalid Metadata - " + timestamp_id,
+                "tags": ["default_metadata_file"],
+            },
+            "image": {
+                "created": now,
+                "imager": "unknown",
+                "pixel_binning": 1,
+                "exposure_time": timedelta(),
+            },
+            "incubations": [],
+            "project": {
+                "name": "none",
+                "description": "Measurements which do not belong to any project in particular.",
+            },
+        }
+
+        # Write to file so that id stays consistent between different runs of the software.
+        # We do not overwrite already existing, but invalid metadata files
+        if self._path_holder.metadata_path == None:
+            metadata_dict["patient"]["name"] = "Default Metadata - " + timestamp_id
+
+            root_path = self._path_holder.dataset_path
+            try:
+                file_path = Path(root_path) / "metadata.json"
+                with open(file_path, "w", encoding="utf-8") as f:
+                    json.dump(metadata_dict, f, indent=4)
+            except Exception as e:
+                logger.error("Failed to store default metadata JSON: %s", e, exc_info=True)
+
+        return metadata_dict
 
     def get_name_label(self) -> str:
         """
@@ -392,5 +471,5 @@ class Dataset:
         return self._metadata
 
     @property
-    def suplex_file(self) -> dict[str, any]:
+    def suplex_file(self) -> Dict[str, any]:
         return self._suplex_file

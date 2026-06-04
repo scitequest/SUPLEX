@@ -15,15 +15,22 @@ import svgutils.transform as sg
 import tempfile
 import time
 import pandas as pd
+import warnings
 
 from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
 from ui.widget_factory import WidgetFactory
-from suplex_modules.submodules.viability_rules import no_datasets_selected, sample_count_not_uniform, spot_count_is_not_uniform, has_insufficient_number_of_samples
+from suplex_modules.submodules.viability_rules import (
+    no_datasets_selected,
+    sample_count_not_uniform,
+    spot_count_is_not_uniform,
+    has_insufficient_number_of_samples,
+    has_negative_values,
+)
 from suplex_modules.submodules.value_extractor import (
     ValueExtractor,
     get_flat_value_list,
-    flatten_list
+    flatten_list,
 )
 from suplex_modules.submodules.submodule_constants import (
     DATASET_ATTRIBUTE,
@@ -38,13 +45,11 @@ from suplex_modules.submodules.submodule_constants import (
     COLOR,
     TITLE_POSITION,
     READING_ORDER,
-    SELECTION_MODE
+    SELECTION_MODE,
 )
 from suplex_modules.submodules.dataset_sorter import DatasetSorter
 from suplex_modules.submodules.dataset_filters import DatasetFilter
-from suplex_modules.submodules.sample_spot_filter import (
-    SampleSpotFilter
-)
+from suplex_modules.submodules.sample_spot_filter import SampleSpotFilter
 from suplex_modules.submodules.collage import (
     Collage,
     add_title_to_svg,
@@ -71,9 +76,7 @@ from suplex_modules.submodules.settings.submodule_settings_constants import (
     get_aspect_ratio_value,
 )
 
-from suplex_modules.submodules.submodule_utils import (
-    number_to_letters
-)
+from suplex_modules.submodules.submodule_utils import number_to_letters
 
 from suplex_modules.submodules.dynamic_threshold_filter import apply_dynamic_filtering
 
@@ -95,7 +98,7 @@ class HitmapModule(SuplexModuleInterface):
         self._sorted_datasets = []
         self._included_datasets = []
         self._excluded_datasets = []
-        
+
         self._static_hitmaps = {}
         # Stores objects of FilteredValue
         self._filtered_values_dynamic = {}
@@ -135,7 +138,7 @@ class HitmapModule(SuplexModuleInterface):
             height="100%",
             layout=widgets.Layout(padding="10px"),
         )
-        
+
         self._overview_box = WidgetFactory.vbox(
             children=[],
             width="100%",
@@ -158,7 +161,7 @@ class HitmapModule(SuplexModuleInterface):
     def module_name(self) -> str:
         """
         Get the name of the module.
-        
+
         Returns:
             str: The module name "Hitmap".
         """
@@ -168,7 +171,7 @@ class HitmapModule(SuplexModuleInterface):
     def module_version(self) -> str:
         """
         Get the version of the module.
-        
+
         Returns:
             str: The module version.
         """
@@ -178,18 +181,18 @@ class HitmapModule(SuplexModuleInterface):
     def group_name(self) -> str:
         """
         Get the group name for the module.
-        
+
         Returns:
             str: The group name "Vanilla".
         """
-        
+
         return "Vanilla"
 
     @property
     def button_style(self) -> Dict[str, str]:
         """
         Get the button style configuration for the module.
-        
+
         Returns:
             Dict[str, str]: Dictionary with font_color, button_color, and button_icon.
         """
@@ -199,18 +202,20 @@ class HitmapModule(SuplexModuleInterface):
         """
         Check if the module is viable based on the provided datasets.
         Future iteration may reduce this list.
-        
+
         Args:
             datasets (List[Dataset]): List of datasets to check.
-            
+
         Returns:
             bool: True if viable, False otherwise.
         """
-        
+
         logger.debug("Checking viability of module: %s", self.module_name)
 
         if no_datasets_selected(datasets):
-            self._module_hover_text = f"Cannot initiate {self.module_name} since no datasets have been selected."
+            self._module_hover_text = (
+                f"Cannot initiate {self.module_name} since no datasets have been selected."
+            )
             logger.info(
                 "The module %s has been disabled, since no datasets have been selected.",
                 self.module_name,
@@ -219,25 +224,41 @@ class HitmapModule(SuplexModuleInterface):
 
         # In future iterations we may remove the uniformity rules.
         if sample_count_not_uniform(datasets):
-            self._module_hover_text = f"Cannot initiate {self.module_name}. Sample count is not uniform."
+            self._module_hover_text = (
+                f"Cannot initiate {self.module_name}. Sample count is not uniform."
+            )
             logger.info(
                 "The module %s has been disabled. Sample count is not uniform.",
                 self.module_name,
             )
             return False
-        
+
         if spot_count_is_not_uniform(datasets):
-            self._module_hover_text = f"Cannot initiate {self.module_name}. Sample count is not uniform."
+            self._module_hover_text = (
+                f"Cannot initiate {self.module_name}. Sample count is not uniform."
+            )
             logger.info(
                 "The module %s has been disabled. Spot count is not uniform.",
                 self.module_name,
             )
             return False
 
-        if has_insufficient_number_of_samples(datasets = datasets, min_count = 3):
-            self._module_hover_text = f"Cannot initiate {self.module_name}. Sample count is below three."
+        if has_insufficient_number_of_samples(datasets=datasets, min_count=3):
+            self._module_hover_text = (
+                f"Cannot initiate {self.module_name}. Sample count is below three."
+            )
             logger.info(
                 "The module %s has been disabled. Sample count is below three.",
+                self.module_name,
+            )
+            return False
+
+        if has_negative_values(datasets):
+            self._module_hover_text = (
+                f"Cannot initiate {self.module_name} since datasets contain a negative value."
+            )
+            logger.info(
+                "The module %s has been disabled, since datasets contain a negative value.",
                 self.module_name,
             )
             return False
@@ -249,28 +270,24 @@ class HitmapModule(SuplexModuleInterface):
     def get_module_hover_text(self) -> str:
         """
         Get the hover text for the module.
-        
+
         Returns:
             str: The current hover text for the module.
         """
         return self._module_hover_text
 
-    def initiate_module(
-        self, datasets: List[Dataset], color_scheme: Any
-    ) -> widgets.Box:
+    def initiate_module(self, datasets: List[Dataset], color_scheme: Any) -> widgets.Box:
         """
         Initialize module with datasets.
-        
+
         Args:
             datasets (List[Dataset]): List of datasets to initialize with.
             color_scheme (Any): Color scheme to use.
-            
+
         Returns:
             widgets.Box: The module UI widget.
         """
-        logger.debug(
-            "Initiating module %s with %d datasets", self.module_name, len(datasets)
-        )
+        logger.debug("Initiating module %s with %d datasets", self.module_name, len(datasets))
         try:
 
             self._datasets = datasets
@@ -289,7 +306,7 @@ class HitmapModule(SuplexModuleInterface):
                 aspect_ratio=ASPECT_RATIO.AUTO,
                 grid_style=GRID_STYLE.WHITEGRID,
                 transparency=0.0,
-                dpi=300
+                dpi=300,
             )
 
             self._heatmap_settings = HeatmapSettings(
@@ -356,9 +373,7 @@ class HitmapModule(SuplexModuleInterface):
             all_tags = sorted(list(all_tags))
 
             # Initialize DatasetSorter with all options and collected tags
-            self._dataset_sorter = DatasetSorter(
-                tags=all_tags, num_levels=1, max_num_levels=10
-            )
+            self._dataset_sorter = DatasetSorter(tags=all_tags, num_levels=1, max_num_levels=10)
             attributes = (
                 DATA_ATTRIBUTES
                 + DATA_STATISTICS_ATTRIBUTES
@@ -372,9 +387,15 @@ class HitmapModule(SuplexModuleInterface):
                 included_attributes=attributes,
                 default_threshold=1.0,  # per default nothing will be filtered
             )
-            self._dataset_filter.get_method_dropdown().observe(lambda b: self._dataset_filter.on_filter_changed(datasets=self._datasets), names="value")
-            self._dataset_filter.get_attribute_dropdown().observe(lambda b: self._dataset_filter.on_filter_changed(datasets=self._datasets), names="value")
-            
+            self._dataset_filter.get_method_dropdown().observe(
+                lambda b: self._dataset_filter.on_filter_changed(datasets=self._datasets),
+                names="value",
+            )
+            self._dataset_filter.get_attribute_dropdown().observe(
+                lambda b: self._dataset_filter.on_filter_changed(datasets=self._datasets),
+                names="value",
+            )
+
             self._sample_spot_filter = SampleSpotFilter(
                 included_attributes=attributes,
                 included_normalization_methods=NORMALIZATION_DEFAULT,
@@ -385,20 +406,22 @@ class HitmapModule(SuplexModuleInterface):
             self._value_extractor = ValueExtractor(
                 attributes=attributes,
                 normalization_methods=NORMALIZATION_DEFAULT,
-                custom_factor = 2**16
+                custom_factor=2**16,
             )
             # We use a statistics value for initial depiction since we have to generate more graphs for spot values
-            self._value_extractor.get_attribute_widget().value = DATASET_ATTRIBUTE.ADJUSTED_AVERAGE.value
+            self._value_extractor.get_attribute_widget().value = (
+                DATASET_ATTRIBUTE.ADJUSTED_AVERAGE.value
+            )
 
             # Adjust dataset filter slider to selected attribute/normalization
             def on_values_extracted_changed():
                 # Changing the slider will result in triggering its listener
                 self._ignore_events = True
                 self._sample_spot_filter.on_filter_params_changed(
-                    datasets = self._datasets,
-                    attribute = self._value_extractor.attribute,
-                    normalization_method = self._value_extractor.normalization,
-                    normalization_factor = self._value_extractor.custom_factor
+                    datasets=self._datasets,
+                    attribute=self._value_extractor.attribute,
+                    normalization_method=self._value_extractor.normalization,
+                    normalization_factor=self._value_extractor.custom_factor,
                 )
                 self._ignore_events = False
                 self.auto_update(self.update_analysis)
@@ -477,9 +500,7 @@ class HitmapModule(SuplexModuleInterface):
             # Main layout: controls on left, tabs on right
             module_ui = WidgetFactory.hbox(
                 [controls, self._tabs],
-                layout=widgets.Layout(
-                    height="100%", width="100%", gap="0px", overflow="hidden"
-                ),
+                layout=widgets.Layout(height="100%", width="100%", gap="0px", overflow="hidden"),
             )
 
             logger.debug("Module UI initialized successfully")
@@ -493,16 +514,14 @@ class HitmapModule(SuplexModuleInterface):
     def create_main_control_interface(self) -> widgets.Widget:
         """
         Create the main control interface for the module.
-        
+
         Returns:
             widgets.Widget: The control interface widget.
         """
-        
+
         logger.debug("Creating main control interface")
         try:
-            title_html = WidgetFactory.html_widget(
-                value="<h2>Overview Heatmap</h2>", width="auto"
-            )
+            title_html = WidgetFactory.html_widget(value="<h2>Overview Heatmap</h2>", width="auto")
             controls_box = WidgetFactory.vbox(
                 children=[
                     self._value_extractor.get_ui(),
@@ -511,7 +530,7 @@ class HitmapModule(SuplexModuleInterface):
                 layout=widgets.Layout(
                     height="auto",
                     width="100%",
-                )
+                ),
             )
 
             controls_content = WidgetFactory.vbox(
@@ -534,87 +553,78 @@ class HitmapModule(SuplexModuleInterface):
             logger.debug("Main control interface created successfully")
             return control_interface
         except Exception as e:
-            logger.error(
-                "Failed to create main control interface: %s", e, exc_info=True
-            )
+            logger.error("Failed to create main control interface: %s", e, exc_info=True)
             raise
 
     def create_hitmap_filter_controls_section(self) -> widgets.Widget:
         """
         Create the hitmap filter controls section.
-        
+
         Returns:
             widgets.Widget: The filter controls widget.
         """
         hitmap_filter_content = []
-        
+
         # Static Thresholding
         static_filter_label = WidgetFactory.label(value="Static Thresholding:")
-        
+
         static_filter_slider = self._sample_spot_filter.get_threshold_range_slider()
         static_filter_slider.observe(lambda b: self.auto_update(self.update_analysis))
-        
+
         static_filter_invert_checkbox = self._sample_spot_filter.get_invert_checkbox()
         static_filter_invert_checkbox.observe(lambda b: self.auto_update(self.update_analysis))
-        
+
         self._apply_static_filter_checkbox = WidgetFactory.checkbox(
-                value=True,
-                description="Apply Static Filtering",
-                indent=False,
-                layout=widgets.Layout(margin="0px", padding="0px"),
-                width="100%",
-                on_change=lambda b: self.auto_update(self.update_analysis)
-            )
+            value=True,
+            description="Apply Static Filtering",
+            indent=False,
+            layout=widgets.Layout(margin="0px", padding="0px"),
+            width="100%",
+            on_change=lambda b: self.auto_update(self.update_analysis),
+        )
         checkboxes_box = WidgetFactory.hbox(
-            children=[static_filter_invert_checkbox, 
-                      self._apply_static_filter_checkbox
-                     ],
+            children=[static_filter_invert_checkbox, self._apply_static_filter_checkbox],
             gap="5px",
             overflow="visible",
-            height="auto"
+            height="auto",
         )
-        
+
         static_filter_widgets = WidgetFactory.vbox(
-            children=[
-                static_filter_slider,
-                checkboxes_box
-                     ],
+            children=[static_filter_slider, checkboxes_box],
             gap="5px",
             overflow="visible",
             height="auto",
             layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
         )
         hitmap_filter_content += [static_filter_label, static_filter_widgets]
-        
+
         # Dynamic Thresholding
-        dynamic_filter_label = WidgetFactory.label(value="Dynamic Thresholding:")
-        
-        self._dynamic_filter_alpha_slider = WidgetFactory.float_slider(
-            value=0.05,
+        dynamic_filter_label = WidgetFactory.label(value="Maximum Signal to Noise Ratio:")
+
+        self._sparsity_sider = WidgetFactory.float_slider(
+            value=0.5,
             min_value=0.0,
             max_value=1.0,
-            step=0.001,
+            step=0.01,
             description="",
             readout=True,
-            readout_format=".3f",
+            readout_format=".2f",
             layout=widgets.Layout(width="100%", padding="0px 10px"),
             continuous_update=False,
-            on_change=lambda b: self.auto_update(self.update_analysis)
+            on_change=lambda b: self.auto_update(self.update_analysis),
         )
-        
+
         self._apply_dynamic_filter_checkbox = WidgetFactory.checkbox(
-                value=True,
-                description="Apply Dynamic Filtering",
-                indent=False,
-                layout=widgets.Layout(margin="0px", padding="0px"),
-                width="100%",
-                on_change=lambda b: self.auto_update(self.update_analysis)
-            )
-        
+            value=True,
+            description="Apply Dynamic Filtering",
+            indent=False,
+            layout=widgets.Layout(margin="0px", padding="0px"),
+            width="100%",
+            on_change=lambda b: self.auto_update(self.update_analysis),
+        )
+
         dynamic_filter_widgets = WidgetFactory.vbox(
-            children=[self._dynamic_filter_alpha_slider, 
-                      self._apply_dynamic_filter_checkbox
-                     ],
+            children=[self._sparsity_sider, self._apply_dynamic_filter_checkbox],
             gap="5px",
             overflow="visible",
             height="auto",
@@ -626,12 +636,12 @@ class HitmapModule(SuplexModuleInterface):
         filter_propagation_label = WidgetFactory.label(value="Filter Propagation:")
         c_mode_values = [mode.value for mode in list(SELECTION_MODE)]
         self._compound_mode_dropdown = WidgetFactory.dropdown(
-            options= c_mode_values,
+            options=c_mode_values,
             value=SELECTION_MODE.ALL.value,
             description="",
             layout=widgets.Layout(margin="0px", padding="0px"),
             width="100%",
-            on_change=lambda b: self.auto_update(self.update_analysis)
+            on_change=lambda b: self.auto_update(self.update_analysis),
         )
         filter_propagation_widgets = WidgetFactory.vbox(
             children=[self._compound_mode_dropdown],
@@ -640,13 +650,12 @@ class HitmapModule(SuplexModuleInterface):
             height="auto",
             layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
         )
-        
 
         hit_continuity_label = WidgetFactory.label(value="Required Hit Continuity:")
         n_samples = 1
         if self._datasets:
             n_samples = max(len(dataset.samples) for dataset in self._datasets)
-            
+
         self._hit_continuity_number_input = WidgetFactory.int_number_input(
             value=1,
             min_value=1,
@@ -654,7 +663,7 @@ class HitmapModule(SuplexModuleInterface):
             description="",
             layout=widgets.Layout(margin="0px", padding="0px"),
             width="100%",
-            on_change=lambda b: self.auto_update(self.update_analysis)
+            on_change=lambda b: self.auto_update(self.update_analysis),
         )
         hit_continuity_widgets = WidgetFactory.vbox(
             children=[self._hit_continuity_number_input],
@@ -678,22 +687,23 @@ class HitmapModule(SuplexModuleInterface):
             height="auto",
             layout=widgets.Layout(padding=OPTION_INSET.BASELINE),
         )
-        hitmap_filter_content.append(WidgetFactory.hbox(
-            children=[propagation_widgets, continuity_widgets],
-            overflow="visible",
-            height="auto",
-            layout=widgets.Layout(padding=OPTION_INSET.BASELINE),
-        ))
-        
+        hitmap_filter_content.append(
+            WidgetFactory.hbox(
+                children=[propagation_widgets, continuity_widgets],
+                overflow="visible",
+                height="auto",
+                layout=widgets.Layout(padding=OPTION_INSET.BASELINE),
+            )
+        )
+
         return WidgetFactory.vbox(
-                    children=hitmap_filter_content,
-                    layout=widgets.Layout(width="100%", height="auto")
-                )
+            children=hitmap_filter_content, layout=widgets.Layout(width="100%", height="auto")
+        )
 
     def create_control_button_section(self):
         """
         Create the control button section with export and update buttons.
-        
+
         Returns:
             widgets.Widget: The button section widget.
         """
@@ -704,7 +714,7 @@ class HitmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.on_export_overview_plot(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
-                height = "30px"
+                height="30px",
             )
 
             export_overview_csv_button = WidgetFactory.button_emphasis(
@@ -712,7 +722,7 @@ class HitmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.on_export_overview_csv(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
-                height = "30px"
+                height="30px",
             )
 
             export_compound_plot_button = WidgetFactory.button_emphasis(
@@ -720,7 +730,7 @@ class HitmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.on_export_compound_plot(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
-                height = "30px"
+                height="30px",
             )
 
             export_compound_csv_button = WidgetFactory.button_emphasis(
@@ -728,7 +738,7 @@ class HitmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.on_export_compound_csv(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
-                height = "30px"
+                height="30px",
             )
 
             update_button = WidgetFactory.button_success(
@@ -736,7 +746,7 @@ class HitmapModule(SuplexModuleInterface):
                 on_click=lambda b: self.update_analysis(),
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
-                height = "30px"
+                height="30px",
             )
 
             self._auto_update_checkbox = WidgetFactory.checkbox(
@@ -745,7 +755,7 @@ class HitmapModule(SuplexModuleInterface):
                 indent=False,
                 layout=widgets.Layout(margin="0px", padding="0px"),
                 width="100%",
-                height = "30px"
+                height="30px",
             )
             self._auto_update_checkbox.observe(
                 lambda b: self.auto_update(self.update_analysis), names="value"
@@ -760,13 +770,16 @@ class HitmapModule(SuplexModuleInterface):
             )
 
             second_col = WidgetFactory.vbox(
-                children=[export_overview_csv_button, export_compound_csv_button, self._auto_update_checkbox],
+                children=[
+                    export_overview_csv_button,
+                    export_compound_csv_button,
+                    self._auto_update_checkbox,
+                ],
                 height="auto",
                 width="100%",
                 overflow_y="visible",
                 gap="2px",
             )
-
 
             control_button_section = WidgetFactory.hbox(
                 children=[first_col, second_col],
@@ -779,15 +792,13 @@ class HitmapModule(SuplexModuleInterface):
             logger.debug("Control button section created successfully")
             return control_button_section
         except Exception as e:
-            logger.error(
-                "Failed to create control button section: %s", e, exc_info=True
-            )
+            logger.error("Failed to create control button section: %s", e, exc_info=True)
             raise
 
     def create_sort_filter_tab(self) -> widgets.Widget:
         """
         Create the sorting and filtering tab content.
-        
+
         Returns:
             widgets.Widget: The tab content widget.
         """
@@ -810,7 +821,7 @@ class HitmapModule(SuplexModuleInterface):
     def create_settings_tab(self) -> widgets.Widget:
         """
         Create the settings tab content.
-        
+
         Returns:
             widgets.Widget: The settings tab widget.
         """
@@ -831,12 +842,8 @@ class HitmapModule(SuplexModuleInterface):
             self._dataset_descriptor = new_descriptor
             self.auto_update(self.update_analysis)
 
-        self._descriptor_radio[0].on_click(
-            lambda b: on_change_descriptor(DATASET_LABEL.ID)
-        )
-        self._descriptor_radio[1].on_click(
-            lambda b: on_change_descriptor(DATASET_LABEL.NAME)
-        )
+        self._descriptor_radio[0].on_click(lambda b: on_change_descriptor(DATASET_LABEL.ID))
+        self._descriptor_radio[1].on_click(lambda b: on_change_descriptor(DATASET_LABEL.NAME))
 
         radio_button_box = WidgetFactory.hbox(
             children=self._descriptor_radio,
@@ -851,7 +858,7 @@ class HitmapModule(SuplexModuleInterface):
         dataset_names_box = WidgetFactory.vbox(
             children=[dataset_box_title, radio_box], layout=widgets.Layout(gap="10px")
         )
-        
+
         settings_tab = WidgetFactory.vbox(
             children=[
                 dataset_names_box,
@@ -870,7 +877,7 @@ class HitmapModule(SuplexModuleInterface):
     def create_collage_controls_section(self) -> widgets.Widget:
         """
         Create the collage controls section for content options.
-        
+
         Returns:
             widgets.Widget: The controls section widget.
         """
@@ -878,34 +885,30 @@ class HitmapModule(SuplexModuleInterface):
             logger.debug("Creating collage controls section")
 
             # We use nested collages as such the term super_collage
-            super_collage_settings_title = WidgetFactory.html_widget(value="<h3>Collage Content Options</h3>")
+            super_collage_settings_title = WidgetFactory.html_widget(
+                value="<h3>Collage Content Options</h3>"
+            )
             super_collage_widgets = [super_collage_settings_title]
-    
+
             self._add_unsorted_barcharts_checkbox = WidgetFactory.checkbox(
                 value=False,
                 description="Add Positional Barcharts",
                 indent=False,
-                layout=widgets.Layout(
-                    height="30px", width="auto", margin="0px", padding="0px"
-                ),
+                layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
             )
-    
+
             self._add_sorted_barcharts_checkbox = WidgetFactory.checkbox(
                 value=False,
                 description="Add Sorted Barcharts",
                 indent=False,
-                layout=widgets.Layout(
-                    height="30px", width="auto", margin="0px", padding="0px"
-                ),
+                layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
             )
-    
+
             self._add_delta_barcharts_checkbox = WidgetFactory.checkbox(
                 value=False,
                 description="Add Delta Barcharts",
                 indent=False,
-                layout=widgets.Layout(
-                    height="30px", width="auto", margin="0px", padding="0px"
-                ),
+                layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
                 names="value",
             )
 
@@ -913,7 +916,7 @@ class HitmapModule(SuplexModuleInterface):
                 children=[
                     self._add_unsorted_barcharts_checkbox,
                     self._add_sorted_barcharts_checkbox,
-                    self._add_delta_barcharts_checkbox
+                    self._add_delta_barcharts_checkbox,
                 ],
                 gap="5px",
                 overflow="visible",
@@ -921,7 +924,6 @@ class HitmapModule(SuplexModuleInterface):
                 layout=widgets.Layout(padding=OPTION_INSET.PRIMARY),
             )
             super_collage_widgets.append(checkbox_container)
-
 
             collage_cols_label = WidgetFactory.label("Cols in Collage:")
             collage_cols_number_input = self._collage.get_columns_input()
@@ -983,15 +985,13 @@ class HitmapModule(SuplexModuleInterface):
             return collage_controls_section
 
         except Exception as e:
-            logger.error(
-                "Failed to create collage controls section: %s", e, exc_info=True
-            )
+            logger.error("Failed to create collage controls section: %s", e, exc_info=True)
             raise
 
     def auto_update(self, method: Callable[[], None]) -> None:
         """
         Automatically update the analysis if auto-update is enabled.
-        
+
         Args:
             method (Callable[[], None]): The method to call for update.
         """
@@ -1045,33 +1045,28 @@ class HitmapModule(SuplexModuleInterface):
 
         datasets = self._included_datasets
 
-        sample_threshold_map, spot_threshold_map = (
-            self._sample_spot_filter.get_filter_maps(
-                datasets=datasets,
-                attribute = self._value_extractor.attribute,
-                normalization_method = self._value_extractor.normalization,
-                normalization_factor = self._value_extractor.custom_factor,
-                spots_affect_sample = False,
-                sample_affects_spots = False,
-            )
+        sample_threshold_map, spot_threshold_map = self._sample_spot_filter.get_filter_maps(
+            datasets=datasets,
+            attribute=self._value_extractor.attribute,
+            normalization_method=self._value_extractor.normalization,
+            normalization_factor=self._value_extractor.custom_factor,
+            spots_affect_sample=False,
+            sample_affects_spots=False,
         )
-        
-        filtered_values_static = (
-            self._sample_spot_filter.extract_filtered_values_from_datasets(
-                datasets=datasets,
-                attribute=attribute,
-                sample_threshold_map=sample_threshold_map,
-                spot_threshold_map=spot_threshold_map,
-                outside_replacement_value=float("nan"),
-                above_replacement_value=float("nan"),
-                below_replacement_value=float("nan"),
-            )
+
+        filtered_values_static = self._sample_spot_filter.extract_filtered_values_from_datasets(
+            datasets=datasets,
+            attribute=attribute,
+            sample_threshold_map=sample_threshold_map,
+            spot_threshold_map=spot_threshold_map,
+            outside_replacement_value=float("nan"),
+            above_replacement_value=float("nan"),
+            below_replacement_value=float("nan"),
         )
         # Hitmap formatting using 0 = no hit and 1 = hit
         self._static_hitmaps = {}
         for key, value_list in filtered_values_static.items():
             self._static_hitmaps[key] = [0 if pd.isna(value) else 1 for value in value_list]
-
 
     def apply_dynamic_threshold(self):
         """
@@ -1083,7 +1078,7 @@ class HitmapModule(SuplexModuleInterface):
 
         self._filtered_values_dynamic = {}
         self._dynamic_hitmaps = {}
-        
+
         for dataset in datasets:
             n_spotfields = dataset.general_parameters.number_of_spotfields
             if n_spotfields is None or attribute in DATA_STATISTICS_ATTRIBUTES:
@@ -1094,14 +1089,20 @@ class HitmapModule(SuplexModuleInterface):
             # Split flat map into spotfield maps
             spot_field_values_lists = [value_map[i::n_spotfields] for i in range(n_spotfields)]
             # Apply dynamic filtering for each set of spotfield values
-            transformed_lists = [apply_dynamic_filtering(value_list = spot_field_values_list, alpha = self._dynamic_filter_alpha_slider.value) for spot_field_values_list in spot_field_values_lists]
+            transformed_lists = [
+                apply_dynamic_filtering(
+                    value_list=spot_field_values_list,
+                    max_relevant_fraction=self._sparsity_sider.value,
+                )
+                for spot_field_values_list in spot_field_values_lists
+            ]
             # Re-create flat list for later to fit the format of static filtering and heatmap generation.
             restored_list_transformed = []
             # This requires all samples to have the same number of spots
             for i, value in enumerate(transformed_lists[0]):
                 for transformed_list in transformed_lists:
                     restored_list_transformed.append(transformed_list[i])
-                    
+
             self._filtered_values_dynamic[dataset] = restored_list_transformed
 
         self._dynamic_hitmaps = {
@@ -1117,35 +1118,39 @@ class HitmapModule(SuplexModuleInterface):
         # Len of compound map results in hitmap
         self._aggregated_maps = {}
         self._filtered_values = {}
-        
+
         apply_static_filter = self._apply_static_filter_checkbox.value
         apply_dynamic_filter = self._apply_dynamic_filter_checkbox.value
-        
+
         if not (apply_static_filter or apply_dynamic_filter):
             # Compound map and aggregated_maps are now empty
             return
-        
+
         # If one option is set to false just work with a duplicate list (same result for both ALL and ANY).
         static_maps = self._static_hitmaps if apply_static_filter else self._dynamic_hitmaps
         dynamic_maps = self._dynamic_hitmaps if apply_dynamic_filter else self._static_hitmaps
-        
+
         if len(static_maps) != len(dynamic_maps):
             # Should never be the case logically
-            logger.critical(f"Variing length between static map lists ({len(static_maps)}) and dynamic map ({len(dynamic_maps)})")
+            logger.critical(
+                f"Variing length between static map lists ({len(static_maps)}) and dynamic map ({len(dynamic_maps)})"
+            )
             return None
-            
+
         filter_aggregation_mode = SELECTION_MODE(self._compound_mode_dropdown.value)
         min_hit_continuity = self._hit_continuity_number_input.value
 
         # Dynamically set compound maps dimensions
         max_length = max(len(static_map) for static_map in static_maps.values())
         self._compound_map = [[] for _ in range(max_length)]
-        
+
         for key, static_map in static_maps.items():
             dynamic_map = dynamic_maps[key]
             if len(static_map) != len(dynamic_map):
                 # Should never be the case logically
-                logger.critical(f"Variing length between static maps ({len(static_map)}) and dynamic map ({len(dynamic_map)})")
+                logger.critical(
+                    f"Variing length between static maps ({len(static_map)}) and dynamic map ({len(dynamic_map)})"
+                )
                 return None
 
             # Use AND or OR for hitmap overlaps.
@@ -1157,7 +1162,9 @@ class HitmapModule(SuplexModuleInterface):
                 elif filter_aggregation_mode == SELECTION_MODE.ANY:
                     dataset_hitmap.append(static_value or dynamic_map[i])
                 else:
-                    logger.warning(f"Illegal selection mode used: {filter_aggregation_mode}. Will default to False.")
+                    logger.warning(
+                        f"Illegal selection mode used: {filter_aggregation_mode}. Will default to False."
+                    )
                     dataset_hitmap.append(False)
 
             # Requirement of n hits in continuity for them to be counted as such.
@@ -1169,8 +1176,8 @@ class HitmapModule(SuplexModuleInterface):
                     if sum(cont_map) < min_hit_continuity:
                         cont_map = [False] * len(cont_map)
                     continual_hitmap += cont_map
-                    cont_map = [] 
-                    
+                    cont_map = []
+
             if cont_map and sum(cont_map) < min_hit_continuity:
                 cont_map = [False] * len(cont_map)
             continual_hitmap += cont_map
@@ -1180,12 +1187,13 @@ class HitmapModule(SuplexModuleInterface):
                     self._compound_map[j].append(key)
 
             # Store result of aggregation per dataset for later use
-            self._aggregated_maps[key] = [int(x) for x in continual_hitmap] # use 0 and 1 instead of true/false to keep consistency
+            self._aggregated_maps[key] = [
+                int(x) for x in continual_hitmap
+            ]  # use 0 and 1 instead of true/false to keep consistency
             self._filtered_values[key] = [
                 value.VALUE if h >= 1 else np.nan
                 for value, h in zip(self._filtered_values_dynamic[key], continual_hitmap)
             ]
-
 
     def update_overview(self) -> None:
         """
@@ -1258,13 +1266,15 @@ class HitmapModule(SuplexModuleInterface):
             value_threshold_title = "Thresholding"
             apply_static_filter = self._apply_static_filter_checkbox.value
             apply_dynamic_filter = self._apply_dynamic_filter_checkbox.value
-            
+
             if not self._included_datasets:
                 html_content += f"<h3>{value_threshold_title}</h3>"
-                html_content += "<ul><li><strong>No Values Left for Value Filtering</strong></li></ul>"
+                html_content += (
+                    "<ul><li><strong>No Values Left for Value Filtering</strong></li></ul>"
+                )
                 self._overview_box.children = [WidgetFactory.html_widget(html_content)]
                 return
-                
+
             if not apply_static_filter and not apply_dynamic_filter:
                 html_content += f"<h3>{value_threshold_title}</h3>"
                 html_content += "<ul><li><strong>No Filter active</strong></li></ul>"
@@ -1276,12 +1286,14 @@ class HitmapModule(SuplexModuleInterface):
             )
 
             n_values = sum(len(values) for values in self._filtered_values.values())
-            all_non_nan_values = [v for values in self._filtered_values.values() for v in values if not pd.isna(v)]
+            all_non_nan_values = [
+                v for values in self._filtered_values.values() for v in values if not pd.isna(v)
+            ]
             n_values_included = len(all_non_nan_values)
             filtered_values_mean = np.nanmean(all_non_nan_values) if all_non_nan_values else 0.0
             filtered_values_min = np.nanmin(all_non_nan_values) if all_non_nan_values else 0.0
             filtered_values_max = np.nanmax(all_non_nan_values) if all_non_nan_values else 0.0
-            
+
             html_content += f"""
             <h3>{value_threshold_title}</h3>
             <ul>
@@ -1289,7 +1301,7 @@ class HitmapModule(SuplexModuleInterface):
                 <li><strong>Static Filter Range:</strong> {threshold_min} - {threshold_max}</li>
                 <li><strong>Static Filter Inverted:</strong> {self._sample_spot_filter.invert}</li>
                 <li><strong>Dynamic Filter Active:</strong> {apply_dynamic_filter}</li>
-                <li><strong>Dynamic Filter Alpha:</strong> {self._dynamic_filter_alpha_slider.value}</li>
+                <li><strong>Dynamic Filter Sparsity:</strong> {self._sparsity_sider.value}</li>
                 <li><strong>Filter Propagation Mode:</strong> {self._compound_mode_dropdown.value}</li>
                 <li><strong>Values in Range:</strong> {n_values_included} / {n_values} ({n_values_included/n_values*100:.1f}%)</li>
                 <li><strong>Filtered Global Mean:</strong> {filtered_values_mean:.4f}</li>
@@ -1314,13 +1326,16 @@ class HitmapModule(SuplexModuleInterface):
         """
         logger.debug("Updating dataset statistics")
         try:
-            if not self._apply_static_filter_checkbox.value and not self._apply_dynamic_filter_checkbox.value:
+            if (
+                not self._apply_static_filter_checkbox.value
+                and not self._apply_dynamic_filter_checkbox.value
+            ):
                 html_str = f"Please select a filter method to generate statistics."
                 self._dataset_stats_box.children = [
                     WidgetFactory.info_field_error([WidgetFactory.html_widget(html_str)])
                 ]
                 return
-                
+
             dataset_stats = []
             attribute = self._value_extractor.attribute
             normalization = self._value_extractor.normalization
@@ -1330,14 +1345,14 @@ class HitmapModule(SuplexModuleInterface):
                 static_hitmap = self._static_hitmaps[dataset]
                 dynamic_hitmap = self._dynamic_hitmaps[dataset]
 
-                n_values = len(static_hitmap) # the same as values and dynamic hitmap
-                
+                n_values = len(static_hitmap)  # the same as values and dynamic hitmap
+
                 n_hits_static = sum(static_hitmap)
                 n_hits_static_perc = (n_hits_static / n_values) * 100 if n_values > 0 else 0
-                
+
                 n_hits_dynamic = sum(dynamic_hitmap)
                 n_hits_dynamic_perc = (n_hits_dynamic / n_values) * 100 if n_values > 0 else 0
-                
+
                 overlap_count = sum(s and d for s, d in zip(static_hitmap, dynamic_hitmap))
                 overlap_count_perc = (overlap_count / n_values) * 100 if n_values > 0 else 0
 
@@ -1354,21 +1369,17 @@ class HitmapModule(SuplexModuleInterface):
                     stat_max = np.nanmax(values)
                     stat_std = np.nanstd(values)
 
-                name = (
-                    dataset.id
-                    if self._dataset_descriptor == DATASET_LABEL.ID
-                    else dataset.name
-                )
+                name = dataset.id if self._dataset_descriptor == DATASET_LABEL.ID else dataset.name
 
                 stat = {
                     "name": name,
                     "n_values": n_values,
-                    "n_hits_static":n_hits_static,
-                    "n_hits_static_perc":n_hits_static_perc,
-                    "n_hits_dynamic":n_hits_dynamic,
-                    "n_hits_dynamic_perc":n_hits_dynamic_perc,
-                    "overlap_count":overlap_count,
-                    "overlap_count_perc":overlap_count_perc,
+                    "n_hits_static": n_hits_static,
+                    "n_hits_static_perc": n_hits_static_perc,
+                    "n_hits_dynamic": n_hits_dynamic,
+                    "n_hits_dynamic_perc": n_hits_dynamic_perc,
+                    "overlap_count": overlap_count,
+                    "overlap_count_perc": overlap_count_perc,
                     "mean_filtered": stat_mean,
                     "median_filtered": stat_median,
                     "min_filtered": stat_min,
@@ -1398,7 +1409,7 @@ class HitmapModule(SuplexModuleInterface):
 
             static_enabled = self._apply_static_filter_checkbox.value
             dynamic_enabled = self._apply_dynamic_filter_checkbox.value
-            
+
             html_content = f"<h3>Dataset Statistics: {attribute.value} {norm_text}</h3>"
 
             html_content += f"""
@@ -1407,25 +1418,25 @@ class HitmapModule(SuplexModuleInterface):
                     <th style="padding: 8px; text-align: left; border: 1px solid {line_col};">Dataset</th>
                     <th style="padding: 8px; text-align: center; border: 1px solid {line_col};">n Values</th>
             """
-            
+
             if static_enabled:
                 html_content += f"""
                     <th style="padding: 8px; text-align: center; border: 1px solid {line_col};">n Included Static Filtering</th>
                     <th style="padding: 8px; text-align: center; border: 1px solid {line_col};">Percent Included Static Filtering</th>
             """
-            
+
             if dynamic_enabled:
                 html_content += f"""
                     <th style="padding: 8px; text-align: center; border: 1px solid {line_col};">n Included Dynamic Filtering</th>
                     <th style="padding: 8px; text-align: center; border: 1px solid {line_col};">Percent Included Dynamic Filtering</th>
             """
-            
+
             if static_enabled and dynamic_enabled:
                 html_content += f"""
                     <th style="padding: 8px; text-align: center; border: 1px solid {line_col};">Overlap between Filters</th>
                     <th style="padding: 8px; text-align: center; border: 1px solid {line_col};">Percent Included Total</th>
             """
-            
+
             html_content += f"""
                     <th style="padding: 8px; text-align: center; border: 1px solid {line_col};">Mean Filtered</th>
                     <th style="padding: 8px; text-align: center; border: 1px solid {line_col};">Median Filtered</th>
@@ -1440,25 +1451,25 @@ class HitmapModule(SuplexModuleInterface):
                     <td style="padding: 8px; border: 1px solid {line_col};">{stat["name"]}</td>
                     <td style="padding: 8px; text-align: center; border: 1px solid {line_col};">{stat["n_values"]}</td>
                 """
-            
+
                 if static_enabled:
                     html_content += f"""
                     <td style="padding: 8px; text-align: center; border: 1px solid {line_col};">{stat["n_hits_static"]}</td>
                     <td style="padding: 8px; text-align: center; border: 1px solid {line_col};">{stat["n_hits_static_perc"]:.2f}</td>
                     """
-            
+
                 if dynamic_enabled:
                     html_content += f"""
                     <td style="padding: 8px; text-align: center; border: 1px solid {line_col};">{stat["n_hits_dynamic"]}</td>
                     <td style="padding: 8px; text-align: center; border: 1px solid {line_col};">{stat["n_hits_dynamic_perc"]:.2f}</td>
                     """
-            
+
                 if static_enabled and dynamic_enabled:
                     html_content += f"""
                     <td style="padding: 8px; text-align: center; border: 1px solid {line_col};">{stat["overlap_count"]}</td>
                     <td style="padding: 8px; text-align: center; border: 1px solid {line_col};">{stat["overlap_count_perc"]:.2f}</td>
                     """
-            
+
                 html_content += f"""
                     <td style="padding: 8px; text-align: center; border: 1px solid {line_col};">{stat["mean_filtered"]:.4f}</td>
                     <td style="padding: 8px; text-align: center; border: 1px solid {line_col};">{stat["median_filtered"]:.4f}</td>
@@ -1478,7 +1489,7 @@ class HitmapModule(SuplexModuleInterface):
                     [WidgetFactory.html_widget("Error generating dataset statistics.")]
                 )
             ]
-    
+
     def update_compound_graph(self) -> None:
         """
         Update the compound graph display.
@@ -1486,20 +1497,23 @@ class HitmapModule(SuplexModuleInterface):
         logger.debug("Updating compound hitmap")
         try:
             # No filter method selected
-            if not self._apply_static_filter_checkbox.value and not self._apply_dynamic_filter_checkbox.value:
+            if (
+                not self._apply_static_filter_checkbox.value
+                and not self._apply_dynamic_filter_checkbox.value
+            ):
                 html_str = f"Please select a filter method to generate a hitmap."
                 self._compound_plot_box.children = [
                     WidgetFactory.info_field_error([WidgetFactory.html_widget(html_str)])
                 ]
                 return
-    
+
             if not self._compound_map:
                 html_str = f"No datasets left after filtering."
                 self._compound_plot_box.children = [
                     WidgetFactory.info_field_error([WidgetFactory.html_widget(html_str)])
                 ]
                 return
-        
+
             svg_fig = self.get_compound_heatmap_collage()
 
             with tempfile.NamedTemporaryFile(suffix=".svg", delete=False) as tmp_svg:
@@ -1549,12 +1563,19 @@ class HitmapModule(SuplexModuleInterface):
         """
         logger.debug("Exporting plot")
         try:
-            if not self._apply_static_filter_checkbox.value and not self._apply_dynamic_filter_checkbox.value:
-                logger.warning(f"Could not export compound plots. Please select a filter method to generate a hitmap.")
+            if (
+                not self._apply_static_filter_checkbox.value
+                and not self._apply_dynamic_filter_checkbox.value
+            ):
+                logger.warning(
+                    f"Could not export compound plots. Please select a filter method to generate a hitmap."
+                )
                 return
-    
+
             if not self._compound_map:
-                logger.warning(f"Could not export compound plots. No datasets left after filtering.")
+                logger.warning(
+                    f"Could not export compound plots. No datasets left after filtering."
+                )
                 return
 
             svg_fig = self.get_compound_heatmap_collage()
@@ -1563,7 +1584,7 @@ class HitmapModule(SuplexModuleInterface):
             root = Tk()
             root.withdraw()
             root.lift()
-            root.attributes('-topmost', True)
+            root.attributes("-topmost", True)
             root.focus_force()
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".svg",
@@ -1571,7 +1592,7 @@ class HitmapModule(SuplexModuleInterface):
                 initialfile=default_filename,
                 title="Save Plot As",
             )
-            root.attributes('-topmost', False)
+            root.attributes("-topmost", False)
             root.destroy()
 
             if file_path:
@@ -1587,7 +1608,7 @@ class HitmapModule(SuplexModuleInterface):
     def get_compound_heatmap_collage(self) -> sg.SVGFigure:
         """
         Generate the compound heatmap collage as SVG.
-        
+
         Returns:
             sg.SVGFigure: The SVG figure for the compound heatmap collage.
         """
@@ -1595,19 +1616,29 @@ class HitmapModule(SuplexModuleInterface):
         # This may result in a 1x1 collage.
         compound_count_map = [len(hits) for hits in self._compound_map]
         max_value = max(compound_count_map)
-        
+
         n_spotfields = self._included_datasets[0].general_parameters.number_of_spotfields
         if n_spotfields is None or self._value_extractor.attribute in DATA_STATISTICS_ATTRIBUTES:
             n_spotfields = 1
-        
-        spotfield_compound_count_maps = [compound_count_map[i::n_spotfields] for i in range(n_spotfields)]
+
+        spotfield_compound_count_maps = [
+            compound_count_map[i::n_spotfields] for i in range(n_spotfields)
+        ]
         compound_heatmaps = []
         title = ""
         for i, spot_field_hit_list in enumerate(spotfield_compound_count_maps):
             if len(spotfield_compound_count_maps) > 1:
                 title = f"Spotfield {i}"
-            compound_heatmaps.append(self.generate_heatmap(title = title, dataset = None, plot_values = spot_field_hit_list, min_value = 0, max_value = max_value))
-        
+            compound_heatmaps.append(
+                self.generate_heatmap(
+                    title=title,
+                    dataset=None,
+                    plot_values=spot_field_hit_list,
+                    min_value=0,
+                    max_value=max_value,
+                )
+            )
+
         columns = int(math.ceil(math.sqrt(len(compound_heatmaps))))
 
         # Collage without title or margins
@@ -1620,11 +1651,7 @@ class HitmapModule(SuplexModuleInterface):
             vertical_margin=0,
         )
 
-        collage_image = self.add_global_colorbar(
-            svg_image=collage_image,
-            vmin = 0, 
-            vmax = max_value
-        )
+        collage_image = self.add_global_colorbar(svg_image=collage_image, vmin=0, vmax=max_value)
 
         # Add title and margins after adding colorbar for proper positioning
         collage_image = add_title_to_svg(
@@ -1641,20 +1668,23 @@ class HitmapModule(SuplexModuleInterface):
         )[0]
 
         return collage_image
-            
+
     def update_collage_graph(self) -> None:
         """
         Update the collage graph display.
         """
         logger.debug("Generating hitmap collage")
         try:
-            if not self._apply_static_filter_checkbox.value and not self._apply_dynamic_filter_checkbox.value:
+            if (
+                not self._apply_static_filter_checkbox.value
+                and not self._apply_dynamic_filter_checkbox.value
+            ):
                 html_str = f"Please select a filter method to generate hitmaps."
                 self._collage_plot_box.children = [
                     WidgetFactory.info_field_error([WidgetFactory.html_widget(html_str)])
                 ]
                 return
-    
+
             if not self._compound_map:
                 html_str = f"No datasets left after filtering."
                 self._collage_plot_box.children = [
@@ -1679,7 +1709,7 @@ class HitmapModule(SuplexModuleInterface):
                             time.sleep(0.1)
                         else:
                             logger.debug(f"Could not remove temp file {tmp_svg.name}")
-            
+
             svg_width = float(svg_fig.width.rstrip("ptpx"))
             svg_height = float(svg_fig.height.rstrip("ptpx"))
             html_content = f"""
@@ -1711,14 +1741,20 @@ class HitmapModule(SuplexModuleInterface):
         """
         logger.debug("Exporting plot")
         try:
-            if not self._apply_static_filter_checkbox.value and not self._apply_dynamic_filter_checkbox.value:
-                logger.warning(f"Could not export compound plots. Please select a filter method to generate a hitmap.")
-                return
-    
-            if not self._compound_map:
-                logger.warning(f"Could not export compound plots. No datasets left after filtering.")
+            if (
+                not self._apply_static_filter_checkbox.value
+                and not self._apply_dynamic_filter_checkbox.value
+            ):
+                logger.warning(
+                    f"Could not export compound plots. Please select a filter method to generate a hitmap."
+                )
                 return
 
+            if not self._compound_map:
+                logger.warning(
+                    f"Could not export compound plots. No datasets left after filtering."
+                )
+                return
 
             svg_fig = self.get_collage()
             default_filename = f"Hitmap_Collage_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
@@ -1726,7 +1762,7 @@ class HitmapModule(SuplexModuleInterface):
             root = Tk()
             root.withdraw()
             root.lift()
-            root.attributes('-topmost', True)
+            root.attributes("-topmost", True)
             root.focus_force()
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".svg",
@@ -1734,7 +1770,7 @@ class HitmapModule(SuplexModuleInterface):
                 initialfile=default_filename,
                 title="Save Plot As",
             )
-            root.attributes('-topmost', False)
+            root.attributes("-topmost", False)
             root.destroy()
 
             if file_path:
@@ -1750,7 +1786,7 @@ class HitmapModule(SuplexModuleInterface):
     def get_collage(self) -> sg.SVGFigure:
         """
         Generate the collage from individual dataset heatmaps and barcharts.
-        
+
         Returns:
             sg.SVGFigure: The SVG figure for the collage.
         """
@@ -1773,40 +1809,63 @@ class HitmapModule(SuplexModuleInterface):
         add_unsorted_barcharts = self._add_unsorted_barcharts_checkbox.value
         add_sorted_barcharts = self._add_sorted_barcharts_checkbox.value
         add_delta_barcharts = self._add_delta_barcharts_checkbox.value
-        
+
         # Scaling of non delta value barcharts is done globally
-        abs_max_value = max(max(obj.VALUE for obj in values) for values in self._filtered_values_dynamic.values())
-        
+        abs_max_value = max(
+            max(obj.VALUE for obj in values) for values in self._filtered_values_dynamic.values()
+        )
+
         sub_collages = []
         for dataset, aggregated_values in self._aggregated_maps.items():
             n_spotfields = dataset.general_parameters.number_of_spotfields
-            if n_spotfields is None or self._value_extractor.attribute in DATA_STATISTICS_ATTRIBUTES:
+            if (
+                n_spotfields is None
+                or self._value_extractor.attribute in DATA_STATISTICS_ATTRIBUTES
+            ):
                 n_spotfields = 1
-                
+
             dataset_figures = []
             spot_field_hit_lists = [aggregated_values[i::n_spotfields] for i in range(n_spotfields)]
             # We use filtered values dynamic to be able to extract group indices
-            spot_field_values_lists = [self._filtered_values_dynamic[dataset][i::n_spotfields] for i in range(n_spotfields)]
-            
+            spot_field_values_lists = [
+                self._filtered_values_dynamic[dataset][i::n_spotfields] for i in range(n_spotfields)
+            ]
+
             for i, spot_field_hit_list in enumerate(spot_field_hit_lists):
                 title_str = "Hitmap"
                 if len(spot_field_values_lists) > 1:
                     title_str += f" - Spotfield {i}"
-                        
-                dataset_figures.append(self.generate_heatmap(
-                    title = title_str, dataset=dataset, plot_values=spot_field_hit_list, min_value = 0, max_value = 1
-                ))
+
+                dataset_figures.append(
+                    self.generate_heatmap(
+                        title=title_str,
+                        dataset=dataset,
+                        plot_values=spot_field_hit_list,
+                        min_value=0,
+                        max_value=1,
+                    )
+                )
 
             plot_values_lists = []
             group_lists = []
-            for spot_field_values_list in spot_field_values_lists:                 
+            for spot_field_values_list in spot_field_values_lists:
                 if add_unsorted_barcharts or add_sorted_barcharts:
                     plot_values = [value.VALUE for value in spot_field_values_list]
                     groups = [value.GROUP_NR for value in spot_field_values_list]
                     # Set all insignificant groups to the lowest insignificant group value
                     if dynamic_threshold_enabled:
-                        min_insignificant_group = min((value.GROUP_NR for value in spot_field_values_list if not value.SIGNIFICANT), default=0)
-                        groups = [min_insignificant_group if group >= min_insignificant_group else group for group in groups]
+                        min_insignificant_group = min(
+                            (
+                                value.GROUP_NR
+                                for value in spot_field_values_list
+                                if not value.SIGNIFICANT
+                            ),
+                            default=0,
+                        )
+                        groups = [
+                            min_insignificant_group if group >= min_insignificant_group else group
+                            for group in groups
+                        ]
                     plot_values_lists.append(plot_values)
                     group_lists.append(groups)
 
@@ -1817,8 +1876,16 @@ class HitmapModule(SuplexModuleInterface):
                     title_str = "Values"
                     if len(spot_field_values_lists) > 1:
                         title_str += f" - Spotfield {i}"
-                    dataset_figures.append(self.generate_barchart(title = title_str, plot_values = plot_values_lists[i], groups = group_lists[i], threshold_lines = threshold_lines, max_value = abs_max_value))
-                
+                    dataset_figures.append(
+                        self.generate_barchart(
+                            title=title_str,
+                            plot_values=plot_values_lists[i],
+                            groups=group_lists[i],
+                            threshold_lines=threshold_lines,
+                            max_value=abs_max_value,
+                        )
+                    )
+
             if add_sorted_barcharts:
                 for i, spot_field_values_list in enumerate(spot_field_values_lists):
                     title_str = "Sorted Values"
@@ -1830,36 +1897,43 @@ class HitmapModule(SuplexModuleInterface):
                     # unzip sorted lists
                     sorted_plot_values = [item[0] for item in sorted_combined]
                     sorted_groups = [item[1] for item in sorted_combined]
-                    
-                    dataset_figures.append(self.generate_barchart(title = title_str, plot_values = sorted_plot_values, groups = sorted_groups, threshold_lines = threshold_lines, max_value = abs_max_value,))
-                
+
+                    dataset_figures.append(
+                        self.generate_barchart(
+                            title=title_str,
+                            plot_values=sorted_plot_values,
+                            groups=sorted_groups,
+                            threshold_lines=threshold_lines,
+                            max_value=abs_max_value,
+                        )
+                    )
+
             if add_delta_barcharts:
                 for i, spot_field_values_list in enumerate(spot_field_values_lists):
                     title_str = "Delta Values"
                     if len(spot_field_values_lists) > 1:
                         title_str += f" - Spotfield {i}"
-                        
+
                     delta_values = [value.DELTA for value in spot_field_values_list]
-                    dataset_figures.append(self.generate_barchart(title = title_str, plot_values = delta_values, groups = []))
+                    dataset_figures.append(
+                        self.generate_barchart(title=title_str, plot_values=delta_values, groups=[])
+                    )
 
             title = ""
             if self._general_graph_settings.show_title:
-                title = (
-                    dataset.id
-                    if self._dataset_descriptor == DATASET_LABEL.ID
-                    else dataset.name
-                )
+                title = dataset.id if self._dataset_descriptor == DATASET_LABEL.ID else dataset.name
 
             # We use constant values for the sub-collages, maybe we'll make this interactive in a future version
             # Commented attributes default to the same setting as the overarching collage
-            sub_title_size = max(
-                1, int(self._collage.font_size * 0.618)
-            )  # Golden ratio
-            
+            sub_title_size = max(1, int(self._collage.font_size * 0.618))  # Golden ratio
+
             dataset_cols = n_spotfields
-            if not (add_unsorted_barcharts or add_sorted_barcharts or add_delta_barcharts) or n_spotfields <= 1:
+            if (
+                not (add_unsorted_barcharts or add_sorted_barcharts or add_delta_barcharts)
+                or n_spotfields <= 1
+            ):
                 dataset_cols = int(math.ceil(math.sqrt(len(dataset_figures))))
-            
+
             sub_collages.append(
                 self._collage.generate_collage(
                     images=dataset_figures,
@@ -1887,11 +1961,7 @@ class HitmapModule(SuplexModuleInterface):
             vertical_margin=0,
         )
 
-        collage_image = self.add_global_colorbar(
-            svg_image=collage_image,
-            vmin = 0, 
-            vmax = 1
-        )
+        collage_image = self.add_global_colorbar(svg_image=collage_image, vmin=0, vmax=1)
 
         # Add title and margins after adding colorbar for proper positioning
         collage_image = add_title_to_svg(
@@ -1910,23 +1980,30 @@ class HitmapModule(SuplexModuleInterface):
         logger.debug("Collage generated successfully")
         return collage_image
 
-    def generate_barchart(self, title: str, plot_values: List[float], groups: List[int] = [], threshold_lines: List[float] = [], max_value: Optional[float] = None) -> plt.Figure:
+    def generate_barchart(
+        self,
+        title: str,
+        plot_values: List[float],
+        groups: List[int] = [],
+        threshold_lines: List[float] = [],
+        max_value: Optional[float] = None,
+    ) -> plt.Figure:
         """
         Generate a barchart figure.
-        
+
         Args:
             title (str): Title of the barchart.
             plot_values (List[float]): Values to plot.
             groups (List[int], optional): Group indices for coloring. Defaults to [].
             threshold_lines (List[float], optional): Threshold lines to draw. Defaults to [].
             max_value (Optional[float], optional): Maximum value for scaling. Defaults to None.
-            
+
         Returns:
             plt.Figure: The matplotlib figure for the barchart.
         """
         if max_value is None:
             max_value = max(plot_values)
-        
+
         sns.set_style(self._general_graph_settings.grid_style.value)
         base_font_size = self._general_graph_settings.base_font_size
         tick_font_size = base_font_size - 2
@@ -1938,7 +2015,7 @@ class HitmapModule(SuplexModuleInterface):
         fig_height = fig_width
         ar_value = get_aspect_ratio_value(self._general_graph_settings.aspect_ratio)
         if ar_value is not None:
-            fig_height =  fig_width / ar_value
+            fig_height = fig_width / ar_value
 
         # Add margin for labels
         tick_label_space = tick_font_size / 72.0
@@ -1949,10 +2026,9 @@ class HitmapModule(SuplexModuleInterface):
             max_n_digits = len(str(max_value))
             tick_label_space = tick_label_space * char_width_factor * max_n_digits
             fig_width += tick_label_space
-        
-    
+
         fig, ax = plt.subplots(figsize=(fig_width, fig_height))
-    
+
         current_dpi = fig.dpi
         est_width_pixels = fig_width * current_dpi
         est_height_pixels = fig_height * current_dpi
@@ -1971,7 +2047,7 @@ class HitmapModule(SuplexModuleInterface):
         # Forces to keep explicit order
         categories = data["index"].tolist()
         data["index"] = pd.Categorical(data["index"], categories=categories, ordered=True)
-        
+
         # Set up color palette
         palette = plt.get_cmap(self._general_graph_settings.sequential_color_scheme.value)
         color_map = [palette(0.5)] * len(plot_values)
@@ -1979,60 +2055,66 @@ class HitmapModule(SuplexModuleInterface):
             # Translate group list to color list for each bar
             max_group = max(groups) if groups else 1  # Avoid division by zero
             # Create a dictionary mapping each group in range(0, max_group + 1) to a color
-            colors = {group: palette(1.0 - (group / max_group) if max_group > 0 else 0.5) 
-                      for group in range(max_group + 1)}
+            colors = {
+                group: palette(1.0 - (group / max_group) if max_group > 0 else 0.5)
+                for group in range(max_group + 1)
+            }
             color_map = [colors[group] for group in groups]
-        
-        # Create the barplot
-        if self._general_graph_settings.swap_axes:
-            sns.barplot(
-                data=data, 
-                x="values", 
-                y="index", 
-                hue=None,
-                palette=None,
-                width = bar_width, 
-                alpha=1.0 - self._general_graph_settings.transparency, 
-                ax=ax,
-                legend=False)
-            ax.set_yticklabels([])
-            ax.set_yticks([])
-            ax.set_xlim(0, max_value)
-        else:
-            sns.barplot(
-                data=data, x="index", 
-                y="values",
-                hue="index",
-                width = bar_width,
-                palette=color_map, 
-                alpha=1.0 - self._general_graph_settings.transparency, 
-                ax=ax,
-                legend=False
-            )
-            ax.set_xticklabels([])
-            ax.set_xticks([])
-            ax.set_ylim(0, max_value)
-    
+
+        # Create the barplot with supressed warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            if self._general_graph_settings.swap_axes:
+                sns.barplot(
+                    data=data,
+                    x="values",
+                    y="index",
+                    hue=None,
+                    palette=None,
+                    width=bar_width,
+                    alpha=1.0 - self._general_graph_settings.transparency,
+                    ax=ax,
+                    legend=False,
+                )
+                ax.set_yticklabels([])
+                ax.set_yticks([])
+                ax.set_xlim(0, max_value)
+            else:
+                sns.barplot(
+                    data=data,
+                    x="index",
+                    y="values",
+                    hue="index",
+                    width=bar_width,
+                    palette=color_map,
+                    alpha=1.0 - self._general_graph_settings.transparency,
+                    ax=ax,
+                    legend=False,
+                )
+                ax.set_xticklabels([])
+                ax.set_xticks([])
+                ax.set_ylim(0, max_value)
+
         if self._general_graph_settings.show_title:
             ax.set_title(title, fontsize=base_font_size, color=self._collage.title_color.value)
-    
+
         # Remove axis labels
-        ax.set_xlabel("", fontsize=base_font_size -2)
-        ax.set_ylabel("", fontsize=base_font_size -2)
-    
+        ax.set_xlabel("", fontsize=base_font_size - 2)
+        ax.set_ylabel("", fontsize=base_font_size - 2)
+
         # Adjust tick label sizes
         ax.tick_params(axis="both", which="major", labelsize=tick_font_size)
-    
+
         # Grid and axes setup
         if self._general_graph_settings.show_grid:
             ax.grid(True, alpha=self._general_graph_settings.transparency)
         else:
             ax.grid(False)
-    
+
         if not self._general_graph_settings.show_axis_ticks:
             ax.set_yticks([])
             ax.set_xticks([])
-    
+
         # Invert axes if enabled
         if self._general_graph_settings.invert_x_axis:
             ax.invert_xaxis()
@@ -2047,46 +2129,69 @@ class HitmapModule(SuplexModuleInterface):
         elif self._value_extractor.normalization == NORMALIZATION.CUSTOM:
             custom_factor = self._value_extractor.custom_factor
             threshold_lines = [line * custom_factor for line in threshold_lines]
-        
+
         # Add threshold lines if provided
         if threshold_lines:
             x_min, x_max = ax.get_xlim()
             y_min, y_max = ax.get_ylim()
             # Lines are drawn if they fit in the barchart and always stretch the entire x or y axis
-            if self._general_graph_settings.swap_axes: 
+            if self._general_graph_settings.swap_axes:
                 for line in threshold_lines:
                     if x_min < line < x_max:
-                        ax.vlines(line, y_min, y_max, colors="red", linestyles="--", linewidth=1.5, alpha=0.7)
-            else: 
+                        ax.vlines(
+                            line,
+                            y_min,
+                            y_max,
+                            colors="red",
+                            linestyles="--",
+                            linewidth=1.5,
+                            alpha=0.7,
+                        )
+            else:
                 for line in threshold_lines:
                     if y_min < line < y_max:
-                        ax.hlines(line, x_min, x_max, colors="red", linestyles="--", linewidth=1.5, alpha=0.7)
-    
+                        ax.hlines(
+                            line,
+                            x_min,
+                            x_max,
+                            colors="red",
+                            linestyles="--",
+                            linewidth=1.5,
+                            alpha=0.7,
+                        )
+
         plt.tight_layout(pad=1.5)
-        
-        logger.debug(f"Bar chart generated successfully: {len(plot_values)} bars, {len(groups)} groups, swap_axes={self._general_graph_settings.swap_axes}")
+
+        logger.debug(
+            f"Bar chart generated successfully: {len(plot_values)} bars, {len(groups)} groups, swap_axes={self._general_graph_settings.swap_axes}"
+        )
         return fig
 
     def generate_heatmap(
-        self, title: str, dataset: Optional[Dataset], plot_values: List[float], min_value: float, max_value: float
+        self,
+        title: str,
+        dataset: Optional[Dataset],
+        plot_values: List[float],
+        min_value: float,
+        max_value: float,
     ) -> plt.Figure:
         """
         Generate a heatmap figure.
-        
+
         Args:
             title (str): Title of the heatmap.
             dataset (Optional[Dataset]): Dataset reference, if applicable.
             plot_values (List[float]): Values to plot in the heatmap.
             min_value (float): Minimum value for color scaling.
             max_value (float): Maximum value for color scaling.
-            
+
         Returns:
             plt.Figure: The matplotlib figure for the heatmap.
         """
 
         dataset_descriptor = dataset.id if dataset else "compound"
         logger.debug(f"Generating heatmap for dataset: {dataset_descriptor}")
-            
+
         try:
             # No truncation logic
             # Structure into 2D array based on n_cols
@@ -2130,9 +2235,7 @@ class HitmapModule(SuplexModuleInterface):
             est_width_pixels = fig_width * current_dpi
             est_height_pixels = fig_height * current_dpi
 
-            if (est_width_pixels > MAX_PIXELS_GRAPH) or (
-                est_height_pixels > MAX_PIXELS_GRAPH
-            ):
+            if (est_width_pixels > MAX_PIXELS_GRAPH) or (est_height_pixels > MAX_PIXELS_GRAPH):
                 min_dpi_width = MAX_PIXELS_GRAPH / fig_width
                 min_dpi_height = MAX_PIXELS_GRAPH / fig_height
                 min_dpi = max(50, min(min_dpi_width, min_dpi_height))
@@ -2148,41 +2251,39 @@ class HitmapModule(SuplexModuleInterface):
             if self._heatmap_settings.annot_color != ANNOTATION_COLOR.AUTO:
                 annot_kws["color"] = self._heatmap_settings.annot_color.value
 
-            fmt = "" 
+            fmt = ""
             if self._heatmap_settings.annot:
                 fmt = f".{self._heatmap_settings.annot_digits}f"
-            # Generate the heatmap
-            heatmap = sns.heatmap(
-                data_2d,
-                ax=ax,
-                vmin = min_value, 
-                vmax = max_value,
-                cmap=self._general_graph_settings.sequential_color_scheme.value,
-                annot=self._heatmap_settings.annot,
-                fmt=fmt,
-                annot_kws=annot_kws or None,
-                cbar=False,
-                square=self._heatmap_settings.square,
-                linewidths=self._heatmap_settings.linewidths,
-                linecolor=self._heatmap_settings.linecolor,
-                robust=self._heatmap_settings.robust,
-            )
+            # Generate heatmap with supressed warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                heatmap = sns.heatmap(
+                    data_2d,
+                    ax=ax,
+                    vmin=min_value,
+                    vmax=max_value,
+                    cmap=self._general_graph_settings.sequential_color_scheme.value,
+                    annot=self._heatmap_settings.annot,
+                    fmt=fmt,
+                    annot_kws=annot_kws or None,
+                    cbar=False,
+                    square=self._heatmap_settings.square,
+                    linewidths=self._heatmap_settings.linewidths,
+                    linecolor=self._heatmap_settings.linecolor,
+                    robust=self._heatmap_settings.robust,
+                )
 
             # Set labels to row and column indices
             col_labels = range(n_cols)
             row_labels = range(n_rows)
             start_index = 0 if self._heatmap_settings.start_at_index_0 else 1
             if self._heatmap_settings.use_letter_annotation_x:
-                col_labels = [
-                    number_to_letters(i) for i in range(n_cols)
-                ]  # Always start from A
+                col_labels = [number_to_letters(i) for i in range(n_cols)]  # Always start from A
             else:
                 col_labels = range(start_index, n_cols + start_index)
 
             if self._heatmap_settings.use_letter_annotation_y:
-                row_labels = [
-                    number_to_letters(i) for i in range(n_rows)
-                ]  # Always start from A
+                row_labels = [number_to_letters(i) for i in range(n_rows)]  # Always start from A
             else:
                 row_labels = range(start_index, n_rows + start_index)
 
@@ -2213,8 +2314,8 @@ class HitmapModule(SuplexModuleInterface):
                     )
 
             if self._general_graph_settings.show_title:
-                ax.set_title(title, fontsize = base_font_size, color = self._collage.title_color.value)
-            
+                ax.set_title(title, fontsize=base_font_size, color=self._collage.title_color.value)
+
             # centered ticks
             x_ticks = np.arange(0.5, n_cols, 1)
             y_ticks = np.arange(0.5, n_rows, 1)
@@ -2269,19 +2370,19 @@ class HitmapModule(SuplexModuleInterface):
     def add_global_colorbar(
         self,
         svg_image: sg.SVGFigure,
-        vmin: float, 
+        vmin: float,
         vmax: float,
         bar_width=200,
     ) -> sg.SVGFigure:
         """
         Add a global colorbar to the SVG image.
-        
+
         Args:
             svg_image (sg.SVGFigure): The SVG figure to add colorbar to.
             vmin (float): Minimum value for colorbar.
             vmax (float): Maximum value for colorbar.
             bar_width (int, optional): Width of the colorbar.
-            
+
         Returns:
             sg.SVGFigure: The SVG figure with added colorbar.
         """
@@ -2331,19 +2432,15 @@ class HitmapModule(SuplexModuleInterface):
             else mpl.colors.Normalize(vmin=vmin, vmax=vmax)
         )
         cb = mpl.colorbar.ColorbarBase(
-            ax,
-            cmap=plt.get_cmap(cmap),
-            norm=norm,
-            orientation=orientation.value
+            ax, cmap=plt.get_cmap(cmap), norm=norm, orientation=orientation.value
         )
 
         tick_font_size = max(1, int(self._collage.font_size * 0.618))
         cb.ax.tick_params(labelsize=tick_font_size)
         if self._heatmap_settings.cbar_tick_mode == CBAR_TICK_MODE.HIDE:
             cb.set_ticks([])
-        elif vmin == 0 and vmax == 1: # non-compound hit-maps
+        elif vmin == 0 and vmax == 1:  # non-compound hit-maps
             cb.set_ticks([vmin, vmax])
-
 
         # Export to SVG
         with io.BytesIO() as buf:
@@ -2366,9 +2463,7 @@ class HitmapModule(SuplexModuleInterface):
         if orientation == CBAR_ORIENTATION.VERTICAL:
             total_width = collage_width + width + padding + padding
             total_height = max(collage_height, height)
-            combined_fig = sg.SVGFigure(
-                width=f"{total_width}pt", height=f"{total_height}pt"
-            )
+            combined_fig = sg.SVGFigure(width=f"{total_width}pt", height=f"{total_height}pt")
             collage_root = svg_image.getroot()
             collage_root.moveto(0, 0)
             combined_fig.append(collage_root)
@@ -2379,9 +2474,7 @@ class HitmapModule(SuplexModuleInterface):
         else:  # horizontal
             total_width = max(collage_width, width)
             total_height = collage_height + height + padding + padding
-            combined_fig = sg.SVGFigure(
-                width=f"{total_width}pt", height=f"{total_height}pt"
-            )
+            combined_fig = sg.SVGFigure(width=f"{total_width}pt", height=f"{total_height}pt")
             collage_root = svg_image.getroot()
             collage_root.moveto(0, 0)
             combined_fig.append(collage_root)
@@ -2396,7 +2489,7 @@ class HitmapModule(SuplexModuleInterface):
     def on_export_overview_csv(self):
         """
         Handle export of overview data as CSV.
-        
+
         The CSV structure includes:
             - First row: A header with the attribute name, normalization method (if applicable), and column headers for samples/spots (e.g., "Sample_0_Spot_0" or "Sample_0") followed by a "Total Hits" column.
             - Subsequent rows: One row per dataset, with the dataset ID or name, followed by filtered values (padded with None for uniformity), and the total count of non-NaN values.
@@ -2416,7 +2509,7 @@ class HitmapModule(SuplexModuleInterface):
             if not self._filtered_values:
                 logger.info("Could not generate CSV. No datasets left after filtering.")
                 return
-            
+
             # Mimic original spot sample format
             csv_dict = self._filtered_values.copy()
             if is_spot_level:
@@ -2429,32 +2522,40 @@ class HitmapModule(SuplexModuleInterface):
                             spot_values[-1].append(self._filtered_values[dataset][i])
                             i += 1
                     csv_dict[dataset] = spot_values
-            
+
             # Add none padding for sample entries
             max_samples = max(len(csv_value_list) for csv_value_list in csv_dict.values())
             padding_entry = [None] if is_spot_level else None
             for csv_value_list in csv_dict.values():
                 csv_value_list.extend([padding_entry] * (max_samples - len(csv_value_list)))
-            
+
             # Add none padding to spot entries
             if is_spot_level:
                 for sample in range(max_samples):
-                    max_spots = max(len(csv_value_list[sample]) for csv_value_list in csv_dict.values())
+                    max_spots = max(
+                        len(csv_value_list[sample]) for csv_value_list in csv_dict.values()
+                    )
                     for csv_value_list in csv_dict.values():
-                        csv_value_list[sample].extend([None] * (max_spots - len(csv_value_list[sample])))
-            
+                        csv_value_list[sample].extend(
+                            [None] * (max_spots - len(csv_value_list[sample]))
+                        )
+
             # Add col headers for both spot and sample format
             col_headers = []
             if is_spot_level:
                 for sample_idx in range(max_samples):
-                    max_spots = max(len(csv_value_list[sample_idx]) for csv_value_list in csv_dict.values())
-                    col_headers.extend([f"Sample_{sample_idx}_Spot_{spot_idx}" for spot_idx in range(max_spots)])
+                    max_spots = max(
+                        len(csv_value_list[sample_idx]) for csv_value_list in csv_dict.values()
+                    )
+                    col_headers.extend(
+                        [f"Sample_{sample_idx}_Spot_{spot_idx}" for spot_idx in range(max_spots)]
+                    )
             else:
                 col_headers = [f"Sample_{i}" for i in range(max_samples)]
-            
+
             # Add Total hits column header
             col_headers.append("Total Hits")
-            
+
             # Create CSV title
             csv_title = attribute.value
             if normalization_method != NORMALIZATION.RAW:
@@ -2466,38 +2567,36 @@ class HitmapModule(SuplexModuleInterface):
                 filters.append("dynamic")
             if filters:
                 csv_title += f" - {', '.join(filters)}"
-            
+
             # Prepare header row
             header_row = [csv_title] + col_headers
-            
+
             # Get file path
             root = Tk()
             root.withdraw()
             root.lift()
-            root.attributes('-topmost', True)
+            root.attributes("-topmost", True)
             root.focus_force()
-            default_filename = (
-                f"Hitmap_Overview_{csv_title}.csv"
-            )
+            default_filename = f"Hitmap_Overview_{csv_title}.csv"
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".csv",
                 filetypes=[("CSV files", "*.csv")],
                 initialfile=default_filename,
                 title="Save Overview CSV As",
             )
-            root.attributes('-topmost', False)
+            root.attributes("-topmost", False)
             root.destroy()
-    
+
             if not file_path:
                 logger.debug("Overview CSV export cancelled by user")
                 return
-            
+
             with open(file_path, "w", newline="", encoding="utf-8") as csvfile:
                 writer = csv.writer(csvfile)
-                
+
                 # Write header
                 writer.writerow(header_row)
-                
+
                 # Write data rows
                 for dataset in self._included_datasets:
                     # Get dataset label
@@ -2505,10 +2604,10 @@ class HitmapModule(SuplexModuleInterface):
                         dataset_label = dataset.id
                     else:
                         dataset_label = dataset.name
-                    
+
                     # Prepare data values
                     data_values = csv_dict[dataset]
-                    
+
                     if is_spot_level:
                         # Flatten spot-level data for CSV row
                         flattened_values = []
@@ -2516,23 +2615,23 @@ class HitmapModule(SuplexModuleInterface):
                             flattened_values.extend(sample_data)
                     else:
                         flattened_values = data_values
-                    
+
                     # Count total hits (non-None, non-NaN values)
                     total_hits = pd.notna(flattened_values).sum()
-                    
+
                     # Create complete row
                     row = [dataset_label] + flattened_values + [total_hits]
                     writer.writerow(row)
-    
+
             logger.info("Overview CSV exported successfully to %s", file_path)
-            
+
         except Exception as e:
             logger.error("Failed to export overview CSV: %s", e, exc_info=True)
 
     def on_export_compound_csv(self):
         """
         Handle export of compound data as CSV.
-        
+
         The CSV structure includes:
             - First row: A header with the attribute name, normalization method (if applicable), and column headers for samples/spots (e.g., "Sample_i_Spot_i" or "Sample_i").
             - Second row: Lists of dataset IDs or names (semicolon-separated) contributing to each position's compound map.
@@ -2543,55 +2642,63 @@ class HitmapModule(SuplexModuleInterface):
             if not self._compound_map:
                 logger.warning("No compound data available for export")
                 return
-    
+
             attribute = self._value_extractor.attribute
             normalization_method = self._value_extractor.normalization
             apply_static = self._apply_static_filter_checkbox.value
             apply_dynamic = self._apply_dynamic_filter_checkbox.value
             is_spot_level = attribute not in DATA_STATISTICS_ATTRIBUTES
-    
+
             if not apply_static and not apply_dynamic:
                 logger.info("Could not generate CSV. Please select a filter.")
                 return
-    
+
             # Reconstruct the compound map structure similar to overview CSV
             if is_spot_level:
                 # Reconstruct spot-level structure from flat compound_map
                 reconstructed_compound_map = []
                 flat_index = 0
-                
+
                 # Calculate total samples across all datasets for proper reconstruction
-                max_samples = max(len(dataset.samples) for dataset in self._included_datasets) if self._included_datasets else 0
-                
+                max_samples = (
+                    max(len(dataset.samples) for dataset in self._included_datasets)
+                    if self._included_datasets
+                    else 0
+                )
+
                 for sample_idx in range(max_samples):
                     sample_spots = []
                     # Find maximum spots for this sample across all datasets
                     max_spots_for_sample = 0
                     for dataset in self._included_datasets:
                         if sample_idx < len(dataset.samples):
-                            max_spots_for_sample = max(max_spots_for_sample, len(dataset.samples[sample_idx].spots))
-                    
+                            max_spots_for_sample = max(
+                                max_spots_for_sample, len(dataset.samples[sample_idx].spots)
+                            )
+
                     for spot_idx in range(max_spots_for_sample):
                         if flat_index < len(self._compound_map):
                             sample_spots.append(self._compound_map[flat_index])
                             flat_index += 1
                         else:
                             sample_spots.append([])  # Empty list for padding
-                    
+
                     reconstructed_compound_map.append(sample_spots)
-                
+
                 compound_data = reconstructed_compound_map
             else:
                 compound_data = self._compound_map
-    
+
             col_headers = []
             if is_spot_level:
                 for sample_idx in range(len(compound_data)):
                     max_spots = len(compound_data[sample_idx]) if compound_data[sample_idx] else 0
-                    col_headers.extend([f"Sample_{sample_idx}_Spot_{spot_idx}" for spot_idx in range(max_spots)])
+                    col_headers.extend(
+                        [f"Sample_{sample_idx}_Spot_{spot_idx}" for spot_idx in range(max_spots)]
+                    )
             else:
                 col_headers = [f"Sample_{i}" for i in range(len(compound_data))]
-    
+
             # Create CSV title
             csv_title = f"Compound - {attribute.value}"
             if normalization_method != NORMALIZATION.RAW:
@@ -2603,29 +2710,29 @@ class HitmapModule(SuplexModuleInterface):
                 filters.append("dynamic")
             if filters:
                 csv_title += f" - {', '.join(filters)}"
-    
+
             header_row = [csv_title] + col_headers
-    
+
             # Get file path
             root = Tk()
             root.withdraw()
             root.lift()
-            root.attributes('-topmost', True)
+            root.attributes("-topmost", True)
             root.focus_force()
             default_filename = f"Hitmap_{csv_title}.csv"
-            
+
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".csv",
                 filetypes=[("CSV files", "*.csv")],
                 initialfile=default_filename,
                 title="Save Compound CSV As",
             )
-            root.attributes('-topmost', False)
+            root.attributes("-topmost", False)
             root.destroy()
             if not file_path:
                 logger.debug("Compound CSV export cancelled by user")
                 return
-    
+
             # Prepare data for CSV
             if is_spot_level:
                 # Flatten spot-level data
@@ -2634,7 +2741,7 @@ class HitmapModule(SuplexModuleInterface):
                     flattened_compound_data.extend(sample_data)
             else:
                 flattened_compound_data = compound_data
-    
+
             # Create dataset sets row (comma-separated dataset names/IDs)
             sets_row = ["Sets"]
             for position_hits in flattened_compound_data:
@@ -2646,26 +2753,28 @@ class HitmapModule(SuplexModuleInterface):
                     sets_row.append("; ".join(dataset_labels))
                 else:
                     sets_row.append("")
-    
+
             # Create count row
-            count_row = ["Count"] + [len(position_hits) for position_hits in flattened_compound_data]
-    
+            count_row = ["Count"] + [
+                len(position_hits) for position_hits in flattened_compound_data
+            ]
+
             # Write CSV file
             with open(file_path, "w", newline="", encoding="utf-8") as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(header_row)
                 writer.writerow(sets_row)
                 writer.writerow(count_row)
-    
+
             logger.info("Compound CSV exported successfully to %s", file_path)
-            
+
         except Exception as e:
             logger.error("Failed to export compound CSV: %s", e, exc_info=True)
 
     def update_scheme(self, new_scheme: Any) -> None:
         """
         Update the color scheme and refresh analysis.
-        
+
         Args:
             new_scheme (Any): The new color scheme.
         """
@@ -2676,7 +2785,7 @@ class HitmapModule(SuplexModuleInterface):
     def reset_module(self) -> Optional[Self]:
         """
         Reset the module to a new instance.
-        
+
         Returns:
             Optional[Self]: A new instance of the module, or None on error.
         """
