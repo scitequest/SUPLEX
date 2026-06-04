@@ -1,4 +1,5 @@
 import pytest
+from dataclasses import is_dataclass
 from src.martin_interface.sample import Sample, DataStatistics
 from src.martin_interface.roi_elements import (
     Spot,
@@ -6,11 +7,17 @@ from src.martin_interface.roi_elements import (
     RoiParameters,
     Coordinates,
 )
-from dataclasses import is_dataclass
 
 
 class TestSample:
+    """Tests for the Sample class and the DataStatistics dataclass used to store aggregated spot statistics."""
+
+    # -------------------------------------------------------------------------
+    # DataStatistics tests
+    # -------------------------------------------------------------------------
+
     def test_data_statistics_creation(self, sample_data_statistics_dict):
+        """Creates a DataStatistics instance from raw dictionary and verifies all fields."""
         stats_data = sample_data_statistics_dict["values"][0]
 
         stats = DataStatistics(
@@ -22,9 +29,7 @@ class TestSample:
                 "relative_adjusted_average_std_deviation"
             ],
             normalized_average=stats_data["normalized_average"],
-            normalized_average_std_deviation=stats_data[
-                "normalized_average_std_deviation"
-            ],
+            normalized_average_std_deviation=stats_data["normalized_average_std_deviation"],
             relative_normalized_average_std_deviation=stats_data[
                 "relative_normalized_average_std_deviation"
             ],
@@ -34,25 +39,26 @@ class TestSample:
         assert stats.row == stats_data["row"]
         assert stats.col == stats_data["col"]
         assert stats.adjusted_average == stats_data["adjusted_average"]
-        assert (
-            stats.adjusted_average_std_deviation
-            == stats_data["adjusted_average_std_deviation"]
-        )
+        assert stats.adjusted_average_std_deviation == stats_data["adjusted_average_std_deviation"]
         assert (
             stats.relative_adjusted_average_std_deviation
             == stats_data["relative_adjusted_average_std_deviation"]
         )
         assert stats.normalized_average == stats_data["normalized_average"]
         assert (
-            stats.normalized_average_std_deviation
-            == stats_data["normalized_average_std_deviation"]
+            stats.normalized_average_std_deviation == stats_data["normalized_average_std_deviation"]
         )
         assert (
             stats.relative_normalized_average_std_deviation
             == stats_data["relative_normalized_average_std_deviation"]
         )
 
+    # -------------------------------------------------------------------------
+    # Sample initialization tests
+    # -------------------------------------------------------------------------
+
     def test_sample_creation_basic(self, sample_data_dict):
+        """Creates a basic Sample with one spot and no statistics or parameters."""
         spots_data = [sample_data_dict["values"][0]]
         spot_data = spots_data[0]
 
@@ -72,6 +78,7 @@ class TestSample:
         assert sample.spots[0].spot_parameters is None
 
     def test_init_spots_multiple_spots(self, sample_data_dict):
+        """Initializes a Sample containing multiple spots from raw data."""
         spots_data = sample_data_dict["values"][:2]
 
         sample = Sample(spots=spots_data, spot_statistics=None, parameters=None)
@@ -112,17 +119,12 @@ class TestSample:
         sample_data_statistics_dict,
         sample_parameters_dict_polygon,
     ):
+        """Creates a Sample with spot statistics and polygon ROI parameters."""
         spots_data = sample_data_dict["values"][:2]  # Take first two spots
-        stats_data = sample_data_statistics_dict["values"][
-            0
-        ]  # Take first statistics entry
-        parameters_data = sample_parameters_dict_polygon["spots"][
-            :2
-        ]  # Take first two parameters
+        stats_data = sample_data_statistics_dict["values"][0]  # Take first statistics entry
+        parameters_data = sample_parameters_dict_polygon["spots"][:2]  # Take first two parameters
 
-        sample = Sample(
-            spots=spots_data, spot_statistics=stats_data, parameters=parameters_data
-        )
+        sample = Sample(spots=spots_data, spot_statistics=stats_data, parameters=parameters_data)
 
         # Check data statistics
         assert sample.data_statistics is not None
@@ -138,10 +140,7 @@ class TestSample:
             sample.data_statistics.relative_adjusted_average_std_deviation
             == stats_data["relative_adjusted_average_std_deviation"]
         )
-        assert (
-            sample.data_statistics.normalized_average
-            == stats_data["normalized_average"]
-        )
+        assert sample.data_statistics.normalized_average == stats_data["normalized_average"]
         assert (
             sample.data_statistics.normalized_average_std_deviation
             == stats_data["normalized_average_std_deviation"]
@@ -159,18 +158,15 @@ class TestSample:
             assert len(sample.spots[i].coordinates) == len(param_data["coordinates"])
             assert sample.spots[i].diameter is None
 
-    def test_init_spots_circle_parameters(
-        self, sample_data_dict, sample_parameters_dict_circle
-    ):
+    def test_init_spots_circle_parameters(self, sample_data_dict, sample_parameters_dict_circle):
+        """Handles circle-type parameters correctly (different coordinate key and diameter field)."""
         spots_data = [sample_data_dict["values"][0]]  # Take first spot
         parameters_data = [
             sample_parameters_dict_circle["spots"][0]
         ]  # Take first circular parameter
         param_data = parameters_data[0]
 
-        sample = Sample(
-            spots=spots_data, spot_statistics=None, parameters=parameters_data
-        )
+        sample = Sample(spots=spots_data, spot_statistics=None, parameters=parameters_data)
 
         assert sample.spots[0].spot_parameters is not None
         assert sample.spots[0].shape == param_data["type"]

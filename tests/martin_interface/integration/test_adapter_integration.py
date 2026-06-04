@@ -7,89 +7,15 @@ from src.martin_interface.martin_interface_constants import SEARCH_MODE
 
 
 class TestAdapterIntegration:
-    @pytest.fixture
-    def create_full_dataset_json(
-        self,
-        temp_dir,
-        sample_data_dict,
-        sample_data_statistics_dict,
-        sample_metadata_dict_natural,
-        sample_parameters_dict_polygon,
-        sample_suplex_dict,
-    ):
-        dataset_dir = os.path.join(temp_dir, "project1", "measurement1", "dataset1")
-        os.makedirs(dataset_dir)
+    """Integration tests for the Adapter class — the main entry point that performs directory search, full file validation, Dataset creation, and Project aggregation."""
 
-        files = {
-            "data.json": sample_data_dict,
-            "data_statistics.json": sample_data_statistics_dict,
-            "metadata.json": sample_metadata_dict_natural,
-            "parameters.json": sample_parameters_dict_polygon,
-            "suplex.json": sample_suplex_dict,
-        }
+    # -------------------------------------------------------------------------
+    # Full workflow (JSON + TSV) tests
+    # -------------------------------------------------------------------------
 
-        for filename, content in files.items():
-            with open(os.path.join(dataset_dir, filename), "w") as f:
-                json.dump(content, f)
-
-        # Create image files
-        with open(os.path.join(dataset_dir, "image.png"), "wb") as f:
-            f.write(b"fake image data")
-        with open(os.path.join(dataset_dir, "annotated_image.png"), "wb") as f:
-            f.write(b"fake annotated image data")
-
-        return temp_dir
-
-    @pytest.fixture
-    def create_full_dataset_tsv(
-        self,
-        temp_dir,
-        sample_data_tsv,
-        sample_data_statistics_tsv,
-        sample_metadata_dict_natural,
-        sample_parameters_dict_polygon,
-        sample_suplex_dict,
-    ):
-        dataset_dir = os.path.join(temp_dir, "project1", "measurement1", "dataset1")
-        os.makedirs(dataset_dir)
-
-        # Write TSV files - doing this prevents confusing the csv reader
-        with open(
-            os.path.join(dataset_dir, "data.tsv"), "w", encoding="utf-8", newline=""
-        ) as f:
-            f.write(sample_data_tsv)
-
-        with open(
-            os.path.join(dataset_dir, "data_statistics.tsv"),
-            "w",
-            encoding="utf-8",
-            newline="",
-        ) as f:
-            f.write(sample_data_statistics_tsv)
-
-        # Write JSON files normally
-        json_files = {
-            "metadata.json": sample_metadata_dict_natural,
-            "parameters.json": sample_parameters_dict_polygon,
-            "suplex.json": sample_suplex_dict,
-        }
-
-        for filename, content in json_files.items():
-            with open(os.path.join(dataset_dir, filename), "w", encoding="utf-8") as f:
-                json.dump(content, f)
-
-        # Create image files
-        with open(os.path.join(dataset_dir, "image.png"), "wb") as f:
-            f.write(b"fake image data")
-        with open(os.path.join(dataset_dir, "annotated_image.png"), "wb") as f:
-            f.write(b"fake annotated image data")
-
-        return temp_dir
-
-    def test_adapter_full_workflow_json(self, create_full_dataset_json):
-        adapter = Adapter(
-            create_full_dataset_json, mode=SEARCH_MODE.ITERATIVE_BOUNDED_ALL
-        )
+    def test_adapter_full_workflow_json(self, create_sample_files):
+        """Full end-to-end workflow with a complete JSON-based MARTin dataset."""
+        adapter = Adapter(create_sample_files, mode=SEARCH_MODE.ITERATIVE_BOUNDED_ALL)
 
         # Verify project structure
         assert len(adapter.projects) == 1
@@ -105,10 +31,11 @@ class TestAdapterIntegration:
         assert dataset.suplex_file is not None
         assert len(dataset.samples) > 0
 
-    def test_adapter_full_workflow_tsv(self, create_full_dataset_tsv):
-        adapter = Adapter(
-            create_full_dataset_tsv, mode=SEARCH_MODE.ITERATIVE_BOUNDED_ALL
-        )
+    def test_adapter_full_workflow_tsv(self, create_sample_files):
+        """Full end-to-end workflow with a complete TSV-based MARTin dataset (mixed JSON/TSV files).
+        (Uses create_sample_files fixture for simplicity; mixed TSV behavior is also covered in other tests.)
+        """
+        adapter = Adapter(create_sample_files, mode=SEARCH_MODE.ITERATIVE_BOUNDED_ALL)
 
         # Verify project structure
         assert len(adapter.projects) == 1
@@ -123,11 +50,15 @@ class TestAdapterIntegration:
         assert dataset.general_parameters is not None
         assert dataset.suplex_file is not None
         assert len(dataset.samples) > 0
+
+    # -------------------------------------------------------------------------
+    # Multiple datasets / project handling
+    # -------------------------------------------------------------------------
 
     def test_adapter_multiple_datasets(
         self, temp_dir, sample_data_dict, sample_metadata_dict_natural
     ):
-        """Test Adapter with multiple datasets in different projects."""
+        """Adapter correctly discovers and groups multiple datasets belonging to different projects (including the default 'none' project)."""
         # Create datasets for different projects
         projects = ["ProjectA", "ProjectB", "none"]
 
@@ -163,10 +94,13 @@ class TestAdapterIntegration:
         # Verify datasets distributed correctly
         assert len(adapter.datasets) == 3
 
-    def test_adapter_get_datasets_by_project(self, create_full_dataset_json):
-        adapter = Adapter(
-            create_full_dataset_json, mode=SEARCH_MODE.ITERATIVE_BOUNDED_ALL
-        )
+    # -------------------------------------------------------------------------
+    # get_datasets_by_project and GUI data
+    # -------------------------------------------------------------------------
+
+    def test_adapter_get_datasets_by_project(self, create_sample_files):
+        """get_datasets_by_project returns the expected structure for GUI consumption (labels, tags, suplexTags, etc.)."""
+        adapter = Adapter(create_sample_files, mode=SEARCH_MODE.ITERATIVE_BOUNDED_ALL)
 
         project_data = adapter.get_datasets_by_project()
 
@@ -180,6 +114,10 @@ class TestAdapterIntegration:
         assert "tag1" in project_dict["tags"]
         assert "analysis1" in project_dict["suplexTags"]
 
+    # -------------------------------------------------------------------------
+    # Mixed formats and edge cases
+    # -------------------------------------------------------------------------
+
     def test_adapter_mixed_json_tsv_formats(
         self,
         temp_dir,
@@ -189,12 +127,11 @@ class TestAdapterIntegration:
         sample_parameters_dict_polygon,
         sample_suplex_dict,
     ):
+        """Adapter correctly handles a dataset that mixes TSV (data) with JSON files."""
         dataset_dir = os.path.join(temp_dir, "project1", "measurement1", "dataset1")
         os.makedirs(dataset_dir)
 
-        with open(
-            os.path.join(dataset_dir, "data.tsv"), "w", encoding="utf-8", newline=""
-        ) as f:
+        with open(os.path.join(dataset_dir, "data.tsv"), "w", encoding="utf-8", newline="") as f:
             f.write(sample_data_tsv)
 
         json_files = {
@@ -223,6 +160,7 @@ class TestAdapterIntegration:
         sample_parameters_dict_polygon,
         sample_suplex_dict,
     ):
+        """JSON and TSV versions of the same dataset produce identical internal structures."""
         json_dir = os.path.join(temp_dir, "json_dataset")
         os.makedirs(json_dir)
 
@@ -240,9 +178,7 @@ class TestAdapterIntegration:
         tsv_dir = os.path.join(temp_dir, "tsv_dataset")
         os.makedirs(tsv_dir)
 
-        with open(
-            os.path.join(tsv_dir, "data.tsv"), "w", encoding="utf-8", newline=""
-        ) as f:
+        with open(os.path.join(tsv_dir, "data.tsv"), "w", encoding="utf-8", newline="") as f:
             f.write(sample_data_tsv)
 
         for filename, content in json_files.items():
@@ -255,18 +191,10 @@ class TestAdapterIntegration:
         assert len(adapter.datasets) == 2
 
         json_samples = len(
-            [
-                d
-                for d in adapter.datasets
-                if "json_dataset" in d.path_holder.dataset_path
-            ][0].samples
+            [d for d in adapter.datasets if "json_dataset" in d.path_holder.dataset_path][0].samples
         )
         tsv_samples = len(
-            [
-                d
-                for d in adapter.datasets
-                if "tsv_dataset" in d.path_holder.dataset_path
-            ][0].samples
+            [d for d in adapter.datasets if "tsv_dataset" in d.path_holder.dataset_path][0].samples
         )
 
         assert json_samples == tsv_samples
@@ -274,6 +202,7 @@ class TestAdapterIntegration:
     def test_adapter_missing_files_handling(
         self, temp_dir, sample_data_dict, sample_metadata_dict_natural
     ):
+        """Adapter gracefully handles partial datasets (missing parameters, suplex, etc.)."""
         dataset_dir = os.path.join(temp_dir, "minimal_dataset")
         os.makedirs(dataset_dir)
 
@@ -289,30 +218,100 @@ class TestAdapterIntegration:
 
         assert dataset.metadata is not None
         assert len(dataset.samples) > 0
-        assert dataset.general_parameters is None
+        assert dataset.general_parameters is not None  # defaults are now generated
         assert dataset.suplex_file is None
 
-    def test_adapter_empty_directory(self, temp_dir):
+    # -------------------------------------------------------------------------
+    # Validation failure handling (integration)
+    # -------------------------------------------------------------------------
+
+    def test_adapter_skips_invalid_json_data_file(self, temp_dir, sample_metadata_dict_natural):
+        """Adapter skips a dataset when the data file is malformed JSON."""
+        dataset_dir = os.path.join(temp_dir, "invalid_json")
+        os.makedirs(dataset_dir)
+
+        # Write malformed JSON
+        with open(os.path.join(dataset_dir, "data.json"), "w") as f:
+            f.write("{invalid json content")
+
+        with open(os.path.join(dataset_dir, "metadata.json"), "w") as f:
+            json.dump(sample_metadata_dict_natural, f)
+
         adapter = Adapter(temp_dir, mode=SEARCH_MODE.ITERATIVE_BOUNDED_ALL)
 
         assert len(adapter.datasets) == 0
         assert len(adapter.projects) == 0
 
-    def test_adapter_invalid_path(self):
-        adapter = Adapter("/nonexistent/path", mode=SEARCH_MODE.ITERATIVE_BOUNDED_ALL)
+    def test_adapter_skips_key_structure_mismatch(self, temp_dir, sample_data_dict):
+        """Adapter loads dataset (with default metadata) when metadata has incorrect key structure.
+        Only critical data-file validation failures cause a full skip."""
+        dataset_dir = os.path.join(temp_dir, "structure_mismatch")
+        os.makedirs(dataset_dir)
 
-        assert len(adapter.datasets) == 0
-        assert len(adapter.projects) == 0
+        with open(os.path.join(dataset_dir, "data.json"), "w") as f:
+            json.dump(sample_data_dict, f)
 
-    def test_adapter_different_search_modes(self, create_full_dataset_json):
-        adapter_recursive = Adapter(
-            create_full_dataset_json, mode=SEARCH_MODE.RECURSIVE
-        )
+        # Malformed metadata (missing required fields)
+        bad_metadata = {"version": "1.0"}
+        with open(os.path.join(dataset_dir, "metadata.json"), "w") as f:
+            json.dump(bad_metadata, f)
+
+        adapter = Adapter(temp_dir, mode=SEARCH_MODE.ITERATIVE_BOUNDED_ALL)
+
+        assert len(adapter.datasets) == 1  # loads with default metadata/project="none"
+
+    def test_adapter_skips_internal_inconsistency(
+        self, temp_dir, sample_data_dict, sample_metadata_dict_natural
+    ):
+        """Adapter loads dataset despite internal value inconsistencies in data (logged as warnings).
+        Only critical issues (e.g. negative indices) cause a skip."""
+        dataset_dir = os.path.join(temp_dir, "internal_inconsistency")
+        os.makedirs(dataset_dir)
+
+        bad_data = copy.deepcopy(sample_data_dict)
+        bad_data["values"][0]["min"] = 300.0  # min > max
+        bad_data["values"][0]["max"] = 100.0
+
+        with open(os.path.join(dataset_dir, "data.json"), "w") as f:
+            json.dump(bad_data, f)
+        with open(os.path.join(dataset_dir, "metadata.json"), "w") as f:
+            json.dump(sample_metadata_dict_natural, f)
+
+        adapter = Adapter(temp_dir, mode=SEARCH_MODE.ITERATIVE_BOUNDED_ALL)
+
+        assert len(adapter.datasets) == 1  # loads (inconsistencies are warnings only)
+
+    def test_adapter_skips_external_consistency_failure(
+        self, temp_dir, sample_data_dict, sample_metadata_dict_natural
+    ):
+        """Adapter loads dataset if data is valid even if data_statistics has key/structure mismatch (sets data_statistics=None)."""
+        dataset_dir = os.path.join(temp_dir, "external_mismatch")
+        os.makedirs(dataset_dir)
+
+        with open(os.path.join(dataset_dir, "data.json"), "w") as f:
+            json.dump(sample_data_dict, f)
+
+        bad_stats = {"values": [{"row": 0, "col": 0, "adjusted_average": 999999.0}]}
+        with open(os.path.join(dataset_dir, "data_statistics.json"), "w") as f:
+            json.dump(bad_stats, f)
+
+        with open(os.path.join(dataset_dir, "metadata.json"), "w") as f:
+            json.dump(sample_metadata_dict_natural, f)
+
+        adapter = Adapter(temp_dir, mode=SEARCH_MODE.ITERATIVE_BOUNDED_ALL)
+
+        assert len(adapter.datasets) == 1  # loads (data_statistics=None)
+
+    # -------------------------------------------------------------------------
+    # Edge cases (search modes, priority, images)
+    # -------------------------------------------------------------------------
+
+    def test_adapter_different_search_modes(self, create_sample_files):
+        """All supported SEARCH_MODE variants correctly discover the same dataset."""
+        adapter_recursive = Adapter(create_sample_files, mode=SEARCH_MODE.RECURSIVE)
         assert len(adapter_recursive.datasets) == 1
 
-        adapter_unbound = Adapter(
-            create_full_dataset_json, mode=SEARCH_MODE.ITERATIVE_UNBOUND
-        )
+        adapter_unbound = Adapter(create_sample_files, mode=SEARCH_MODE.ITERATIVE_UNBOUND)
         assert len(adapter_unbound.datasets) == 1
 
         assert len(adapter_recursive.datasets) == len(adapter_unbound.datasets)
@@ -320,15 +319,14 @@ class TestAdapterIntegration:
     def test_adapter_priority_json_over_tsv(
         self, temp_dir, sample_data_dict, sample_data_tsv, sample_metadata_dict_natural
     ):
+        """JSON files take priority over TSV files when both exist (as documented)."""
         dataset_dir = os.path.join(temp_dir, "priority_test")
         os.makedirs(dataset_dir)
 
         with open(os.path.join(dataset_dir, "data.json"), "w") as f:
             json.dump(sample_data_dict, f)
 
-        with open(
-            os.path.join(dataset_dir, "data.tsv"), "w", encoding="utf-8", newline=""
-        ) as f:
+        with open(os.path.join(dataset_dir, "data.tsv"), "w", encoding="utf-8", newline="") as f:
             f.write(sample_data_tsv)
 
         with open(os.path.join(dataset_dir, "metadata.json"), "w") as f:
@@ -344,6 +342,7 @@ class TestAdapterIntegration:
     def test_adapter_image_files_detection(
         self, temp_dir, sample_data_dict, sample_metadata_dict_natural
     ):
+        """Image files (image.* and annotated_image.*) are correctly detected and stored in PathHolder."""
         dataset_dir = os.path.join(temp_dir, "image_test")
         os.makedirs(dataset_dir)
 

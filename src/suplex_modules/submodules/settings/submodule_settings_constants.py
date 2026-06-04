@@ -88,9 +88,7 @@ def get_aspect_ratio_value(ar: ASPECT_RATIO) -> Optional[float]:
             height_str = parts[1].strip()
             # Eval also allows formulas
             width = (
-                eval(width_str, {"sqrt": math.sqrt})
-                if "sqrt" in width_str
-                else float(width_str)
+                eval(width_str, {"sqrt": math.sqrt}) if "sqrt" in width_str else float(width_str)
             )
             height = float(height_str)
             return width / height

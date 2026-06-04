@@ -8,6 +8,7 @@ from tkinter import filedialog, Tk
 import numpy as np
 import logging
 import csv
+import warnings
 
 from suplex_modules.suplex_module_interface import SuplexModuleInterface
 from martin_interface.dataset import Dataset
@@ -122,9 +123,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             transparency=0.0,
         )
 
-        self._boxplot_settings = BoxplotSettings(
-            show_outliers=False, show_all_options=True
-        )
+        self._boxplot_settings = BoxplotSettings(show_outliers=False, show_all_options=True)
         self._jitterplot_settings = JitterplotSettings(show_all_options=True)
 
         self._descriptor_radio = None
@@ -207,7 +206,9 @@ class IntensityOverviewModule(SuplexModuleInterface):
         logger.debug("Checking viability of module: %s", self.module_name)
 
         if no_datasets_selected(datasets):
-            self._module_hover_text = f"Cannot initiate {self.module_name} since no datasets have been selected."
+            self._module_hover_text = (
+                f"Cannot initiate {self.module_name} since no datasets have been selected."
+            )
             logger.info(
                 "The module %s has been disabled, since no datasets have been selected.",
                 self.module_name,
@@ -215,7 +216,9 @@ class IntensityOverviewModule(SuplexModuleInterface):
             return False
 
         if has_negative_values(datasets):
-            self._module_hover_text = f"Cannot initiate {self.module_name} since datasets contain a negative value."
+            self._module_hover_text = (
+                f"Cannot initiate {self.module_name} since datasets contain a negative value."
+            )
             logger.info(
                 "The module %s has been disabled, since datasets contain a negative value.",
                 self.module_name,
@@ -235,9 +238,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         """
         return self._module_hover_text
 
-    def initiate_module(
-        self, datasets: List[Dataset], color_scheme: Any
-    ) -> widgets.Box:
+    def initiate_module(self, datasets: List[Dataset], color_scheme: Any) -> widgets.Box:
         """
         Initialize module with datasets.
 
@@ -248,9 +249,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         Returns:
             widgets.Box: The module UI widget.
         """
-        logger.debug(
-            "Initiating module %s with %d datasets", self.module_name, len(datasets)
-        )
+        logger.debug("Initiating module %s with %d datasets", self.module_name, len(datasets))
         try:
             self._datasets = datasets
             self._included_datasets = datasets.copy()
@@ -262,9 +261,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             all_tags = sorted(list(all_tags))
 
             # Initialize DatasetSorter with all options and collected tags
-            self._dataset_sorter = DatasetSorter(
-                tags=all_tags, num_levels=1, max_num_levels=10
-            )
+            self._dataset_sorter = DatasetSorter(tags=all_tags, num_levels=1, max_num_levels=10)
             included_attributes = (
                 DATA_ATTRIBUTES
                 + DATA_STATISTICS_ATTRIBUTES
@@ -279,15 +276,13 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 max_reference_index=ABS_MAX_VALUE,
             )
 
-            self._dataset_filter = DatasetFilter(
-                included_attributes=included_attributes
-            )
+            self._dataset_filter = DatasetFilter(included_attributes=included_attributes)
             self._sample_spot_filter = SampleSpotFilter(
                 included_attributes=included_attributes,
                 included_normalization_methods=NORMALIZATION_DEFAULT,
             )
-            self._sample_threshold_map = (
-                self._sample_spot_filter.get_default_sample_map(self._included_datasets)
+            self._sample_threshold_map = self._sample_spot_filter.get_default_sample_map(
+                self._included_datasets
             )
             self._spot_threshold_map = self._sample_spot_filter.get_default_spot_map(
                 self._included_datasets
@@ -359,9 +354,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             # Main layout: controls on left, tabs on right
             module_ui = WidgetFactory.hbox(
                 [controls, self._tabs],
-                layout=widgets.Layout(
-                    height="100%", width="100%", gap="0px", overflow="hidden"
-                ),
+                layout=widgets.Layout(height="100%", width="100%", gap="0px", overflow="hidden"),
             )
 
             logger.debug("Module UI initialized successfully")
@@ -400,9 +393,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 ),
             )
             for widget in self._value_extractor.get_active_widgets():
-                widget.observe(
-                    lambda b: self.on_selected_attribute_changed(), names="value"
-                )
+                widget.observe(lambda b: self.on_selected_attribute_changed(), names="value")
 
             control_interface = WidgetFactory.vbox(
                 children=[title_html, controls_content],
@@ -411,9 +402,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             logger.debug("Main control interface created successfully")
             return control_interface
         except Exception as e:
-            logger.error(
-                "Failed to create main control interface: %s", e, exc_info=True
-            )
+            logger.error("Failed to create main control interface: %s", e, exc_info=True)
             raise
 
     def create_dataset_filter_section(self) -> widgets.Widget:
@@ -428,9 +417,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             dataset_filter_label = WidgetFactory.label("Dataset Filter:")
 
             slider = self._dataset_filter.get_threshold_slider()
-            slider.observe(
-                lambda b: self.on_selected_attribute_changed(), names="value"
-            )
+            slider.observe(lambda b: self.on_selected_attribute_changed(), names="value")
 
             def on_use_displayed_dataset_filter_checkbox_changed():
                 self._dataset_filter.get_attribute_dropdown().disabled = (
@@ -465,9 +452,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             logger.debug("Dataset filter section created successfully")
             return dataset_filter_section
         except Exception as e:
-            logger.error(
-                "Failed to create dataset filter section: %s", e, exc_info=True
-            )
+            logger.error("Failed to create dataset filter section: %s", e, exc_info=True)
             raise
 
     def create_value_filter_section(self):
@@ -492,12 +477,8 @@ class IntensityOverviewModule(SuplexModuleInterface):
             def on_use_displayed_value_filter_checkbox_changed():
                 disabled = self._use_displayed_value_filter_checkbox.value
                 self._sample_spot_filter.get_attribute_dropdown().disabled = disabled
-                self._sample_spot_filter.get_normalization_dropdown().disabled = (
-                    disabled
-                )
-                self._sample_spot_filter.get_normalization_factor_input().disabled = (
-                    disabled
-                )
+                self._sample_spot_filter.get_normalization_dropdown().disabled = disabled
+                self._sample_spot_filter.get_normalization_factor_input().disabled = disabled
 
                 # Adjust range since content of slider may change (new attribute or normalization).
                 self.on_selected_attribute_changed()
@@ -542,9 +523,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
 
             return spot_threshold_section
         except Exception as e:
-            logger.error(
-                "Failed to create spot threshold section: %s", e, exc_info=True
-            )
+            logger.error("Failed to create spot threshold section: %s", e, exc_info=True)
             raise
 
     def create_control_button_section(self):
@@ -576,9 +555,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             logger.debug("Control button section created successfully")
             return control_button_section
         except Exception as e:
-            logger.error(
-                "Failed to create control button section: %s", e, exc_info=True
-            )
+            logger.error("Failed to create control button section: %s", e, exc_info=True)
             raise
 
     def create_sort_filter_tab(self) -> widgets.Widget:
@@ -665,12 +642,8 @@ class IntensityOverviewModule(SuplexModuleInterface):
             self._dataset_descriptor = new_descriptor
             self.update_analysis()
 
-        self._descriptor_radio[0].on_click(
-            lambda b: on_change_descriptor(DATASET_LABEL.ID)
-        )
-        self._descriptor_radio[1].on_click(
-            lambda b: on_change_descriptor(DATASET_LABEL.NAME)
-        )
+        self._descriptor_radio[0].on_click(lambda b: on_change_descriptor(DATASET_LABEL.ID))
+        self._descriptor_radio[1].on_click(lambda b: on_change_descriptor(DATASET_LABEL.NAME))
 
         radio_button_box = WidgetFactory.hbox(
             children=self._descriptor_radio,
@@ -743,9 +716,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             attribute if self._use_displayed_value_filter_checkbox.value else None
         )
         value_filter_normalization_method = (
-            normalization_method
-            if self._use_displayed_value_filter_checkbox.value
-            else None
+            normalization_method if self._use_displayed_value_filter_checkbox.value else None
         )
         value_filter_normalization_factor = (
             self._value_extractor.custom_factor
@@ -780,9 +751,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
 
             max_value = np.nanmax(all_values_flat_normalized)
             min_value = np.nanmin(all_values_flat_normalized)
-            step_size, decimals = calculate_step_size(
-                min_value=min_value, max_value=max_value
-            )
+            step_size, decimals = calculate_step_size(min_value=min_value, max_value=max_value)
             readout_format = f".{decimals}f"
 
             min_range = self._general_graph_settings.get_x_range_min_widget()
@@ -846,9 +815,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         )
 
         spot_filter_normalization_method = (
-            normalization_method
-            if self._use_displayed_value_filter_checkbox.value
-            else None
+            normalization_method if self._use_displayed_value_filter_checkbox.value else None
         )
         spot_filter_normalization_factor = (
             self._value_extractor.custom_factor
@@ -869,19 +836,15 @@ class IntensityOverviewModule(SuplexModuleInterface):
             )
         )
 
-        self._filtered_values = (
-            self._sample_spot_filter.extract_filtered_values_from_datasets(
-                datasets=datasets,
-                attribute=attribute,
-                sample_threshold_map=self._sample_threshold_map,
-                spot_threshold_map=self._spot_threshold_map,
-            )
+        self._filtered_values = self._sample_spot_filter.extract_filtered_values_from_datasets(
+            datasets=datasets,
+            attribute=attribute,
+            sample_threshold_map=self._sample_threshold_map,
+            spot_threshold_map=self._spot_threshold_map,
         )
 
-        self._unfiltered_values = (
-            self._sample_spot_filter.extract_filtered_values_from_datasets(
-                datasets=datasets, attribute=attribute
-            )
+        self._unfiltered_values = self._sample_spot_filter.extract_filtered_values_from_datasets(
+            datasets=datasets, attribute=attribute
         )
 
     def normalize_values(self):
@@ -958,9 +921,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
 
             dataset_filter_attribute_text = f"Same as Displayed ({attribute.value})"
             if not self._use_displayed_dataset_filter_checkbox.value:
-                dataset_filter_attribute_text = (
-                    self._dataset_filter.get_attribute_dropdown().value
-                )
+                dataset_filter_attribute_text = self._dataset_filter.get_attribute_dropdown().value
 
             excluded_set_identifiers = (
                 ", ".join(
@@ -991,7 +952,9 @@ class IntensityOverviewModule(SuplexModuleInterface):
             value_threshold_title = "Value Threshold"
             if self._dataset_filter_checkbox.value and not self._included_datasets:
                 html_content += f"<h3>{value_threshold_title}</h3>"
-                html_content += "<ul><li><strong>No Values Left for Value Filtering</strong></li></ul>"
+                html_content += (
+                    "<ul><li><strong>No Values Left for Value Filtering</strong></li></ul>"
+                )
                 self._overview_box.children = [WidgetFactory.html_widget(html_content)]
                 return
 
@@ -1034,15 +997,9 @@ class IntensityOverviewModule(SuplexModuleInterface):
             filtered_values_flat = [
                 item for sublist in self._filtered_values.values() for item in sublist
             ]
-            filtered_values_mean = (
-                np.nanmean(filtered_values_flat) if filtered_values_flat else 0.0
-            )
-            filtered_values_min = (
-                np.nanmin(filtered_values_flat) if filtered_values_flat else 0.0
-            )
-            filtered_values_max = (
-                np.nanmax(filtered_values_flat) if filtered_values_flat else 0.0
-            )
+            filtered_values_mean = np.nanmean(filtered_values_flat) if filtered_values_flat else 0.0
+            filtered_values_min = np.nanmin(filtered_values_flat) if filtered_values_flat else 0.0
+            filtered_values_max = np.nanmax(filtered_values_flat) if filtered_values_flat else 0.0
 
             html_content += f"""
             <h3>{value_threshold_title}</h3>
@@ -1086,9 +1043,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             dataset_stats = []
 
             for key in value_sets_used:
-                descriptor = (
-                    key.id if self._dataset_descriptor == DATASET_LABEL.ID else key.name
-                )
+                descriptor = key.id if self._dataset_descriptor == DATASET_LABEL.ID else key.name
                 n_values = len(value_sets_used[key])
                 n_values_total = len(value_sets_unfiltered[key])
 
@@ -1097,13 +1052,18 @@ class IntensityOverviewModule(SuplexModuleInterface):
                     n_excluded = n_values_total - n_values
                     perc_excluded = (n_excluded / n_values_total) * 100
 
-                stat_mean = np.nanmean(value_sets_used[key]) if n_values > 0 else 0.0
-                stat_median = (
-                    np.nanmedian(value_sets_used[key]) if n_values > 0 else 0.0
-                )
-                stat_min = np.nanmin(value_sets_used[key]) if n_values > 0 else 0.0
-                stat_max = np.nanmax(value_sets_used[key]) if n_values > 0 else 0.0
-                stat_std = np.nanstd(value_sets_used[key]) if n_values > 0 else 0.0
+                if value_sets_used[key] and not np.all(np.isnan(value_sets_used[key])):
+                    stat_mean = np.nanmean(value_sets_used[key])
+                    stat_median = np.nanmedian(value_sets_used[key])
+                    stat_min = np.nanmin(value_sets_used[key])
+                    stat_max = np.nanmax(value_sets_used[key])
+                    stat_std = np.nanstd(value_sets_used[key])
+                else:
+                    stat_mean = np.nan
+                    stat_median = np.nan
+                    stat_min = np.nan
+                    stat_max = np.nan
+                    stat_std = np.nan
 
                 dataset_stats.append(
                     {
@@ -1193,12 +1153,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         try:
             value_sets = self._unfiltered_values
             if self._apply_threshold_checkbox.value:
-                value_sets = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_sets = {
-                    key: value_set for key, value_set in value_sets.items() if value_set
-                }
+                value_sets = self.filter_empty_datasets(self._filtered_values)
 
             if not value_sets:
                 logger.warning("No data available for plotting after filtering")
@@ -1216,17 +1171,28 @@ class IntensityOverviewModule(SuplexModuleInterface):
             fig = self.generate_box_jitter_plot(plot_data=value_sets)
 
             buffer = io.BytesIO()
-            fig.savefig(buffer, format="png", dpi=fig.dpi, bbox_inches="tight")
+            fig.savefig(buffer, format="svg", bbox_inches="tight", transparent=True)
+            plt.close(fig)
             buffer.seek(0)
-            img_bytes = buffer.getvalue()
-            plt.close(fig)  # Close the figure to free memory
-            logger.debug("Plot generated successfully")
+            svg_bytes = buffer.getvalue()
+            svg_string = svg_bytes.decode("utf-8")
+            # This adjusts svg size to use 100% of the provided width
+            svg_string = svg_string.replace(
+                "<svg", "<svg style='width: 100%; height: auto; display: block;'", 1
+            )
+            logger.debug("Plot generated successfully as SVG")
 
-            image_widget = widgets.Image(
-                value=img_bytes, format="png", width="100%", height="auto"
+            html_content = f"""
+            <div style="width: 100%; height: auto; background: white; box-sizing: border-box;">
+                    {svg_string}
+            </div>
+            """
+
+            html_widget = WidgetFactory.html_widget(
+                value=html_content, layout=widgets.Layout(width="100%", height="auto")
             )
 
-            self._plot_box.children = [image_widget]
+            self._plot_box.children = [html_widget]
 
         except Exception as e:
             logger.error("Failed to generate plot: %s", e, exc_info=True)
@@ -1244,12 +1210,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         try:
             value_sets = self._unfiltered_values
             if self._apply_threshold_checkbox.value:
-                value_sets = self._filtered_values
-
-            if not self._general_graph_settings.include_empty_datasets:
-                value_sets = {
-                    key: value_set for key, value_set in value_sets.items() if value_set
-                }
+                value_sets = self.filter_empty_datasets(self._filtered_values)
 
             if not value_sets:
                 logger.warning("No data available for export")
@@ -1271,7 +1232,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             root = Tk()
             root.withdraw()
             root.lift()
-            root.attributes('-topmost', True)
+            root.attributes("-topmost", True)
             root.focus_force()
             default_filename = f"Intensity_Overview_{self._value_extractor.attribute.value}_{self._value_extractor.normalization.value}.svg"
             file_path = filedialog.asksaveasfilename(
@@ -1280,7 +1241,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 initialfile=default_filename,
                 title="Save Plot As",
             )
-            root.attributes('-topmost', False)
+            root.attributes("-topmost", False)
             root.destroy()
             if file_path:
                 with open(file_path, "wb") as f:
@@ -1290,6 +1251,30 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 logger.debug("Plot export cancelled by user")
         except Exception as e:
             logger.error("Failed to export plot: %s", e, exc_info=True)
+
+    def filter_empty_datasets(
+        self, value_lists: Dict[Dataset, List[float]]
+    ) -> Dict[Dataset, List[float]]:
+        """
+        Remove datasets that contain only NaN/None values when the user has disabled the inclusion of empty datasets.
+
+        Args:
+            value_lists (Dict[Dataset, List[float]]): Dictionary with datasets as keys
+                and their (filtered) value lists as values.
+
+        Returns:
+            Dict[Dataset, List[float]]: The same dictionary with empty (all-NaN) datasets
+                removed if include_empty_datasets is False.
+        """
+        if self._general_graph_settings.include_empty_datasets:
+            return value_lists
+
+        return {
+            key: value_list
+            for key, value_list in value_lists.items()
+            if value_list
+            and not all(val is None or (val is not None and np.isnan(val)) for val in value_list)
+        }
 
     def get_shortened_label(self, label: str, max_length: int) -> str:
         """
@@ -1347,9 +1332,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 fig_height = 4 + top_margin + bottom_margin
             else:
                 fig_width = 6 + left_margin + right_margin
-                fig_height = (
-                    bottom_margin + top_margin + n_datasets * height_per_dataset
-                )
+                fig_height = bottom_margin + top_margin + n_datasets * height_per_dataset
 
             ar_value = get_aspect_ratio_value(self._general_graph_settings.aspect_ratio)
 
@@ -1368,9 +1351,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             est_width_pixels = fig_width * current_dpi
             est_height_pixels = fig_height * current_dpi
 
-            if (est_width_pixels > MAX_PIXELS_GRAPH) or (
-                est_height_pixels > MAX_PIXELS_GRAPH
-            ):
+            if (est_width_pixels > MAX_PIXELS_GRAPH) or (est_height_pixels > MAX_PIXELS_GRAPH):
                 min_dpi_width = MAX_PIXELS_GRAPH / fig_width
                 min_dpi_height = MAX_PIXELS_GRAPH / fig_height
                 min_dpi = max(
@@ -1385,9 +1366,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
             try:
                 cmap = plt.cm.get_cmap(color_scheme)
             except ValueError:
-                logger.warning(
-                    "Invalid color scheme: %s, falling back to viridis", color_scheme
-                )
+                logger.warning("Invalid color scheme: %s, falling back to viridis", color_scheme)
                 cmap = plt.cm.get_cmap("viridis")
             colors = cmap(np.linspace(0, 1, len(plot_data)))
 
@@ -1400,9 +1379,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 axis_labels = []
                 for label in dataset_labels:
                     axis_labels.append(
-                        self.get_shortened_label(
-                            label=label, max_length=max_label_length
-                        )
+                        self.get_shortened_label(label=label, max_length=max_label_length)
                     )
 
             if self._boxplot_settings.show_boxplot:
@@ -1457,18 +1434,21 @@ class IntensityOverviewModule(SuplexModuleInterface):
             else:
                 processed_data.append(data)
 
-        box_plot = ax.boxplot(
-            processed_data,
-            vert=self._general_graph_settings.swap_axes,
-            patch_artist=True,
-            labels=axis_labels,
-            widths=self._boxplot_settings.box_width,
-            whis=whis,
-            showfliers=self._boxplot_settings.show_outliers,
-        )
-        for patch, color in zip(box_plot["boxes"], colors):
-            patch.set_facecolor(color)
-            patch.set_alpha(self._boxplot_settings.box_alpha)
+        # Ignore warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            box_plot = ax.boxplot(
+                processed_data,
+                vert=self._general_graph_settings.swap_axes,
+                patch_artist=True,
+                labels=axis_labels,
+                widths=self._boxplot_settings.box_width,
+                whis=whis,
+                showfliers=self._boxplot_settings.show_outliers,
+            )
+            for patch, color in zip(box_plot["boxes"], colors):
+                patch.set_facecolor(color)
+                patch.set_alpha(self._boxplot_settings.box_alpha)
 
     def create_jitterplot(self, ax, plot_data, colors):
         """
@@ -1498,9 +1478,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
 
             if self._jitterplot_settings.apply_jitter:
                 if jitter_type == JITTER_TYPE.UNIFORM:
-                    jitter = np.random.uniform(
-                        -jitter_strength, jitter_strength, len(values)
-                    )
+                    jitter = np.random.uniform(-jitter_strength, jitter_strength, len(values))
                 elif jitter_type == JITTER_TYPE.GAUSSIAN:
                     jitter = np.random.normal(0, jitter_strength, len(values))
                 else:
@@ -1513,15 +1491,18 @@ class IntensityOverviewModule(SuplexModuleInterface):
             else:
                 y_axis = jitter_axis
 
-            ax.scatter(
-                x_axis,
-                y_axis,
-                alpha=point_alpha,
-                s=point_size,
-                color=colors[i],
-                edgecolors="black",
-                linewidth=0.5,
-            )
+            # Supress warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                ax.scatter(
+                    x_axis,
+                    y_axis,
+                    alpha=point_alpha,
+                    s=point_size,
+                    color=colors[i],
+                    edgecolors="black",
+                    linewidth=0.5,
+                )
 
     def add_thresholds(self, ax):
         """
@@ -1533,9 +1514,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         if self._general_graph_settings.x_scale != SCALE_TYPE.LINEAR:
             return
 
-        threshold_min, threshold_max = (
-            self._sample_spot_filter.get_threshold_range_slider().value
-        )
+        threshold_min, threshold_max = self._sample_spot_filter.get_threshold_range_slider().value
         slider_min = self._sample_spot_filter.get_threshold_range_slider().min
         slider_max = self._sample_spot_filter.get_threshold_range_slider().max
 
@@ -1568,9 +1547,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         normalization = self._value_extractor.normalization
 
         attribute_display = attribute.value.replace("_", " ").title()
-        normalization_suffix = (
-            f" ({normalization.value})" if normalization != "raw" else ""
-        )
+        normalization_suffix = f" ({normalization.value})" if normalization != "raw" else ""
 
         value_label = self._general_graph_settings.x_label
         dataset_label = self._general_graph_settings.y_label
@@ -1663,21 +1640,19 @@ class IntensityOverviewModule(SuplexModuleInterface):
         root = Tk()
         root.withdraw()
         root.lift()
-        root.attributes('-topmost', True)
+        root.attributes("-topmost", True)
         root.focus_force()
-        default_filename = (
-            f"Intensity_Data_{attribute.value}_{normalization_method.value}.csv"
-        )
+        default_filename = f"Intensity_Data_{attribute.value}_{normalization_method.value}.csv"
         file_path = filedialog.asksaveasfilename(
             defaultextension=".csv",
             filetypes=[("CSV files", "*.csv")],
             initialfile=default_filename,
             title="Save CSV As",
         )
-        
-        root.attributes('-topmost', False)
+
+        root.attributes("-topmost", False)
         root.destroy()
-        
+
         if not file_path:
             logger.debug("CSV export cancelled by user")
             return
@@ -1693,9 +1668,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 writer.writerow(head_row)
                 for key, values in csv_valuesets.items():
                     descriptor = (
-                        key.id
-                        if self._dataset_descriptor == DATASET_LABEL.ID
-                        else key.name
+                        key.id if self._dataset_descriptor == DATASET_LABEL.ID else key.name
                     )
                     row = [descriptor] + list(values)
                     writer.writerow(row)
@@ -1732,9 +1705,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
                         continue
 
                     descriptor = (
-                        dataset.id
-                        if self._dataset_descriptor == DATASET_LABEL.ID
-                        else dataset.name
+                        dataset.id if self._dataset_descriptor == DATASET_LABEL.ID else dataset.name
                     )
                     row = [descriptor]
 

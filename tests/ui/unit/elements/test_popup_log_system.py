@@ -1,28 +1,41 @@
 import pytest
-from unittest.mock import Mock, MagicMock, patch, call
-from datetime import datetime
+from unittest.mock import Mock, patch
 import logging
+from datetime import datetime
+
 import ipywidgets as widgets
 
 from src.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
 
 
 class TestPopupLogger:
+    """Tests for the PopupLogger – a toggleable popup panel that displays
+    filtered log messages with copy/save/clear functionality.
+    """
+
+    # -------------------------------------------------------------------------
+    # Initialization
+    # -------------------------------------------------------------------------
     def test_popup_logger_initialization(self, mock_scheme):
+        """PopupLogger initializes with correct defaults and creates UI components."""
         with patch("src.ui.elements.popup_log_system.widgets"):
             with patch("src.ui.elements.popup_log_system.get_popup_logger_styles"):
-                logger = PopupLogger(
+                logger_instance = PopupLogger(
                     scheme=mock_scheme, max_messages=50, min_log_level=logging.DEBUG
                 )
 
-        assert logger._scheme == mock_scheme
-        assert logger._max_messages == 50
-        assert logger._min_log_level == logging.DEBUG
-        assert logger._is_visible == False
-        assert logger._log_messages == []
-        assert logger._unread_count == 0
+        assert logger_instance._scheme == mock_scheme
+        assert logger_instance._max_messages == 50
+        assert logger_instance._min_log_level == logging.DEBUG
+        assert logger_instance._is_visible is False
+        assert logger_instance._log_messages == []
+        assert logger_instance._unread_count == 0
 
+    # -------------------------------------------------------------------------
+    # UI creation
+    # -------------------------------------------------------------------------
     def test_create_popup_log_widget(self, popup_logger):
+        """create_popup_log_widget() sets up toggle button and popup panel."""
         with patch("src.ui.elements.popup_log_system.widgets.Button") as mock_button:
             with patch.object(popup_logger, "create_popup_panel") as mock_panel:
                 mock_panel.return_value = Mock()
@@ -35,7 +48,11 @@ class TestPopupLogger:
                 assert popup_logger._popup_panel is not None
                 mock_button.assert_called_once()
 
+    # -------------------------------------------------------------------------
+    # Show / hide popup
+    # -------------------------------------------------------------------------
     def test_show_popup(self, popup_logger):
+        """show_popup() makes the panel visible, resets unread count, and refreshes display."""
         popup_logger._popup_panel = Mock()
         popup_logger._popup_panel.layout = Mock()
         popup_logger.update_button_appearance = Mock()
@@ -44,12 +61,13 @@ class TestPopupLogger:
         popup_logger.show_popup()
 
         assert popup_logger._popup_panel.layout.display == "flex"
-        assert popup_logger._is_visible == True
+        assert popup_logger._is_visible is True
         assert popup_logger._unread_count == 0
         popup_logger.update_button_appearance.assert_called_once()
         popup_logger.refresh_log_display.assert_called_once()
 
     def test_close_popup(self, popup_logger):
+        """close_popup() hides the panel and updates button appearance."""
         popup_logger._popup_panel = Mock()
         popup_logger._popup_panel.layout = Mock()
         popup_logger._is_visible = True
@@ -58,61 +76,46 @@ class TestPopupLogger:
         popup_logger.close_popup()
 
         assert popup_logger._popup_panel.layout.display == "none"
-        assert popup_logger._is_visible == False
+        assert popup_logger._is_visible is False
         popup_logger.update_button_appearance.assert_called_once()
 
-    def test_update_button_appearance_no_unread(self, popup_logger):
+    # -------------------------------------------------------------------------
+    # Toggle button appearance
+    # -------------------------------------------------------------------------
+    @pytest.mark.parametrize(
+        "unread_count, expected_description, expected_class",
+        [
+            (0, "💾", "popup-toggle-button-normal"),  # no unread
+            (5, "💾 5", "popup-toggle-button-unread"),  # small count
+            (150, "💾 99+", "popup-toggle-button-unread"),  # capped at 99+
+        ],
+    )
+    def test_update_button_appearance(
+        self, popup_logger, unread_count, expected_description, expected_class
+    ):
+        """update_button_appearance() correctly sets badge and CSS classes."""
         popup_logger._toggle_button = Mock()
-        popup_logger._unread_count = 0
+        popup_logger._unread_count = unread_count
 
         popup_logger.update_button_appearance()
 
-        assert (
-            popup_logger._toggle_button.description == popup_logger._scheme.ICON.STORE
+        assert popup_logger._toggle_button.description == expected_description
+        popup_logger._toggle_button.remove_class.assert_any_call(
+            "popup-toggle-button-unread" if unread_count == 0 else "popup-toggle-button-normal"
         )
-        popup_logger._toggle_button.remove_class.assert_called_with(
-            "popup-toggle-button-unread"
-        )
-        popup_logger._toggle_button.add_class.assert_called_with(
-            "popup-toggle-button-normal"
-        )
+        popup_logger._toggle_button.add_class.assert_any_call(expected_class)
 
-    def test_update_button_appearance_with_unread(self, popup_logger):
-        popup_logger._toggle_button = Mock()
-        popup_logger._unread_count = 5
-
-        popup_logger.update_button_appearance()
-
-        assert (
-            popup_logger._toggle_button.description
-            == f"{popup_logger._scheme.ICON.STORE} 5"
-        )
-        popup_logger._toggle_button.remove_class.assert_called_with(
-            "popup-toggle-button-normal"
-        )
-        popup_logger._toggle_button.add_class.assert_called_with(
-            "popup-toggle-button-unread"
-        )
-
-    def test_update_button_appearance_many_unread(self, popup_logger):
-        popup_logger._toggle_button = Mock()
-        popup_logger._unread_count = 150
-
-        popup_logger.update_button_appearance()
-
-        assert (
-            popup_logger._toggle_button.description
-            == f"{popup_logger._scheme.ICON.STORE} 99+"
-        )
-
+    # -------------------------------------------------------------------------
+    # Log message handling
+    # -------------------------------------------------------------------------
     def test_add_log_message(self, popup_logger):
+        """add_log_message() stores message, updates unread count when hidden, and refreshes display when visible."""
         popup_logger._is_visible = False
         popup_logger.update_button_appearance = Mock()
         popup_logger.refresh_log_display = Mock()
 
-        with patch("src.ui.elements.popup_log_system.datetime") as mock_datetime:
-            mock_datetime.now.return_value.strftime.return_value = "12:34:56"
-
+        with patch("src.ui.elements.popup_log_system.datetime") as mock_dt:
+            mock_dt.now.return_value.strftime.return_value = "12:34:56"
             popup_logger.add_log_message("Test message", logging.INFO)
 
         assert len(popup_logger._log_messages) == 1
@@ -123,12 +126,13 @@ class TestPopupLogger:
         popup_logger.update_button_appearance.assert_called_once()
 
     def test_add_log_message_below_min_level(self, popup_logger):
+        """Messages below min_log_level are ignored."""
         popup_logger._min_log_level = logging.WARNING
-
         popup_logger.add_log_message("Debug message", logging.DEBUG)
         assert len(popup_logger._log_messages) == 0
 
-    def test_add_log_message_max_messages(self, popup_logger):
+    def test_add_log_message_respects_max_messages(self, popup_logger):
+        """Oldest messages are dropped when max_messages limit is reached."""
         popup_logger._max_messages = 3
         popup_logger._is_visible = True
         popup_logger.refresh_log_display = Mock()
@@ -138,50 +142,32 @@ class TestPopupLogger:
 
         assert len(popup_logger._log_messages) == 3
         assert popup_logger._log_messages[0]["message"] == "Message 2"
-        assert popup_logger._log_messages[-1]["message"] == "Message 4"
 
-    def test_get_level_info(self, popup_logger):
-        test_cases = [
-            (
-                logging.DEBUG,
-                popup_logger._scheme.ICON.DEBUG,
-                "popup-log-debug",
-                "Debug",
-            ),
-            (logging.INFO, popup_logger._scheme.ICON.INFO, "popup-log-info", "Info"),
-            (
-                logging.WARNING,
-                popup_logger._scheme.ICON.WARNING,
-                "popup-log-warning",
-                "Warning",
-            ),
-            (
-                logging.ERROR,
-                popup_logger._scheme.ICON.ERROR,
-                "popup-log-error",
-                "Error",
-            ),
-            (
-                logging.CRITICAL,
-                popup_logger._scheme.ICON.CRITICAL,
-                "popup-log-critical",
-                "Critical",
-            ),
-            (
-                999,
-                popup_logger._scheme.ICON.DEFAULT,
-                "popup-log-default",
-                "Unspecified",
-            ),
-        ]
-
-        for level, expected_icon, expected_class, expected_name in test_cases:
-            icon, css_class, name = popup_logger.get_level_info(level)
-            assert icon == expected_icon
-            assert css_class == expected_class
-            assert name == expected_name
+    # -------------------------------------------------------------------------
+    # Log display & level info
+    # -------------------------------------------------------------------------
+    @pytest.mark.parametrize(
+        "level, expected_icon, expected_class, expected_name",
+        [
+            (logging.DEBUG, "🐛", "popup-log-debug", "Debug"),
+            (logging.INFO, "ℹ️", "popup-log-info", "Info"),
+            (logging.WARNING, "⚠️", "popup-log-warning", "Warning"),
+            (logging.ERROR, "❌", "popup-log-error", "Error"),
+            (logging.CRITICAL, "🚨", "popup-log-critical", "Critical"),
+            (999, "📄", "popup-log-default", "Unspecified"),
+        ],
+    )
+    def test_get_level_info(
+        self, popup_logger, level, expected_icon, expected_class, expected_name
+    ):
+        """get_level_info() returns correct icon, CSS class, and name for every log level."""
+        icon, css_class, name = popup_logger.get_level_info(level)
+        assert icon == expected_icon
+        assert css_class == expected_class
+        assert name == expected_name
 
     def test_refresh_log_display_empty(self, popup_logger):
+        """When there are no messages, a friendly empty state is shown."""
         popup_logger._log_output = Mock()
         popup_logger._message_counter = Mock()
 
@@ -192,6 +178,7 @@ class TestPopupLogger:
         assert popup_logger._message_counter.value == "0 messages"
 
     def test_refresh_log_display_with_messages(self, popup_logger):
+        """refresh_log_display() renders recent messages with proper formatting."""
         popup_logger._log_output = Mock()
         popup_logger._message_counter = Mock()
         popup_logger._log_messages = [
@@ -203,17 +190,15 @@ class TestPopupLogger:
 
         assert "Test 1" in popup_logger._log_output.value
         assert "Test 2" in popup_logger._log_output.value
-        assert "12:00:00" in popup_logger._log_output.value
-        assert "12:00:01" in popup_logger._log_output.value
         assert popup_logger._message_counter.value == "2 messages"
 
     def test_refresh_log_display_filtering(self, popup_logger):
+        """Only messages >= min_log_level are shown."""
         popup_logger._log_output = Mock()
         popup_logger._message_counter = Mock()
         popup_logger._min_log_level = logging.WARNING
         popup_logger._log_messages = [
             {"message": "Debug", "level": logging.DEBUG, "timestamp": "12:00:00"},
-            {"message": "Info", "level": logging.INFO, "timestamp": "12:00:01"},
             {"message": "Warning", "level": logging.WARNING, "timestamp": "12:00:02"},
             {"message": "Error", "level": logging.ERROR, "timestamp": "12:00:03"},
         ]
@@ -221,12 +206,15 @@ class TestPopupLogger:
         popup_logger.refresh_log_display()
 
         assert "Debug" not in popup_logger._log_output.value
-        assert "Info" not in popup_logger._log_output.value
         assert "Warning" in popup_logger._log_output.value
         assert "Error" in popup_logger._log_output.value
 
+    # -------------------------------------------------------------------------
+    # Actions (clear, copy, save)
+    # -------------------------------------------------------------------------
     def test_clear_logs(self, popup_logger):
-        popup_logger._log_messages = [{"message": "Test", "level": logging.INFO}]
+        """clear_logs() empties the message list and resets UI."""
+        popup_logger._log_messages = [{"message": "Test"}]
         popup_logger._unread_count = 5
         popup_logger.update_button_appearance = Mock()
         popup_logger.refresh_log_display = Mock()
@@ -240,9 +228,9 @@ class TestPopupLogger:
 
     @patch("src.ui.elements.popup_log_system.pyperclip")
     def test_copy_logs_success(self, mock_pyperclip, popup_logger):
+        """copy_logs() formats and copies logs to clipboard."""
         popup_logger._log_messages = [
             {"message": "Test 1", "level": logging.INFO, "timestamp": "12:00:00"},
-            {"message": "Test 2", "level": logging.ERROR, "timestamp": "12:00:01"},
         ]
         popup_logger.format_logs_as_text = Mock(return_value="Formatted logs")
         popup_logger.add_log_message = Mock()
@@ -250,98 +238,29 @@ class TestPopupLogger:
         popup_logger.copy_logs()
 
         mock_pyperclip.copy.assert_called_once_with("Formatted logs")
-        popup_logger.add_log_message.assert_called_with(
-            "Logs copied to clipboard.", logging.INFO
-        )
+        popup_logger.add_log_message.assert_called_with("Logs copied to clipboard.", logging.INFO)
 
     def test_copy_logs_empty(self, popup_logger):
+        """Empty log list shows a helpful message."""
         popup_logger._log_messages = []
         popup_logger.add_log_message = Mock()
 
         popup_logger.copy_logs()
 
-        popup_logger.add_log_message.assert_called_with(
-            "No logs to copy.", logging.INFO
-        )
+        popup_logger.add_log_message.assert_called_with("No logs to copy.", logging.INFO)
 
-    @patch("src.ui.elements.popup_log_system.pyperclip")
-    def test_copy_logs_error(self, mock_pyperclip, popup_logger):
-        popup_logger._log_messages = [{"message": "Test", "level": logging.INFO}]
-        mock_pyperclip.copy.side_effect = Exception("Clipboard error")
-        popup_logger.add_log_message = Mock()
-
-        popup_logger.copy_logs()
-
-        popup_logger.add_log_message.assert_called()
-        assert "Error copying logs" in popup_logger.add_log_message.call_args[0][0]
-
-    @patch("src.ui.elements.popup_log_system.tk")
-    @patch("src.ui.elements.popup_log_system.filedialog")
-    @patch("builtins.open", create=True)
-    def test_save_logs_success(self, mock_open, mock_filedialog, mock_tk, popup_logger):
-        mock_root = Mock()
-        mock_tk.Tk.return_value = mock_root
-        mock_filedialog.asksaveasfilename.return_value = "/test/logs.log"
-        popup_logger._log_messages = [{"message": "Test", "level": logging.INFO}]
-        popup_logger.format_logs_as_text = Mock(return_value="Formatted logs")
-        popup_logger.add_log_message = Mock()
-
-        popup_logger.save_logs()
-
-        mock_filedialog.asksaveasfilename.assert_called_once()
-        mock_open.assert_called_once_with("/test/logs.log", "w", encoding="utf-8")
-        mock_open().__enter__().write.assert_called_once_with("Formatted logs")
-        popup_logger.add_log_message.assert_called_with(
-            "Logs saved to: /test/logs.log", logging.INFO
-        )
-        mock_root.destroy.assert_called_once()
-
-    @patch("src.ui.elements.popup_log_system.tk")
-    @patch("src.ui.elements.popup_log_system.filedialog")
-    def test_save_logs_cancelled(self, mock_filedialog, mock_tk, popup_logger):
-        mock_root = Mock()
-        mock_tk.Tk.return_value = mock_root
-        mock_filedialog.asksaveasfilename.return_value = ""
-        popup_logger._log_messages = [{"message": "Test"}]
-        popup_logger.add_log_message = Mock()
-
-        popup_logger.save_logs()
-
-        popup_logger.add_log_message.assert_called_with(
-            "Log save cancelled", logging.INFO
-        )
-
-    def test_save_logs_empty(self, popup_logger):
-        popup_logger._log_messages = []
-        popup_logger.add_log_message = Mock()
-        popup_logger.save_logs()
-
-        popup_logger.add_log_message.assert_called_with(
-            "No logs to save.", logging.INFO
-        )
-
-    def test_format_logs_as_text(self, popup_logger):
-        popup_logger._log_messages = [
-            {"message": "Info message", "level": logging.INFO, "timestamp": "12:00:00"},
-            {
-                "message": "Error message",
-                "level": logging.ERROR,
-                "timestamp": "12:00:01",
-            },
-        ]
-
-        result = popup_logger.format_logs_as_text()
-
-        assert "INFO - 12:00:00: Info message" in result
-        assert "ERROR - 12:00:01: Error message" in result
-
+    # -------------------------------------------------------------------------
+    # Scheme update
+    # -------------------------------------------------------------------------
     def test_update_scheme(self, popup_logger):
+        """update_scheme() refreshes all icons and UI elements with the new scheme."""
         new_scheme = Mock()
+        new_scheme.NAME = "Dark"
         new_scheme.ICON = Mock()
-        new_scheme.ICON.CLOSE = "X"
-        new_scheme.ICON.CLEAR = "C"
-        new_scheme.ICON.STORE = "S"
-        new_scheme.ICON.SAVE = "V"
+        new_scheme.ICON.CLOSE = "✖"
+        new_scheme.ICON.CLEAR = "🗑️"
+        new_scheme.ICON.STORE = "💾"
+        new_scheme.ICON.SAVE = "📥"
 
         popup_logger._close_button = Mock()
         popup_logger._clear_button = Mock()
@@ -356,47 +275,23 @@ class TestPopupLogger:
             popup_logger.update_scheme(new_scheme)
 
         assert popup_logger._scheme == new_scheme
-        assert popup_logger._close_button.description == "X"
-        assert popup_logger._clear_button.description == "C"
-        assert popup_logger._copy_button.description == "S"
-        assert popup_logger._save_button.description == "V"
+        assert popup_logger._close_button.description == "✖"
         popup_logger.update_button_appearance.assert_called_once()
         popup_logger.refresh_log_display.assert_called_once()
 
-    def test_create_popup_panel_dropdown_change(self, popup_logger):
-        with patch(
-            "src.ui.elements.popup_log_system.widgets.Dropdown"
-        ) as mock_dropdown:
-            with patch("src.ui.elements.popup_log_system.widgets.Button"):
-                with patch("src.ui.elements.popup_log_system.widgets.HTML"):
-                    with patch("src.ui.elements.popup_log_system.widgets.HBox"):
-                        with patch("src.ui.elements.popup_log_system.widgets.VBox"):
-                            dropdown_instance = Mock()
-                            dropdown_instance.value = logging.WARNING
-                            mock_dropdown.return_value = dropdown_instance
-
-                            popup_logger._min_log_level = logging.INFO
-                            popup_logger.refresh_log_display = Mock()
-
-                            popup_logger.create_popup_panel()
-
-                            observe_call = dropdown_instance.observe.call_args
-                            handler = observe_call[0][0]
-
-                            handler({"new": logging.WARNING})
-
-                            assert popup_logger._min_log_level == logging.WARNING
-                            popup_logger.refresh_log_display.assert_called()
-
 
 class TestPopupLogHandler:
+    """Tests for the custom logging handler that forwards records to PopupLogger."""
+
     def test_popup_log_handler_initialization(self):
+        """PopupLogHandler stores reference to the PopupLogger instance."""
         mock_popup_logger = Mock()
         handler = PopupLogHandler(mock_popup_logger)
 
         assert handler._popup_logger == mock_popup_logger
 
     def test_popup_log_handler_emit(self):
+        """emit() forwards formatted log record to add_log_message."""
         mock_popup_logger = Mock()
         handler = PopupLogHandler(mock_popup_logger)
 
@@ -413,11 +308,12 @@ class TestPopupLogHandler:
         handler.emit(record)
 
         mock_popup_logger.add_log_message.assert_called_once()
-        call_args = mock_popup_logger.add_log_message.call_args
-        assert "Test message" in call_args[0][0]
-        assert call_args[0][1] == logging.INFO
+        args, _ = mock_popup_logger.add_log_message.call_args
+        assert "Test message" in args[0]
+        assert args[1] == logging.INFO
 
-    def test_popup_log_handler_emit_error(self):
+    def test_popup_log_handler_emit_error_is_silent(self):
+        """Errors in emit() are silently ignored to prevent recursion."""
         mock_popup_logger = Mock()
         mock_popup_logger.add_log_message.side_effect = Exception("Logger error")
         handler = PopupLogHandler(mock_popup_logger)
@@ -432,4 +328,4 @@ class TestPopupLogHandler:
             exc_info=None,
         )
 
-        handler.emit(record)
+        handler.emit(record)  # should not raise

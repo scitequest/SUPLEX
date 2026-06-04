@@ -1,42 +1,90 @@
-# Test Suite for MARTin Interface
+# SUPLEX Test Suite
 
-CAREFUL THIS IS AN OLD VERSION!!!
+This directory contains the comprehensive test suite for the SUPLEX project, which consists of three main layers:
 
-This directory contains the comprehensive test suite for the MARTin Interface project.
+- **martin_interface** — Data loading, validation, and the `Dataset` / `Project` domain model
+- **suplex_modules** — Analysis modules (heatmaps, hitmaps, value extraction, filtering, etc.)
+- **ui** — Graphical user interface (PySide6 + ipywidgets)
 
+In addition, there is a dedicated `end_to_end/` folder for workflow-level tests that span multiple layers.
 
-## Structure
+## Directory Structure
 
 ```
 tests/
-├── __init__.py
-├── conftest.py          # Shared fixtures and configuration
-├── unit/                # Unit tests for individual components
-│   ├── test_martin_adapter.py
-│   ├── test_metadata.py
-│   ├── test_project.py
-│   ├── test_roi_elements.py
-│   ├── test_sample.py
-│   ├── test_search_directories.py
-│   ├── test_constants.py
-│   ├── test_dataset.py
-│   ├── test_general_parameters.py
-│   └── test_holder.py
-├── integration/         # Integration tests
-│   ├── test_adapter_integration.py
-│   └── test_validation_integration.py
-├── notebooks/           # Notebook-specific tests
-│   └── test_notebooks.py
-└── test_mocks.py       # Mock tests for external dependencies
+├── conftest.py                          # Global fixtures (used across 3+ packages)
+├── martin_interface/
+│   ├── conftest.py                      # Local fixtures for martin_interface
+│   ├── unit/
+│   └── integration/
+├── suplex_modules/
+│   ├── conftest.py                      # Local fixtures for suplex_modules
+│   ├── submodules/
+│   │   └── conftest.py
+│   ├── unit/
+│   ├── integration/
+│   └── vanilla/
+├── ui/
+│   ├── conftest.py                      # Local fixtures for UI
+│   ├── unit/
+│   └── integration/
+├── end_to_end/                          # End-to-end workflow tests
+│   ├── conftest.py
+│   └── test_*.py
+├── test_data/
+└── README_tests.md
 ```
+
+## Testing Strategy
+
+### Conftest Hierarchy
+
+We follow a clear separation of concerns for fixtures:
+
+| Level | File | Purpose | Scope |
+|-------|------|---------|-------|
+| **Global** | `tests/conftest.py` | Fixtures used by **3 or more** different packages | Available everywhere |
+| **Package-local** | `martin_interface/conftest.py`, `suplex_modules/conftest.py`, `ui/conftest.py` | Fixtures used only within that package | Package + subfolders |
+| **Test-specific** | Inside individual test files | Rarely used or very specific fixtures | Single test file |
+
+**Rule**: Move a fixture to the highest appropriate level only when it is genuinely reused.
+
+### Standardized Test Format
+
+All test files should follow this consistent structure:
+
+```python
+import pytest
+# Explicit imports only (no wildcard imports)
+
+class TestClassName:
+    """Clear, descriptive English docstring describing what this test class covers."""
+
+    # ------------------------------------------------------------------------- 
+    # Section Name
+    # ------------------------------------------------------------------------- 
+
+    def test_something(self, fixture_name):
+        """Clear, descriptive English docstring."""
+        # Arrange
+        ...
+
+        # Act
+        ...
+
+        # Assert
+        ...
+```
+
+**Guidelines:**
+- Use **class-based** tests
+- All docstrings and comments must be in **English**
+- Group related tests using `# -------------------------------------------------------------------------` section comments
+- Prefer fixtures from the appropriate `conftest.py`
+- Cover both the **happy path** and important **edge cases**
+- Keep test logic and assertions 100% intact when refactoring existing tests
 
 ## Running Tests
-
-### Install Test Dependencies
-
-```bash
-pip install -r requirements_test.txt
-```
 
 ### Run All Tests
 
@@ -44,185 +92,116 @@ pip install -r requirements_test.txt
 pytest
 ```
 
-### Run Specific Test Categories
+### Run Specific Layers
 
 ```bash
-# Run only unit tests
-pytest -m unit
+# martin_interface layer
+pytest tests/martin_interface/
 
-# Run only integration tests
-pytest -m integration
+# suplex_modules layer
+pytest tests/suplex_modules/
 
-# Run tests with coverage
-pytest --cov=martin_interface --cov-report=html
+# UI layer
+pytest tests/ui/
 
-# Run tests in parallel (requires pytest-xdist)
-pytest -n auto
+# End-to-end tests only
+pytest tests/end_to_end/
 ```
 
-### Run Specific Test Files
+### Useful pytest Flags
 
 ```bash
-# Run a specific test file
-pytest tests/unit/test_martin_adapter.py
+# Verbose output
+pytest -v
 
-# Run a specific test class
-pytest tests/unit/test_martin_adapter.py::TestAdapter
+# Show print statements
+pytest -s
 
-# Run a specific test method
-pytest tests/unit/test_martin_adapter.py::TestAdapter::test_adapter_init_invalid_path
+# Stop on first failure
+pytest -x
+
+# Run with pdb on failure
+pytest --pdb
+
+# Run only tests matching a keyword
+pytest -k "heatmap"
+
+# Run with coverage
+pytest --cov=src --cov-report=term-missing
 ```
 
-## Test Coverage
-
-Generate coverage reports:
+### Coverage Reports
 
 ```bash
 # Terminal report
-pytest --cov=martin_interface --cov-report=term-missing
+pytest --cov=src --cov-report=term-missing
 
-# HTML report
-pytest --cov=martin_interface --cov-report=html
-# Open htmlcov/index.html in browser
+# HTML report (recommended)
+pytest --cov=src --cov-report=html
+# Then open htmlcov/index.html
 
-# XML report (for CI/CD)
-pytest --cov=martin_interface --cov-report=xml
+# XML report (for CI)
+pytest --cov=src --cov-report=xml
 ```
 
-## Writing Tests
+## Writing New Tests
 
-### Unit Tests
+### When Adding a New Test File
 
-Unit tests should:
-- Test individual functions/methods in isolation
-- Use mocks for external dependencies
-- Be fast and deterministic
-- Follow the AAA pattern (Arrange, Act, Assert)
+1. Place it in the correct folder:
+   - `tests/martin_interface/unit/` or `integration/`
+   - `tests/suplex_modules/unit/` or `integration/`
+   - `tests/ui/unit/` or `integration/`
+   - `tests/end_to_end/`
 
-Example:
-```python
-def test_function_name(self, mock_dependency):
-    # Arrange
-    mock_dependency.return_value = "expected"
-    
-    # Act
-    result = function_under_test()
-    
-    # Assert
-    assert result == "expected"
-    mock_dependency.assert_called_once()
-```
+2. Use the appropriate local `conftest.py` for shared fixtures.
 
-### Integration Tests
+3. Follow the standardized class-based format shown above.
 
-Integration tests should:
-- Test interaction between multiple components
-- Use real file I/O when necessary
-- Test complete workflows
-- May be slower than unit tests
+4. Include both happy path and relevant edge cases.
 
-### Fixtures
+### Fixture Best Practices
 
-Common fixtures are defined in `conftest.py`:
-- `temp_dir`: Temporary directory for file operations
-- `sample_*_dict`: Sample data dictionaries
-- `mock_*`: Pre-configured mock objects
-- `create_test_files`: Creates test files in temp directory
+- Keep fixtures focused and well-documented with English docstrings.
+- Use `scope="session"` only for expensive operations (e.g. loading all modules).
+- Prefer real objects over heavy mocking when feasible (especially in integration and end-to-end tests).
+- For end-to-end tests, use realistic temporary MARTin datasets via the `end_to_end/conftest.py` fixtures.
 
 ## Continuous Integration
 
-The test suite is designed to run in CI/CD pipelines:
+The test suite is designed to work well in CI/CD pipelines. Example GitHub Actions step:
 
 ```yaml
-# Example GitHub Actions configuration
 - name: Run tests
   run: |
-    pip install -r requirements_test.txt
-    pytest --cov=martin_interface --cov-report=xml
-    
+    pip install -e .
+    pip install -r requirements-dev.txt
+    pytest --cov=src --cov-report=xml
+
 - name: Upload coverage
   uses: codecov/codecov-action@v3
 ```
 
 ## Debugging Tests
 
-### Run tests with verbose output
-```bash
-pytest -vv
-```
-
-### Run tests with print statements visible
-```bash
-pytest -s
-```
-
-### Run tests with full traceback
-```bash
-pytest --tb=long
-```
-
-### Run tests with pdb on failure
-```bash
-pytest --pdb
-```
-
-## Performance Testing
-
-Run performance benchmarks:
-```bash
-pytest tests/benchmarks/ --benchmark-only
-```
+| Goal | Command |
+|------|---------|
+| See which tests are running | `pytest -v` |
+| See print statements | `pytest -s` |
+| Full traceback on failure | `pytest --tb=long` |
+| Drop into debugger on failure | `pytest --pdb` |
+| Run only one test file | `pytest tests/end_to_end/test_full_wizard_workflow.py` |
+| Run only one test method | `pytest tests/end_to_end/test_full_wizard_workflow.py::TestFullWizardWorkflow::test_full_wizard_flow_end_to_end` |
 
 ## Best Practices
 
-1. **Isolation**: Each test should be independent
-2. **Clarity**: Test names should describe what they test
-3. **Speed**: Keep tests fast, mock expensive operations
-4. **Coverage**: Aim for >80% code coverage
-5. **Maintenance**: Update tests when code changes
+- **Isolation**: Every test should be independent and not rely on state from other tests.
+- **Clarity**: Test names and docstrings should clearly describe what is being tested.
+- **Speed**: Keep unit tests fast. Use mocks for expensive operations.
+- **Realism**: Integration and end-to-end tests should use real `Adapter`, `Dataset`, and module objects whenever practical.
+- **Maintenance**: Update tests when production code changes. Do not let tests become outdated.
+- **Documentation**: Keep this README up to date when the test architecture changes.
 
-## Troubleshooting
+---
 
-### Common Issues
-
-1. **Import errors**: Ensure the project is installed in development mode:
-   ```bash
-   pip install -e .
-   ```
-
-2. **File not found**: Tests should use fixtures for file paths, not hardcoded paths
-
-3. **Flaky tests**: Use proper teardown and avoid time-dependent tests
-
-4. **Mock issues**: Ensure mocks match the actual interface
-
-## Contributing
-
-When adding new features:
-1. Write tests first (TDD)
-2. Ensure all tests pass
-3. Maintain or improve coverage
-4. Update this README if needed0, "std_deviation": 25.0}]
-        
-        stats_data = {
-            "row": 0,
-            "col": 0,
-            "adjusted_average": 100.0,
-            "adjusted_average_std_deviation": 10.0,
-            "relative_adjusted_average_std_deviation": 10.0,
-            "normalized_average": 0.5,
-            "normalized_average_std_deviation": 0.05,
-            "relative_normalized_average_std_deviation": 10.0
-        }
-        
-        sample = Sample(spots=spots_data, spot_statistics=stats_data, parameters=None)
-        
-        assert sample.data_statistics is not None
-        assert sample.data_statistics.adjusted_average == 100.0
-    
-    def test_init_spots_polygon_parameters(self):
-        """Test init_spots with polygon parameters."""
-        spots_data = [
-            {"mean_minus_min": 100.0, "normalized_mean": 0.5, 
-             "spot": 0, "row": 0, "col": 0, "min": 50.0, 
-             "max": 200.0, "mean": 150.
+This test suite aims to provide confidence when modifying any of the three layers (`martin_interface`, `suplex_modules`, or `ui`) while maintaining a clean and consistent testing experience.

@@ -15,9 +15,7 @@ class NIGHT_SCHEME:
             MAIN_TITLE = "JetBrains Mono, 'SF Mono', Monaco, 'Cascadia Code', monospace"
             HEADER = "JetBrains Mono, 'SF Mono', Monaco, 'Cascadia Code', monospace"
             SUB_HEADER = "JetBrains Mono, 'SF Mono', Monaco, 'Cascadia Code', monospace"
-            SUB_SUB_HEADER = (
-                "JetBrains Mono, 'SF Mono', Monaco, 'Cascadia Code', monospace"
-            )
+            SUB_SUB_HEADER = "JetBrains Mono, 'SF Mono', Monaco, 'Cascadia Code', monospace"
             DEFAULT = "JetBrains Mono, 'SF Mono', Monaco, 'Cascadia Code', monospace"
             LABEL = "JetBrains Mono, 'SF Mono', Monaco, 'Cascadia Code', monospace"
 

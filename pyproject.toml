@@ -4,21 +4,143 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "suplex"
-version = "0.1.0"
-description = "Ihre Projektbeschreibung"
+version = "0.2.0"
+description = "SUPLEX - Analysis platform for MARTin microarray data with modular visualization and processing tools"
 authors = [
-    {name = "Kai Oliver Kreissner"}
+    { name = "Kai Oliver Kreissner" }
 ]
 readme = "README.md"
-requires-python = ">=3.8"
-dependencies = [
-    "ipywidgets",
-    "jupyter",
-    # add other dependencies later
+requires-python = ">=3.9"
+license = { text = "MIT" }
+keywords = ["microarray", "martin", "data-analysis", "visualization", "heatmap"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Visualization",
 ]
+
+dependencies = [
+    "ipywidgets>=8.0",
+    "jupyter>=1.0",
+    "PySide6>=6.5",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "Pillow",
+    "svgutils",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-qt>=4.0",
+    "pytest-mock",
+    "black",
+    "ruff",
+    "mypy",
+]
+
+test = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-qt>=4.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-org/suplex"
+Repository = "https://github.com/your-org/suplex"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-dir]
 "" = "src"
+
+# =============================================================================
+# Pytest Configuration
+# =============================================================================
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = """
+    -v
+    --tb=short
+    --strict-markers
+    --durations=10
+    --cov=src
+    --cov-report=html:htmlcov
+    --cov-report=term-missing:skip-covered
+    --showlocals
+    --capture=no
+    -W default
+    --color=yes
+"""
+norecursedirs = [
+    ".git", ".tox", "dist", "build", "*.egg", "__pycache__", "docs", 
+    "notebooks", ".ipynb_checkpoints"
+]
+
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "fast: marks tests as fast",
+    "unit: marks tests as unit tests",
+    "integration: marks tests as integration tests",
+    "e2e: marks tests as end-to-end tests",
+    "validation: marks tests for validation functions",
+    "adapter: marks tests for adapter functionality",
+    "dataset: marks tests for dataset processing",
+]
+
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+# =============================================================================
+# Coverage Configuration
+# =============================================================================
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]
+
+# =============================================================================
+# Code Quality Tools (recommended)
+# =============================================================================
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+ignore = ["E501"]  # line too long (handled by black)
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true

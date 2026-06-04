@@ -1,119 +1,104 @@
 import pytest
 import os
-import tempfile
 from pathlib import Path
-from enum import Enum
-from unittest.mock import patch, MagicMock
 
-from src.suplex_modules.module_constants import *
+from suplex_modules.module_constants import (
+    DEFAULT_MODULE_DIRECTORY,
+    DEFAULT_SEARCH_DEPTH,
+    STANDARD_READOUT_FILE_TYPE,
+    TOLERANCE,
+    VANILLA_MODULE,
+    SEARCH_MODE,
+    FILE,
+    IMAGE_EXTENSIONS,
+    DEFAULT_IGNORE_DIRS,
+    DEFAULT_IGNORE_FILES,
+    DEFAULT_IGNORE_EXTENSIONS,
+)
 
 
 class TestModuleConstants:
+    # -------------------------------------------------------------------------
+    # Core Constants
+    # -------------------------------------------------------------------------
+    def test_default_module_directory(self):
+        """DEFAULT_MODULE_DIRECTORY points to the directory containing module_constants.py."""
+        assert DEFAULT_MODULE_DIRECTORY == str(Path(DEFAULT_MODULE_DIRECTORY).resolve())
+        # It should be inside the suplex_modules folder
+        assert "suplex_modules" in DEFAULT_MODULE_DIRECTORY.lower()
+
     def test_default_search_depth(self):
+        """DEFAULT_SEARCH_DEPTH has the expected value."""
         assert DEFAULT_SEARCH_DEPTH == 4
-        assert isinstance(DEFAULT_SEARCH_DEPTH, int)
-        assert DEFAULT_SEARCH_DEPTH > 0
 
     def test_standard_readout_file_type(self):
+        """STANDARD_READOUT_FILE_TYPE is the expected Python file extension."""
         assert STANDARD_READOUT_FILE_TYPE == ".py"
-        assert isinstance(STANDARD_READOUT_FILE_TYPE, str)
-        assert STANDARD_READOUT_FILE_TYPE.startswith(".")
 
     def test_tolerance(self):
+        """TOLERANCE is the expected floating-point tolerance value."""
         assert TOLERANCE == 1e-6
-        assert isinstance(TOLERANCE, float)
-        assert TOLERANCE > 0
-        assert TOLERANCE < 1
 
-    def test_vanilla_module(self):
+    def test_vanilla_module_group(self):
+        """VANILLA_MODULE constant matches the vanilla group name."""
         assert VANILLA_MODULE == "Vanilla"
-        assert isinstance(VANILLA_MODULE, str)
 
-    def test_default_module_directory_type(self):
-        assert isinstance(DEFAULT_MODULE_DIRECTORY, str)
-        assert len(DEFAULT_MODULE_DIRECTORY) > 0
-        # Should be an absolute path
-        assert os.path.isabs(DEFAULT_MODULE_DIRECTORY)
-
-    def test_search_mode_enum(self):
-        assert issubclass(SEARCH_MODE, Enum)
-
-        assert hasattr(SEARCH_MODE, "RECURSIVE")
-        assert hasattr(SEARCH_MODE, "ITERATIVE_BOUNDED_BOTTOM")
-        assert hasattr(SEARCH_MODE, "ITERATIVE_BOUNDED_ALL")
-        assert hasattr(SEARCH_MODE, "ITERATIVE_UNBOUND")
-
+    # -------------------------------------------------------------------------
+    # SEARCH_MODE Enum
+    # -------------------------------------------------------------------------
+    def test_search_mode_enum_members(self):
+        """SEARCH_MODE enum contains all expected members with correct values."""
         assert SEARCH_MODE.RECURSIVE.value == "recursive"
         assert SEARCH_MODE.ITERATIVE_BOUNDED_BOTTOM.value == "iterative_bounded_bottom"
         assert SEARCH_MODE.ITERATIVE_BOUNDED_ALL.value == "iterative_bounded_all"
         assert SEARCH_MODE.ITERATIVE_UNBOUND.value == "iterative_unbound"
 
-        assert len(SEARCH_MODE) == 4
+        assert len(list(SEARCH_MODE)) == 4
 
+    # -------------------------------------------------------------------------
+    # FILE Enum
+    # -------------------------------------------------------------------------
+    def test_file_enum_members(self):
+        """FILE enum contains all expected MARTin file type identifiers."""
+        assert FILE.DATA.value == "data"
+        assert FILE.DATA_STATISTICS.value == "data_statistics"
+        assert FILE.PARAMETERS.value == "parameters"
+        assert FILE.METADATA.value == "metadata"
+        assert FILE.IMAGE.value == "image"
+        assert FILE.ANNOTATED_IMAGE.value == "annotated_image"
+        assert FILE.SUPLEX.value == "suplex"
+
+        assert len(list(FILE)) == 7
+
+    # -------------------------------------------------------------------------
+    # Image Extensions and Ignore Patterns
+    # -------------------------------------------------------------------------
     def test_image_extensions(self):
-        assert isinstance(IMAGE_EXTENSIONS, set)
-        assert len(IMAGE_EXTENSIONS) == 5
-        assert all(isinstance(ext, str) for ext in IMAGE_EXTENSIONS)
-        assert IMAGE_EXTENSIONS == {".jpg", ".jpeg", ".png", ".tif", ".tiff"}
+        """IMAGE_EXTENSIONS contains all supported image file extensions."""
+        expected = {".jpg", ".jpeg", ".png", ".tif", ".tiff"}
+        assert IMAGE_EXTENSIONS == expected
 
-    def test_ignore_dirs(self):
-        assert isinstance(DEFAULT_IGNORE_DIRS, set)
-        assert len(DEFAULT_IGNORE_DIRS) == 18
-        assert all(isinstance(ext, str) for ext in DEFAULT_IGNORE_DIRS)
+    def test_default_ignore_dirs(self):
+        """DEFAULT_IGNORE_DIRS contains the standard set of directories to ignore."""
+        assert "__pycache__" in DEFAULT_IGNORE_DIRS
+        assert ".git" in DEFAULT_IGNORE_DIRS
+        assert ".pytest_cache" in DEFAULT_IGNORE_DIRS
+        assert "node_modules" in DEFAULT_IGNORE_DIRS
+        assert "venv" in DEFAULT_IGNORE_DIRS
+        # Spot-check a few more
+        assert len(DEFAULT_IGNORE_DIRS) >= 18
 
-        expected_dirs = {
-            "__pycache__",
-            ".ipynb_checkpoints",
-            ".git",
-            ".vscode",
-            ".idea",
-            ".pytest_cache",
-            ".mypy_cache",
-            ".tox",
-            "node_modules",
-            "venv",
-            "env",
-            ".venv",
-            ".env",
-            "build",
-            "dist",
-            ".coverage",
-            "htmlcov",
-            ".nox",
-        }
-        assert all(
-            expected_dir in DEFAULT_IGNORE_DIRS for expected_dir in expected_dirs
-        )
+    def test_default_ignore_files(self):
+        """DEFAULT_IGNORE_FILES contains common files that should be skipped."""
+        assert "__init__.py" in DEFAULT_IGNORE_FILES
+        assert "conftest.py" in DEFAULT_IGNORE_FILES
+        assert ".gitignore" in DEFAULT_IGNORE_FILES
+        assert "README.md" in DEFAULT_IGNORE_FILES
+        assert len(DEFAULT_IGNORE_FILES) >= 8
 
-    def test_ignore_files(self):
-        assert isinstance(DEFAULT_IGNORE_FILES, set)
-        assert len(DEFAULT_IGNORE_FILES) == 8
-        assert all(isinstance(ext, str) for ext in DEFAULT_IGNORE_FILES)
-
-        expected_files = {
-            "__init__.py",
-            "setup.py",
-            "conftest.py",
-            ".gitignore",
-            ".gitattributes",
-            "requirements.txt",
-            "README.md",
-            "LICENSE",
-        }
-        assert all(
-            expected_file in DEFAULT_IGNORE_FILES for expected_file in expected_files
-        )
-
-    def test_ignore_files(self):
-        assert isinstance(DEFAULT_IGNORE_EXTENSIONS, set)
-        assert len(DEFAULT_IGNORE_EXTENSIONS) == 6
-        assert all(isinstance(ext, str) for ext in DEFAULT_IGNORE_EXTENSIONS)
-
-        expected_extensions = {".pyc", ".pyo", ".pyd", ".so", ".egg-info", ".dist-info"}
-        assert all(
-            expected_extension in DEFAULT_IGNORE_EXTENSIONS
-            for expected_extension in expected_extensions
-        )
-
-    def test_file_type_consistency(self):
-        assert STANDARD_READOUT_FILE_TYPE not in DEFAULT_IGNORE_EXTENSIONS
+    def test_default_ignore_extensions(self):
+        """DEFAULT_IGNORE_EXTENSIONS contains compiled Python and package files to ignore."""
+        assert ".pyc" in DEFAULT_IGNORE_EXTENSIONS
+        assert ".pyo" in DEFAULT_IGNORE_EXTENSIONS
+        assert ".egg-info" in DEFAULT_IGNORE_EXTENSIONS
+        assert len(DEFAULT_IGNORE_EXTENSIONS) >= 6

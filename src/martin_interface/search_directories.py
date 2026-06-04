@@ -8,9 +8,7 @@ from .martin_interface_constants import SEARCH_MODE
 logger = logging.getLogger(__name__)
 
 
-def delve_dirs(
-    path: str, target_files: List[str], detected_file_dirs: Set[str] = None
-) -> Set[str]:
+def delve_dirs(path: str, target_files: List[str], detected_file_dirs: Set[str] = None) -> Set[str]:
     """
     Recursively search for directories containing target files and return them as a set.
 
@@ -89,9 +87,7 @@ def sweep_dirs(
                             detected_file_dirs.add(current_dir)
                     elif item.is_dir():
                         if mode is SEARCH_MODE.ITERATIVE_UNBOUND or depth < max_depth:
-                            queue.append(
-                                (os.path.join(current_dir, item.name), depth + 1)
-                            )
+                            queue.append((os.path.join(current_dir, item.name), depth + 1))
 
         except PermissionError as e:
             logger.warning(f"Cannot access {current_dir}: {e}")
