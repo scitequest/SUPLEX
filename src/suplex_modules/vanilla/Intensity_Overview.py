@@ -153,6 +153,13 @@ class IntensityOverviewModule(SuplexModuleInterface):
         self._ignore_events = False
         logger.debug("IntensityOverviewModule initialized successfully")
 
+    def _create_checkbox(self, description: str = "", value: bool = False, indent: bool = False):
+        cb = WidgetFactory.checkbox(value=value, description=description, indent=indent)
+        cb.layout.width = "auto"
+        cb.layout.margin = "0px"
+        cb.layout.padding = "0px"
+        return cb
+
     @property
     def module_name(self) -> str:
         """
@@ -425,20 +432,20 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 )
                 self.on_selected_attribute_changed()
 
-            self._use_displayed_dataset_filter_checkbox = WidgetFactory.checkbox(
+            self._use_displayed_dataset_filter_checkbox = self._create_checkbox(
                 description="Use Same Attribute as Displayed",
                 value=True,
-                indent=False,
-                on_change=lambda b: on_use_displayed_dataset_filter_checkbox_changed(),
-                layout=widgets.Layout(margin="0px", padding="0px"),
+            )
+            self._use_displayed_dataset_filter_checkbox.observe(
+                lambda b: on_use_displayed_dataset_filter_checkbox_changed(), names="value"
             )
 
-            self._dataset_filter_checkbox = WidgetFactory.checkbox(
+            self._dataset_filter_checkbox = self._create_checkbox(
                 description="Apply Dataset Filter",
                 value=False,
-                indent=False,
-                on_change=lambda b: self.on_selected_attribute_changed(),
-                layout=widgets.Layout(margin="0px", padding="0px"),
+            )
+            self._dataset_filter_checkbox.observe(
+                lambda b: self.on_selected_attribute_changed(), names="value"
             )
 
             dataset_filter_section = WidgetFactory.vbox(
@@ -483,30 +490,30 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 # Adjust range since content of slider may change (new attribute or normalization).
                 self.on_selected_attribute_changed()
 
-            self._use_displayed_value_filter_checkbox = WidgetFactory.checkbox(
+            self._use_displayed_value_filter_checkbox = self._create_checkbox(
                 description="Use Same Attribute as Displayed",
                 value=True,
-                indent=False,
-                on_change=lambda b: on_use_displayed_value_filter_checkbox_changed(),
-                layout=widgets.Layout(margin="0px", padding="0px"),
+            )
+            self._use_displayed_value_filter_checkbox.observe(
+                lambda b: on_use_displayed_value_filter_checkbox_changed(), names="value"
             )
 
             # Decides if we use self._filtered_values or self._unfiltered_values for statistics and graph depiction.
-            self._apply_threshold_checkbox = WidgetFactory.checkbox(
+            self._apply_threshold_checkbox = self._create_checkbox(
                 description="Apply Value Threshold",
                 value=False,
-                indent=False,
-                on_change=lambda b: self.update_analysis(),
-                layout=widgets.Layout(margin="0px", padding="0px"),
+            )
+            self._apply_threshold_checkbox.observe(
+                lambda b: self.update_analysis(), names="value"
             )
 
             # Decides if we depict threshold lines. This only affects the graph.
-            self._show_threshold_checkbox = WidgetFactory.checkbox(
+            self._show_threshold_checkbox = self._create_checkbox(
                 description="Depict Value Threshold",
                 value=True,
-                indent=False,
-                on_change=lambda b: self.update_graph(),
-                layout=widgets.Layout(margin="0px", padding="0px"),
+            )
+            self._show_threshold_checkbox.observe(
+                lambda b: self.update_graph(), names="value"
             )
 
             spot_threshold_section = WidgetFactory.vbox(
@@ -1364,10 +1371,10 @@ class IntensityOverviewModule(SuplexModuleInterface):
 
             color_scheme = self._general_graph_settings.sequential_color_scheme.value
             try:
-                cmap = plt.cm.get_cmap(color_scheme)
+                cmap = plt.colormaps.get_cmap(color_scheme)
             except ValueError:
                 logger.warning("Invalid color scheme: %s, falling back to viridis", color_scheme)
-                cmap = plt.cm.get_cmap("viridis")
+                cmap = plt.colormaps.get_cmap("viridis")
             colors = cmap(np.linspace(0, 1, len(plot_data)))
 
             dataset_labels = [key.id for key in plot_data.keys()]
@@ -1439,12 +1446,12 @@ class IntensityOverviewModule(SuplexModuleInterface):
             warnings.simplefilter("ignore", category=RuntimeWarning)
             box_plot = ax.boxplot(
                 processed_data,
-                vert=self._general_graph_settings.swap_axes,
                 patch_artist=True,
-                labels=axis_labels,
+                tick_labels=axis_labels,
                 widths=self._boxplot_settings.box_width,
                 whis=whis,
                 showfliers=self._boxplot_settings.show_outliers,
+                orientation="vertical" if self._general_graph_settings.swap_axes else "horizontal",
             )
             for patch, color in zip(box_plot["boxes"], colors):
                 patch.set_facecolor(color)

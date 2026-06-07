@@ -157,6 +157,13 @@ class HitmapModule(SuplexModuleInterface):
         self._scale_col_bar_globally = False
         logger.debug("OverviewHeatmapModule initialized successfully")
 
+    def _create_checkbox(self, description: str = "", value: bool = False, indent: bool = False):
+        cb = WidgetFactory.checkbox(value=value, description=description, indent=indent)
+        cb.layout.width = "auto"
+        cb.layout.margin = "0px"
+        cb.layout.padding = "0px"
+        return cb
+
     @property
     def module_name(self) -> str:
         """
@@ -574,14 +581,14 @@ class HitmapModule(SuplexModuleInterface):
         static_filter_invert_checkbox = self._sample_spot_filter.get_invert_checkbox()
         static_filter_invert_checkbox.observe(lambda b: self.auto_update(self.update_analysis))
 
-        self._apply_static_filter_checkbox = WidgetFactory.checkbox(
-            value=True,
+        self._apply_static_filter_checkbox = self._create_checkbox(
             description="Apply Static Filtering",
-            indent=False,
-            layout=widgets.Layout(margin="0px", padding="0px"),
-            width="100%",
-            on_change=lambda b: self.auto_update(self.update_analysis),
+            value=True,
         )
+        self._apply_static_filter_checkbox.observe(
+            lambda b: self.auto_update(self.update_analysis), names="value"
+        )
+
         checkboxes_box = WidgetFactory.hbox(
             children=[static_filter_invert_checkbox, self._apply_static_filter_checkbox],
             gap="5px",
@@ -614,13 +621,12 @@ class HitmapModule(SuplexModuleInterface):
             on_change=lambda b: self.auto_update(self.update_analysis),
         )
 
-        self._apply_dynamic_filter_checkbox = WidgetFactory.checkbox(
-            value=True,
+        self._apply_dynamic_filter_checkbox = self._create_checkbox(
             description="Apply Dynamic Filtering",
-            indent=False,
-            layout=widgets.Layout(margin="0px", padding="0px"),
-            width="100%",
-            on_change=lambda b: self.auto_update(self.update_analysis),
+            value=True,
+        )
+        self._apply_dynamic_filter_checkbox.observe(
+            lambda b: self.auto_update(self.update_analysis), names="value"
         )
 
         dynamic_filter_widgets = WidgetFactory.vbox(
@@ -749,13 +755,9 @@ class HitmapModule(SuplexModuleInterface):
                 height="30px",
             )
 
-            self._auto_update_checkbox = WidgetFactory.checkbox(
-                value=False,
+            self._auto_update_checkbox = self._create_checkbox(
                 description="Auto",
-                indent=False,
-                layout=widgets.Layout(margin="0px", padding="0px"),
-                width="100%",
-                height="30px",
+                value=False,
             )
             self._auto_update_checkbox.observe(
                 lambda b: self.auto_update(self.update_analysis), names="value"
@@ -890,26 +892,19 @@ class HitmapModule(SuplexModuleInterface):
             )
             super_collage_widgets = [super_collage_settings_title]
 
-            self._add_unsorted_barcharts_checkbox = WidgetFactory.checkbox(
-                value=False,
+            self._add_unsorted_barcharts_checkbox = self._create_checkbox(
                 description="Add Positional Barcharts",
-                indent=False,
-                layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
+                value=False,
             )
 
-            self._add_sorted_barcharts_checkbox = WidgetFactory.checkbox(
-                value=False,
+            self._add_sorted_barcharts_checkbox = self._create_checkbox(
                 description="Add Sorted Barcharts",
-                indent=False,
-                layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
+                value=False,
             )
 
-            self._add_delta_barcharts_checkbox = WidgetFactory.checkbox(
-                value=False,
+            self._add_delta_barcharts_checkbox = self._create_checkbox(
                 description="Add Delta Barcharts",
-                indent=False,
-                layout=widgets.Layout(height="30px", width="auto", margin="0px", padding="0px"),
-                names="value",
+                value=False,
             )
 
             checkbox_container = WidgetFactory.vbox(
@@ -1994,12 +1989,7 @@ class HitmapModule(SuplexModuleInterface):
         Args:
             title (str): Title of the barchart.
             plot_values (List[float]): Values to plot.
-            groups (List[int], optional): Group indices for coloring. Defaults to [].
-            threshold_lines (List[float], optional): Threshold lines to draw. Defaults to [].
-            max_value (Optional[float], optional): Maximum value for scaling. Defaults to None.
-
-        Returns:
-            plt.Figure: The matplotlib figure for the barchart.
+            groups (List[int], optional): Group indices for coloring. Defaults to [].<|tool_call_begin|>
         """
         if max_value is None:
             max_value = max(plot_values)
