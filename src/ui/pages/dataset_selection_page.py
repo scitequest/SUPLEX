@@ -21,7 +21,6 @@ from suplex_modules.submodules.tag_selector import TagSelector
 
 logger = logging.getLogger(__name__)
 
-
 class DatasetSelectionPage:
     """
     This page displays projects in an accordion layout, allowing users to select
@@ -86,7 +85,7 @@ class DatasetSelectionPage:
                     height="100%",
                 )
 
-            logger.info("Creating project cards for %d projects", len(adapter.projects))
+            logger.debug("Creating project cards for %d projects", len(adapter.projects))
 
             # Create project cards if not already existing
             if not self._project_cards:
@@ -107,23 +106,36 @@ class DatasetSelectionPage:
             # Sort project cards alphanumerically
             self._project_cards.sort(key=lambda x: x.title.lower())
 
-            # Create accordion using WidgetFactory
-            accordion = WidgetFactory.accordion(
-                children=[project_card.get_ui_element() for project_card in self._project_cards],
-                titles=[project_card.title for project_card in self._project_cards],
+            # Placeholder widgets for lazy loading
+            self._placeholders = []
+            for _ in self._project_cards:
+                ph = WidgetFactory.vbox(
+                    children=[
+                        WidgetFactory.html_widget(
+                            value="<i>Loading project content...</i>",
+                            width="100%", height="auto"
+                        )
+                    ],
+                    width="100%",
+                    height="400px",
+                    layout=widgets.Layout(padding="20px")
+                )
+                self._placeholders.append(ph)
+    
+            # Create accordion with placeholders
+            self._accordion = WidgetFactory.accordion(
+                children=self._placeholders,
+                titles=[card.title for card in self._project_cards],
                 layout=widgets.Layout(width="100%", height="auto", padding="5px"),
             )
-
-            # Set fixed height for accordion items when opened
-            for i, project_card in enumerate(self._project_cards):
-                if i < len(accordion.children):
-                    accordion.children[i].layout.height = "400px"
-
+            
             # Initially all projects are closed
-            accordion.selected_index = None
-
+            self._accordion.selected_index = None
+            
+            self._accordion.observe(self.on_accordion_change, names="selected_index")
+            
             main_container = WidgetFactory.vbox(
-                children=[accordion],
+                children=[self._accordion],
                 width="100%",
                 height="100%",
                 overflow_y="auto",
@@ -141,6 +153,37 @@ class DatasetSelectionPage:
                 width="100%",
                 height="100%",
             )
+            
+    def on_accordion_change(self, change):
+        """Called when user clicks on an accordion tab."""
+        new_index = change.get("new")
+        if new_index is None:
+            return
+    
+        project_card = self._project_cards[new_index]
+        self.open_project_card(new_index, project_card)
+    
+    def open_project_card(self, index: int, project_card: "ProjectCard") -> None:
+        """Replace placeholder with real UI when user opens a project tab."""
+        if project_card.is_created:
+            return  # already built
+    
+        try:
+            logger.info("Lazily generating UI for project: %s", project_card.title)
+    
+            # Generate the real heavy UI
+            real_ui = project_card.generate_ui()
+            real_ui.layout.height = "400px"
+    
+            # Replace the placeholder in the accordion
+            children = list(self._accordion.children)   # convert tuple → list
+            children[index] = real_ui
+            self._accordion.children = children
+    
+            logger.debug("Successfully loaded project card: %s", project_card.title)
+    
+        except Exception as e:
+            logger.error("Failed to open project card %s: %s", project_card.title, e, exc_info=True)
 
     def get_selected_datasets(self) -> List[Dataset]:
         """
@@ -153,6 +196,8 @@ class DatasetSelectionPage:
 
         datasets = []
         for project_card in self._project_cards:
+            if not project_card.is_created:
+                continue             
             try:
                 card_datasets = project_card.get_selected_datasets()
                 datasets.extend(card_datasets)
@@ -164,9 +209,9 @@ class DatasetSelectionPage:
                     exc_info=True,
                 )
 
-        logger.info("Retrieved %d selected datasets total", len(datasets))
+        logger.debug("Retrieved %d selected datasets total", len(datasets))
         return datasets
-
+        
     def handle_dataset_selection_changed(self) -> None:
         """
         Handle changes in dataset selection and update the info field.
@@ -175,12 +220,14 @@ class DatasetSelectionPage:
         info field with current selection statistics.
         """
         logger.debug("Handling dataset selection change")
-
+        
         try:
             n_projects = 0
             n_datasets = 0
 
             for project_card in self._project_cards:
+                if not project_card.is_created:
+                    continue
                 try:
                     n_sets = len(project_card.get_selected_datasets())
                     n_datasets += n_sets
@@ -226,6 +273,8 @@ class DatasetSelectionPage:
             new_scheme: New color scheme to apply
         """
         for card in self._project_cards:
+            if not card.is_created:
+                continue   
             card.update_scheme(new_scheme)
 
     def reset_keep_dataset_selections(self) -> "DatasetSelectionPage":
@@ -291,30 +340,32 @@ class ProjectCard:
         """
         logger.debug("Initializing project card for project: %s", project.name)
 
+        self._is_created = False
+        self._pending_selections: List[Dataset] = []
+        
         self._page = page
         self._project = project
         self._borders: List[Any] = []
 
-        # Initialize dataset selector
-        dataset_label_parts = [DATASET_LABEL.ID, DATASET_LABEL.CREATED_DATE]
-        self._dataset_selector = DatasetSelector(
-            datasets=self._project.datasets,
-            mode=DATASET_SELECTOR_MODE.MULTIPLE_UNBOUND,
-            label_parts=dataset_label_parts,
-        )
-
+        # ui placeholders
+        self._dataset_selector = None
+        self._dataset_label_parts = [DATASET_LABEL.ID, DATASET_LABEL.CREATED_DATE]
         self._current_date_format = DATASET_LABEL.CREATED_DATE
-
-        # Initialize tag selector
+        
         self._tag_selection_mode = SELECTION_MODE.ANY
-        self._tag_selector = TagSelector(datasets=self._project.datasets)
+        self._tag_selector = None
+
+        self._date_cache = {
+            DATASET_LABEL.CREATED_DATE: {"min": None, "max": None},
+            DATASET_LABEL.MEASURE_DATE: {"min": None, "max": None},
+        }
 
         logger.debug(
             "Project card initialized for %s with %d datasets",
             project.name,
             len(project.datasets),
         )
-
+        
     @property
     def title(self) -> str:
         """
@@ -325,7 +376,17 @@ class ProjectCard:
         """
         return self._project.name
 
-    def get_ui_element(self) -> widgets.HBox:
+    @property
+    def is_created(self) -> bool:
+        """
+        Check if ui has been generated.
+
+        Returns:
+            True if generate_ui has been called already
+        """
+        return self._is_created
+
+    def generate_ui(self) -> widgets.HBox:
         """
         Generate the user interface for the project card which is a two-column layout with dataset selection on the left and
         filtering controls on the right.
@@ -336,6 +397,27 @@ class ProjectCard:
         logger.debug("Building UI for project card: %s", self.title)
 
         try:
+            self._dataset_selector = DatasetSelector(
+                datasets=self._project.datasets,
+                mode=DATASET_SELECTOR_MODE.MULTIPLE_UNBOUND,
+                label_parts=self._dataset_label_parts,
+            )
+            for checkbox in self._dataset_selector.get_checkboxes():
+                checkbox.observe(
+                    lambda change: self._page.handle_dataset_selection_changed(),
+                    names="value"
+                )
+
+            self._tag_selector = TagSelector(datasets=self._project.datasets)
+
+            # Apply pending selections (from reset_keep_dataset_selections or previous navigation)
+            if self._pending_selections:
+                try:
+                    self._dataset_selector.select_datasets(self._pending_selections)
+                except Exception as e:
+                    logger.warning("Could not apply pending selections for %s: %s", self.title, e)
+                self._pending_selections = []
+            
             # Left column - Dataset selection
             dataset_col_box = self.create_left_column()
 
@@ -352,6 +434,8 @@ class ProjectCard:
             )
 
             logger.debug("Project card UI built successfully for: %s", self.title)
+            self._is_created = True
+        
             return project_card
 
         except Exception as e:
@@ -423,7 +507,7 @@ class ProjectCard:
             width="100%",
             height="30px",
             layout=widgets.Layout(margin="0"),
-            on_click=lambda b: self._dataset_selector.select_all(),
+            on_click=lambda b: self.select_all_with_batch(),
         )
 
         deselect_all_button = WidgetFactory.button_danger(
@@ -431,7 +515,7 @@ class ProjectCard:
             width="100%",
             height="30px",
             layout=widgets.Layout(margin="0"),
-            on_click=lambda b: self._dataset_selector.clear_selection(),
+            on_click=lambda b: self.deselect_all_with_batch(),
         )
 
         mass_select_buttons_box = WidgetFactory.hbox(
@@ -453,10 +537,6 @@ class ProjectCard:
             overflow_y="visible",
             overflow_x="visible",
         )
-
-        # Add change listeners to checkboxes
-        for checkbox in self._dataset_selector.get_checkboxes():
-            checkbox.observe(lambda b: self._page.handle_dataset_selection_changed())
 
         # Dataset selector container with scrolling
         dataset_selector_container = WidgetFactory.vbox(
@@ -765,7 +845,9 @@ class ProjectCard:
         Returns:
             List of selected Dataset objects
         """
-        return self._dataset_selector.get_selected_datasets()
+        if self._dataset_selector:
+            return self._dataset_selector.get_selected_datasets()
+        return []
 
     def select_datasets(self, datasets: List[Dataset]) -> None:
         """
@@ -774,53 +856,52 @@ class ProjectCard:
         Args:
             datasets: List of Dataset objects to select
         """
-        self._dataset_selector.select_datasets(datasets=datasets)
+        if self._dataset_selector:
+            self._dataset_selector.select_datasets(datasets=datasets)
+
+    def select_all_with_batch(self):
+        self._dataset_selector.select_all()
+        self._page.handle_dataset_selection_changed()
+    
+    def deselect_all_with_batch(self):
+        self._dataset_selector.clear_selection()
+        self._page.handle_dataset_selection_changed()
 
     def get_earliest_date(self, mode: DATASET_LABEL) -> date:
-        """
-        Get the earliest date from datasets based on the specified mode.
-
-        Args:
-            mode: Date mode (CREATED_DATE or MEASURE_DATE)
-
-        Returns:
-            Earliest date found, or today's date if no dates available
-        """
+        cache = self._date_cache[mode]
+        if cache["min"] is not None:
+            return cache["min"]
+    
         dates = []
         for dataset in self._project.datasets:
             try:
-                if mode == DATASET_LABEL.CREATED_DATE and dataset.image_creation_date:
-                    dates.append(dataset.image_creation_date.date())
-                elif mode == DATASET_LABEL.MEASURE_DATE and dataset.measure_date:
-                    dates.append(dataset.measure_date.date())
-            except Exception as e:
-                logger.debug("Error getting date from dataset: %s", e)
+                d = dataset.image_creation_date if mode == DATASET_LABEL.CREATED_DATE else dataset.measure_date
+                if d:
+                    dates.append(d.date())
+            except Exception:
                 continue
-
-        return min(dates) if dates else date.today()
+    
+        result = min(dates) if dates else date.today()
+        cache["min"] = result
+        return result
 
     def get_latest_date(self, mode: DATASET_LABEL) -> date:
-        """
-        Get the latest date from datasets based on the specified mode.
-
-        Args:
-            mode: Date mode (CREATED_DATE or MEASURE_DATE)
-
-        Returns:
-            Latest date found, or today's date if no dates available
-        """
+        cache = self._date_cache[mode]
+        if cache["max"] is not None:
+            return cache["max"]
+    
         dates = []
         for dataset in self._project.datasets:
             try:
-                if mode == DATASET_LABEL.CREATED_DATE and dataset.image_creation_date:
-                    dates.append(dataset.image_creation_date.date())
-                elif mode == DATASET_LABEL.MEASURE_DATE and dataset.measure_date:
-                    dates.append(dataset.measure_date.date())
-            except Exception as e:
-                logger.debug("Error getting date from dataset: %s", e)
+                d = dataset.image_creation_date if mode == DATASET_LABEL.CREATED_DATE else dataset.measure_date
+                if d:
+                    dates.append(d.date())
+            except Exception:
                 continue
-
-        return max(dates) if dates else date.today()
+    
+        result = max(dates) if dates else date.today()
+        cache["max"] = result
+        return result
 
     def update_scheme(self, new_scheme: Any) -> None:
         """
@@ -863,9 +944,12 @@ class ProjectCard:
         logger.debug("Resetting project card %s while keeping selections", self.title)
 
         try:
-            selected_datasets = self._dataset_selector.get_selected_datasets()
+            selected_datasets = []
+            if self.is_created and self._dataset_selector:
+                selected_datasets = self.get_selected_datasets()
+
             new_card = ProjectCard(page=page, project=self._project)
-            new_card._dataset_selector.select_datasets(selected_datasets)
+            new_card._pending_selections = selected_datasets
 
             logger.debug(
                 "Preserved %d dataset selections for project %s",
