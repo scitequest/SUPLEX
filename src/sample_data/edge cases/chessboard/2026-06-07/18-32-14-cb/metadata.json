@@ -1,0 +1,23 @@
+
+{
+    "version": "0.7.0",
+    "datetime": "2026-06-07T18:32:14.834950200+02:00",
+    "patient": {
+        "id": "CB",
+        "name": "Chessboard basic",
+        "tags": [
+        ]
+    },
+    "image": {
+        "created": "2026-06-07T18:32:14.843+02:00",
+        "imager": "No imager",
+        "pixel_binning": 1,
+        "exposure_time": "PT0S"
+    },
+    "incubations": [
+    ],
+    "project": {
+        "name": "Chessboard",
+        "description": "Edge cases for module testing. Contains measurements on a chess- or checkersboard in different settings."
+    }
+}

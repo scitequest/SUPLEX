@@ -1,0 +1,23 @@
+
+{
+    "version": "0.7.0",
+    "datetime": "2026-06-07T18:03:40.994260500+02:00",
+    "patient": {
+        "id": "MV",
+        "name": "Middle Vertical",
+        "tags": [
+        ]
+    },
+    "image": {
+        "created": "2026-06-07T18:03:41.002+02:00",
+        "imager": "No imager",
+        "pixel_binning": 1,
+        "exposure_time": "PT0S"
+    },
+    "incubations": [
+    ],
+    "project": {
+        "name": "Gradient",
+        "description": "Edge cases for module testing. Contains a variety of different grayscale gradients."
+    }
+}

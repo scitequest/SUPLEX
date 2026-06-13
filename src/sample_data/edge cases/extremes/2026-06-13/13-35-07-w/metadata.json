@@ -1,0 +1,23 @@
+
+{
+    "version": "0.7.0",
+    "datetime": "2026-06-13T13:35:07.701841900+02:00",
+    "patient": {
+        "id": "w",
+        "name": "white",
+        "tags": [
+        ]
+    },
+    "image": {
+        "created": "2026-06-13T13:35:07.712+02:00",
+        "imager": "No imager",
+        "pixel_binning": 1,
+        "exposure_time": "PT0S"
+    },
+    "incubations": [
+    ],
+    "project": {
+        "name": "Extremes",
+        "description": "Edge cases for module testing."
+    }
+}

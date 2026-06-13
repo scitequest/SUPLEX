@@ -1,0 +1,61 @@
+
+{
+    "version": "0.7.0",
+    "datetime": "2025-09-30T10:40:49.351644900+02:00",
+    "patient": {
+        "id": "Blank 102-7",
+        "name": "Blank 102-7",
+        "tags": [
+            "Blank",
+            "Subclass-unspecific"
+        ]
+    },
+    "image": {
+        "created": "2022-06-05T19:01:49.388+02:00",
+        "imager": "Azure C400",
+        "pixel_binning": 1,
+        "exposure_time": "PT1M"
+    },
+    "incubations": [
+        {
+            "solution": "Blocking - milk protein in PBS",
+            "stock_concentration": {
+                "value": 100.0,
+                "unit": "percent"
+            },
+            "final_concentration": {
+                "value": 5.0,
+                "unit": "percent"
+            },
+            "incubation_time": "PT1H"
+        },
+        {
+            "solution": "Patient Material - Serum",
+            "stock_concentration": {
+                "value": 100.0,
+                "unit": "percent"
+            },
+            "final_concentration": {
+                "value": 0.1,
+                "unit": "percent"
+            },
+            "incubation_time": "PT30M"
+        },
+        {
+            "solution": "Marker",
+            "stock_concentration": {
+                "value": 100.0,
+                "unit": "percent"
+            },
+            "final_concentration": {
+                "value": 0.08,
+                "unit": "percent"
+            },
+            "incubation_time": "PT30M"
+        }
+    ],
+    "project": {
+        "name": "Blanks",
+        "description": "Synapsin related blank microarrays."
+    }
+}
