@@ -59,8 +59,7 @@ class ExcelAdapter(SuplexModuleInterface):
 
     @property
     def button_style(self) -> Dict[str, str]:
-        icon_path = Path(__file__).parent / "icons" / "excel_adapter_icon.png"
-        return {"font_color": "#FFFFFF", "button_color": "#107C41", "button_icon": str(icon_path)}
+        return {"font_color": "#FFFFFF", "button_color": "#107C41", "button_icon": "E"}
 
     def check_if_viable(self, datasets: List[Dataset]) -> bool:
         logger.debug("Checking viability of module: %s", self.module_name)
