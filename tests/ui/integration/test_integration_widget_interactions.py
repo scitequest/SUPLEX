@@ -57,7 +57,7 @@ class TestWidgetInteractionsIntegration:
         assert "button-emphasis" in buttons[2]._dom_classes
 
     def test_dataset_selector_checkbox_interactions(self, mock_project_with_datasets):
-        """Test checkbox interactions in dataset selector."""
+        """Test checkbox interactions in dataset selector (handles lazy ProjectCard initialization)."""
         # Create project card with dataset selector
         page = Mock()
         page.navigator = Mock()
@@ -79,6 +79,7 @@ class TestWidgetInteractionsIntegration:
             mock_selector.get_selected_datasets.return_value = []
 
             project_card = ProjectCard(page=page, project=mock_project_with_datasets)
+            project_card._dataset_selector = mock_selector   # <-- fix for lazy init
 
             # Initially none selected
             assert all(not cb.value for cb in mock_checkboxes)
@@ -113,7 +114,7 @@ class TestWidgetInteractionsIntegration:
             assert len(project_card._dataset_selector.get_selected_datasets()) == 0
 
     def test_date_picker_range_selection(self, mock_project_with_datasets):
-        """Test date picker interactions for range selection."""
+        """Test date picker interactions for range selection (handles lazy ProjectCard initialization)."""
         page = Mock()
         page.navigator = Mock()
         page.navigator.current_scheme = Mock()
@@ -129,6 +130,7 @@ class TestWidgetInteractionsIntegration:
                 project_card = ProjectCard(
                     page=page, project=mock_project_with_datasets
                 )
+                project_card._dataset_selector = mock_selector   # <-- fix for lazy init
 
                 # Create date range
                 start_date = date(2023, 1, 2)
@@ -220,7 +222,7 @@ class TestWidgetInteractionsIntegration:
         assert "button-emphasis" not in toggle._dom_classes
 
     def test_tag_selector_interaction(self, mock_project_with_datasets):
-        """Test tag selector widget interactions."""
+        """Test tag selector widget interactions (handles lazy ProjectCard initialization)."""
         page = Mock()
         page.navigator = Mock()
         page.navigator.current_scheme = Mock()
@@ -246,6 +248,8 @@ class TestWidgetInteractionsIntegration:
                 project_card = ProjectCard(
                     page=page, project=mock_project_with_datasets
                 )
+                project_card._dataset_selector = mock_selector     # <-- fix for lazy init
+                project_card._tag_selector = mock_tag_selector     # <-- fix for lazy init
 
                 # Get available tags
                 available_tags = project_card._tag_selector.get_available_tags()
@@ -255,7 +259,7 @@ class TestWidgetInteractionsIntegration:
                 project_card._tag_selector.set_selected_tags(["common_tag"])
 
                 # Test tag-based dataset filtering
-                project_card._SELECTION_MODE = SELECTION_MODE.ANY
+                project_card._tag_selection_mode = SELECTION_MODE.ANY
                 datasets_with_tag = project_card._tag_selector.get_tagged_datasets_any()
 
                 # All datasets should have the common tag
@@ -359,7 +363,7 @@ class TestWidgetInteractionsIntegration:
         assert popup_logger._popup_panel.layout.display == "none"
 
     def test_complex_widget_state_synchronization(self, mock_project_with_datasets):
-        """Test complex state synchronization between multiple widgets."""
+        """Test complex state synchronization between multiple widgets (handles lazy ProjectCard initialization)."""
         page = Mock()
         page.navigator = Mock()
         page.navigator.current_scheme = Mock()
@@ -383,6 +387,7 @@ class TestWidgetInteractionsIntegration:
                 project_card = ProjectCard(
                     page=page, project=mock_project_with_datasets
                 )
+                project_card._dataset_selector = mock_selector   # <-- fix for lazy init
 
                 # Test ID/Name button synchronization
                 current_format = (

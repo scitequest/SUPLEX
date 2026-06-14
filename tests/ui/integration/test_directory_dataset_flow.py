@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 import ipywidgets as widgets
 
 from src.ui.pages.directory_selection_page import DirectorySelectionPage
-from src.ui.pages.dataset_selection_page import DatasetSelectionPage
+from src.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
 from martin_interface.martin_interface_constants import SEARCH_MODE
 from ui.ui_constants import PAGE
 from src.ui.elements.navigator import Navigator
@@ -167,17 +167,17 @@ class TestDirectoryDatasetFlow:
     # ProjectCard Integration
     # -------------------------------------------------------------------------
     def test_project_card_reset_keep_selection(self, project_card):
-        """reset_keep_dataset_selection() preserves user selections."""
+        """reset_keep_dataset_selection() preserves user selections via _pending_selections (lazy init compatible)."""
         selected = [Mock(), Mock()]
+        project_card._is_created = True
+        project_card._dataset_selector = Mock()
         project_card._dataset_selector.get_selected_datasets.return_value = selected
 
-        with patch("src.ui.pages.dataset_selection_page.ProjectCard") as mock_card_class:
-            new_card = Mock()
-            mock_card_class.return_value = new_card
+        new_card = project_card.reset_keep_dataset_selection(page=Mock())
 
-            result = project_card.reset_keep_dataset_selection(page=Mock())
-
-            new_card._dataset_selector.select_datasets.assert_called_once_with(selected)
+        assert isinstance(new_card, ProjectCard)
+        assert new_card._pending_selections == selected
+        assert not new_card.is_created
 
     # -------------------------------------------------------------------------
     # Cross-component Flow
@@ -187,7 +187,10 @@ class TestDirectoryDatasetFlow:
         # Simulate successful directory selection
         navigator.valid_dataset_dir_selected(mock_adapter_with_data)
 
-        # Use the REAL navigate_to_dataset_selection method (bypass fixture mocks)
+        # Set adapter via private attribute (property is read-only)
+        navigator._adapter = mock_adapter_with_data
+
+        # Use the REAL navigate_to_dataset_selection method
         real_navigate = Navigator.navigate_to_dataset_selection.__get__(navigator, Navigator)
         real_navigate()
 

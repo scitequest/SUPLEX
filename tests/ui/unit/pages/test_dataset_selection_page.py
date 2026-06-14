@@ -65,7 +65,6 @@ class TestDatasetSelectionPage:
 
         mock_project_card = Mock()
         mock_project_card.title = "Test Project"
-        mock_project_card.get_ui_element.return_value = Mock()
         mock_project_card_class.return_value = mock_project_card
 
         mock_accordion = Mock()
@@ -164,7 +163,6 @@ class TestDatasetSelectionPage:
         assert new_page is not dataset_selection_page
         assert new_page._project_cards == []
 
-
 class TestProjectCard:
     """Tests for the individual ProjectCard component used inside DatasetSelectionPage."""
 
@@ -172,7 +170,7 @@ class TestProjectCard:
     # Initialization & basic properties
     # -------------------------------------------------------------------------
     def test_initialization(self, mock_page, mock_project_with_datasets):
-        """ProjectCard sets up DatasetSelector and TagSelector correctly."""
+        """ProjectCard initializes lazily (DatasetSelector/TagSelector created in generate_ui)."""
         with patch("src.ui.pages.dataset_selection_page.DatasetSelector") as mock_ds:
             with patch("src.ui.pages.dataset_selection_page.TagSelector") as mock_ts:
                 card = ProjectCard(page=mock_page, project=mock_project_with_datasets)
@@ -182,9 +180,13 @@ class TestProjectCard:
                 assert card._borders == []
                 assert card._current_date_format == DATASET_LABEL.CREATED_DATE
                 assert card._tag_selection_mode == SELECTION_MODE.ANY
+                assert card._dataset_selector is None
+                assert card._tag_selector is None
+                assert not card.is_created
 
-                mock_ds.assert_called_once()
-                mock_ts.assert_called_once()
+                # Selectors are created lazily only when generate_ui() is called
+                mock_ds.assert_not_called()
+                mock_ts.assert_not_called()
 
     def test_title_property(self, project_card):
         """title property returns the project name."""
@@ -193,17 +195,24 @@ class TestProjectCard:
     # -------------------------------------------------------------------------
     # UI building
     # -------------------------------------------------------------------------
+    @patch("src.ui.pages.dataset_selection_page.DatasetSelector")
+    @patch("src.ui.pages.dataset_selection_page.TagSelector")
     @patch("src.ui.pages.dataset_selection_page.WidgetFactory")
-    def test_get_ui_element(self, mock_factory, project_card):
-        """get_ui_element() builds a two-column HBox from left and right columns."""
+    def test_generate_ui(self, mock_factory, mock_ts, mock_ds, project_card):
+        """generate_ui() builds a two-column HBox, lazily creating DatasetSelector and TagSelector."""
         project_card.create_left_column = Mock(return_value=Mock())
         project_card.create_right_column = Mock(return_value=Mock())
         mock_hbox = Mock()
         mock_factory.hbox.return_value = mock_hbox
 
-        result = project_card.get_ui_element()
+        # Prevent issues with checkbox iteration in generate_ui
+        mock_ds.return_value.get_checkboxes.return_value = []
+
+        result = project_card.generate_ui()
 
         assert result == mock_hbox
+        mock_ds.assert_called_once()
+        mock_ts.assert_called_once()
         project_card.create_left_column.assert_called_once()
         project_card.create_right_column.assert_called_once()
 
@@ -259,6 +268,7 @@ class TestProjectCard:
     def test_get_selected_datasets(self, project_card):
         """get_selected_datasets() delegates to the DatasetSelector."""
         mock_datasets = [Mock(), Mock()]
+        project_card._dataset_selector = Mock()
         project_card._dataset_selector.get_selected_datasets.return_value = mock_datasets
 
         result = project_card.get_selected_datasets()
@@ -269,6 +279,7 @@ class TestProjectCard:
     def test_select_datasets(self, project_card):
         """select_datasets() delegates to the DatasetSelector."""
         mock_datasets = [Mock(), Mock()]
+        project_card._dataset_selector = Mock()
         project_card.select_datasets(mock_datasets)
         project_card._dataset_selector.select_datasets.assert_called_once_with(
             datasets=mock_datasets
@@ -301,19 +312,20 @@ class TestProjectCard:
         assert new_card is not project_card
 
     def test_reset_keep_dataset_selection(self, project_card, mock_page):
-        """reset_keep_dataset_selection() preserves selected datasets."""
+        """reset_keep_dataset_selection() preserves selected datasets in _pending_selections (applied later in generate_ui)."""
         mock_datasets = [Mock(), Mock()]
+        # Simulate that UI was generated and some datasets were selected
+        project_card._is_created = True
+        project_card._dataset_selector = Mock()
         project_card._dataset_selector.get_selected_datasets.return_value = mock_datasets
 
-        with patch("src.ui.pages.dataset_selection_page.DatasetSelector") as mock_ds:
-            with patch("src.ui.pages.dataset_selection_page.TagSelector"):
-                new_selector = Mock()
-                mock_ds.return_value = new_selector
-
-                new_card = project_card.reset_keep_dataset_selection(page=mock_page)
+        new_card = project_card.reset_keep_dataset_selection(page=mock_page)
 
         assert isinstance(new_card, ProjectCard)
-        new_selector.select_datasets.assert_called_once_with(mock_datasets)
+        assert new_card is not project_card
+        assert new_card._pending_selections == mock_datasets
+        assert not new_card.is_created
+        # Note: select_datasets() on the new selector happens lazily inside generate_ui(), not during reset_keep
 
     # -------------------------------------------------------------------------
     # ID / Name toggle handlers (detailed behavior test)
