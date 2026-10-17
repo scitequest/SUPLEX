@@ -1,12 +1,15 @@
 voila
 ipywidgets>=8.0
 jupyter
+ipyevents
 matplotlib
 numpy
 pandas
 Pillow
-svgutils
+scipy
 seaborn
 openpyxl
 pyperclip
+svgutils
+isodate
 typing_extensions
