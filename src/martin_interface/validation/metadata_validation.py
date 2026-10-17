@@ -1,6 +1,7 @@
 import json
 import logging
 import copy
+import re
 from datetime import datetime
 import isodate
 from typing import List, Optional, Any
@@ -13,6 +14,16 @@ from ..martin_interface_constants import (
 
 logger = logging.getLogger(__name__)
 
+def parse_iso_datetime(dt_str: str) -> datetime:
+    """
+    Parse ISO datetime string, truncating fractional seconds to 6 digits if necessary.
+    Needed for older python versions.
+    """
+    # Keep at most 6 digits after the decimal point
+    match = re.match(r"(.*\.\d{6})\d*(.*)", dt_str)
+    if match:
+        dt_str = match.group(1) + match.group(2)
+    return datetime.fromisoformat(dt_str)
 
 def try_get_validated_metadata(metadata_file_path: str) -> Optional[dict[str, Any]]:
     """
@@ -76,7 +87,7 @@ def try_typecast_metadata_file(
     try:
         typecasted_data = {
             "version": str(metadata_file["version"]),
-            "datetime": datetime.fromisoformat(metadata_file["datetime"]),
+            "datetime": parse_iso_datetime(metadata_file["datetime"]),
             "patient": {},
             "image": {},
             "incubations": [],
@@ -108,7 +119,7 @@ def try_typecast_metadata_file(
 
     try:
         typecasted_image = {
-            "created": datetime.fromisoformat(metadata_file["image"]["created"]),
+            "created": parse_iso_datetime(metadata_file["image"]["created"]),
             "imager": str(metadata_file["image"]["imager"]),
             "pixel_binning": int(metadata_file["image"]["pixel_binning"]),
             "exposure_time": isodate.parse_duration(metadata_file["image"]["exposure_time"]),
