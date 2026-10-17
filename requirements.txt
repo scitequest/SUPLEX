@@ -1,0 +1,8 @@
+voila
+ipywidgets>=8.0
+jupyter
+matplotlib
+numpy
+pandas
+Pillow
+svgutils
