@@ -1,12 +1,13 @@
 from ui.styles.resources.resources_constants import (
     DEFAULT_SUPLEX_ICON_PATH,
+    BG_SUPLEX_ICON_PATH,
+    DBPU_SUPLEX_ICON_PATH,
+    DGLG_SUPLEX_ICON_PATH,
     DEFAULT_MARTIN_ICON_PATH,
     GITHUB_SVG,
     X_SVG,
 )
 
-
-# Just for testing purposes
 class NIGHT_SCHEME:
     NAME = "Night Mode"
 
@@ -236,7 +237,7 @@ class NIGHT_SCHEME:
             MODULE = "📁"
 
         class IMAGE_PATH:
-            SUPLEX = DEFAULT_SUPLEX_ICON_PATH
+            SUPLEX = DBPU_SUPLEX_ICON_PATH
             MARTIN = DEFAULT_MARTIN_ICON_PATH
 
         class SVG:
