@@ -94,7 +94,7 @@ We maintain a comprehensive test suite with:
 
 ## License
 
-MIT License
+AGPL License
 
 ## Author
 

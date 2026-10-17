@@ -178,7 +178,7 @@ class AboutPage:
             HTML widget containing the license section
         """
         try:
-            license_path = Path(__file__).parent.parent.parent / "LICENSE"
+            license_path = Path(__file__).parent.parent.parent.parent / "LICENSE"
             license_text = license_path.read_text(encoding="utf-8")
         except FileNotFoundError:
             license_text = (
