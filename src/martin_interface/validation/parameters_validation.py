@@ -219,7 +219,7 @@ def check_external_consistency(
     n_spot_fields = data_file["values"][-1]["spot"] + 1
     if n_spot_fields != parameters_file["number_of_spotfields"]:
         logging.error(
-            f"Parameters file at {parameters_file_path} has different format than the data file of the same directory. Number of spot fields data: {n_spot_fields}, number of spot fields parameters: {parameters_file["number_of_spotfields"]}"
+            f"Parameters file at {parameters_file_path} has different format than the data file of the same directory. Number of spot fields data: {n_spot_fields}, number of spot fields parameters: {parameters_file['number_of_spotfields']}"
         )
         return False
 
