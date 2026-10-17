@@ -6,3 +6,7 @@ numpy
 pandas
 Pillow
 svgutils
+seaborn
+openpyxl
+pyperclip
+typing_extensions
