@@ -49,6 +49,8 @@ def get_gui_styles(scheme: Any) -> widgets.HTML:
             box-sizing: border-box !important;
             overflow_y: hidden !important;
             overflow_x: hidden !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
         }}
         
         /* Main Layout Container - Card Style */
