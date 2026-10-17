@@ -1,0 +1,23 @@
+
+{
+    "version": "0.7.0",
+    "datetime": "2026-06-07T18:04:12.946113300+02:00",
+    "patient": {
+        "id": "R2",
+        "name": "Radial 2",
+        "tags": [
+        ]
+    },
+    "image": {
+        "created": "2026-06-07T18:04:12.954+02:00",
+        "imager": "No imager",
+        "pixel_binning": 1,
+        "exposure_time": "PT0S"
+    },
+    "incubations": [
+    ],
+    "project": {
+        "name": "Gradient",
+        "description": "Edge cases for module testing. Contains a variety of different grayscale gradients."
+    }
+}

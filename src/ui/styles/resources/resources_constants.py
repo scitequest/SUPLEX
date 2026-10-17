@@ -11,8 +11,12 @@ import os
 
 logger = logging.getLogger(__name__)
 
-# Path to the default SUPLEX application icon (JPEG format).
-DEFAULT_SUPLEX_ICON_PATH = os.path.join(os.path.dirname(__file__), "SUPLEX_icon.jpg")
+# Path to the default SUPLEX application icon (PNG format).
+DEFAULT_SUPLEX_ICON_PATH = os.path.join(os.path.dirname(__file__), "SUPLEX_icon_yo.png")
+# Other colours
+BG_SUPLEX_ICON_PATH = os.path.join(os.path.dirname(__file__), "SUPLEX_icon_bg.png")
+DBPU_SUPLEX_ICON_PATH = os.path.join(os.path.dirname(__file__), "SUPLEX_icon_dbpu.png")
+DGLG_SUPLEX_ICON_PATH = os.path.join(os.path.dirname(__file__), "SUPLEX_icon_dglg.png")
 
 # Path to the default MARTin application icon (PNG format).
 DEFAULT_MARTIN_ICON_PATH = os.path.join(os.path.dirname(__file__), "MARTin_icon.png")

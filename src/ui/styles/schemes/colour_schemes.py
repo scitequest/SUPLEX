@@ -1,5 +1,8 @@
 from ui.styles.resources.resources_constants import (
     DEFAULT_SUPLEX_ICON_PATH,
+    BG_SUPLEX_ICON_PATH,
+    DBPU_SUPLEX_ICON_PATH,
+    DGLG_SUPLEX_ICON_PATH,
     DEFAULT_MARTIN_ICON_PATH,
     GITHUB_SVG,
     X_SVG,
@@ -236,7 +239,7 @@ class GREEN_SCHEME:
             MODULE = "🔧"
 
         class IMAGE_PATH:
-            SUPLEX = DEFAULT_SUPLEX_ICON_PATH
+            SUPLEX = DGLG_SUPLEX_ICON_PATH
             MARTIN = DEFAULT_MARTIN_ICON_PATH
 
         class SVG:
@@ -730,6 +733,501 @@ class TEAL_SCHEME:
             DATASET_SELECTION = "📊"
             MODULE_SELECTION = "⚙"
             MODULE = "🔧"
+
+        class IMAGE_PATH:
+            SUPLEX = BG_SUPLEX_ICON_PATH
+            MARTIN = DEFAULT_MARTIN_ICON_PATH
+
+        class SVG:
+            GITHUB = GITHUB_SVG
+            X = X_SVG
+
+    class OPACITY:
+        FULL = 1.0
+        STRONG = 0.9
+        MEDIUM = 0.7
+        MODERATE = 0.5
+        SUBTLE = 0.3
+        FAINT = 0.1
+        BARELY = 0.05
+        HIDDEN = 0.0
+
+# High Contrast Accessible Theme (optimized for color vision deficiencies and low vision)
+class HIGH_CONTRAST_SCHEME:
+    NAME = "High Contrast Accessible"
+
+    class TEXT:
+        class FONT:
+            MAIN_TITLE = "Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+            HEADER = "Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+            SUB_HEADER = "Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+            SUB_SUB_HEADER = "Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+            DEFAULT = "Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+            LABEL = "Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+
+        class SIZE:
+            MAIN_TITLE = "28px"
+            HEADER = "16px"
+            SUB_HEADER = "15px"
+            SUB_SUB_HEADER = "14px"
+            DEFAULT = "13px"
+            LABEL = "11px"
+            POPUP_LOGGER_CLOSE_ICON = "15px"
+
+        class WEIGHT:
+            BOLD = "700"
+            MEDIUM = "600"
+            DEFAULT = "400"
+            LIGHT = "300"
+
+        class STYLE:
+            DEFAULT = "normal"
+            ITALIC = "italic"
+            OBLIQUE = "oblique"
+
+        class COLOR:
+            MAIN_TITLE = "#111827"  # Near black
+            HEADER = "#1f2937"  # Dark slate
+            SUB_HEADER = "#374151"  # Slate gray
+            SUB_SUB_HEADER = "#4b5563"  # Medium slate
+            DEFAULT = "#1f2937"  # Dark slate
+            LABEL = "#6b7280"  # Gray
+
+            LOGGER_TITLE = "#f3f4f6"  # Light gray
+            LOGGER_LOG_TEXT = "#e5e7eb"  # Lighter gray
+            LOGGER_CLOSE_BUTTON = "#9ca3af"  # Muted gray
+
+            EMPHASIZE = "#2563eb"  # Bright blue
+            SUBTLE = "#9ca3af"  # Neutral gray
+            MUTED = "#d1d5db"  # Light gray
+            HYPERLINK = "#1d4ed8"  # Strong blue
+
+            LIGHT = "#ffffff"  # Pure white
+            LIGHT_ALT = "#f8fafc"  # Off white
+
+            NAVIGATOR_ARROW = "#ffffff"
+            NAVIGATOR_STEP = "#f3f4f6"
+
+            class NAVIGATOR:
+                ARROW = "#ffffff"
+                STEP = "#f3f4f6"
+
+            class INFO_FIELD:
+                DEFAULT = "#1f2937"
+                INFO = "#1e40af"
+                SUCCESS = "#166534"
+                WARNING = "#92400e"
+                ERROR = "#991b1b"
+                CRITICAL = "#7f1d1d"
+                DEBUG = "#581c87"
+
+            class WIDGET:
+                class BUTTON:
+                    NAVIGATION = "#ffffff"
+                    DEFAULT = "#1f2937"
+                    EMPHASIS = "#ffffff"
+                    SUCCESS = "#ffffff"
+                    DANGER = "#ffffff"
+                    WARNING = "#451a03"
+                    OPTIONS_LIGHT = "#374151"
+                    OPTIONS_DARK = "#ffffff"
+                    INACTIVE = "#9ca3af"
+
+                class INPUT:
+                    DEFAULT = "#1f2937"
+                    DISABLED = "#9ca3af"
+                    PLACEHOLDER = "#6b7280"
+
+                class TAB:
+                    TITLE = "#111827"
+                    BODY = "#1f2937"
+
+                ACCORDION = "#111827"
+                OUTPUT = "#1f2937"
+                DROPDOWN = "#1f2937"
+
+            class TABLE:
+                HEAD = "#000000"
+                BODY = "#000000"
+                EMPHASIS = "#000000"
+
+    class LAYOUT_COLOR:
+        BACKGROUND = "#f8fafc"  # Very light slate
+        HEADER = "#1e40af"  # Indigo blue
+        HEADER_GRADIENT = "#3b82f6"
+        BODY = "#ffffff"  # Pure white
+        CONTRAST = "#111827"
+
+        class NAVIGATOR:
+            BACKGROUND = "#1e3a8a"  # Dark blue
+            PANEL = "#1e40af"  # Deep blue
+            BORDER = "#3b82f6"  # Blue
+            SHADOW = "#1e3a8a"
+            GLOW = "#60a5fa"  # Light blue
+
+            class STEP:
+                COMPLETED = "#3b82f6"
+                ACTIVE = "#60a5fa"
+                AVAILABLE = "#fbbf24"  # Amber (high visibility)
+                LOCKED = "#6b7280"
+
+        class POPUP_LOGGER:
+            BACKGROUND = "#1e3a8a"
+            PANEL = "#1e40af"
+            BORDER = "#3b82f6"
+            SHADOW = "#1e3a8a"
+            GLOW = "#60a5fa"
+
+            LAYOUT_LINE = "#3b82f6"
+            LOG_LINE = "#60a5fa"
+
+            class LOG_LEVEL:
+                DEFAULT = "#9ca3af"
+                INFO = "#3b82f6"
+                SUCCESS = "#10b981"
+                WARNING = "#f59e0b"
+                ERROR = "#ef4444"
+                CRITICAL = "#dc2626"
+                DEBUG = "#8b5cf6"
+
+        class INFO_FIELD:
+            DEFAULT = "#f1f5f9"
+            INFO = "#dbeafe"
+            SUCCESS = "#dcfce7"
+            WARNING = "#fef3c7"
+            ERROR = "#fee2e2"
+            CRITICAL = "#fecaca"
+            DEBUG = "#ede9fe"
+
+        class WIDGET:
+            class BUTTON:
+                DEFAULT = "#f1f5f9"
+                EMPHASIS = "#1e40af"
+                SUCCESS = "#166534"
+                DANGER = "#991b1b"
+                WARNING = "#b45309"
+                OPTIONS_LIGHT = "#60a5fa"
+                OPTIONS_DARK = "#1e40af"
+                INACTIVE = "#e5e7eb"
+
+            class INPUT:
+                class BACKGROUND:
+                    DEFAULT = "#ffffff"
+                    DISABLED = "#f8fafc"
+                    FOCUS = "#ffffff"
+
+                class BORDER:
+                    DEFAULT = "#cbd5e1"
+                    FOCUS = "#3b82f6"
+                    ERROR = "#ef4444"
+
+            class CHECKBOX:
+                BACKGROUND = "#ffffff"
+                BORDER = "#cbd5e1"
+                CHECKED = "#1e40af"
+                FOCUS = "#1e40af"
+
+            class SLIDER:
+                TRACK = "#e2e8f0"
+                HANDLE = "#1e40af"
+                RANGE = "#1e40af"
+
+            class PROGRESS:
+                BACKGROUND = "#e2e8f0"
+                BAR = "#1e40af"
+
+            class TAB:
+                BACKGROUND = "#f1f5f9"
+                ACTIVE = "#1e40af"
+                HOVER = "#f1f5f9"
+                PANEL = "#ffffff"
+
+            class ACCORDION:
+                PANEL = "#e0e7ff"
+                LINES = "#1e3a8a"
+
+            class OUTPUT:
+                BACKGROUND = "#ffffff"
+                BORDER = "#cbd5e1"
+
+            class DROPDOWN:
+                BACKGROUND = "#e0e7ff"
+                BORDER = "#cbd5e1"
+
+        class TABLE:
+            HEAD = "#e0e7ff"
+            LINES = "#1e3a8a"
+
+    class ICON:
+        DEFAULT = "⬛"
+        INFO = "🔷"
+        SUCCESS = "✅"
+        WARNING = "⚠️"
+        ERROR = "❌"
+        CRITICAL = "🚨"
+        DEBUG = "🔍"
+        CLEAR = "🧹"
+        STORE = "💾"
+        SAVE = "📁"
+        CLOSE = "✖"
+        FORWARD = "▶"
+        BACKWARD = "◀"
+        SEPARATOR = "▫"
+        CALENDAR = "📅"
+
+        class PAGE:
+            DIRECTORY_SELECTION = "📂"
+            DATASET_SELECTION = "📊"
+            MODULE_SELECTION = "⚙"
+            MODULE = "🔧"
+
+        class IMAGE_PATH:
+            SUPLEX = DGLG_SUPLEX_ICON_PATH
+            MARTIN = DEFAULT_MARTIN_ICON_PATH
+
+        class SVG:
+            GITHUB = GITHUB_SVG
+            X = X_SVG
+
+    class OPACITY:
+        FULL = 1.0
+        STRONG = 0.9
+        MEDIUM = 0.7
+        MODERATE = 0.5
+        SUBTLE = 0.3
+        FAINT = 0.1
+        BARELY = 0.05
+        HIDDEN = 0.0
+
+
+# Blue-Orange Colorblind Safe Theme (blue & amber/orange palette)
+class BLUE_ORANGE_SCHEME:
+    NAME = "Blue-Orange (Colorblind Safe)"
+
+    class TEXT:
+        class FONT:
+            MAIN_TITLE = "Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+            HEADER = "Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+            SUB_HEADER = "Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+            SUB_SUB_HEADER = "Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+            DEFAULT = "Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+            LABEL = "Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+
+        class SIZE:
+            MAIN_TITLE = "28px"
+            HEADER = "16px"
+            SUB_HEADER = "15px"
+            SUB_SUB_HEADER = "14px"
+            DEFAULT = "13px"
+            LABEL = "11px"
+            POPUP_LOGGER_CLOSE_ICON = "15px"
+
+        class WEIGHT:
+            BOLD = "700"
+            MEDIUM = "600"
+            DEFAULT = "400"
+            LIGHT = "300"
+
+        class STYLE:
+            DEFAULT = "normal"
+            ITALIC = "italic"
+            OBLIQUE = "oblique"
+
+        class COLOR:
+            MAIN_TITLE = "#1e3a8a"  # Dark navy blue
+            HEADER = "#1e40af"  # Deep blue
+            SUB_HEADER = "#2563eb"  # Blue
+            SUB_SUB_HEADER = "#3b82f6"  # Medium blue
+            DEFAULT = "#1e40af"  # Deep blue
+            LABEL = "#64748b"  # Slate gray
+
+            LOGGER_TITLE = "#f0f9ff"  # Very light blue
+            LOGGER_LOG_TEXT = "#bae6fd"  # Light sky blue
+            LOGGER_CLOSE_BUTTON = "#7dd3fc"  # Medium light blue
+
+            EMPHASIZE = "#2563eb"  # Bright blue
+            SUBTLE = "#64748b"  # Neutral gray
+            MUTED = "#cbd5e1"  # Light gray
+            HYPERLINK = "#3b82f6"  # Medium blue
+
+            LIGHT = "#ffffff"  # Pure white
+            LIGHT_ALT = "#f8fafc"  # Off white
+
+            NAVIGATOR_ARROW = "#ffffff"
+            NAVIGATOR_STEP = "#f0f9ff"
+
+            class NAVIGATOR:
+                ARROW = "#ffffff"
+                STEP = "#f0f9ff"
+
+            class INFO_FIELD:
+                DEFAULT = "#1e40af"
+                INFO = "#1e40af"
+                SUCCESS = "#166534"
+                WARNING = "#9a3412"
+                ERROR = "#991b1b"
+                CRITICAL = "#7f1d1d"
+                DEBUG = "#581c87"
+
+            class WIDGET:
+                class BUTTON:
+                    NAVIGATION = "#ffffff"
+                    DEFAULT = "#1e40af"
+                    EMPHASIS = "#ffffff"
+                    SUCCESS = "#ffffff"
+                    DANGER = "#ffffff"
+                    WARNING = "#451a03"
+                    OPTIONS_LIGHT = "#2563eb"
+                    OPTIONS_DARK = "#ffffff"
+                    INACTIVE = "#64748b"
+
+                class INPUT:
+                    DEFAULT = "#1e40af"
+                    DISABLED = "#64748b"
+                    PLACEHOLDER = "#64748b"
+
+                class TAB:
+                    TITLE = "#1e3a8a"
+                    BODY = "#1e40af"
+
+                ACCORDION = "#1e3a8a"
+                OUTPUT = "#1e40af"
+                DROPDOWN = "#1e40af"
+
+            class TABLE:
+                HEAD = "#000000"
+                BODY = "#000000"
+                EMPHASIS = "#000000"
+
+    class LAYOUT_COLOR:
+        BACKGROUND = "#f0f9ff"  # Very light blue
+        HEADER = "#2563eb"  # Bright blue
+        HEADER_GRADIENT = "#60a5fa"
+        BODY = "#ffffff"  # Pure white
+        CONTRAST = "#1e3a8a"
+
+        class NAVIGATOR:
+            BACKGROUND = "#1e3a8a"  # Dark navy
+            PANEL = "#1e40af"  # Deep blue
+            BORDER = "#2563eb"  # Blue
+            SHADOW = "#172554"  # Very dark blue
+            GLOW = "#60a5fa"  # Light blue
+
+            class STEP:
+                COMPLETED = "#3b82f6"  # Medium blue
+                ACTIVE = "#60a5fa"  # Light blue
+                AVAILABLE = "#fbbf24"  # Amber (distinct from blue for CVD)
+                LOCKED = "#64748b"  # Gray
+
+        class POPUP_LOGGER:
+            BACKGROUND = "#1e3a8a"
+            PANEL = "#1e40af"
+            BORDER = "#2563eb"
+            SHADOW = "#172554"
+            GLOW = "#60a5fa"
+
+            LAYOUT_LINE = "#2563eb"
+            LOG_LINE = "#3b82f6"
+
+            class LOG_LEVEL:
+                DEFAULT = "#64748b"
+                INFO = "#3b82f6"
+                SUCCESS = "#10b981"
+                WARNING = "#f59e0b"
+                ERROR = "#ef4444"
+                CRITICAL = "#dc2626"
+                DEBUG = "#8b5cf6"
+
+        class INFO_FIELD:
+            DEFAULT = "#f8fafc"
+            INFO = "#dbeafe"
+            SUCCESS = "#dcfce7"
+            WARNING = "#fef3c7"
+            ERROR = "#fee2e2"
+            CRITICAL = "#fecaca"
+            DEBUG = "#ede9fe"
+
+        class WIDGET:
+            class BUTTON:
+                DEFAULT = "#f1f5f9"
+                EMPHASIS = "#2563eb"
+                SUCCESS = "#059669"
+                DANGER = "#dc2626"
+                WARNING = "#d97706"
+                OPTIONS_LIGHT = "#60a5fa"
+                OPTIONS_DARK = "#1e40af"
+                INACTIVE = "#e2e8f0"
+
+            class INPUT:
+                class BACKGROUND:
+                    DEFAULT = "#ffffff"
+                    DISABLED = "#f8fafc"
+                    FOCUS = "#ffffff"
+
+                class BORDER:
+                    DEFAULT = "#94a3b8"
+                    FOCUS = "#2563eb"
+                    ERROR = "#ef4444"
+
+            class CHECKBOX:
+                BACKGROUND = "#ffffff"
+                BORDER = "#94a3b8"
+                CHECKED = "#2563eb"
+                FOCUS = "#2563eb"
+
+            class SLIDER:
+                TRACK = "#e2e8f0"
+                HANDLE = "#2563eb"
+                RANGE = "#2563eb"
+
+            class PROGRESS:
+                BACKGROUND = "#e2e8f0"
+                BAR = "#2563eb"
+
+            class TAB:
+                BACKGROUND = "#f1f5f9"
+                ACTIVE = "#2563eb"
+                HOVER = "#f1f5f9"
+                PANEL = "#ffffff"
+
+            class ACCORDION:
+                PANEL = "#e0f2fe"
+                LINES = "#1e3a8a"
+
+            class OUTPUT:
+                BACKGROUND = "#ffffff"
+                BORDER = "#94a3b8"
+
+            class DROPDOWN:
+                BACKGROUND = "#e0f2fe"
+                BORDER = "#94a3b8"
+
+        class TABLE:
+            HEAD = "#bae6fd"
+            LINES = "#1e3a8a"
+
+    class ICON:
+        DEFAULT = "🔵"
+        INFO = "💙"
+        SUCCESS = "✅"
+        WARNING = "🟠"
+        ERROR = "🔴"
+        CRITICAL = "🚨"
+        DEBUG = "🔎"
+        CLEAR = "🧹"
+        STORE = "💾"
+        SAVE = "📁"
+        CLOSE = "✖"
+        FORWARD = "▶"
+        BACKWARD = "◀"
+        SEPARATOR = "▫"
+        CALENDAR = "📅"
+
+        class PAGE:
+            DIRECTORY_SELECTION = "🗃️"
+            DATASET_SELECTION = "📊"
+            MODULE_SELECTION = "⚙️"
+            MODULE = "🛠️"
 
         class IMAGE_PATH:
             SUPLEX = DEFAULT_SUPLEX_ICON_PATH

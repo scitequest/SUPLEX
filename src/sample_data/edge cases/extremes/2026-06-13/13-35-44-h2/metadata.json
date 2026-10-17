@@ -1,0 +1,23 @@
+
+{
+    "version": "0.7.0",
+    "datetime": "2026-06-13T13:35:44.362499600+02:00",
+    "patient": {
+        "id": "h2",
+        "name": "upside down half",
+        "tags": [
+        ]
+    },
+    "image": {
+        "created": "2026-06-13T13:35:44.372+02:00",
+        "imager": "No imager",
+        "pixel_binning": 1,
+        "exposure_time": "PT0S"
+    },
+    "incubations": [
+    ],
+    "project": {
+        "name": "Extremes",
+        "description": "Edge cases for module testing."
+    }
+}

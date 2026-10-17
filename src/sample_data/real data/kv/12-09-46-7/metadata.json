@@ -1,0 +1,62 @@
+
+{
+    "version": "0.7.0",
+    "datetime": "2025-09-08T12:09:46.582444600+02:00",
+    "patient": {
+        "id": "Kv7",
+        "name": "Kv - 7",
+        "tags": [
+            "Positive",
+            "Serum",
+            "Subclass-unspecific"
+        ]
+    },
+    "image": {
+        "created": "2022-04-25T18:22:46.617+02:00",
+        "imager": "Azure C400",
+        "pixel_binning": 1,
+        "exposure_time": "PT1M"
+    },
+    "incubations": [
+        {
+            "solution": "Blocking - milk protein in PBS",
+            "stock_concentration": {
+                "value": 100.0,
+                "unit": "percent"
+            },
+            "final_concentration": {
+                "value": 5.0,
+                "unit": "percent"
+            },
+            "incubation_time": "PT1H"
+        },
+        {
+            "solution": "Patient Material - CSF or Serum",
+            "stock_concentration": {
+                "value": 100.0,
+                "unit": "percent"
+            },
+            "final_concentration": {
+                "value": 0.03125,
+                "unit": "percent"
+            },
+            "incubation_time": "PT15M"
+        },
+        {
+            "solution": "Marker",
+            "stock_concentration": {
+                "value": 100.0,
+                "unit": "percent"
+            },
+            "final_concentration": {
+                "value": 0.04,
+                "unit": "percent"
+            },
+            "incubation_time": "PT15M"
+        }
+    ],
+    "project": {
+        "name": "KCNA2 Finemapping 101",
+        "description": "Anonymized Kv1.2 related microarrays.Synthesis HMM 101."
+    }
+}
