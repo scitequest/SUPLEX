@@ -37,6 +37,7 @@ dependencies = [
     "svgutils",
     "openpyxl",
     "typing_extensions",
+    "voila",
 ]
 
 [project.optional-dependencies]
