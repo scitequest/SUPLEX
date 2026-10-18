@@ -8,3 +8,8 @@ Pillow
 svgutils
 openpyxl
 typing_extensions
+voila
+ipyevents
+isodate
+pyperclip
+scipy
