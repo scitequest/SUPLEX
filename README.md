@@ -93,6 +93,15 @@ We maintain a comprehensive test suite with:
 - Pillow, svgutils, openpyxl
 - typing_extensions
 
+## Online Demo
+
+You can try SUPLEX directly in your browser (no installation required):
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/scitequest/SUPLEX/web?urlpath=voila/render/src/Suplex.ipynb)
+
+> **Note:** This online demo is provided for testing purposes only.  
+> Saving and loading of data has been disabled.
+
 ## License
 
 AGPL License
