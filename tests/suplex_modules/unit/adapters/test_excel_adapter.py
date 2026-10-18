@@ -25,10 +25,8 @@ class TestExcelAdapter:
         style = module.button_style
         assert style["font_color"] == "#FFFFFF"
         assert style["button_color"] == "#107C41"
-        # Icon path is constructed dynamically – just check it exists and is a string
-        assert isinstance(style["button_icon"], str)
-        assert "excel_adapter_icon.png" in style["button_icon"]
-
+        assert style["button_icon"] == "E"
+        
     def test_init_defaults(self):
         """Module initializes with sensible default state (empty datasets, default hover text, etc.)."""
         module = ExcelAdapter()
