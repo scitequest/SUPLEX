@@ -81,9 +81,6 @@ class ExcelAdapter(SuplexModuleInterface):
     def get_module_hover_text(self) -> str:
         return self._module_hover_text
 
-    # -------------------------------------------------------------------------
-    # Helper to create styled checkboxes without triggering traitlets warnings
-    # -------------------------------------------------------------------------
     def _create_checkbox(self, value: bool = True, description: str = "", indent: bool = False) -> widgets.Checkbox:
         """Create a checkbox and apply layout properties after construction."""
         cb = WidgetFactory.checkbox(

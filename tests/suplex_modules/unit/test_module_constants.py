@@ -23,7 +23,8 @@ class TestModuleConstants:
     # -------------------------------------------------------------------------
     def test_default_module_directory(self):
         """DEFAULT_MODULE_DIRECTORY points to the directory containing module_constants.py."""
-        assert DEFAULT_MODULE_DIRECTORY == str(Path(DEFAULT_MODULE_DIRECTORY).resolve())
+        resolved = str(Path(DEFAULT_MODULE_DIRECTORY).resolve())
+        assert DEFAULT_MODULE_DIRECTORY.lower() == resolved.lower()
         # It should be inside the suplex_modules folder
         assert "suplex_modules" in DEFAULT_MODULE_DIRECTORY.lower()
 

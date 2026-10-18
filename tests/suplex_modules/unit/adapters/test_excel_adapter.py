@@ -120,23 +120,23 @@ class TestExcelAdapter:
         module._conditional_formatting_overview_sheet = Mock(value=False)
         module._value_extractor = Mock()
         module._value_extractor.attribute = Mock(value="mean_val")
-
+    
         with (
             patch("suplex_modules.adapters.excel_adapter.Workbook") as mock_wb,
             patch("suplex_modules.adapters.excel_adapter.filedialog") as mock_filedialog,
             patch("suplex_modules.adapters.excel_adapter.get_shortened_label") as mock_shorten,
             patch("builtins.open") as mock_open,
         ):
-
             mock_filedialog.asksaveasfilename.return_value = "/tmp/test.xlsx"
             mock_shorten.return_value = "test_sheet"
-
+    
             # Minimal mocks for openpyxl
             mock_ws = Mock()
             mock_wb.return_value.active = mock_ws
             mock_wb.return_value.remove.return_value = None
             mock_ws.columns = []
-
+    
             module.export_overview_sheet(attribute=module._value_extractor.attribute)
+    
             # Should reach file dialog and not crash
             mock_filedialog.asksaveasfilename.assert_called_once()
