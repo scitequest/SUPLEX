@@ -88,9 +88,10 @@ We maintain a comprehensive test suite with:
 ## Requirements
 
 - Python ≥ 3.9
-- PySide6
 - ipywidgets / Jupyter
-- matplotlib, numpy, pandas, Pillow
+- matplotlib, numpy, pandas, seaborn
+- Pillow, svgutils, openpyxl
+- typing_extensions
 
 ## License
 
