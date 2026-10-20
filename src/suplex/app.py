@@ -5,7 +5,7 @@ import logging
 import ipywidgets as widgets
 from IPython.display import display
 
-from suplex.paths import ensure_user_dirs
+from suplex.paths import ensure_user_dirs, user_modules_dir, user_schemes_dir
 from suplex.suplex_modules.module_constants import DEFAULT_SEARCH_DEPTH, SEARCH_MODE
 from suplex.suplex_modules.module_loader import load_modules
 from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
@@ -27,7 +27,7 @@ def setup_logging() -> PopupLogger:
 
 def load_all_modules() -> list[SuplexModuleInterface]:
     """Load the built-in modules plus any modules from the user directory."""
-    modules_dir, _ = ensure_user_dirs()
+    modules_dir = user_modules_dir()
     modules = load_modules(max_depth=DEFAULT_SEARCH_DEPTH, mode=SEARCH_MODE.RECURSIVE)
     user_modules = load_modules(
         dir_path=str(modules_dir), max_depth=DEFAULT_SEARCH_DEPTH, mode=SEARCH_MODE.RECURSIVE
@@ -39,7 +39,7 @@ def load_all_modules() -> list[SuplexModuleInterface]:
 
 def load_schemes() -> dict:
     """Load the built-in colour schemes plus any schemes from the user directory."""
-    _, schemes_dir = ensure_user_dirs()
+    schemes_dir = user_schemes_dir()
     schemes = get_schemes()
     user_schemes = load_all_schemes(schemes_dir)
     if user_schemes:
@@ -66,6 +66,7 @@ def create_content_container() -> widgets.Box:
 def main() -> GUI:
     """Build and display the SUPLEX GUI. Called from the notebook rendered by Voilà."""
     popup_logger = setup_logging()
+    ensure_user_dirs()
     modules = load_all_modules()
     schemes = load_schemes()
 
