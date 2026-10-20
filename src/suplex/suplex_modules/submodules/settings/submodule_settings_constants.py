@@ -1,5 +1,5 @@
+import math
 from enum import Enum
-from typing import Optional
 
 OPTION_WIDGETS_MAX_WIDTH = "500px"
 
@@ -71,7 +71,7 @@ class ASPECT_RATIO(Enum):
     NINE_SIXTEEN = "9:16"
 
 
-def get_aspect_ratio_value(ar: ASPECT_RATIO) -> Optional[float]:
+def get_aspect_ratio_value(ar: ASPECT_RATIO) -> float | None:
     """
     Translates the aspect ratio enum into a valid fraction
     """

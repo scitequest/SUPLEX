@@ -1,10 +1,13 @@
-import pytest
-from unittest.mock import patch, MagicMock, Mock
 from datetime import datetime
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 
 from suplex.martin_interface.dataset import Dataset
-from suplex.suplex_modules.submodules.submodule_constants import DATASET_SELECTOR_MODE
-
+from suplex.suplex_modules.submodules.submodule_constants import (
+    DATA_ATTRIBUTES,
+    DATASET_SELECTOR_MODE,
+)
 
 # =============================================================================
 # Fixtures used only within the submodules tests
@@ -219,7 +222,9 @@ def reference_point_selector():
 @pytest.fixture
 def general_graph_settings():
     """Fresh GeneralGraphSettings with all options enabled (default behaviour)."""
-    from suplex.suplex_modules.submodules.settings.general_graph_settings import GeneralGraphSettings
+    from suplex.suplex_modules.submodules.settings.general_graph_settings import (
+        GeneralGraphSettings,
+    )
 
     return GeneralGraphSettings(show_all_options=True)
 
@@ -227,7 +232,9 @@ def general_graph_settings():
 @pytest.fixture
 def minimal_general_graph_settings():
     """Minimal GeneralGraphSettings – only a few options explicitly enabled."""
-    from suplex.suplex_modules.submodules.settings.general_graph_settings import GeneralGraphSettings
+    from suplex.suplex_modules.submodules.settings.general_graph_settings import (
+        GeneralGraphSettings,
+    )
 
     return GeneralGraphSettings(
         show_all_options=False,
