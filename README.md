@@ -25,9 +25,9 @@ suplex
 
 `suplex` starts a local server and opens SUPLEX in your default browser. Options: `--port N`, `--no-browser`, `--debug` (show kernel tracebacks), `--demo` (disable saving to disk). Update with `uv tool upgrade suplex`.
 
-### Windows installer / standalone executables
+### Standalone executables and Windows installer
 
-Releases ship a Windows installer (`SUPLEX-Setup-<version>.exe`) and self-installing single-file executables for Windows, macOS and Linux built with [PyApp](https://ofek.dev/pyapp/). The PyApp executable downloads Python and the locked dependencies on first start and reuses them afterwards.
+Releases ship self-installing single-file executables for Windows, macOS and Linux built with [PyApp](https://ofek.dev/pyapp/), plus a Windows installer (`SUPLEX-Setup-<version>.exe`) that adds Start menu and desktop entries. The executable downloads Python and the locked dependencies on first start and reuses them afterwards.
 
 ### Online demo
 
@@ -63,7 +63,7 @@ See the [module development guide](docs/SUPLEX_Module_Development_Guide_en.md) (
 ```bash
 git clone https://github.com/scitequest/SUPLEX.git
 cd SUPLEX
-uv sync --group dev      # creates .venv with Python 3.13 and all dependencies
+uv sync --group dev      # creates .venv with Python 3.14 and all dependencies
 uv run suplex            # run the app from the checkout
 uv run pytest            # run the test suite
 uv run ruff check        # lint
@@ -87,7 +87,7 @@ SUPLEX/
 ├── docs/                     # Module development guides
 ├── packaging/
 │   ├── pyapp/                # Self-installing executable build
-│   └── windows/              # PyInstaller spec and Inno Setup installer
+│   └── windows/              # Inno Setup installer wrapping the executable
 ├── start                     # Binder entry point (enables demo mode)
 └── pyproject.toml
 ```
@@ -105,12 +105,11 @@ Setting the environment variable `SUPLEX_DEMO=1` (or passing `--demo`) disables 
 ### Building the distributables
 
 ```bash
-uv build                                              # sdist and wheel in dist/
-uv build --wheel && uv run python packaging/pyapp/build.py   # PyApp executable (needs cargo)
-uv sync --group build && uv run pyinstaller --noconfirm --distpath dist --workpath build packaging/windows/suplex.spec
+uv build                                       # sdist and wheel in dist/
+uv run python packaging/pyapp/build.py         # executable in dist/pyapp/ (needs cargo)
 ```
 
-The Inno Setup installer is compiled from `packaging/windows/suplex.iss` after the PyInstaller build. CI builds all of them on tags `v*`.
+On Windows the Inno Setup installer is compiled from `packaging/windows/suplex.iss` after the executable build. CI builds all of them on tags `v*`.
 
 See [tests/README_tests.md](tests/README_tests.md) for testing guidelines and conventions.
 

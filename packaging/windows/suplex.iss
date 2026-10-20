@@ -1,5 +1,6 @@
 ; Inno Setup script for the SUPLEX Windows installer.
-; Run from the repository root after the PyInstaller build:
+; Wraps the PyApp executable (Start menu entry, desktop icon, uninstaller).
+; Run from the repository root after packaging/pyapp/build.py:
 ;     ISCC.exe packaging\windows\suplex.iss
 
 #define AppName "SUPLEX"
@@ -37,7 +38,7 @@ Name: "german"; MessagesFile: "compiler:Languages\German.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "{#RepoRoot}\dist\suplex\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#RepoRoot}\dist\pyapp\{#AppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "suplex.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
