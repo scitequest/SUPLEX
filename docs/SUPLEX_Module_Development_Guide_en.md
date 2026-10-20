@@ -404,10 +404,21 @@ def inspect_dataset(dataset):
 ## Deployment
 
 1. Save your module as a `.py` file.
-2. Place it in one of these locations:
-   - `src/suplex_modules/vanilla/` — for standard modules
-   - `src/suplex_modules/custom/` — for user-created modules (create the folder if needed)
-3. Modules are automatically discovered at startup via `module_loader.py`.
+2. Place it in the SUPLEX user module directory. SUPLEX creates it on first start and prints
+   its location when launched with the `suplex` command:
+   - Linux: `~/.local/share/suplex/modules/`
+   - macOS: `~/Library/Application Support/suplex/modules/`
+   - Windows: `%LOCALAPPDATA%\scitequest\suplex\modules\`
+3. Modules are discovered automatically at the next start, together with the built-in
+   modules from `suplex/suplex_modules/vanilla/`.
+
+Modules import SUPLEX code from the installed package, e.g.
+`from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface`.
+Colour schemes work the same way: files in the sibling `schemes/` directory are loaded in
+addition to the built-in schemes.
+
+A later version may additionally discover modules installed as Python packages through
+entry points, so a module can be published and installed with `uv tool install`.
 
 ### Quick Test
 
@@ -421,4 +432,4 @@ print(module.check_if_viable(your_test_datasets))
 
 ---
 
-This guide reflects the current architecture of SUPLEX. When in doubt, refer to existing modules in `src/suplex_modules/` as reference implementations.
+This guide reflects the current architecture of SUPLEX. When in doubt, refer to existing modules in `src/suplex/suplex_modules/vanilla/` as reference implementations.

@@ -404,10 +404,21 @@ def inspect_dataset(dataset):
 ## Bereitstellung
 
 1. Speichern Sie Ihr Modul als `.py`-Datei.
-2. Legen Sie es in einem der folgenden Ordner ab:
-   - `src/suplex_modules/vanilla/` — für Standard-Module
-   - `src/suplex_modules/custom/` — für benutzerdefinierte Module (Ordner bei Bedarf anlegen)
-3. Module werden beim Start automatisch über `module_loader.py` erkannt.
+2. Legen Sie es im SUPLEX-Modulverzeichnis Ihres Benutzerkontos ab. SUPLEX legt es beim ersten
+   Start an und gibt den Pfad beim Start über den Befehl `suplex` aus:
+   - Linux: `~/.local/share/suplex/modules/`
+   - macOS: `~/Library/Application Support/suplex/modules/`
+   - Windows: `%LOCALAPPDATA%\scitequest\suplex\modules\`
+3. Module werden beim nächsten Start automatisch erkannt, zusammen mit den mitgelieferten
+   Modulen aus `suplex/suplex_modules/vanilla/`.
+
+Module importieren SUPLEX-Code aus dem installierten Paket, z. B.
+`from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface`.
+Farbschemata funktionieren genauso: Dateien im benachbarten Ordner `schemes/` werden
+zusätzlich zu den mitgelieferten Schemata geladen.
+
+Eine spätere Version kann Module zusätzlich über Entry Points erkennen, sodass ein Modul als
+Python-Paket veröffentlicht und mit `uv tool install` installiert werden kann.
 
 ### Schnelltest
 
@@ -421,4 +432,4 @@ print(module.check_if_viable(ihre_test_datensätze))
 
 ---
 
-Dieser Leitfaden entspricht dem aktuellen Stand der SUPLEX-Architektur. Im Zweifelsfall dienen die bestehenden Module in `src/suplex_modules/` als Referenzimplementierungen.
+Dieser Leitfaden entspricht dem aktuellen Stand der SUPLEX-Architektur. Im Zweifelsfall dienen die bestehenden Module in `src/suplex/suplex_modules/vanilla/` als Referenzimplementierungen.
