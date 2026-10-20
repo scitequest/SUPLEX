@@ -1,0 +1,5 @@
+#!/bin/bash
+# Binder entry point (repo2docker runs this before the user session).
+# Hosted demo: the server has no desktop, so saving to disk is disabled.
+export SUPLEX_DEMO=1
+exec "$@"
