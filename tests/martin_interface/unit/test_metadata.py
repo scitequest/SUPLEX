@@ -1,13 +1,15 @@
+from dataclasses import is_dataclass
+from datetime import datetime
+
 import pytest
-from datetime import datetime, timedelta
+
 from suplex.martin_interface.metadata import (
-    Patient,
-    Image,
     Concentration,
+    Image,
     Incubation,
     Metadata,
+    Patient,
 )
-from dataclasses import is_dataclass
 
 
 class TestMetadataDataclasses:

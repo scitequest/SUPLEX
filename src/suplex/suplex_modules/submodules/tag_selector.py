@@ -1,5 +1,4 @@
 import logging
-from typing import List, Set
 
 import ipywidgets as widgets
 
@@ -17,7 +16,7 @@ class TagSelector:
     the selected tag criteria.
     """
 
-    def __init__(self, datasets: List[Dataset]) -> None:
+    def __init__(self, datasets: list[Dataset]) -> None:
         """
         Initialize the tag selector with a list of datasets.
 
@@ -27,8 +26,8 @@ class TagSelector:
         logger.debug("Initializing tag selector for %d datasets", len(datasets))
 
         self._datasets = datasets
-        self._martin_checkboxes: List[widgets.Checkbox] = []
-        self._suplex_checkboxes: List[widgets.Checkbox] = []
+        self._martin_checkboxes: list[widgets.Checkbox] = []
+        self._suplex_checkboxes: list[widgets.Checkbox] = []
 
         logger.debug("Tag selector initialized successfully")
 
@@ -89,7 +88,7 @@ class TagSelector:
                 height="100%",
             )
 
-    def get_all_martin_tags(self) -> List[str]:
+    def get_all_martin_tags(self) -> list[str]:
         """
         Extract all unique MARTin tags from the datasets.
 
@@ -112,7 +111,7 @@ class TagSelector:
             logger.error("Error extracting MARTin tags: %s", e, exc_info=True)
             return []
 
-    def get_all_suplex_tags(self) -> List[str]:
+    def get_all_suplex_tags(self) -> list[str]:
         """
         Extract all unique SUPLEX tags from the datasets.
 
@@ -135,7 +134,7 @@ class TagSelector:
             logger.error("Error extracting SUPLEX tags: %s", e, exc_info=True)
             return []
 
-    def create_tag_checkboxes(self, tags: List[str]) -> List[widgets.Checkbox]:
+    def create_tag_checkboxes(self, tags: list[str]) -> list[widgets.Checkbox]:
         """
         Create checkbox widgets for a list of tags.
 
@@ -167,7 +166,7 @@ class TagSelector:
 
         return checkboxes
 
-    def get_selected_martin_tags(self) -> List[str]:
+    def get_selected_martin_tags(self) -> list[str]:
         """
         Get the currently selected MARTin tags.
 
@@ -182,7 +181,7 @@ class TagSelector:
             logger.error("Error getting selected MARTin tags: %s", e, exc_info=True)
             return []
 
-    def get_selected_suplex_tags(self) -> List[str]:
+    def get_selected_suplex_tags(self) -> list[str]:
         """
         Get the currently selected SUPLEX tags.
 
@@ -197,7 +196,7 @@ class TagSelector:
             logger.error("Error getting selected SUPLEX tags: %s", e, exc_info=True)
             return []
 
-    def get_all_selected_tags(self) -> List[str]:
+    def get_all_selected_tags(self) -> list[str]:
         """
         Get all currently selected tags (both MARTin and SUPLEX).
 
@@ -206,7 +205,7 @@ class TagSelector:
         """
         return self.get_selected_martin_tags() + self.get_selected_suplex_tags()
 
-    def get_tagged_datasets_any(self) -> List[Dataset]:
+    def get_tagged_datasets_any(self) -> list[Dataset]:
         """
         Returns datasets that contain at least one of the selected tags,
         either in their MARTin tags or SUPLEX tags.
@@ -249,7 +248,7 @@ class TagSelector:
             logger.error("Error finding datasets with any selected tags: %s", e, exc_info=True)
             return []
 
-    def get_tagged_datasets_all(self) -> List[Dataset]:
+    def get_tagged_datasets_all(self) -> list[Dataset]:
         """
         Returns datasets that contain all selected tags in their respective
         tag collections (MARTin and SUPLEX tags are checked separately).
@@ -320,7 +319,7 @@ class TagSelector:
         except Exception as e:
             logger.error("Error selecting all tags: %s", e, exc_info=True)
 
-    def select_tags(self, martin_tags: List[str] = None, suplex_tags: List[str] = None) -> None:
+    def select_tags(self, martin_tags: list[str] = None, suplex_tags: list[str] = None) -> None:
         """
         Programmatically select specific tags.
 

@@ -7,7 +7,7 @@ from typing import Any
 
 import ipywidgets as widgets
 
-from .color_utils import get_emphasized_hex_color, hex_to_rgba
+from .color_utils import hex_to_rgba
 
 logger = logging.getLogger(__name__)
 

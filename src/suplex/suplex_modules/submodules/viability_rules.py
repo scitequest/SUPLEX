@@ -4,12 +4,10 @@ These methods enable the development of a rules-based system to ensure modules a
 For simplicity, all methods return False when data is usable and True when data is not usable.
 """
 
-from typing import List, Set, Optional
-from datetime import datetime, timedelta
 from suplex.martin_interface.dataset import Dataset
 
 
-def no_datasets_selected(datasets: List[Dataset]) -> bool:
+def no_datasets_selected(datasets: list[Dataset]) -> bool:
     """
     Checks if no dataset has been selected.
     Args:
@@ -20,7 +18,7 @@ def no_datasets_selected(datasets: List[Dataset]) -> bool:
     return not datasets
 
 
-def has_insufficient_number_of_datasets(datasets: List[Dataset], min_count: int = 2) -> bool:
+def has_insufficient_number_of_datasets(datasets: list[Dataset], min_count: int = 2) -> bool:
     """
     Checks if there are fewer datasets than the minimum required.
     Args:
@@ -32,7 +30,7 @@ def has_insufficient_number_of_datasets(datasets: List[Dataset], min_count: int 
     return len(datasets) < min_count
 
 
-def has_insufficient_number_of_samples(datasets: List[Dataset], min_count: int = 2) -> bool:
+def has_insufficient_number_of_samples(datasets: list[Dataset], min_count: int = 2) -> bool:
     """
     Checks if any of the datasets selected has fewer samples than required.
     Args:
@@ -47,7 +45,7 @@ def has_insufficient_number_of_samples(datasets: List[Dataset], min_count: int =
     return False
 
 
-def has_insufficient_number_of_spots(datasets: List[Dataset], min_count: int = 2) -> bool:
+def has_insufficient_number_of_spots(datasets: list[Dataset], min_count: int = 2) -> bool:
     """
     Checks if any of the datasets selected has fewer spots per sample than required.
     Args:
@@ -63,7 +61,7 @@ def has_insufficient_number_of_spots(datasets: List[Dataset], min_count: int = 2
     return False
 
 
-def missing_metadata(datasets: List[Dataset]) -> bool:
+def missing_metadata(datasets: list[Dataset]) -> bool:
     """
     Checks if any dataset is missing metadata.
     Args:
@@ -74,7 +72,7 @@ def missing_metadata(datasets: List[Dataset]) -> bool:
     return any(dataset.file_holder.metadata_file is None for dataset in datasets)
 
 
-def missing_parameters(datasets: List[Dataset]) -> bool:
+def missing_parameters(datasets: list[Dataset]) -> bool:
     """
     Checks if any dataset is missing general parameters.
     Args:
@@ -85,7 +83,7 @@ def missing_parameters(datasets: List[Dataset]) -> bool:
     return any(dataset.file_holder.parameters_file is None for dataset in datasets)
 
 
-def sample_count_not_uniform(datasets: List[Dataset]) -> bool:
+def sample_count_not_uniform(datasets: list[Dataset]) -> bool:
     """
     Checks if datasets have different numbers of samples.
     Args:
@@ -100,7 +98,7 @@ def sample_count_not_uniform(datasets: List[Dataset]) -> bool:
     return len(set(sample_counts)) > 1
 
 
-def spot_count_is_not_uniform(datasets: List[Dataset]) -> bool:
+def spot_count_is_not_uniform(datasets: list[Dataset]) -> bool:
     """
     Checks if the number of spots per sample varies within or across datasets.
     Args:
@@ -108,7 +106,7 @@ def spot_count_is_not_uniform(datasets: List[Dataset]) -> bool:
     Returns:
         bool: True if spot counts per sample are inconsistent, False otherwise.
     """
-    spot_counts: Set[int] = set()
+    spot_counts: set[int] = set()
 
     for dataset in datasets:
         for sample in dataset.samples:
@@ -117,7 +115,7 @@ def spot_count_is_not_uniform(datasets: List[Dataset]) -> bool:
     return len(spot_counts) > 1
 
 
-def spot_shapes_inconsistent(datasets: List[Dataset]) -> bool:
+def spot_shapes_inconsistent(datasets: list[Dataset]) -> bool:
     """
     Checks if spot shapes are inconsistent across datasets.
     Args:
@@ -125,7 +123,7 @@ def spot_shapes_inconsistent(datasets: List[Dataset]) -> bool:
     Returns:
         bool: True if spot shapes are inconsistent, False otherwise.
     """
-    shapes: Set[Optional[str]] = set()
+    shapes: set[str | None] = set()
 
     for dataset in datasets:
         for sample in dataset.samples:
@@ -136,7 +134,7 @@ def spot_shapes_inconsistent(datasets: List[Dataset]) -> bool:
     return len(valid_shapes) > 1
 
 
-def has_inconsistent_imaging_parameters(datasets: List[Dataset]) -> bool:
+def has_inconsistent_imaging_parameters(datasets: list[Dataset]) -> bool:
     """
     Checks if imaging parameters differ across datasets.
     Args:
@@ -144,8 +142,8 @@ def has_inconsistent_imaging_parameters(datasets: List[Dataset]) -> bool:
     Returns:
         bool: True if imaging parameters are inconsistent, False otherwise.
     """
-    binning_values: Set[Optional[int]] = set()
-    exposure_times: Set[Optional[str]] = set()
+    binning_values: set[int | None] = set()
+    exposure_times: set[str | None] = set()
 
     for dataset in datasets:
         if dataset.metadata:
@@ -161,7 +159,7 @@ def has_inconsistent_imaging_parameters(datasets: List[Dataset]) -> bool:
     return len(valid_binning) > 1 or len(valid_exposures) > 1
 
 
-def has_inconsistent_incubation_parameters(datasets: List[Dataset]) -> bool:
+def has_inconsistent_incubation_parameters(datasets: list[Dataset]) -> bool:
     """
     Checks if incubation parameters differ across datasets.
 
@@ -228,7 +226,7 @@ def has_inconsistent_incubation_parameters(datasets: List[Dataset]) -> bool:
     return False
 
 
-def has_negative_data_values(datasets: List[Dataset]) -> bool:
+def has_negative_data_values(datasets: list[Dataset]) -> bool:
     """
     Checks if any of the numerical values contained within spot data of a list of datasets is below zero.
 
@@ -253,7 +251,7 @@ def has_negative_data_values(datasets: List[Dataset]) -> bool:
     return False
 
 
-def has_negative_data_statistics_values(datasets: List[Dataset]) -> bool:
+def has_negative_data_statistics_values(datasets: list[Dataset]) -> bool:
     """
     Checks if any of the numerical values contained within spot statistics of a list of datasets is below zero.
 
@@ -280,7 +278,7 @@ def has_negative_data_statistics_values(datasets: List[Dataset]) -> bool:
     return False
 
 
-def has_negative_spot_coordinates(datasets: List[Dataset]) -> bool:
+def has_negative_spot_coordinates(datasets: list[Dataset]) -> bool:
     """
     Checks if any of the numerical values contained within spot coordinates of a list of datasets is below zero.
 
@@ -299,7 +297,7 @@ def has_negative_spot_coordinates(datasets: List[Dataset]) -> bool:
     return False
 
 
-def has_negative_values(datasets: List[Dataset]) -> bool:
+def has_negative_values(datasets: list[Dataset]) -> bool:
     """
     Checks if any of the numerical values contained within a list of datasets is below zero.
     This method uses has_negative_data_values, has_negative_data_statistics_values and has_negative_spot_coordinates.

@@ -1,6 +1,5 @@
-import pytest
-from unittest.mock import patch, MagicMock, Mock
-from typing import List, Any
+from typing import Any
+from unittest.mock import MagicMock, Mock, patch
 
 from suplex.suplex_modules.vanilla.hitmap import HitmapModule
 
@@ -24,7 +23,7 @@ class TestIntegrationHitmapModule:
     # -------------------------------------------------------------------------
 
     def test_check_if_viable_passes_on_sufficient_uniform_datasets(
-        self, positive_uniform_datasets: List[Any]
+        self, positive_uniform_datasets: list[Any]
     ) -> None:
         module = HitmapModule()
         assert module.check_if_viable(positive_uniform_datasets) is True
@@ -51,7 +50,7 @@ class TestIntegrationHitmapModule:
         mock_sample_spot_filter: MagicMock,
         mock_value_extractor: MagicMock,
         mock_widget_factory: MagicMock,
-        positive_uniform_datasets: List[Any],
+        positive_uniform_datasets: list[Any],
         mock_color_scheme: Mock,
     ) -> None:
         module = HitmapModule()
@@ -69,7 +68,7 @@ class TestIntegrationHitmapModule:
         # Note: Current implementation does not set _is_active
 
     def test_update_scheme_accepts_new_color_scheme(
-        self, positive_uniform_datasets: List[Any], mock_color_scheme: Mock
+        self, positive_uniform_datasets: list[Any], mock_color_scheme: Mock
     ) -> None:
         module = HitmapModule()
         module.initiate_module(positive_uniform_datasets, mock_color_scheme)
@@ -87,7 +86,7 @@ class TestIntegrationHitmapModule:
     # -------------------------------------------------------------------------
 
     def test_module_supports_both_static_and_dynamic_filtering(
-        self, positive_uniform_datasets: List[Any]
+        self, positive_uniform_datasets: list[Any]
     ) -> None:
         module = HitmapModule()
         assert hasattr(module, "initiate_module")
@@ -96,7 +95,7 @@ class TestIntegrationHitmapModule:
     # Export (smoke test)
     # -------------------------------------------------------------------------
 
-    def test_export_functionality_smoke_test(self, positive_uniform_datasets: List[Any]) -> None:
+    def test_export_functionality_smoke_test(self, positive_uniform_datasets: list[Any]) -> None:
         module = HitmapModule()
         assert hasattr(module, "on_export_overview_csv") or hasattr(module, "initiate_module")
 
@@ -104,7 +103,7 @@ class TestIntegrationHitmapModule:
     # Edge cases
     # -------------------------------------------------------------------------
 
-    def test_initiate_with_empty_datasets(self, empty_dataset_list: List[Any]) -> None:
+    def test_initiate_with_empty_datasets(self, empty_dataset_list: list[Any]) -> None:
         module = HitmapModule()
         try:
             module.initiate_module(empty_dataset_list, color_scheme=None)

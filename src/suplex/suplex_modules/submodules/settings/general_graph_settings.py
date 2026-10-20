@@ -1,18 +1,19 @@
 import logging
-from typing import Optional, List, Tuple
+
 import ipywidgets as widgets
-from suplex.ui.widget_factory import WidgetFactory
+
 from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
-    OPTION_INSET,
-    SCALE_TYPE,
-    INTERPOLATION_TYPE,
-    GRID_STYLE,
-    LEGEND_POSITION,
     ASPECT_RATIO,
-    SEQUENTIAL_COLOR_SCHEME,
     DIVERGENT_COLOR_SCHEME,
+    GRID_STYLE,
+    INTERPOLATION_TYPE,
+    LEGEND_POSITION,
+    OPTION_INSET,
     OPTION_WIDGETS_MAX_WIDTH,
+    SCALE_TYPE,
+    SEQUENTIAL_COLOR_SCHEME,
 )
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 
@@ -25,56 +26,56 @@ class GeneralGraphSettings:
     def __init__(
         self,
         # Axis settings
-        col_descriptor: Optional[str] = None,
-        row_descriptor: Optional[str] = None,
-        z_descriptor: Optional[str] = None,
-        invert_x_axis: Optional[bool] = None,
-        invert_y_axis: Optional[bool] = None,
-        invert_z_axis: Optional[bool] = None,
-        swap_axes: Optional[bool] = None,
+        col_descriptor: str | None = None,
+        row_descriptor: str | None = None,
+        z_descriptor: str | None = None,
+        invert_x_axis: bool | None = None,
+        invert_y_axis: bool | None = None,
+        invert_z_axis: bool | None = None,
+        swap_axes: bool | None = None,
         # Display settings
-        show_axis_ticks: Optional[bool] = None,
-        show_axis_labels: Optional[bool] = None,
-        show_grid: Optional[bool] = None,
-        show_legend: Optional[bool] = None,
-        show_title: Optional[bool] = None,
-        include_empty_datasets: Optional[bool] = None,
+        show_axis_ticks: bool | None = None,
+        show_axis_labels: bool | None = None,
+        show_grid: bool | None = None,
+        show_legend: bool | None = None,
+        show_title: bool | None = None,
+        include_empty_datasets: bool | None = None,
         # Appearance settings
-        sequential_color_scheme: Optional[SEQUENTIAL_COLOR_SCHEME] = None,
-        divergent_color_scheme: Optional[DIVERGENT_COLOR_SCHEME] = None,
-        resolution: Optional[Tuple[int, int]] = None,
-        dpi: Optional[int] = None,
-        transparency: Optional[float] = None,
+        sequential_color_scheme: SEQUENTIAL_COLOR_SCHEME | None = None,
+        divergent_color_scheme: DIVERGENT_COLOR_SCHEME | None = None,
+        resolution: tuple[int, int] | None = None,
+        dpi: int | None = None,
+        transparency: float | None = None,
         # Labels and titles
-        title: Optional[str] = None,
-        x_label: Optional[str] = None,
-        y_label: Optional[str] = None,
-        z_label: Optional[str] = None,
-        max_label_length: Optional[int] = None,
+        title: str | None = None,
+        x_label: str | None = None,
+        y_label: str | None = None,
+        z_label: str | None = None,
+        max_label_length: int | None = None,
         # Scale settings
-        x_scale: Optional[SCALE_TYPE] = None,
-        y_scale: Optional[SCALE_TYPE] = None,
-        z_scale: Optional[SCALE_TYPE] = None,
+        x_scale: SCALE_TYPE | None = None,
+        y_scale: SCALE_TYPE | None = None,
+        z_scale: SCALE_TYPE | None = None,
         # Range settings
-        x_range: Optional[Tuple[float, float]] = None,
-        y_range: Optional[Tuple[float, float]] = None,
-        z_range: Optional[Tuple[float, float]] = None,
+        x_range: tuple[float, float] | None = None,
+        y_range: tuple[float, float] | None = None,
+        z_range: tuple[float, float] | None = None,
         # Truncation settings
-        min_index: Optional[int] = None,
-        max_index: Optional[int] = None,
+        min_index: int | None = None,
+        max_index: int | None = None,
         # Additional options
-        marker_size: Optional[float] = None,
-        line_width: Optional[float] = None,
-        base_font_size: Optional[int] = None,
-        title_font_size: Optional[int] = None,
-        label_font_size: Optional[int] = None,
-        tick_font_size: Optional[int] = None,
-        aspect_ratio: Optional[ASPECT_RATIO] = None,
-        interpolation: Optional[INTERPOLATION_TYPE] = None,
-        show_colorbar: Optional[bool] = None,
-        colorbar_label: Optional[str] = None,
-        grid_style: Optional[GRID_STYLE] = None,
-        legend_position: Optional[LEGEND_POSITION] = None,
+        marker_size: float | None = None,
+        line_width: float | None = None,
+        base_font_size: int | None = None,
+        title_font_size: int | None = None,
+        label_font_size: int | None = None,
+        tick_font_size: int | None = None,
+        aspect_ratio: ASPECT_RATIO | None = None,
+        interpolation: INTERPOLATION_TYPE | None = None,
+        show_colorbar: bool | None = None,
+        colorbar_label: str | None = None,
+        grid_style: GRID_STYLE | None = None,
+        legend_position: LEGEND_POSITION | None = None,
         show_all_options: bool = False,
     ) -> None:
         """
@@ -325,7 +326,7 @@ class GeneralGraphSettings:
         include_empty_datasets: bool,
         sequential_color_scheme: SEQUENTIAL_COLOR_SCHEME,
         divergent_color_scheme: DIVERGENT_COLOR_SCHEME,
-        resolution: Tuple[int, int],
+        resolution: tuple[int, int],
         dpi: int,
         transparency: float,
         title: str,
@@ -336,9 +337,9 @@ class GeneralGraphSettings:
         x_scale: SCALE_TYPE,
         y_scale: SCALE_TYPE,
         z_scale: SCALE_TYPE,
-        x_range: Tuple[float, float],
-        y_range: Tuple[float, float],
-        z_range: Tuple[float, float],
+        x_range: tuple[float, float],
+        y_range: tuple[float, float],
+        z_range: tuple[float, float],
         min_index: int,
         max_index: int,
         marker_size: float,
@@ -871,7 +872,7 @@ class GeneralGraphSettings:
         return self._divergent_color_scheme_dropdown
 
     @property
-    def resolution(self) -> Tuple[int, int]:
+    def resolution(self) -> tuple[int, int]:
         return (
             self._resolution_width_widget.value,
             self._resolution_height_widget.value,
@@ -961,7 +962,7 @@ class GeneralGraphSettings:
         return self._z_scale_dropdown
 
     @property
-    def x_range(self) -> Tuple[float, float]:
+    def x_range(self) -> tuple[float, float]:
         return (self._x_range_min_widget.value, self._x_range_max_widget.value)
 
     def get_x_range_min_widget(self) -> widgets.FloatText:
@@ -971,7 +972,7 @@ class GeneralGraphSettings:
         return self._x_range_max_widget
 
     @property
-    def y_range(self) -> Tuple[float, float]:
+    def y_range(self) -> tuple[float, float]:
         return (self._y_range_min_widget.value, self._y_range_max_widget.value)
 
     def get_y_range_min_widget(self) -> widgets.FloatText:
@@ -981,7 +982,7 @@ class GeneralGraphSettings:
         return self._y_range_max_widget
 
     @property
-    def z_range(self) -> Tuple[float, float]:
+    def z_range(self) -> tuple[float, float]:
         return (self._z_range_min_widget.value, self._z_range_max_widget.value)
 
     def get_z_range_min_widget(self) -> widgets.FloatText:
@@ -1074,7 +1075,7 @@ class GeneralGraphSettings:
     def get_legend_position_dropdown(self) -> widgets.Dropdown:
         return self._legend_position_dropdown
 
-    def get_active_widgets(self) -> List[widgets.Widget]:
+    def get_active_widgets(self) -> list[widgets.Widget]:
         """
         Get the list of active widgets based on enabled flags or show_all_options.
 

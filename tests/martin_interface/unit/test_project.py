@@ -1,5 +1,5 @@
-import pytest
 from unittest.mock import Mock
+
 from suplex.martin_interface.project import Project
 
 

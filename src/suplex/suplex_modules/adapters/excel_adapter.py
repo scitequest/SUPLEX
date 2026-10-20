@@ -1,44 +1,35 @@
-from pathlib import Path
+import io
 import logging
+import statistics
+from tkinter import Tk, filedialog
+from typing import Any, Self
+
+import ipywidgets as widgets
+from openpyxl import Workbook
+from openpyxl.formatting.rule import ColorScaleRule
+from openpyxl.styles import Alignment, Font, PatternFill
 
 from suplex.config import DEMO
-import ipywidgets as widgets
-from typing import Dict, List, Optional, Any
-from typing_extensions import Self
-import statistics
-from datetime import datetime
-
-from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment
-from openpyxl.formatting.rule import ColorScaleRule
-import io
-from tkinter import Tk, filedialog
-
-from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 from suplex.martin_interface.dataset import Dataset
-from suplex.ui.widget_factory import WidgetFactory
-
 from suplex.suplex_modules.submodules.submodule_constants import (
-    DATASET_SELECTOR_MODE,
-    DATASET_LABEL,
-    DATASET_ATTRIBUTE,
     DATA_ATTRIBUTES,
     DATA_STATISTICS_ATTRIBUTES,
+    DATASET_ATTRIBUTE,
 )
-from suplex.suplex_modules.submodules.viability_rules import no_datasets_selected
+from suplex.suplex_modules.submodules.submodule_utils import get_shortened_label
 from suplex.suplex_modules.submodules.value_extractor import (
     ValueExtractor,
     extract_value_list_from_dataset,
     get_flat_value_list,
 )
-from suplex.suplex_modules.submodules.submodule_utils import get_shortened_label
-
+from suplex.suplex_modules.submodules.viability_rules import no_datasets_selected
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 
 
 class ExcelAdapter(SuplexModuleInterface):
-
     def __init__(self):
         logger.debug("Initializing ExcelAdapter")
         self._datasets = []
@@ -60,10 +51,10 @@ class ExcelAdapter(SuplexModuleInterface):
         return "Adapters"
 
     @property
-    def button_style(self) -> Dict[str, str]:
+    def button_style(self) -> dict[str, str]:
         return {"font_color": "#FFFFFF", "button_color": "#107C41", "button_icon": "E"}
 
-    def check_if_viable(self, datasets: List[Dataset]) -> bool:
+    def check_if_viable(self, datasets: list[Dataset]) -> bool:
         logger.debug("Checking viability of module: %s", self.module_name)
 
         if no_datasets_selected(datasets):
@@ -83,7 +74,9 @@ class ExcelAdapter(SuplexModuleInterface):
     def get_module_hover_text(self) -> str:
         return self._module_hover_text
 
-    def _create_checkbox(self, value: bool = True, description: str = "", indent: bool = False) -> widgets.Checkbox:
+    def _create_checkbox(
+        self, value: bool = True, description: str = "", indent: bool = False
+    ) -> widgets.Checkbox:
         """Create a checkbox and apply layout properties after construction."""
         cb = WidgetFactory.checkbox(
             value=value,
@@ -95,7 +88,7 @@ class ExcelAdapter(SuplexModuleInterface):
         cb.layout.padding = "0px"
         return cb
 
-    def initiate_module(self, datasets: List[Dataset], color_scheme: Any) -> widgets.Box:
+    def initiate_module(self, datasets: list[Dataset], color_scheme: Any) -> widgets.Box:
         logger.debug("Initiating module %s with %d datasets", self.module_name, len(datasets))
         try:
             self._datasets = datasets
@@ -377,7 +370,10 @@ class ExcelAdapter(SuplexModuleInterface):
                 spot_value_list = extract_value_list_from_dataset(dataset, attribute=attribute)
                 if attribute in spot_coordinates:
                     spot_value_list = [
-                        [statistics.mean(spot_coords) if spot_coords else 0.0 for spot_coords in sample_spots]
+                        [
+                            statistics.mean(spot_coords) if spot_coords else 0.0
+                            for spot_coords in sample_spots
+                        ]
                         for sample_spots in spot_value_list
                     ]
 
@@ -419,8 +415,10 @@ class ExcelAdapter(SuplexModuleInterface):
                 data_col = col_idx + 2
                 column_range = f"{ws.cell(start_row, data_col).coordinate}:{ws.cell(end_row, data_col).coordinate}"
                 color_scale = ColorScaleRule(
-                    start_type="min", start_color="FFFFFF",
-                    end_type="max", end_color="008000",
+                    start_type="min",
+                    start_color="FFFFFF",
+                    end_type="max",
+                    end_color="008000",
                 )
                 ws.conditional_formatting.add(column_range, color_scale)
 
@@ -471,7 +469,9 @@ class ExcelAdapter(SuplexModuleInterface):
             attr for attr, cb in zip(data_attributes_ext, self._data_checkboxes) if cb.value
         ]
         data_statistics_attributes = [
-            attr for attr, cb in zip(DATA_STATISTICS_ATTRIBUTES, self._data_statistics_checkboxes) if cb.value
+            attr
+            for attr, cb in zip(DATA_STATISTICS_ATTRIBUTES, self._data_statistics_checkboxes)
+            if cb.value
         ]
 
         apply_conditional_formatting = self._conditional_formatting_individual_sheet.value
@@ -492,13 +492,19 @@ class ExcelAdapter(SuplexModuleInterface):
             if self._id_checkbox.value or self._name_checkbox.value or self._project_checkbox.value:
                 if self._project_checkbox.value:
                     project_name = dataset.project.name if dataset.project else "N/A"
-                    ws.cell(row=header_row, column=col, value=project_name).font = Font(bold=True, size=16)
+                    ws.cell(row=header_row, column=col, value=project_name).font = Font(
+                        bold=True, size=16
+                    )
                     col += 2
                 if self._id_checkbox.value:
-                    ws.cell(row=header_row, column=col, value=dataset.id).font = Font(bold=True, size=16)
+                    ws.cell(row=header_row, column=col, value=dataset.id).font = Font(
+                        bold=True, size=16
+                    )
                     col += 1
                 if self._name_checkbox.value:
-                    ws.cell(row=header_row, column=col, value=dataset.name).font = Font(bold=True, size=16)
+                    ws.cell(row=header_row, column=col, value=dataset.name).font = Font(
+                        bold=True, size=16
+                    )
                 header_row += 1
                 header_row += 2
                 col = 1
@@ -507,22 +513,30 @@ class ExcelAdapter(SuplexModuleInterface):
                 if self._timestamp_measured_checkbox.value:
                     measure_date = (
                         dataset.measure_date.strftime("%Y-%m-%d %H:%M:%S")
-                        if dataset.measure_date else "N/A"
+                        if dataset.measure_date
+                        else "N/A"
                     )
-                    ws.cell(row=header_row, column=col, value=f"Timestamp Measured: {measure_date}").font = Font(bold=True)
+                    ws.cell(
+                        row=header_row, column=col, value=f"Timestamp Measured: {measure_date}"
+                    ).font = Font(bold=True)
                     col += 2
                 if self._image_generated_checkbox.value:
                     creation_date = (
                         dataset.image_creation_date.strftime("%Y-%m-%d %H:%M:%S")
-                        if dataset.image_creation_date else "N/A"
+                        if dataset.image_creation_date
+                        else "N/A"
                     )
-                    ws.cell(row=header_row, column=col, value=f"Timestamp Generated: {creation_date}").font = Font(bold=True)
+                    ws.cell(
+                        row=header_row, column=col, value=f"Timestamp Generated: {creation_date}"
+                    ).font = Font(bold=True)
                 header_row += 1
                 col = 1
 
             if self._tags_checkbox.value:
                 tags_str = ", ".join(dataset.tags) if dataset.tags else "N/A"
-                ws.cell(row=header_row, column=col, value=f"Tags: {tags_str}").font = Font(bold=True)
+                ws.cell(row=header_row, column=col, value=f"Tags: {tags_str}").font = Font(
+                    bold=True
+                )
                 header_row += 1
                 col = 1
 
@@ -554,27 +568,53 @@ class ExcelAdapter(SuplexModuleInterface):
                 header_row += 1
                 col = 1
 
-            if (self._incubations_checkbox.value and dataset.metadata and dataset.metadata.incubations):
+            if (
+                self._incubations_checkbox.value
+                and dataset.metadata
+                and dataset.metadata.incubations
+            ):
                 header_row += 1
                 for i, inc in enumerate(dataset.metadata.incubations):
                     inc_row = header_row
                     ws.cell(row=inc_row, column=col, value=f"Incubation {i}").font = Font(bold=True)
-                    ws.cell(row=inc_row, column=col + 1, value=f"Solution: {inc.solution}").font = Font(bold=True)
+                    ws.cell(
+                        row=inc_row, column=col + 1, value=f"Solution: {inc.solution}"
+                    ).font = Font(bold=True)
                     inc_row += 1
 
-                    stock_unit = "%" if inc.stock_concentration.unit == "percent" else inc.stock_concentration.unit
-                    final_unit = "%" if inc.final_concentration.unit == "percent" else inc.final_concentration.unit
+                    stock_unit = (
+                        "%"
+                        if inc.stock_concentration.unit == "percent"
+                        else inc.stock_concentration.unit
+                    )
+                    final_unit = (
+                        "%"
+                        if inc.final_concentration.unit == "percent"
+                        else inc.final_concentration.unit
+                    )
 
                     ws.cell(row=inc_row, column=col, value="Stock Conc:").font = Font(bold=True)
-                    ws.cell(row=inc_row, column=col + 1, value=f"{inc.stock_concentration.value} {stock_unit}").font = Font(bold=True)
+                    ws.cell(
+                        row=inc_row,
+                        column=col + 1,
+                        value=f"{inc.stock_concentration.value} {stock_unit}",
+                    ).font = Font(bold=True)
                     inc_row += 1
 
                     ws.cell(row=inc_row, column=col, value="Final Conc:").font = Font(bold=True)
-                    ws.cell(row=inc_row, column=col + 1, value=f"{inc.final_concentration.value} {final_unit}").font = Font(bold=True)
+                    ws.cell(
+                        row=inc_row,
+                        column=col + 1,
+                        value=f"{inc.final_concentration.value} {final_unit}",
+                    ).font = Font(bold=True)
                     inc_row += 1
 
-                    ws.cell(row=inc_row, column=col, value="Incubation Time:").font = Font(bold=True)
-                    ws.cell(row=inc_row, column=col + 1, value=str(inc.incubation_time)).font = Font(bold=True)
+                    ws.cell(row=inc_row, column=col, value="Incubation Time:").font = Font(
+                        bold=True
+                    )
+                    ws.cell(
+                        row=inc_row, column=col + 1, value=str(inc.incubation_time)
+                    ).font = Font(bold=True)
 
                     col += 3
 
@@ -586,13 +626,17 @@ class ExcelAdapter(SuplexModuleInterface):
             data_start_row = headers_row + 1
 
             if data_attributes:
-                ws.cell(row=table_title_row, column=1, value="Spot Values").font = Font(bold=True, size=14)
+                ws.cell(row=table_title_row, column=1, value="Spot Values").font = Font(
+                    bold=True, size=14
+                )
 
                 headers = ["Sample", "Spot"] + [attr.value for attr in data_attributes]
                 for col_idx, header in enumerate(headers, 1):
                     cell = ws.cell(row=headers_row, column=col_idx, value=header)
                     cell.font = Font(bold=True)
-                    cell.fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+                    cell.fill = PatternFill(
+                        start_color="CCCCCC", end_color="CCCCCC", fill_type="solid"
+                    )
                     cell.alignment = Alignment(horizontal="center")
 
                 row_idx = data_start_row
@@ -604,10 +648,17 @@ class ExcelAdapter(SuplexModuleInterface):
                         ws.cell(row=row_idx, column=2, value=spot_idx)
 
                         for attr_col, attr in enumerate(data_attributes, 3):
-                            spot_value_list = extract_value_list_from_dataset(dataset, attribute=attr)
-                            if sample_idx < len(spot_value_list) and spot_idx < len(spot_value_list[sample_idx]):
+                            spot_value_list = extract_value_list_from_dataset(
+                                dataset, attribute=attr
+                            )
+                            if sample_idx < len(spot_value_list) and spot_idx < len(
+                                spot_value_list[sample_idx]
+                            ):
                                 value = spot_value_list[sample_idx][spot_idx]
-                                if attr in [DATASET_ATTRIBUTE.SPOT_COORDINATES_X, DATASET_ATTRIBUTE.SPOT_COORDINATES_Y]:
+                                if attr in [
+                                    DATASET_ATTRIBUTE.SPOT_COORDINATES_X,
+                                    DATASET_ATTRIBUTE.SPOT_COORDINATES_Y,
+                                ]:
                                     value = statistics.mean(value) if value else 0.0
                                 ws.cell(row=row_idx, column=attr_col, value=value)
                             else:
@@ -621,32 +672,48 @@ class ExcelAdapter(SuplexModuleInterface):
                         for attr_col in range(3, 3 + len(data_attributes)):
                             column_range = f"{ws.cell(start_row, attr_col).coordinate}:{ws.cell(end_row, attr_col).coordinate}"
                             color_scale = ColorScaleRule(
-                                start_type="min", start_color="FFFFFF",
-                                end_type="max", end_color="008000",
+                                start_type="min",
+                                start_color="FFFFFF",
+                                end_type="max",
+                                end_color="008000",
                             )
                             ws.conditional_formatting.add(column_range, color_scale)
 
             if data_statistics_attributes:
                 sample_table_start_col = (2 + len(data_attributes) + 3) if data_attributes else 1
 
-                ws.cell(row=table_title_row, column=sample_table_start_col, value="Sample Values").font = Font(bold=True, size=14)
+                ws.cell(
+                    row=table_title_row, column=sample_table_start_col, value="Sample Values"
+                ).font = Font(bold=True, size=14)
 
                 headers = ["Sample"] + [attr.value for attr in data_statistics_attributes]
                 for col_offset, header in enumerate(headers):
-                    cell = ws.cell(row=headers_row, column=sample_table_start_col + col_offset, value=header)
+                    cell = ws.cell(
+                        row=headers_row, column=sample_table_start_col + col_offset, value=header
+                    )
                     cell.font = Font(bold=True)
-                    cell.fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+                    cell.fill = PatternFill(
+                        start_color="CCCCCC", end_color="CCCCCC", fill_type="solid"
+                    )
                     cell.alignment = Alignment(horizontal="center")
 
                 row_idx = data_start_row
-                for sample_idx in range(len(get_flat_value_list(dataset, attribute=data_statistics_attributes[0]))):
+                for sample_idx in range(
+                    len(get_flat_value_list(dataset, attribute=data_statistics_attributes[0]))
+                ):
                     ws.cell(row=row_idx, column=sample_table_start_col, value=sample_idx)
                     for attr_col, attr in enumerate(data_statistics_attributes, 1):
                         value_list = get_flat_value_list(dataset, attribute=attr)
                         if sample_idx < len(value_list):
-                            ws.cell(row=row_idx, column=sample_table_start_col + attr_col, value=value_list[sample_idx])
+                            ws.cell(
+                                row=row_idx,
+                                column=sample_table_start_col + attr_col,
+                                value=value_list[sample_idx],
+                            )
                         else:
-                            ws.cell(row=row_idx, column=sample_table_start_col + attr_col, value=None)
+                            ws.cell(
+                                row=row_idx, column=sample_table_start_col + attr_col, value=None
+                            )
                     row_idx += 1
 
                 if apply_conditional_formatting:
@@ -656,8 +723,10 @@ class ExcelAdapter(SuplexModuleInterface):
                         for attr_col in range(1, 1 + len(data_statistics_attributes)):
                             column_range = f"{ws.cell(start_row, sample_table_start_col + attr_col).coordinate}:{ws.cell(end_row, sample_table_start_col + attr_col).coordinate}"
                             color_scale = ColorScaleRule(
-                                start_type="min", start_color="FFFFFF",
-                                end_type="max", end_color="008000",
+                                start_type="min",
+                                start_color="FFFFFF",
+                                end_type="max",
+                                end_color="008000",
                             )
                             ws.conditional_formatting.add(column_range, color_scale)
 
@@ -680,7 +749,9 @@ class ExcelAdapter(SuplexModuleInterface):
         root.attributes("-topmost", True)
         root.focus_force()
 
-        project_str = "-".join(set(ds.project.name for ds in self._datasets if ds.project)) or "datasets"
+        project_str = (
+            "-".join(set(ds.project.name for ds in self._datasets if ds.project)) or "datasets"
+        )
         default_filename = f"{project_str}.xlsx"
 
         file_path = filedialog.asksaveasfilename(
@@ -702,7 +773,7 @@ class ExcelAdapter(SuplexModuleInterface):
     def update_scheme(self, new_scheme) -> None:
         pass
 
-    def reset_module(self) -> Optional[Self]:
+    def reset_module(self) -> Self | None:
         logger.debug("Resetting module")
         try:
             new_module = ExcelAdapter()

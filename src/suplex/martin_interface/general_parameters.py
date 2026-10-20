@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+
 from .roi_elements import RoiParameters
 
 
@@ -23,4 +23,4 @@ class GeneralParameters:
     number_of_spotfields: int
     columns_per_spotfield: int
     spots_per_spotfield: int
-    background_rectangles: List[RoiParameters]
+    background_rectangles: list[RoiParameters]

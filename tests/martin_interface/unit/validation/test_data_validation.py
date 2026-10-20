@@ -1,11 +1,10 @@
-import pytest
-import math
 import copy
 from unittest.mock import patch
+
 from suplex.martin_interface.validation.data_validation import (
+    check_value_consistency,
     try_get_validated_data,
     try_typecast_data_file,
-    check_value_consistency,
 )
 
 

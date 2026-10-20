@@ -1,14 +1,6 @@
-import pytest
-import logging
-from unittest.mock import Mock, patch, MagicMock
-from pathlib import Path
-from datetime import datetime, date
-import ipywidgets as widgets
+from unittest.mock import Mock, patch
 
-from suplex.ui.gui import GUI
-from suplex.ui.elements.navigator import Navigator
 from suplex.ui.ui_constants import PAGE
-from suplex.martin_interface.martin_interface_constants import SEARCH_MODE
 
 
 class TestNavigationIntegration:
@@ -79,9 +71,7 @@ class TestNavigationIntegration:
         assert navigator._steps[2]["status"] == "locked"
         assert navigator._forward_button.disabled == True
 
-    def test_module_launch_integration(
-        self, integrated_gui, mock_adapter_with_data, mock_modules
-    ):
+    def test_module_launch_integration(self, integrated_gui, mock_adapter_with_data, mock_modules):
         navigator = integrated_gui._navigator
 
         navigator.valid_dataset_dir_selected(mock_adapter_with_data)
@@ -114,7 +104,7 @@ class TestNavigationIntegration:
             # Simulate what the real method does when datasets are selected
             navigator.set_info_field_state(
                 message="You have selected 2 datasets from 1 project.",
-                info_color=gui._current_scheme.LAYOUT_COLOR.INFO_FIELD.INFO
+                info_color=gui._current_scheme.LAYOUT_COLOR.INFO_FIELD.INFO,
             )
 
         navigator._dataset_selection_page.handle_dataset_selection_changed = (
@@ -130,9 +120,7 @@ class TestNavigationIntegration:
         calls = mock_set_info_field_state.call_args_list
         info_color = gui._current_scheme.LAYOUT_COLOR.INFO_FIELD.INFO
 
-        found = any(
-            len(c[0]) > 1 and c[0][1] == info_color for c in calls
-        )
+        found = any(len(c[0]) > 1 and c[0][1] == info_color for c in calls)
         assert found, "Expected set_info_field_state to be called with INFO color"
 
     def test_breadcrumb_click_navigation(self, integrated_gui, mock_adapter_with_data):

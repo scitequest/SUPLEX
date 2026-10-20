@@ -1,12 +1,14 @@
-import pytest
 import copy
 import json  # added to fix NameError in test_empty_string_raises_error
 from unittest.mock import patch
+
+import pytest
+
 from suplex.martin_interface.validation.parameters_validation import (
+    check_external_consistency,
+    check_internal_value_consistency,
     try_get_validated_parameters,
     try_typecast_parameters_file,
-    check_internal_value_consistency,
-    check_external_consistency,
     typecast_to_bool,
 )
 
@@ -57,7 +59,9 @@ class TestParametersValidation:
                         )
 
     @patch("suplex.martin_interface.validation.parameters_validation.check_external_consistency")
-    @patch("suplex.martin_interface.validation.parameters_validation.check_internal_value_consistency")
+    @patch(
+        "suplex.martin_interface.validation.parameters_validation.check_internal_value_consistency"
+    )
     @patch("suplex.martin_interface.validation.parameters_validation.try_typecast_parameters_file")
     @patch("suplex.martin_interface.validation.parameters_validation.is_Key_Structure_Identical")
     @patch("suplex.martin_interface.validation.parameters_validation.try_get_valid_json")
@@ -118,7 +122,9 @@ class TestParametersValidation:
         )
 
     @patch("suplex.martin_interface.validation.parameters_validation.check_external_consistency")
-    @patch("suplex.martin_interface.validation.parameters_validation.check_internal_value_consistency")
+    @patch(
+        "suplex.martin_interface.validation.parameters_validation.check_internal_value_consistency"
+    )
     @patch("suplex.martin_interface.validation.parameters_validation.try_typecast_parameters_file")
     @patch("suplex.martin_interface.validation.parameters_validation.is_Key_Structure_Identical")
     @patch("suplex.martin_interface.validation.parameters_validation.try_get_valid_json")

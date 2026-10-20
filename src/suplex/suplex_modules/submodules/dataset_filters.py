@@ -3,35 +3,30 @@ This submodule contains both functions for dataset filtering as well as a Datase
 """
 
 import logging
+import math
+
 import ipywidgets as widgets
 import numpy as np
-import math
-from statistics import variance
-from typing import Union, List, Optional, Tuple
 
 from suplex.martin_interface.dataset import Dataset
-from suplex.ui.widget_factory import WidgetFactory
+from suplex.suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET
+from suplex.suplex_modules.submodules.submodule_constants import (
+    DATASET_ATTRIBUTE,
+    FILTER_METHOD,
+)
+from suplex.suplex_modules.submodules.submodule_utils import (
+    calculate_step_size,
+)
 from suplex.suplex_modules.submodules.value_extractor import (
     ValueExtractor,
     get_flat_value_list,
 )
-from suplex.suplex_modules.submodules.submodule_constants import (
-    DATASET_ATTRIBUTE,
-    DATA_ATTRIBUTES,
-    DATA_STATISTICS_ATTRIBUTES,
-    FILTER_METHOD,
-)
-from suplex.suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET
-from suplex.suplex_modules.submodules.submodule_utils import (
-    calculate_step_size,
-    floor_to_n,
-    ceil_to_n,
-)
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 
 
-def has_flat_distribution(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
+def has_flat_distribution(value_set: list[int | float], threshold: int | float) -> bool:
     """
     Check if the value set has a flat distribution based on average to max ratio.
 
@@ -60,7 +55,7 @@ def has_flat_distribution(value_set: List[Union[int, float]], threshold: Union[i
     return result
 
 
-def has_low_variance(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
+def has_low_variance(value_set: list[int | float], threshold: int | float) -> bool:
     """
     Check if the variance of the value set is below the threshold.
 
@@ -81,7 +76,7 @@ def has_low_variance(value_set: List[Union[int, float]], threshold: Union[int, f
     return result
 
 
-def contains_value_above(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
+def contains_value_above(value_set: list[int | float], threshold: int | float) -> bool:
     """
     Check if the value set contains any value above the threshold.
 
@@ -101,7 +96,7 @@ def contains_value_above(value_set: List[Union[int, float]], threshold: Union[in
     return result
 
 
-def contains_value_below(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
+def contains_value_below(value_set: list[int | float], threshold: int | float) -> bool:
     """
     Check if the value set contains any value below the threshold.
 
@@ -121,7 +116,7 @@ def contains_value_below(value_set: List[Union[int, float]], threshold: Union[in
     return result
 
 
-def is_avg_value_above(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
+def is_avg_value_above(value_set: list[int | float], threshold: int | float) -> bool:
     """
     Check if the average value of the set is above the threshold.
 
@@ -142,7 +137,7 @@ def is_avg_value_above(value_set: List[Union[int, float]], threshold: Union[int,
     return result
 
 
-def is_avg_value_below(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
+def is_avg_value_below(value_set: list[int | float], threshold: int | float) -> bool:
     """
     Check if the average value of the set is below the threshold.
 
@@ -163,7 +158,7 @@ def is_avg_value_below(value_set: List[Union[int, float]], threshold: Union[int,
     return result
 
 
-def is_max_value_above(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
+def is_max_value_above(value_set: list[int | float], threshold: int | float) -> bool:
     """
     Check if the maximum value of the set is above the threshold.
 
@@ -184,7 +179,7 @@ def is_max_value_above(value_set: List[Union[int, float]], threshold: Union[int,
     return result
 
 
-def is_max_value_below(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
+def is_max_value_below(value_set: list[int | float], threshold: int | float) -> bool:
     """
     Check if the maximum value of the set is below the threshold.
 
@@ -205,7 +200,7 @@ def is_max_value_below(value_set: List[Union[int, float]], threshold: Union[int,
     return result
 
 
-def is_min_value_above(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
+def is_min_value_above(value_set: list[int | float], threshold: int | float) -> bool:
     """
     Check if the minimum value of the set is above the threshold.
 
@@ -226,7 +221,7 @@ def is_min_value_above(value_set: List[Union[int, float]], threshold: Union[int,
     return result
 
 
-def is_min_value_below(value_set: List[Union[int, float]], threshold: Union[int, float]) -> bool:
+def is_min_value_below(value_set: list[int | float], threshold: int | float) -> bool:
     """
     Check if the minimum value of the set is below the threshold.
 
@@ -258,7 +253,7 @@ class DatasetFilter:
     def __init__(
         self,
         default_method: FILTER_METHOD = FILTER_METHOD.MEAN_MAX_RATIO,
-        included_attributes: List[DATASET_ATTRIBUTE] = list(DATASET_ATTRIBUTE),
+        included_attributes: list[DATASET_ATTRIBUTE] = list(DATASET_ATTRIBUTE),
         default_threshold: float = 0.5,
     ):
         """
@@ -403,9 +398,9 @@ class DatasetFilter:
 
     def on_filter_changed(
         self,
-        datasets: List[Dataset],
-        method: Optional[FILTER_METHOD] = None,
-        attribute: Optional[DATASET_ATTRIBUTE] = None,
+        datasets: list[Dataset],
+        method: FILTER_METHOD | None = None,
+        attribute: DATASET_ATTRIBUTE | None = None,
     ) -> None:
         """
         Update the threshold slider range based on the selected filter method and attribute across datasets.
@@ -479,10 +474,10 @@ class DatasetFilter:
 
     def get_filtered_datasets(
         self,
-        datasets: List[Dataset],
-        method: Optional[FILTER_METHOD] = None,
-        attribute: Optional[DATASET_ATTRIBUTE] = None,
-    ) -> Tuple[List[Dataset], List[Dataset]]:
+        datasets: list[Dataset],
+        method: FILTER_METHOD | None = None,
+        attribute: DATASET_ATTRIBUTE | None = None,
+    ) -> tuple[list[Dataset], list[Dataset]]:
         """
         Apply the selected filter to the datasets and return included/excluded lists.
 

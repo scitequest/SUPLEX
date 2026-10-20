@@ -1,22 +1,23 @@
 import logging
-from typing import List, Optional, Union, Dict, Any, Callable
-import ipywidgets as widgets
-import numpy as np
 import math
 import statistics
+from typing import Any
+
+import ipywidgets as widgets
+import numpy as np
+
 from suplex.martin_interface.dataset import Dataset
-from suplex.ui.widget_factory import WidgetFactory
-from suplex.suplex_modules.submodules.submodule_constants import (
-    DATASET_ATTRIBUTE,
-    DATA_ATTRIBUTES,
-    DATA_STATISTICS_ATTRIBUTES,
-    NORMALIZATION,
-    NORMALIZATION_DEFAULT,
-    NORMALIZATION_REFERENCE_POINT,
-)
 from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
     OPTION_INSET,
 )
+from suplex.suplex_modules.submodules.submodule_constants import (
+    DATA_ATTRIBUTES,
+    DATA_STATISTICS_ATTRIBUTES,
+    DATASET_ATTRIBUTE,
+    NORMALIZATION,
+    NORMALIZATION_REFERENCE_POINT,
+)
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ ABS_MAX_VALUE = 2**16 - 1
 
 def extract_value_list_from_dataset(
     dataset: Dataset, attribute: DATASET_ATTRIBUTE
-) -> Union[List[float], List[List[float]], List[List[List[float]]]]:
+) -> list[float] | list[list[float]] | list[list[list[float]]]:
     """
     Extracts the values of the specified attribute from the given dataset and returns them as a nested list.
 
@@ -160,7 +161,7 @@ def extract_value_list_from_dataset(
     return value_list
 
 
-def flatten_list(nested_list: Union[List[Any], Any]) -> List[Any]:
+def flatten_list(nested_list: list[Any] | Any) -> list[Any]:
     """
     Convenience method which recursively flattens a nested list structure into a single-level list.
 
@@ -186,7 +187,7 @@ def flatten_list(nested_list: Union[List[Any], Any]) -> List[Any]:
     return flat
 
 
-def get_flat_value_list(dataset: Dataset, attribute: DATASET_ATTRIBUTE) -> List[float]:
+def get_flat_value_list(dataset: Dataset, attribute: DATASET_ATTRIBUTE) -> list[float]:
     """
     Extract and flatten values from a dataset based on the specified attribute type.
 
@@ -239,11 +240,11 @@ def get_flat_value_list(dataset: Dataset, attribute: DATASET_ATTRIBUTE) -> List[
 
 
 def apply_normalization(
-    value_lists: Dict[Dataset, List[float]],
+    value_lists: dict[Dataset, list[float]],
     normalization_method: NORMALIZATION,
-    custom_factor: Optional[float] = None,
-    reference_indices: Optional[List[int]] = None,
-) -> Dict[Dataset, List[float]]:
+    custom_factor: float | None = None,
+    reference_indices: list[int] | None = None,
+) -> dict[Dataset, list[float]]:
     """
     Apply the selected normalization to the given values.
     This function can be used externally without a ValueExtractor instance.
@@ -318,9 +319,7 @@ def apply_normalization(
         return value_lists
 
 
-def normalize_by_factor(
-    values: Union[List[float], float], factor: float
-) -> Union[List[float], float]:
+def normalize_by_factor(values: list[float] | float, factor: float) -> list[float] | float:
     """
     Helper to normalize nested lists by dividing by a factor.
     This function can be used externally.
@@ -339,8 +338,8 @@ def normalize_by_factor(
 
 
 def get_reference_statistics(
-    value_list: List[float], reference_indices: List[int]
-) -> Dict[str, float]:
+    value_list: list[float], reference_indices: list[int]
+) -> dict[str, float]:
     """
     Calculate statistics for reference points selected by indices.
 
@@ -391,10 +390,10 @@ def get_reference_statistics(
 
 
 def reference_normalization(
-    value_list: List[float],
-    ref_stat: Dict[str, float],
+    value_list: list[float],
+    ref_stat: dict[str, float],
     normalization_method: NORMALIZATION,
-) -> List[float]:
+) -> list[float]:
     """
     Apply reference-based normalization to the value list.
 
@@ -486,10 +485,10 @@ class ValueExtractor:
 
     def __init__(
         self,
-        attributes: Optional[List[DATASET_ATTRIBUTE]] = None,
-        normalization_methods: Optional[List[NORMALIZATION]] = None,
-        custom_factor: Optional[float] = None,
-        references: Optional[List[int]] = None,
+        attributes: list[DATASET_ATTRIBUTE] | None = None,
+        normalization_methods: list[NORMALIZATION] | None = None,
+        custom_factor: float | None = None,
+        references: list[int] | None = None,
         max_reference_index: int = 63,
         show_all_options: bool = False,
     ) -> None:
@@ -587,7 +586,7 @@ class ValueExtractor:
         )
 
         # Observer to enable/disable custom input and reference selector
-        def on_normalization_change(change: Dict[str, Any]) -> None:
+        def on_normalization_change(change: dict[str, Any]) -> None:
             selected = change["new"]
             selected_normalization_method = NORMALIZATION(selected)
             self._custom_factor_input.disabled = (
@@ -600,7 +599,7 @@ class ValueExtractor:
         on_normalization_change({"new": self._normalization_dropdown.value})
         self._normalization_dropdown.observe(on_normalization_change, names="value")
 
-    def get_active_widgets(self) -> List[widgets.Widget]:
+    def get_active_widgets(self) -> list[widgets.Widget]:
         """
         Get a list of all interactive widgets for value extractor settings.
 
@@ -677,7 +676,7 @@ class ValueExtractor:
         return self._custom_factor_input
 
     @property
-    def references(self) -> List[int]:
+    def references(self) -> list[int]:
         """
         The references.
 
@@ -771,12 +770,12 @@ class ValueExtractor:
 
     def extract_values(
         self,
-        datasets: List[Dataset],
-        attribute: Optional[DATASET_ATTRIBUTE] = None,
-        normalization_method: Optional[NORMALIZATION] = None,
-        custom_factor: Optional[float] = None,
-        reference_indices: Optional[List[int]] = None,
-    ) -> Dict[Dataset, List[float]]:
+        datasets: list[Dataset],
+        attribute: DATASET_ATTRIBUTE | None = None,
+        normalization_method: NORMALIZATION | None = None,
+        custom_factor: float | None = None,
+        reference_indices: list[int] | None = None,
+    ) -> dict[Dataset, list[float]]:
         """
         Extract and optionally normalize values from the given datasets.
 
@@ -808,11 +807,11 @@ class ValueExtractor:
 
     def normalize_values(
         self,
-        value_lists: Dict[Dataset, List[float]],
-        normalization_method: Optional[NORMALIZATION] = None,
-        custom_factor: Optional[float] = None,
-        reference_indices: Optional[List[int]] = None,
-    ) -> Dict[Dataset, List[float]]:
+        value_lists: dict[Dataset, list[float]],
+        normalization_method: NORMALIZATION | None = None,
+        custom_factor: float | None = None,
+        reference_indices: list[int] | None = None,
+    ) -> dict[Dataset, list[float]]:
         """
         Normalize the given value lists using the specified normalization method.
 
@@ -858,9 +857,7 @@ class ReferencePointSelector:
     Uses a spinner for selection and tags to display selected points.
     """
 
-    def __init__(
-        self, max_index: int = 1000, initial_references: Optional[List[int]] = None
-    ) -> None:
+    def __init__(self, max_index: int = 1000, initial_references: list[int] | None = None) -> None:
         """
         Initializes the reference point widget.
 
@@ -946,7 +943,7 @@ class ReferencePointSelector:
         self._ref_container.children = children
 
     @property
-    def references(self) -> List[int]:
+    def references(self) -> list[int]:
         """
         Get the current list of reference indices.
 
@@ -991,7 +988,7 @@ class ReferencePointSelector:
         """
         return self._ref_container
 
-    def get_all_interactive_widgets(self) -> List[widgets.Widget]:
+    def get_all_interactive_widgets(self) -> list[widgets.Widget]:
         """
         Get all interactive widgets in the selector.
 

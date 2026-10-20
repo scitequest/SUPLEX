@@ -1,11 +1,7 @@
-import pytest
-from unittest.mock import Mock, patch, mock_open
 import base64
-
-import ipywidgets as widgets
+from unittest.mock import Mock, mock_open, patch
 
 from suplex.ui.pages.module_selection_page import ModuleSelectionPage
-from suplex.suplex_modules.submodules.submodule_constants import DATASET_SELECTOR_MODE
 
 
 class TestModuleSelectionPage:

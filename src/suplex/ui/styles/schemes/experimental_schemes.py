@@ -1,12 +1,10 @@
 from suplex.ui.styles.resources.resources_constants import (
-    DEFAULT_SUPLEX_ICON_PATH,
-    BG_SUPLEX_ICON_PATH,
     DBPU_SUPLEX_ICON_PATH,
-    DGLG_SUPLEX_ICON_PATH,
     DEFAULT_MARTIN_ICON_PATH,
     GITHUB_SVG,
     X_SVG,
 )
+
 
 class NIGHT_SCHEME:
     NAME = "Night Mode"

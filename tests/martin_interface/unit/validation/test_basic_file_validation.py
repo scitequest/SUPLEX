@@ -1,14 +1,13 @@
-import pytest
 import json
 import os
-import tempfile
 from unittest.mock import patch
+
 from suplex.martin_interface.validation.basic_file_validation import (
     get_data_file,
+    is_dict_list_uniform,
+    is_Key_Structure_Identical,
     try_get_valid_json,
     try_get_valid_tsv_as_dicts,
-    is_Key_Structure_Identical,
-    is_dict_list_uniform,
 )
 
 
@@ -230,7 +229,9 @@ class TestBasicFileValidation:
         """Returns False (and logs) when dictionaries have differing keys."""
         dict_list = [{"key1": 1, "key2": 2}, {"key1": 3, "key3": 4}]
 
-        with patch("suplex.martin_interface.validation.basic_file_validation.logger") as mock_logger:
+        with patch(
+            "suplex.martin_interface.validation.basic_file_validation.logger"
+        ) as mock_logger:
             result = is_dict_list_uniform("/test/path", dict_list)
             assert result is False
             mock_logger.error.assert_called()

@@ -1,12 +1,10 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock, PropertyMock
-import numpy as np
-import pandas as pd
-import ipywidgets as widgets
+from unittest.mock import Mock, PropertyMock, patch
 
-from suplex.suplex_modules.vanilla.overview_heatmap import OverviewHeatmapModule
+import numpy as np
+
 from suplex.martin_interface.dataset import Dataset
-from suplex.suplex_modules.submodules.submodule_constants import DATASET_LABEL, NORMALIZATION
+from suplex.suplex_modules.submodules.submodule_constants import NORMALIZATION
+from suplex.suplex_modules.vanilla.overview_heatmap import OverviewHeatmapModule
 
 
 class TestOverviewHeatmap:
@@ -50,10 +48,12 @@ class TestOverviewHeatmap:
         module = OverviewHeatmapModule()
         with (
             patch(
-                "suplex.suplex_modules.vanilla.overview_heatmap.no_datasets_selected", return_value=False
+                "suplex.suplex_modules.vanilla.overview_heatmap.no_datasets_selected",
+                return_value=False,
             ),
             patch(
-                "suplex.suplex_modules.vanilla.overview_heatmap.has_negative_values", return_value=False
+                "suplex.suplex_modules.vanilla.overview_heatmap.has_negative_values",
+                return_value=False,
             ),
         ):
             assert module.check_if_viable(viable_datasets) is True
@@ -186,9 +186,7 @@ class TestOverviewHeatmap:
         # Minimal mock setup for sub-components
         mock_value_extractor.return_value = Mock()
         mock_value_extractor.return_value.get_ui.return_value = Mock()
-        mock_value_extractor.return_value.get_reference_selector.return_value.get_ref_container.return_value = (
-            Mock()
-        )
+        mock_value_extractor.return_value.get_reference_selector.return_value.get_ref_container.return_value = Mock()
         mock_value_extractor.return_value.get_active_widgets.return_value = [Mock()]
         mock_value_extractor.return_value.normalize_values.return_value = {}
 

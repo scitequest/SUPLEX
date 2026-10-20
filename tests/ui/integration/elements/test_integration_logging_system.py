@@ -1,14 +1,9 @@
-import pytest
 import logging
-from unittest.mock import Mock, patch, MagicMock, mock_open
-from datetime import datetime
-import tempfile
 import os
+import tempfile
+from unittest.mock import Mock, patch
 
-from suplex.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
-from suplex.ui.gui import GUI
 from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
-from suplex.martin_interface.martin_adapter import Adapter
 
 
 class TestLoggingSystemIntegration:
@@ -79,9 +74,7 @@ class TestLoggingSystemIntegration:
         test_logger.warning("Test warning")
 
         # Mock file dialog and file operations
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".log"
-        ) as tmp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".log") as tmp_file:
             tmp_filename = tmp_file.name
 
         try:
@@ -93,7 +86,7 @@ class TestLoggingSystemIntegration:
                     popup_logger.save_logs()
 
             # Verify file was created and contains logs
-            with open(tmp_filename, "r") as f:
+            with open(tmp_filename) as f:
                 content = f.read()
                 assert "Test log 1" in content
                 assert "Test error" in content
@@ -161,9 +154,7 @@ class TestLoggingSystemIntegration:
 
     @patch("suplex.ui.pages.directory_selection_page.os.path.exists")
     @patch("suplex.ui.pages.directory_selection_page.os.path.isdir")
-    def test_logging_during_directory_search(
-        self, mock_isdir, mock_exists, gui_with_logging
-    ):
+    def test_logging_during_directory_search(self, mock_isdir, mock_exists, gui_with_logging):
         """Test logging during directory search operations."""
         gui, popup_logger, test_logger = gui_with_logging
 

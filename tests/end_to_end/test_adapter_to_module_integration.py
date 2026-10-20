@@ -1,7 +1,4 @@
-import pytest
-
 from suplex.martin_interface.dataset import Dataset
-from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 
 
 class TestAdapterToModuleIntegration:

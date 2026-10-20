@@ -1,11 +1,9 @@
 import logging
 import math
-import statistics
-from typing import List
 from dataclasses import dataclass
-from scipy.stats import shapiro, norm, ks_2samp
 
 import numpy as np
+from scipy.stats import ks_2samp, norm, shapiro
 
 logger = logging.getLogger(__name__)
 
@@ -19,11 +17,11 @@ class FilteredValue:
 
 
 def apply_dynamic_filtering(
-    value_list: List[float],
+    value_list: list[float],
     use_broad_grouping: bool = True,
     alpha: float = 0.10,
     max_relevant_fraction: float = 0.5,
-) -> List[FilteredValue]:
+) -> list[FilteredValue]:
     """
     Applies dynamic filtering to a list of values by calculating deltas, grouping by contrast,
     and applying adaptive significance cutoffs. This is a convenience wrapper combining the core steps.
@@ -63,11 +61,11 @@ def apply_dynamic_filtering(
 
 
 def apply_sparsity_cutoff(
-    value_list: List[float],
-    value_group_map: List[int],
+    value_list: list[float],
+    value_group_map: list[int],
     max_relevant_fraction: float = 0.5,
     alpha: float = 0.05,
-) -> List[float]:
+) -> list[float]:
     """
     Given an estimate of signal sparsity by the user grouped data is split into significant and non-significant.
     In addition a KS-test on log-scale is conducted to check if the groups above non-significant can be viewed as a fluctuations within the non-significant group.
@@ -144,11 +142,11 @@ def apply_sparsity_cutoff(
 
 
 def apply_adaptive_significance_cutoff(
-    value_list: List[float],
-    value_group_map: List[int],
+    value_list: list[float],
+    value_group_map: list[int],
     alpha: float = 0.05,
     min_elements_shapiro: int = 10,
-) -> List[float]:
+) -> list[float]:
     """
     Applies an adaptive statistical cutoff to determine significant values based on group normality and distribution similarity.
     Zero values have to be treated with special consideration since they either result from noise subtraction or stem from low exposure imaging (they are more artifactual than actual noise).
@@ -247,8 +245,8 @@ def apply_adaptive_significance_cutoff(
 
 
 def group_by_delta_contrast(
-    value_list: List[float], delta_list: List[float], use_broad_grouping: bool = True
-) -> List[int]:
+    value_list: list[float], delta_list: list[float], use_broad_grouping: bool = True
+) -> list[int]:
     """
     Groups values by iteratively finding the largest delta and grouping all values
     at or above the corresponding threshold value.
@@ -312,7 +310,7 @@ def group_by_delta_contrast(
     return value_group_map
 
 
-def calculate_incremental_deltas(value_list: List[float]) -> List[float]:
+def calculate_incremental_deltas(value_list: list[float]) -> list[float]:
     """
     Calculates the difference between each value and its next smaller value in the list.
 

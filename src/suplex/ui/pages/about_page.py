@@ -1,14 +1,13 @@
 import logging
+from importlib.metadata import PackageNotFoundError, distribution
+from pathlib import Path
 from typing import Any
 
 import ipywidgets as widgets
 
-from importlib.metadata import PackageNotFoundError, distribution
-from pathlib import Path
-
-from suplex.ui.widget_factory import WidgetFactory
+from suplex.general_constants import BUILD_DATE, RELEASE_STAGE, VERSION_NUMBER
 from suplex.ui.styles.color_utils import hex_to_rgba
-from suplex.general_constants import VERSION_NUMBER, RELEASE_STAGE, BUILD_DATE
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 

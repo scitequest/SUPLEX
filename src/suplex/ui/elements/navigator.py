@@ -1,16 +1,15 @@
 import logging
-from typing import TYPE_CHECKING, Dict, Any, List, Optional
+from typing import TYPE_CHECKING, Any
 
 import ipywidgets as widgets
 
-from suplex.ui.pages.about_page import AboutPage
-from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
-from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage
-from suplex.ui.pages.module_selection_page import ModuleSelectionPage
-
 from suplex.martin_interface.martin_adapter import Adapter
-from suplex.ui.ui_constants import PAGE
+from suplex.ui.pages.about_page import AboutPage
+from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage
+from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
+from suplex.ui.pages.module_selection_page import ModuleSelectionPage
 from suplex.ui.styles.navigator_styles import get_navigator_styles
+from suplex.ui.ui_constants import PAGE
 
 if TYPE_CHECKING:
     from .gui import GUI
@@ -25,7 +24,7 @@ class Navigator:
     understand their current position and navigate between steps.
     """
 
-    def __init__(self, gui: "GUI", scheme: Any, modules: List[Any]) -> None:
+    def __init__(self, gui: "GUI", scheme: Any, modules: list[Any]) -> None:
         """
         Initialize the navigator component.
 
@@ -39,8 +38,8 @@ class Navigator:
         self._gui = gui
         self._scheme = scheme
         self._modules = modules
-        self._current_module: Optional[Any] = None
-        self._adapter: Optional[Adapter] = None
+        self._current_module: Any | None = None
+        self._adapter: Adapter | None = None
 
         # Navigation state
         self._current_step = PAGE.DIRECTORY_SELECTION
@@ -72,17 +71,17 @@ class Navigator:
         ]
 
         # UI Components
-        self._breadcrumb_container: Optional[widgets.HBox] = None
-        self._nav_container: Optional[widgets.HBox] = None
-        self._step_buttons: List[widgets.Button] = []
-        self._back_button: Optional[widgets.Button] = None
-        self._forward_button: Optional[widgets.Button] = None
+        self._breadcrumb_container: widgets.HBox | None = None
+        self._nav_container: widgets.HBox | None = None
+        self._step_buttons: list[widgets.Button] = []
+        self._back_button: widgets.Button | None = None
+        self._forward_button: widgets.Button | None = None
 
         # Page instances
-        self._about_page: Optional[AboutPage] = None
-        self._directory_selection_page: Optional[DirectorySelectionPage] = None
-        self._dataset_selection_page: Optional[DatasetSelectionPage] = None
-        self._module_selection_page: Optional[ModuleSelectionPage] = None
+        self._about_page: AboutPage | None = None
+        self._directory_selection_page: DirectorySelectionPage | None = None
+        self._dataset_selection_page: DatasetSelectionPage | None = None
+        self._module_selection_page: ModuleSelectionPage | None = None
 
         try:
             self.create_navigation_ui()
@@ -470,7 +469,7 @@ class Navigator:
         except Exception as e:
             logger.error("Failed to handle forward button click: %s", e, exc_info=True)
 
-    def get_ui_element(self) -> Optional[widgets.HBox]:
+    def get_ui_element(self) -> widgets.HBox | None:
         """
         Get the main navigation UI container.
 
@@ -507,8 +506,8 @@ class Navigator:
     def set_info_field_state(
         self,
         message: str = "",
-        info_color: Optional[str] = None,
-        info_icon: Optional[str] = None,
+        info_color: str | None = None,
+        info_icon: str | None = None,
     ) -> None:
         """
         Calls gui.set_info_field_state with all its attributes.
@@ -571,7 +570,7 @@ class Navigator:
             logger.error("Failed to update navigator color scheme: %s", e, exc_info=True)
 
     @property
-    def adapter(self) -> Optional[Adapter]:
+    def adapter(self) -> Adapter | None:
         """
         Get the current Martin adapter instance.
 

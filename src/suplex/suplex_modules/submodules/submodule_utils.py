@@ -1,9 +1,8 @@
-import math
 import logging
-from typing import Dict, List
+import math
 
-from suplex.suplex_modules.submodules.submodule_constants import NORMALIZATION, COLOR
 from suplex.martin_interface.dataset import Dataset
+from suplex.suplex_modules.submodules.submodule_constants import COLOR, NORMALIZATION
 
 logger = logging.getLogger(__name__)
 
@@ -97,14 +96,14 @@ def get_shortened_label(label: str, max_length: int) -> str:
         return label[:max_length]
 
     side_len = (max_length - 3) // 2
-    return f"{label[:side_len]}...{label[-(max_length - 3 - side_len):]}"
+    return f"{label[:side_len]}...{label[-(max_length - 3 - side_len) :]}"
 
 
 def apply_normalization(
-    value_sets: Dict[Dataset, List[float]],
+    value_sets: dict[Dataset, list[float]],
     normalization_method: NORMALIZATION = NORMALIZATION.RAW,
     normalization_factor: float = 1.0,
-) -> Dict[Dataset, List[float]]:
+) -> dict[Dataset, list[float]]:
     """
     This method applies normalization to a dictionary of value sets extracted from datasets,
     based on the specified normalization method.

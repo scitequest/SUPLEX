@@ -1,11 +1,11 @@
 import logging
-from typing import Dict, Any, Optional
+from typing import Any
+
 import ipywidgets as widgets
 
-from suplex.ui.elements.popup_log_system import PopupLogger
 from suplex.ui.elements.header import Header
 from suplex.ui.elements.navigator import Navigator
-
+from suplex.ui.elements.popup_log_system import PopupLogger
 from suplex.ui.styles.gui_styles import get_gui_styles
 from suplex.ui.styles.widget_styles import get_widget_styles
 
@@ -23,8 +23,8 @@ class GUI:
 
     def __init__(
         self,
-        modules: Dict[str, Any],
-        schemes: Dict[str, Any],
+        modules: dict[str, Any],
+        schemes: dict[str, Any],
         content: widgets.Box,
         popup_logger: PopupLogger,
     ) -> None:
@@ -45,22 +45,22 @@ class GUI:
         self._content = content
 
         # UI Components
-        self._header: Optional[Header] = None
-        self._navigator: Optional[Navigator] = None
-        self._content_area: Optional[widgets.VBox] = None
-        self._content_holder: Optional[widgets.VBox] = None
+        self._header: Header | None = None
+        self._navigator: Navigator | None = None
+        self._content_area: widgets.VBox | None = None
+        self._content_holder: widgets.VBox | None = None
 
         # Info field state management
-        self._info_field: Optional[widgets.HTML] = None
-        self._info_field_state: Dict[str, Any] = {
+        self._info_field: widgets.HTML | None = None
+        self._info_field_state: dict[str, Any] = {
             "message": "",
             "info_color": self._current_scheme.LAYOUT_COLOR.INFO_FIELD.DEFAULT,
             "info_icon": self._current_scheme.ICON.DEFAULT,
         }
-        self._info_container: Optional[widgets.HBox] = None
+        self._info_container: widgets.HBox | None = None
 
         self._popup_logger = popup_logger
-        self._current_page: Optional[Any] = None
+        self._current_page: Any | None = None
 
         logger.debug("GUI initialization completed successfully")
 
@@ -234,8 +234,8 @@ class GUI:
     def set_info_field_state(
         self,
         message: str = "",
-        info_color: Optional[str] = None,
-        info_icon: Optional[str] = None,
+        info_color: str | None = None,
+        info_icon: str | None = None,
     ) -> None:
         """
         Set the info field state and update the display.

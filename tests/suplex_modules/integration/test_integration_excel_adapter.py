@@ -1,9 +1,7 @@
-import pytest
-from unittest.mock import patch, MagicMock, Mock
-from typing import List, Any
+from typing import Any
+from unittest.mock import MagicMock, Mock, patch
 
 from suplex.suplex_modules.adapters.excel_adapter import ExcelAdapter
-
 
 # =============================================================================
 # Integration tests for ExcelAdapter
@@ -31,13 +29,13 @@ class TestIntegrationExcelAdapter:
     # -------------------------------------------------------------------------
 
     def test_check_if_viable_passes_on_good_datasets(
-        self, positive_uniform_datasets: List[Any]
+        self, positive_uniform_datasets: list[Any]
     ) -> None:
         """Adapter should be viable when given valid datasets."""
         adapter = ExcelAdapter()
         assert adapter.check_if_viable(positive_uniform_datasets) is True
 
-    def test_check_if_viable_fails_on_empty_list(self, empty_dataset_list: List[Any]) -> None:
+    def test_check_if_viable_fails_on_empty_list(self, empty_dataset_list: list[Any]) -> None:
         """Adapter should refuse to activate with no datasets selected."""
         adapter = ExcelAdapter()
         assert adapter.check_if_viable(empty_dataset_list) is False
@@ -50,7 +48,7 @@ class TestIntegrationExcelAdapter:
     def test_initiate_module_creates_export_ui(
         self,
         mock_widget_factory: MagicMock,
-        positive_uniform_datasets: List[Any],
+        positive_uniform_datasets: list[Any],
         mock_color_scheme: Mock,
     ) -> None:
         """initiate_module should build the export configuration UI."""
@@ -81,7 +79,7 @@ class TestIntegrationExcelAdapter:
     # Export functionality (smoke tests)
     # -------------------------------------------------------------------------
 
-    def test_export_overview_sheet_smoke(self, positive_uniform_datasets: List[Any]) -> None:
+    def test_export_overview_sheet_smoke(self, positive_uniform_datasets: list[Any]) -> None:
         """The export_overview_sheet path should be callable without immediate failure."""
         adapter = ExcelAdapter()
         adapter._datasets = positive_uniform_datasets  # simulate initiate_module state
@@ -94,7 +92,7 @@ class TestIntegrationExcelAdapter:
     # Edge cases
     # -------------------------------------------------------------------------
 
-    def test_initiate_with_empty_datasets(self, empty_dataset_list: List[Any]) -> None:
+    def test_initiate_with_empty_datasets(self, empty_dataset_list: list[Any]) -> None:
         """Adapter should handle empty input gracefully."""
         adapter = ExcelAdapter()
         try:

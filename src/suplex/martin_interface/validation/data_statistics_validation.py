@@ -1,19 +1,17 @@
-import json
-import csv
-import os
-import math
-import logging
 import copy
-from typing import List, Optional, Any
-from .basic_file_validation import *
+import logging
+import math
+from typing import Any
+
 from ..martin_interface_constants import DATA_STATISTICS_FIELDS, TOLERANCE
+from .basic_file_validation import *
 
 logger = logging.getLogger(__name__)
 
 
 def try_get_validated_data_statistics(
-    data_statistics_file_path: str, data_file: dict[str, List[dict[str, Any]]]
-) -> Optional[dict[str, List[dict[str, Any]]]]:
+    data_statistics_file_path: str, data_file: dict[str, list[dict[str, Any]]]
+) -> dict[str, list[dict[str, Any]]] | None:
     """
     Conducts a set of checks to validate a data_statistics file.
     Tolerable inconsistencies are logged, while intolerable issues prevent file loading.
@@ -76,8 +74,8 @@ def try_get_validated_data_statistics(
 
 def try_typecast_data_statistics_file(
     data_statistics_file_path: str,
-    data_statistics_file: dict[str, List[dict[str, Any]]],
-) -> Optional[dict[str, List[dict[str, Any]]]]:
+    data_statistics_file: dict[str, list[dict[str, Any]]],
+) -> dict[str, list[dict[str, Any]]] | None:
     """
     Attempts to typecast data_statistics_file values to their correct format.
 
@@ -104,7 +102,7 @@ def try_typecast_data_statistics_file(
 
 def check_internal_value_consistency(
     data_statistics_file_path: str,
-    data_statistics_file: dict[str, List[dict[str, Any]]],
+    data_statistics_file: dict[str, list[dict[str, Any]]],
 ) -> bool:
     """
     Validates logical constraints in data_statistics entries.
@@ -191,9 +189,9 @@ def check_internal_value_consistency(
 
 
 def check_external_consistency(
-    data_file: dict[str, List[dict[str, Any]]],
+    data_file: dict[str, list[dict[str, Any]]],
     data_statistics_file_path: str,
-    data_statistics_file: dict[str, List[dict[str, Any]]],
+    data_statistics_file: dict[str, list[dict[str, Any]]],
 ) -> bool:
     """
     Checks for consistency in format and values between the data_file and data_statistics_file.

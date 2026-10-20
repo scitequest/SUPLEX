@@ -1,14 +1,10 @@
-import pytest
 from unittest.mock import Mock, patch
-from pathlib import Path
 
-import ipywidgets as widgets
-
-from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
 from suplex.martin_interface.martin_interface_constants import (
-    SEARCH_MODE,
     MARTIN_MEASURE_DIR_DEPTH,
+    SEARCH_MODE,
 )
+from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
 
 
 class TestDirectorySelectionPage:
@@ -245,7 +241,9 @@ class TestDirectorySelectionPage:
     # -------------------------------------------------------------------------
     @patch("suplex.ui.pages.directory_selection_page.sample_data_dir")
     @patch("suplex.ui.pages.directory_selection_page.Adapter")
-    def test_use_sample_data_success(self, mock_adapter_class, mock_sample_data_dir, dir_selection_page):
+    def test_use_sample_data_success(
+        self, mock_adapter_class, mock_sample_data_dir, dir_selection_page
+    ):
         """use_sample_data() loads sample data and navigates forward on success."""
         mock_sample_path = Mock()
         mock_sample_path.exists.return_value = True

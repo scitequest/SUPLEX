@@ -134,10 +134,24 @@ exclude_lines = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+extend-exclude = ["tests/test_data"]  # deliberately broken fixture modules
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
-ignore = ["E501"]  # line too long (handled by the formatter)
+ignore = [
+    "E501",  # line too long (handled by the formatter)
+    # Pre-existing findings kept out of CI for now; clean up separately.
+    "E711",  # comparison to None
+    "E712",  # comparison to True/False
+    "E721",  # type comparison with ==
+    "F403",  # star imports
+    "F405",  # names from star imports
+    "F841",  # unused local variables
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Fixtures imported from another conftest are "redefined" when used as parameters.
+"tests/end_to_end/conftest.py" = ["F811"]
 
 [tool.mypy]
 python_version = "3.11"

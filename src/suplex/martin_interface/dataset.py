@@ -1,19 +1,21 @@
-from .holder import *
-from .sample import Sample, DataStatistics
-from .roi_elements import Spot, RoiParameters, Coordinates
-from .general_parameters import GeneralParameters
-from .metadata import *
-from .project import Project
-from typing import Any, List, Dict
-
 import copy
 import json
-from pathlib import Path
-from datetime import datetime, timedelta
-import statistics
-import math
 import logging
+import math
+import statistics
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any
+
+from .general_parameters import GeneralParameters
+from .holder import *
+from .metadata import *
+from .project import Project
+from .roi_elements import Coordinates, RoiParameters, Spot
+from .sample import DataStatistics, Sample
+
 logger = logging.getLogger(__name__)
+
 
 class Dataset:
     """
@@ -40,7 +42,7 @@ class Dataset:
         self._metadata = self.init_metadata()
         self._suplex_file = copy.deepcopy(file_holder.suplex_file)
 
-    def init_samples(self) -> List[Sample]:
+    def init_samples(self) -> list[Sample]:
         """
         This re-organizes the original structure of our measurement files into a spot focused approach.
         Spots of the same row and column are assumed to be sample duplicates and are collected with their corresponding parameters and data_statistics entry into an instance of `Sample`.
@@ -94,7 +96,7 @@ class Dataset:
 
         return samples
 
-    def generate_data_statistics(self) -> List[DataStatistics]:
+    def generate_data_statistics(self) -> list[DataStatistics]:
         """
         Values of DataStatistics are calculated in cases where either there is no data_statistics file or where it could not be read in.
         The calculations are analogous to the ones conducted in MARTin.
@@ -169,7 +171,7 @@ class Dataset:
 
         return data_statistics
 
-    def generate_default_spot_parameters(self) -> List[Dict[str, Any]]:
+    def generate_default_spot_parameters(self) -> list[dict[str, Any]]:
         """
         Generates default spot metadata.
         Every spot is placed at coordinate (0,0) as a circle with a diameter of 0.
@@ -271,7 +273,7 @@ class Dataset:
 
         return Metadata(**metadata)
 
-    def generate_default_metadata(self) -> Dict[str, Any]:
+    def generate_default_metadata(self) -> dict[str, Any]:
         """
         Generates a default metadata dict for datasets without a metadata file.
         A unique id is generated from a now timestamp.
@@ -354,7 +356,7 @@ class Dataset:
         ret = str(self._metadata.datetime.date())
         return ret + self.get_name_label
 
-    def has_some_tags(self, comp_tags: List[str]) -> bool:
+    def has_some_tags(self, comp_tags: list[str]) -> bool:
         """
         Checks if any of the provided tags are present in the dataset's tags or suplex_tags.
 
@@ -367,7 +369,7 @@ class Dataset:
         tag_list = self.tags + self.suplex_tags
         return any(tag in tag_list for tag in comp_tags)
 
-    def has_all_tags(self, comp_tags: List[str]) -> bool:
+    def has_all_tags(self, comp_tags: list[str]) -> bool:
         """
         Checks if all provided tags are present in the dataset's tags or suplex_tags.
 
@@ -424,13 +426,13 @@ class Dataset:
         return None
 
     @property
-    def tags(self) -> List[any]:
+    def tags(self) -> list[any]:
         if self._metadata is not None:
             return self._metadata.tags
         return []
 
     @property
-    def suplex_tags(self) -> List[str]:
+    def suplex_tags(self) -> list[str]:
         if self._suplex_file is not None:
             if "tags" in self._suplex_file.keys():
                 if isinstance(self._suplex_file["tags"], list):
@@ -439,11 +441,11 @@ class Dataset:
 
     # Returns lists of specific attributes of `samples`.
     @property
-    def spots(self) -> List[List[Spot]]:
+    def spots(self) -> list[list[Spot]]:
         return [sample_list.spots for sample_list in self._samples]
 
     @property
-    def data_statistics(self) -> List[DataStatistics]:
+    def data_statistics(self) -> list[DataStatistics]:
         return [sample_list.data_statistics for sample_list in self._samples]
 
     # Allow direct access for all parameters incase future devs need it.
@@ -460,11 +462,11 @@ class Dataset:
         return self._project
 
     @property
-    def samples(self) -> List[Sample]:
+    def samples(self) -> list[Sample]:
         return self._samples
 
     @property
-    def general_parameters(self) -> List[RoiParameters]:
+    def general_parameters(self) -> list[RoiParameters]:
         return self._general_parameters
 
     @property
@@ -472,5 +474,5 @@ class Dataset:
         return self._metadata
 
     @property
-    def suplex_file(self) -> Dict[str, any]:
+    def suplex_file(self) -> dict[str, any]:
         return self._suplex_file

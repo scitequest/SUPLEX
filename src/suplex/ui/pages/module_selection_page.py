@@ -1,7 +1,7 @@
+import base64
 import logging
 import os
-import base64
-from typing import TYPE_CHECKING, List, Optional, Any
+from typing import TYPE_CHECKING, Any
 
 import ipywidgets as widgets
 from ipyevents import Event
@@ -21,7 +21,7 @@ class ModuleSelectionPage:
     viable for the selected datasets. Users can click on viable modules to launch them.
     """
 
-    def __init__(self, navigator: "Navigator", modules: List[Any]) -> None:
+    def __init__(self, navigator: "Navigator", modules: list[Any]) -> None:
         """
         Initialize the module selection page.
 
@@ -33,12 +33,12 @@ class ModuleSelectionPage:
 
         self._navigator = navigator
         self._modules = modules
-        self._module_tiles: List[widgets.Widget] = []
-        self._tile_events: List[Event] = []
+        self._module_tiles: list[widgets.Widget] = []
+        self._tile_events: list[Event] = []
 
         logger.debug("Module selection page initialized successfully")
 
-    def get_ui(self, datasets: List[Any]) -> widgets.Widget:
+    def get_ui(self, datasets: list[Any]) -> widgets.Widget:
         """
         Generate the user interface for the module selection page.
 
@@ -201,7 +201,7 @@ class ModuleSelectionPage:
                 height="100%",
             )
 
-    def create_module_tile(self, module: Any, is_viable: bool) -> Optional[widgets.Widget]:
+    def create_module_tile(self, module: Any, is_viable: bool) -> widgets.Widget | None:
         """
         Creates a styled HTML widget representing the module with hover effects,
         click handlers, and visual indicators for viability status.

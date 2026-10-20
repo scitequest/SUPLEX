@@ -4,40 +4,40 @@ class which enables storage and provides filtering widgets for hierarchical thre
 """
 
 import logging
+
 import ipywidgets as widgets
-from typing import List, Optional, Dict, Tuple
 import numpy as np
 
 from suplex.martin_interface.dataset import Dataset
-from suplex.ui.widget_factory import WidgetFactory
+from suplex.suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET
+from suplex.suplex_modules.submodules.submodule_constants import (
+    DATA_ATTRIBUTES,
+    DATA_STATISTICS_ATTRIBUTES,
+    DATASET_ATTRIBUTE,
+    NORMALIZATION,
+    NORMALIZATION_DEFAULT,
+    SELECTION_MODE,
+    THRESHOLD_FILTER_STATE,
+)
+from suplex.suplex_modules.submodules.submodule_utils import calculate_step_size
 from suplex.suplex_modules.submodules.value_extractor import (
     ValueExtractor,
     extract_value_list_from_dataset,
     get_flat_value_list,
 )
-from suplex.suplex_modules.submodules.submodule_constants import (
-    DATASET_ATTRIBUTE,
-    DATA_ATTRIBUTES,
-    DATA_STATISTICS_ATTRIBUTES,
-    NORMALIZATION,
-    SELECTION_MODE,
-    THRESHOLD_FILTER_STATE,
-    NORMALIZATION_DEFAULT,
-)
-from suplex.suplex_modules.submodules.submodule_utils import calculate_step_size
-from suplex.suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 
 
 def get_sample_threshold_map(
-    datasets: List[Dataset],
+    datasets: list[Dataset],
     attribute: DATASET_ATTRIBUTE,
     min_threshold: float,
     max_threshold: float,
     normalization_method: NORMALIZATION,
     normalization_factor: float,
-) -> Dict[Dataset, List[THRESHOLD_FILTER_STATE]]:
+) -> dict[Dataset, list[THRESHOLD_FILTER_STATE]]:
     """
     Generate a threshold map for samples across datasets based on the specified attribute and thresholds.
 
@@ -83,11 +83,11 @@ def get_sample_threshold_map(
 
 
 def get_normalization_factors(
-    datasets: List[Dataset],
+    datasets: list[Dataset],
     attribute: DATASET_ATTRIBUTE,
     normalization_method: NORMALIZATION,
     normalization_factor: float,
-) -> List[float]:
+) -> list[float]:
     """
     Compute normalization factors for datasets based on the specified method.
 
@@ -139,13 +139,13 @@ def get_normalization_factors(
 
 
 def get_spot_threshold_map(
-    datasets: List[Dataset],
+    datasets: list[Dataset],
     attribute: DATASET_ATTRIBUTE,
     min_threshold: float,
     max_threshold: float,
     normalization_method: NORMALIZATION = NORMALIZATION.RAW,
     normalization_factor: float = 1.0,
-) -> Dict[Dataset, List[List[THRESHOLD_FILTER_STATE]]]:
+) -> dict[Dataset, list[list[THRESHOLD_FILTER_STATE]]]:
     """
     Generate a threshold map for spots across datasets based on the specified attribute and thresholds.
 
@@ -202,12 +202,12 @@ def get_spot_threshold_map(
 
 
 def get_spot_data_threshold_map(
-    datasets: List[Dataset],
+    datasets: list[Dataset],
     attribute: DATASET_ATTRIBUTE,
     min_threshold: float,
     max_threshold: float,
-    normalization_factors: List[float],
-) -> Dict[Dataset, List[List[THRESHOLD_FILTER_STATE]]]:
+    normalization_factors: list[float],
+) -> dict[Dataset, list[list[THRESHOLD_FILTER_STATE]]]:
     """
     Generate a threshold map for spot data attributes across datasets.
 
@@ -246,12 +246,12 @@ def get_spot_data_threshold_map(
 
 
 def get_spot_coords_threshold_map(
-    datasets: List[Dataset],
+    datasets: list[Dataset],
     attribute: DATASET_ATTRIBUTE,
     min_threshold: float,
     max_threshold: float,
-    normalization_factors: List[float],
-) -> Dict[Dataset, List[List[THRESHOLD_FILTER_STATE]]]:
+    normalization_factors: list[float],
+) -> dict[Dataset, list[list[THRESHOLD_FILTER_STATE]]]:
     """
     Generate a threshold map for spot coordinate attributes across datasets.
 
@@ -299,7 +299,7 @@ def get_spot_coords_threshold_map(
 
 
 def aggregate_filter_states_any(
-    threshold_states: List[THRESHOLD_FILTER_STATE],
+    threshold_states: list[THRESHOLD_FILTER_STATE],
 ) -> THRESHOLD_FILTER_STATE:
     """
     Aggregate filter states using 'ANY' logic.
@@ -313,7 +313,7 @@ def aggregate_filter_states_any(
         THRESHOLD_FILTER_STATE: Aggregated filter state.
     """
     if not threshold_states:
-        logger.warning(f"ANY: Aggregation list contains no elements. Defaults to WITHIN_RANGE.")
+        logger.warning("ANY: Aggregation list contains no elements. Defaults to WITHIN_RANGE.")
         return THRESHOLD_FILTER_STATE.WITHIN_RANGE
 
     if THRESHOLD_FILTER_STATE.WITHIN_RANGE in threshold_states:
@@ -338,7 +338,7 @@ def aggregate_filter_states_any(
 
 
 def aggregate_filter_states_all(
-    threshold_states: List[THRESHOLD_FILTER_STATE],
+    threshold_states: list[THRESHOLD_FILTER_STATE],
 ) -> THRESHOLD_FILTER_STATE:
     """
     Aggregate filter states using 'ALL' logic.
@@ -352,7 +352,7 @@ def aggregate_filter_states_all(
         THRESHOLD_FILTER_STATE: Aggregated filter state.
     """
     if not threshold_states:
-        logger.warning(f"ANY: Aggregation list contains no elements. Defaults to WITHIN_RANGE.")
+        logger.warning("ANY: Aggregation list contains no elements. Defaults to WITHIN_RANGE.")
         return THRESHOLD_FILTER_STATE.WITHIN_RANGE
 
     below = THRESHOLD_FILTER_STATE.BELOW_RANGE in threshold_states
@@ -395,8 +395,8 @@ class SampleSpotFilter:
 
     def __init__(
         self,
-        included_attributes: List[DATASET_ATTRIBUTE] = None,
-        included_normalization_methods: List[NORMALIZATION] = None,
+        included_attributes: list[DATASET_ATTRIBUTE] = None,
+        included_normalization_methods: list[NORMALIZATION] = None,
         default_abs_max: float = 2**16 - 1,
     ):
         """
@@ -547,8 +547,8 @@ class SampleSpotFilter:
         return self._sample_filter_mode_dropdown
 
     def get_default_sample_map(
-        self, datasets: List[Dataset]
-    ) -> Dict[Dataset, List[THRESHOLD_FILTER_STATE]]:
+        self, datasets: list[Dataset]
+    ) -> dict[Dataset, list[THRESHOLD_FILTER_STATE]]:
         """
         Generates a default sample map for the provided datasets.
 
@@ -571,8 +571,8 @@ class SampleSpotFilter:
         return default_map
 
     def get_default_spot_map(
-        self, datasets: List[Dataset]
-    ) -> Dict[Dataset, List[List[THRESHOLD_FILTER_STATE]]]:
+        self, datasets: list[Dataset]
+    ) -> dict[Dataset, list[list[THRESHOLD_FILTER_STATE]]]:
         """
         Generates a default spot map for the provided datasets.
 
@@ -616,7 +616,7 @@ class SampleSpotFilter:
         self._sample_filter_mode_dropdown.disabled = disabled
 
     def is_flag_in_selected_range(
-        self, flag: THRESHOLD_FILTER_STATE, invert: Optional[bool] = None
+        self, flag: THRESHOLD_FILTER_STATE, invert: bool | None = None
     ) -> bool:
         """
         Determine if a filter state flag is considered selected based on the range and optional inversion.
@@ -645,15 +645,15 @@ class SampleSpotFilter:
 
     def extract_filtered_values_from_datasets(
         self,
-        datasets: List[Dataset],
+        datasets: list[Dataset],
         attribute: DATASET_ATTRIBUTE,
-        sample_threshold_map: Optional[Dict[Dataset, List[THRESHOLD_FILTER_STATE]]] = None,
-        spot_threshold_map: Optional[Dict[Dataset, List[List[THRESHOLD_FILTER_STATE]]]] = None,
-        below_replacement_value: Optional[float] = None,
-        above_replacement_value: Optional[float] = None,
-        outside_replacement_value: Optional[float] = None,
-        invert: Optional[bool] = None,
-    ) -> Dict[Dataset, List[float]]:
+        sample_threshold_map: dict[Dataset, list[THRESHOLD_FILTER_STATE]] | None = None,
+        spot_threshold_map: dict[Dataset, list[list[THRESHOLD_FILTER_STATE]]] | None = None,
+        below_replacement_value: float | None = None,
+        above_replacement_value: float | None = None,
+        outside_replacement_value: float | None = None,
+        invert: bool | None = None,
+    ) -> dict[Dataset, list[float]]:
         """
         This method processes a list of datasets to extract values for a given attribute,
         applying filters based on threshold maps for samples or spots.
@@ -840,10 +840,10 @@ class SampleSpotFilter:
 
     def on_filter_params_changed(
         self,
-        datasets: List[Dataset],
-        attribute: Optional[DATASET_ATTRIBUTE] = None,
-        normalization_method: Optional[NORMALIZATION] = None,
-        normalization_factor: Optional[float] = None,
+        datasets: list[Dataset],
+        attribute: DATASET_ATTRIBUTE | None = None,
+        normalization_method: NORMALIZATION | None = None,
+        normalization_factor: float | None = None,
     ) -> None:
         """
         Update the threshold slider based on changed filter parameters.
@@ -911,18 +911,18 @@ class SampleSpotFilter:
 
     def get_filter_maps(
         self,
-        datasets: List[Dataset],
-        attribute: Optional[DATASET_ATTRIBUTE] = None,
-        min_threshold: Optional[float] = None,
-        max_threshold: Optional[float] = None,
-        normalization_method: Optional[NORMALIZATION] = None,
-        normalization_factor: Optional[float] = None,
-        spots_affect_sample: Optional[bool] = None,
-        sample_affects_spots: Optional[bool] = None,
-        sample_filter_mode: Optional[SELECTION_MODE] = None,
-    ) -> Tuple[
-        Dict[Dataset, List[THRESHOLD_FILTER_STATE]],
-        Dict[Dataset, List[List[THRESHOLD_FILTER_STATE]]],
+        datasets: list[Dataset],
+        attribute: DATASET_ATTRIBUTE | None = None,
+        min_threshold: float | None = None,
+        max_threshold: float | None = None,
+        normalization_method: NORMALIZATION | None = None,
+        normalization_factor: float | None = None,
+        spots_affect_sample: bool | None = None,
+        sample_affects_spots: bool | None = None,
+        sample_filter_mode: SELECTION_MODE | None = None,
+    ) -> tuple[
+        dict[Dataset, list[THRESHOLD_FILTER_STATE]],
+        dict[Dataset, list[list[THRESHOLD_FILTER_STATE]]],
     ]:
         """
         Generate threshold-based filter maps for datasets at both sample and spot levels.

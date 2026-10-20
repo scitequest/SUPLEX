@@ -1,16 +1,14 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-from pathlib import Path
-import importlib.util
 import sys
+from pathlib import Path
+from unittest.mock import Mock, patch
 
 from suplex.ui.styles.scheme_loader import (
-    load_all_schemes,
-    validate_scheme_files,
+    get_schemes,
     is_system_file,
+    load_all_schemes,
     try_load_schemes_from_file,
     validate_against_schema,
-    get_schemes,
+    validate_scheme_files,
 )
 
 

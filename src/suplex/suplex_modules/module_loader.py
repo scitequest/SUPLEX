@@ -1,23 +1,21 @@
-import os
-import sys
+import ast
 import importlib.util
 import inspect
-import ast
 import logging
+import os
 from collections import deque
-from enum import Enum
-from typing import Any, Type, List, Set, Tuple, Optional
+from typing import Any
 
-from .suplex_module_interface import SuplexModuleInterface
 from .module_constants import (
+    DEFAULT_IGNORE_DIRS,
+    DEFAULT_IGNORE_EXTENSIONS,
+    DEFAULT_IGNORE_FILES,
     DEFAULT_MODULE_DIRECTORY,
     DEFAULT_SEARCH_DEPTH,
-    STANDARD_READOUT_FILE_TYPE,
     SEARCH_MODE,
-    DEFAULT_IGNORE_DIRS,
-    DEFAULT_IGNORE_FILES,
-    DEFAULT_IGNORE_EXTENSIONS,
+    STANDARD_READOUT_FILE_TYPE,
 )
+from .suplex_module_interface import SuplexModuleInterface
 
 logger = logging.getLogger(__name__)
 
@@ -27,10 +25,10 @@ def load_modules(
     max_depth: int = DEFAULT_SEARCH_DEPTH,
     filetype: str = STANDARD_READOUT_FILE_TYPE,
     mode: SEARCH_MODE = SEARCH_MODE.RECURSIVE,
-    ignore_dirs: Set[str] = DEFAULT_IGNORE_DIRS,
-    ignore_files: Set[str] = DEFAULT_IGNORE_FILES,
-    ignore_extensions: Set[str] = DEFAULT_IGNORE_EXTENSIONS,
-) -> List[SuplexModuleInterface]:
+    ignore_dirs: set[str] = DEFAULT_IGNORE_DIRS,
+    ignore_files: set[str] = DEFAULT_IGNORE_FILES,
+    ignore_extensions: set[str] = DEFAULT_IGNORE_EXTENSIONS,
+) -> list[SuplexModuleInterface]:
     """
     Load suplex modules from a given directory.
     This is supposed to be used upon startup of the software to scan the modules directory.
@@ -82,10 +80,10 @@ def load_modules(
 def delve_dirs(
     search_dir: str,
     filetype: str,
-    files: Set[str],
-    ignore_dirs: Set[str] = DEFAULT_IGNORE_DIRS,
-    ignore_files: Set[str] = DEFAULT_IGNORE_FILES,
-    ignore_extensions: Set[str] = DEFAULT_IGNORE_EXTENSIONS,
+    files: set[str],
+    ignore_dirs: set[str] = DEFAULT_IGNORE_DIRS,
+    ignore_files: set[str] = DEFAULT_IGNORE_FILES,
+    ignore_extensions: set[str] = DEFAULT_IGNORE_EXTENSIONS,
 ) -> None:
     """
     Recursively search directories for potentially compatible modules.
@@ -134,10 +132,10 @@ def sweep_dirs(
     filetype: str,
     mode: SEARCH_MODE,
     max_depth: int,
-    ignore_dirs: Set[str],
-    ignore_files: Set[str],
-    ignore_extensions: Set[str],
-) -> Set[str]:
+    ignore_dirs: set[str],
+    ignore_files: set[str],
+    ignore_extensions: set[str],
+) -> set[str]:
     """
     Iteratively search directories for potentially compatible modules.
 
@@ -196,7 +194,7 @@ def sweep_dirs(
     return files
 
 
-def should_ignore_directory(dir_name: str, ignore_dirs: Set[str]) -> bool:
+def should_ignore_directory(dir_name: str, ignore_dirs: set[str]) -> bool:
     """
     Check if a directory should be ignored based on ignore patterns.
 
@@ -221,7 +219,7 @@ def should_ignore_directory(dir_name: str, ignore_dirs: Set[str]) -> bool:
     return False
 
 
-def should_ignore_file(file_name: str, ignore_files: Set[str], ignore_extensions: Set[str]) -> bool:
+def should_ignore_file(file_name: str, ignore_files: set[str], ignore_extensions: set[str]) -> bool:
     """
     Check if a file should be ignored based on ignore patterns.
     As we only search for very specific file types this method is a bit redundant.
@@ -278,7 +276,7 @@ def should_collect_at_depth(mode: SEARCH_MODE, current_depth: int, max_depth: in
     return False
 
 
-def try_get_module(file_path: str) -> List[SuplexModuleInterface]:
+def try_get_module(file_path: str) -> list[SuplexModuleInterface]:
     """
     Attempts to load SUPLEX compatible modules from a given file.
     Returns a list as a file may contain multiple modules.
@@ -341,7 +339,7 @@ def has_suplex_interface_classes(file_path: str) -> bool:
         True if file likely contains SuplexModuleInterface implementations, False if otherwise
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as file:
+        with open(file_path, encoding="utf-8") as file:
             content = file.read()
 
         node = ast.parse(content, filename=file_path)
@@ -420,7 +418,7 @@ def has_suplex_interface_classes(file_path: str) -> bool:
         return False
 
 
-def is_valid_suplex_module_class(obj: Any, module_name: str, interface_class: Type) -> bool:
+def is_valid_suplex_module_class(obj: Any, module_name: str, interface_class: type) -> bool:
     """
     Checks if an object is a valid SUPLEX plugin class.
 

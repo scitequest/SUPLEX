@@ -1,12 +1,12 @@
 import logging
 from datetime import date
-from typing import List, Optional, Dict
 
 import ipywidgets as widgets
 
-from .submodule_constants import DATASET_SELECTOR_MODE, DATASET_LABEL
 from suplex.martin_interface.dataset import Dataset
 from suplex.ui.widget_factory import WidgetFactory
+
+from .submodule_constants import DATASET_LABEL, DATASET_SELECTOR_MODE
 
 logger = logging.getLogger(__name__)
 
@@ -20,10 +20,10 @@ class DatasetSelector:
 
     def __init__(
         self,
-        datasets: List[Dataset],
+        datasets: list[Dataset],
         mode: DATASET_SELECTOR_MODE = DATASET_SELECTOR_MODE.MULTIPLE_UNBOUND,
         checkbox_limit: int = 1,
-        label_parts: List[DATASET_LABEL] = None,
+        label_parts: list[DATASET_LABEL] = None,
     ) -> None:
         """
         Initialize the dataset selector.
@@ -46,9 +46,9 @@ class DatasetSelector:
             self._checkbox_limit = 1
 
         # Initialize internal state
-        self._checkboxes: List[widgets.Checkbox] = []
-        self._checkbox_queue: List[widgets.Checkbox] = []
-        self._checkbox_dataset_map: Dict[widgets.Checkbox, Dataset] = {}
+        self._checkboxes: list[widgets.Checkbox] = []
+        self._checkbox_queue: list[widgets.Checkbox] = []
+        self._checkbox_dataset_map: dict[widgets.Checkbox, Dataset] = {}
 
         try:
             self.setup_checkboxes()
@@ -185,7 +185,6 @@ class DatasetSelector:
                 len(self._checkbox_queue) > self._checkbox_limit
                 and self._mode != DATASET_SELECTOR_MODE.MULTIPLE_UNBOUND
             ):
-
                 # Remove oldest selection (triggers this method again)
                 oldest_checkbox = self._checkbox_queue[0]
                 oldest_checkbox.value = False
@@ -233,7 +232,7 @@ class DatasetSelector:
         """
         return len(self._checkbox_queue)
 
-    def get_selected_labels(self) -> List[str]:
+    def get_selected_labels(self) -> list[str]:
         """
         Get the display labels of currently selected datasets.
 
@@ -248,7 +247,7 @@ class DatasetSelector:
             logger.error("Error getting selected labels: %s", e, exc_info=True)
             return []
 
-    def get_selected_datasets(self) -> List[Dataset]:
+    def get_selected_datasets(self) -> list[Dataset]:
         """
         Get the currently selected Dataset objects.
 
@@ -286,7 +285,7 @@ class DatasetSelector:
         except Exception as e:
             logger.error("Error clearing selections: %s", e, exc_info=True)
 
-    def get_checkbox_of_dataset(self, target_dataset: Dataset) -> Optional[widgets.Checkbox]:
+    def get_checkbox_of_dataset(self, target_dataset: Dataset) -> widgets.Checkbox | None:
         """
         Find the checkbox widget associated with a specific dataset.
 
@@ -308,7 +307,7 @@ class DatasetSelector:
             logger.error("Error finding checkbox for dataset: %s", e, exc_info=True)
             return None
 
-    def select_datasets(self, datasets: List[Dataset]) -> None:
+    def select_datasets(self, datasets: list[Dataset]) -> None:
         """
         Programmatically select specific datasets.
 
@@ -339,7 +338,7 @@ class DatasetSelector:
         except Exception as e:
             logger.error("Error selecting datasets: %s", e, exc_info=True)
 
-    def deselect_datasets(self, datasets: List[Dataset]) -> None:
+    def deselect_datasets(self, datasets: list[Dataset]) -> None:
         """
         Programmatically deselect specific datasets.
 
@@ -447,7 +446,7 @@ class DatasetSelector:
         except Exception as e:
             logger.error("Error deselecting date range: %s", e, exc_info=True)
 
-    def get_dataset_label_format(self) -> List[DATASET_LABEL]:
+    def get_dataset_label_format(self) -> list[DATASET_LABEL]:
         """
         Get the current dataset label format configuration.
 
@@ -456,7 +455,7 @@ class DatasetSelector:
         """
         return self._label_parts.copy()
 
-    def update_dataset_labels(self, label_parts: Optional[List[DATASET_LABEL]] = None) -> None:
+    def update_dataset_labels(self, label_parts: list[DATASET_LABEL] | None = None) -> None:
         """
         Update the display labels for all datasets.
 
@@ -495,7 +494,7 @@ class DatasetSelector:
         except Exception as e:
             logger.error("Error updating dataset labels: %s", e, exc_info=True)
 
-    def get_checkboxes(self) -> List[widgets.Checkbox]:
+    def get_checkboxes(self) -> list[widgets.Checkbox]:
         """
         Get a copy of all checkbox widgets.
         This allows external components to add observer methods to checkboxes.

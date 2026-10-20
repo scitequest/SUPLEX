@@ -57,12 +57,13 @@ All test files should follow this consistent structure:
 import pytest
 # Explicit imports only (no wildcard imports)
 
+
 class TestClassName:
     """Clear, descriptive English docstring describing what this test class covers."""
 
-    # ------------------------------------------------------------------------- 
+    # -------------------------------------------------------------------------
     # Section Name
-    # ------------------------------------------------------------------------- 
+    # -------------------------------------------------------------------------
 
     def test_something(self, fixture_name):
         """Clear, descriptive English docstring."""

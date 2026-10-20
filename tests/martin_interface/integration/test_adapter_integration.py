@@ -1,7 +1,7 @@
-import pytest
-import os
-import json
 import copy
+import json
+import os
+
 from suplex.martin_interface.martin_adapter import Adapter
 from suplex.martin_interface.martin_interface_constants import SEARCH_MODE
 

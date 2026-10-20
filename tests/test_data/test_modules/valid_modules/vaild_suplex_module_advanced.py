@@ -1,8 +1,8 @@
-from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
-from typing import Dict, List, Optional, Any
-import ipywidgets
-from abc import ABC
 import logging
+from abc import ABC
+from typing import Any, Optional
+
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 
 
 class LoggerMixin:
@@ -41,20 +41,20 @@ class AdvancedSuplexModule(LoggerMixin, SuplexModuleInterface, ConfigurableModul
         return "test"
 
     @property
-    def button_style(self) -> Dict[str, str]:
+    def button_style(self) -> dict[str, str]:
         theme = self.settings.get("theme", "light")
         if theme == "dark":
             return {"font_color": "#FFFFFF", "button_color": "#2D2D2D"}
         return {"font_color": "#000000", "button_color": "#F0F0F0"}
 
-    def check_if_viable(self, datasets: List[Any]) -> bool:
+    def check_if_viable(self, datasets: list[Any]) -> bool:
         self.log_info(f"Checking viability for {len(datasets)} datasets")
         return len(datasets) > 0 and all(d.is_valid() for d in datasets)
 
     def get_module_hover_text(self) -> str:
         return f"Advanced module with multiple inheritance (Theme: {self.settings.get('theme', 'default')})"
 
-    def initiate_module(self, datasets: List[Any], color_scheme: Any) -> None:
+    def initiate_module(self, datasets: list[Any], color_scheme: Any) -> None:
         self.load_config()
         self.log_info(
             f"Module initiated with {len(datasets)} datasets and config from {self.config_path}"
@@ -67,5 +67,5 @@ class AdvancedSuplexModule(LoggerMixin, SuplexModuleInterface, ConfigurableModul
         self.log_info("Resetting module")
         return AdvancedSuplexModule(self.config_path)
 
-    def get_current_config(self) -> Dict:
+    def get_current_config(self) -> dict:
         return self.settings.copy()

@@ -1,13 +1,13 @@
 import pytest
 
 from suplex.ui.styles.color_utils import (
-    hex_to_rgb,
-    rgb_to_hex,
-    get_luminance,
     darken_hex_color,
-    lighten_hex_color,
     get_emphasized_hex_color,
+    get_luminance,
+    hex_to_rgb,
     hex_to_rgba,
+    lighten_hex_color,
+    rgb_to_hex,
 )
 
 

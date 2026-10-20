@@ -1,6 +1,5 @@
-import pytest
-from unittest.mock import patch, MagicMock, Mock
-from typing import List, Any
+from typing import Any
+from unittest.mock import MagicMock, Mock, patch
 
 from suplex.suplex_modules.vanilla.intensity_overview import IntensityOverviewModule
 
@@ -24,7 +23,7 @@ class TestIntegrationIntensityOverviewModule:
     # -------------------------------------------------------------------------
 
     def test_check_if_viable_passes_on_good_datasets(
-        self, positive_uniform_datasets: List[Any]
+        self, positive_uniform_datasets: list[Any]
     ) -> None:
         module = IntensityOverviewModule()
         assert module.check_if_viable(positive_uniform_datasets) is True
@@ -50,7 +49,7 @@ class TestIntegrationIntensityOverviewModule:
         mock_box_settings: MagicMock,
         mock_value_extractor: MagicMock,
         mock_widget_factory: MagicMock,
-        positive_uniform_datasets: List[Any],
+        positive_uniform_datasets: list[Any],
         mock_color_scheme: Mock,
     ) -> None:
         module = IntensityOverviewModule()
@@ -67,7 +66,7 @@ class TestIntegrationIntensityOverviewModule:
         # Note: Current implementation does not set _is_active
 
     def test_update_scheme(
-        self, positive_uniform_datasets: List[Any], mock_color_scheme: Mock
+        self, positive_uniform_datasets: list[Any], mock_color_scheme: Mock
     ) -> None:
         module = IntensityOverviewModule()
         module.initiate_module(positive_uniform_datasets, mock_color_scheme)
@@ -84,7 +83,7 @@ class TestIntegrationIntensityOverviewModule:
     # Edge cases
     # -------------------------------------------------------------------------
 
-    def test_initiate_with_empty_datasets(self, empty_dataset_list: List[Any]) -> None:
+    def test_initiate_with_empty_datasets(self, empty_dataset_list: list[Any]) -> None:
         module = IntensityOverviewModule()
         try:
             module.initiate_module(empty_dataset_list, color_scheme=None)

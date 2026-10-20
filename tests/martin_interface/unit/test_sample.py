@@ -1,12 +1,9 @@
-import pytest
 from dataclasses import is_dataclass
-from suplex.martin_interface.sample import Sample, DataStatistics
+
 from suplex.martin_interface.roi_elements import (
-    Spot,
-    SpotValues,
     RoiParameters,
-    Coordinates,
 )
+from suplex.martin_interface.sample import DataStatistics, Sample
 
 
 class TestSample:

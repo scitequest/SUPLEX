@@ -1,19 +1,19 @@
-import pytest
 from unittest.mock import Mock, patch
-import ipywidgets as widgets
 
+import ipywidgets as widgets
+import pytest
+
+from suplex.martin_interface.dataset import Dataset
 from suplex.suplex_modules.submodules.attribute_selector import (
-    extract_value_list_from_dataset,
-    get_flat_value_list,
-    flatten_list,
     AttributeSelector,
+    extract_value_list_from_dataset,
+    flatten_list,
+    get_flat_value_list,
 )
 from suplex.suplex_modules.submodules.submodule_constants import (
-    DATASET_ATTRIBUTE,
     DATA_ATTRIBUTES,
-    DATA_STATISTICS_ATTRIBUTES,
+    DATASET_ATTRIBUTE,
 )
-from suplex.martin_interface.dataset import Dataset
 
 
 class TestAttributeSelector:
@@ -59,7 +59,9 @@ class TestAttributeSelector:
 
     def test_extract_value_list_from_dataset_unknown_attribute(self, mock_dataset):
         """Test handling of unknown attribute (should log warning and return empty)."""
-        with patch("suplex.suplex_modules.submodules.attribute_selector.logger.warning") as mock_warning:
+        with patch(
+            "suplex.suplex_modules.submodules.attribute_selector.logger.warning"
+        ) as mock_warning:
             values = extract_value_list_from_dataset(mock_dataset, Mock(value="UNKNOWN"))
             assert values == []
             mock_warning.assert_called()

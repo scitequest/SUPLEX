@@ -1,13 +1,12 @@
-import pytest
 from unittest.mock import Mock, patch
 
 import ipywidgets as widgets
 
-from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
-from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
 from suplex.martin_interface.martin_interface_constants import SEARCH_MODE
-from suplex.ui.ui_constants import PAGE
 from suplex.ui.elements.navigator import Navigator
+from suplex.ui.pages.dataset_selection_page import ProjectCard
+from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
+from suplex.ui.ui_constants import PAGE
 
 
 class TestDirectoryDatasetFlow:

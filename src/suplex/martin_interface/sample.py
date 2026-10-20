@@ -1,6 +1,7 @@
-from .roi_elements import *
 from dataclasses import dataclass
-from typing import List, Optional, Dict, Any
+from typing import Any
+
+from .roi_elements import *
 
 
 @dataclass(frozen=True)
@@ -43,9 +44,9 @@ class Sample:
 
     def __init__(
         self,
-        spots: List[Dict[str, Any]],
-        spot_statistics: Optional[Dict[str, Any]],
-        parameters: Optional[List[Dict[str, Any]]],
+        spots: list[dict[str, Any]],
+        spot_statistics: dict[str, Any] | None,
+        parameters: list[dict[str, Any]] | None,
     ) -> None:
         self._spots = self.init_spots(spots=spots, parameters=parameters)
         self._statistics = None
@@ -53,8 +54,8 @@ class Sample:
             self._statistics = DataStatistics(**spot_statistics)
 
     def init_spots(
-        self, spots: List[Dict[str, Any]], parameters: Optional[List[Dict[str, Any]]]
-    ) -> List[Spot]:
+        self, spots: list[dict[str, Any]], parameters: list[dict[str, Any]] | None
+    ) -> list[Spot]:
         """
         Initialize Spot objects from raw JSON data.
 
@@ -104,9 +105,9 @@ class Sample:
         return samples
 
     @property
-    def spots(self) -> List[Spot]:
+    def spots(self) -> list[Spot]:
         return self._spots
 
     @property
-    def data_statistics(self) -> Optional[DataStatistics]:
+    def data_statistics(self) -> DataStatistics | None:
         return self._statistics

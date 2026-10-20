@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Any, List
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -22,12 +22,12 @@ class PathHolder:
 
     dataset_path: str
     data_path: str
-    data_statistics_path: Optional[str] = None
-    metadata_path: Optional[str] = None
-    parameters_path: Optional[str] = None
-    image_path: Optional[str] = None
-    annotated_image_path: Optional[str] = None
-    suplex_path: Optional[str] = None
+    data_statistics_path: str | None = None
+    metadata_path: str | None = None
+    parameters_path: str | None = None
+    image_path: str | None = None
+    annotated_image_path: str | None = None
+    suplex_path: str | None = None
 
 
 @dataclass(frozen=True)
@@ -45,8 +45,8 @@ class FileHolder:
         suplex_file (list[dict[Any, Any]]): A dictionary for storage, allowing to carry over information between runtime sessions of this software.
     """
 
-    data_file: dict[str, List[dict[str, Any]]]
-    data_statistics_file: Optional[dict[str, List[dict[str, Any]]]] = None
-    metadata_file: Optional[dict[Any, Any]] = None
-    parameters_file: Optional[dict[str, Any]] = None
-    suplex_file: Optional[dict[str, Any]] = None
+    data_file: dict[str, list[dict[str, Any]]]
+    data_statistics_file: dict[str, list[dict[str, Any]]] | None = None
+    metadata_file: dict[Any, Any] | None = None
+    parameters_file: dict[str, Any] | None = None
+    suplex_file: dict[str, Any] | None = None

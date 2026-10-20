@@ -1,15 +1,13 @@
-import pytest
 import ipywidgets as widgets
 
 from suplex.suplex_modules.submodules.settings.general_graph_settings import GeneralGraphSettings
 from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
+    ASPECT_RATIO,
+    GRID_STYLE,
+    INTERPOLATION_TYPE,
+    LEGEND_POSITION,
     SCALE_TYPE,
     SEQUENTIAL_COLOR_SCHEME,
-    DIVERGENT_COLOR_SCHEME,
-    GRID_STYLE,
-    LEGEND_POSITION,
-    ASPECT_RATIO,
-    INTERPOLATION_TYPE,
 )
 
 

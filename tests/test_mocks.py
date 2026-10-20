@@ -1,7 +1,5 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-import ipywidgets as widgets
 import logging
+from unittest.mock import MagicMock, patch
 
 
 class TestMocks:

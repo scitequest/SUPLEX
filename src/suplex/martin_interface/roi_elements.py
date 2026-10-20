@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List, Optional
 
 
 @dataclass(frozen=True)
@@ -57,7 +56,7 @@ class RoiParameters:
     """
 
     shape: str  # Changed name due to `type` beeing a keyword.
-    coordinates: List[Coordinates]
+    coordinates: list[Coordinates]
     diameter: float
 
 
@@ -111,7 +110,7 @@ class Spot:
         return self.spot_values.std_deviation
 
     @property
-    def shape(self) -> Optional[str]:
+    def shape(self) -> str | None:
         """
         Returns the shape of the ROI used for this spot measurement.
 
@@ -123,7 +122,7 @@ class Spot:
         return self.spot_parameters.shape
 
     @property
-    def diameter(self) -> Optional[float]:
+    def diameter(self) -> float | None:
         """
         Returns the diameter of the ROI if available.
 
@@ -136,7 +135,7 @@ class Spot:
         return self.spot_parameters.diameter
 
     @property
-    def coordinates(self) -> Optional[List[Coordinates]]:
+    def coordinates(self) -> list[Coordinates] | None:
         """
         Returns the coordinates defining the ROI.
 

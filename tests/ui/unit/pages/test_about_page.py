@@ -1,5 +1,3 @@
-import pytest
-
 import ipywidgets as widgets
 
 from suplex.ui.pages.about_page import AboutPage

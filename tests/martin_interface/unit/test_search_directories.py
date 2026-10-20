@@ -1,10 +1,9 @@
-import pytest
-import os
-import tempfile
 import json
+import os
 from unittest.mock import patch
-from suplex.martin_interface.search_directories import delve_dirs, sweep_dirs
+
 from suplex.martin_interface.martin_interface_constants import SEARCH_MODE
+from suplex.martin_interface.search_directories import delve_dirs, sweep_dirs
 
 
 class TestSearchDirectories:

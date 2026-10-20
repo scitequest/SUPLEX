@@ -1,10 +1,9 @@
 # TODO: finish this once we have determined an actual suplex file format.
 
-import json
 import logging
-from typing import List, Optional, Any
+from typing import Any
+
 from .basic_file_validation import *
-from ..martin_interface_constants import SUPLEX_FIELDS
 
 logger = logging.getLogger(__name__)
 

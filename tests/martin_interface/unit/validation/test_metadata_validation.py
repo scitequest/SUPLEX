@@ -1,8 +1,7 @@
-import pytest
 import copy
 from datetime import datetime, timedelta
-import isodate
 from unittest.mock import patch
+
 from suplex.martin_interface.validation.metadata_validation import (
     try_get_validated_metadata,
     try_typecast_metadata_file,

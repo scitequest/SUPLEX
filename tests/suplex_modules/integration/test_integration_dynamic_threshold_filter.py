@@ -1,12 +1,12 @@
+from typing import Any
+
 import pytest
-from typing import List, Any
 
 from suplex.suplex_modules.submodules.dynamic_threshold_filter import (
-    apply_dynamic_filtering,
     FilteredValue,
+    apply_dynamic_filtering,
 )
 from suplex.suplex_modules.submodules.submodule_constants import DATASET_ATTRIBUTE
-
 
 # =============================================================================
 # Integration tests for dynamic statistical thresholding
@@ -23,7 +23,7 @@ class TestIntegrationDynamicThresholdFilter:
     # -------------------------------------------------------------------------
 
     def test_apply_dynamic_filtering_on_uniform_data(
-        self, positive_uniform_datasets: List[Any]
+        self, positive_uniform_datasets: list[Any]
     ) -> None:
         """Pipeline should run end-to-end on real FakeDataset objects and return correct types."""
         dataset = positive_uniform_datasets[0]
@@ -43,7 +43,7 @@ class TestIntegrationDynamicThresholdFilter:
         assert len(result) > 0
 
     def test_apply_dynamic_filtering_with_narrow_grouping(
-        self, positive_uniform_datasets: List[Any]
+        self, positive_uniform_datasets: list[Any]
     ) -> None:
         """Alternative grouping strategy should also run without error."""
         dataset = positive_uniform_datasets[0]

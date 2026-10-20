@@ -1,7 +1,7 @@
-import logging
 import base64
+import logging
 import os
-from typing import TYPE_CHECKING, Dict, Any, Callable, List, Optional
+from typing import TYPE_CHECKING, Any
 
 import ipywidgets as widgets
 
@@ -21,7 +21,7 @@ class Header:
     icon loading, theme switching, and triggers UI updates when schemes change.
     """
 
-    def __init__(self, gui: "GUI", schemes: Dict[str, Any]) -> None:
+    def __init__(self, gui: "GUI", schemes: dict[str, Any]) -> None:
         """
         Initialize the header component.
 
@@ -34,8 +34,8 @@ class Header:
         self._gui = gui
         self._schemes = schemes
         self._selected_scheme = "Default"
-        self._theme_dropdown: Optional[widgets.Dropdown] = None
-        self._ui: Optional[widgets.VBox] = None
+        self._theme_dropdown: widgets.Dropdown | None = None
+        self._ui: widgets.VBox | None = None
 
         try:
             self.update_ui_element()
@@ -251,7 +251,7 @@ class Header:
         return self._schemes[self._selected_scheme]
 
     @property
-    def ui(self) -> Optional[widgets.VBox]:
+    def ui(self) -> widgets.VBox | None:
         """
         Get the header UI widget.
 

@@ -1,16 +1,9 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-import numpy as np
-import pandas as pd
-import ipywidgets as widgets
+from unittest.mock import Mock, patch
 
-from suplex.suplex_modules.vanilla.hitmap import HitmapModule
-from suplex.martin_interface.dataset import Dataset
 from suplex.suplex_modules.submodules.submodule_constants import (
-    DATASET_LABEL,
     NORMALIZATION,
-    SELECTION_MODE,
 )
+from suplex.suplex_modules.vanilla.hitmap import HitmapModule
 
 
 class TestHitmap:
@@ -58,8 +51,12 @@ class TestHitmap:
         """Module is viable when provided with clean, uniform datasets meeting all rules."""
         module = HitmapModule()
         with (
-            patch("suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False),
-            patch("suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False
+            ),
             patch(
                 "suplex.suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
                 return_value=False,
@@ -80,8 +77,12 @@ class TestHitmap:
         """Module is NOT viable when sample counts are not uniform across datasets."""
         module = HitmapModule()
         with (
-            patch("suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=True),
-            patch("suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=True
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False
+            ),
             patch(
                 "suplex.suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
                 return_value=False,
@@ -95,8 +96,12 @@ class TestHitmap:
         """Module is NOT viable when spot counts are not uniform across datasets."""
         module = HitmapModule()
         with (
-            patch("suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False),
-            patch("suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=True),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=True
+            ),
             patch(
                 "suplex.suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
                 return_value=False,
@@ -110,8 +115,12 @@ class TestHitmap:
         """Module is NOT viable when any dataset has fewer than 3 samples."""
         module = HitmapModule()
         with (
-            patch("suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False),
-            patch("suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False
+            ),
             patch(
                 "suplex.suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
                 return_value=True,
@@ -125,8 +134,12 @@ class TestHitmap:
         module = HitmapModule()
         bad_datasets = [datasets_with_issues[2]]
         with (
-            patch("suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False),
-            patch("suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False
+            ),
             patch(
                 "suplex.suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
                 return_value=False,

@@ -1,14 +1,13 @@
-from enum import Enum
+import logging
 import os
 from collections import deque
-import logging
-from typing import List, Set
+
 from .martin_interface_constants import SEARCH_MODE
 
 logger = logging.getLogger(__name__)
 
 
-def delve_dirs(path: str, target_files: List[str], detected_file_dirs: Set[str] = None) -> Set[str]:
+def delve_dirs(path: str, target_files: list[str], detected_file_dirs: set[str] = None) -> set[str]:
     """
     Recursively search for directories containing target files and return them as a set.
 
@@ -44,8 +43,8 @@ def delve_dirs(path: str, target_files: List[str], detected_file_dirs: Set[str] 
 
 
 def sweep_dirs(
-    root_path: str, target_files: List[str], mode: SEARCH_MODE, max_depth: int = 0
-) -> Set[str]:
+    root_path: str, target_files: list[str], mode: SEARCH_MODE, max_depth: int = 0
+) -> set[str]:
     """
     Iteratively search for parent directories containing target files based on mode.
     For description of search modes see documentation in constants.
@@ -83,7 +82,6 @@ def sweep_dirs(
                             or mode is SEARCH_MODE.ITERATIVE_BOUNDED_BOTTOM
                             and depth == max_depth
                         ):
-
                             detected_file_dirs.add(current_dir)
                     elif item.is_dir():
                         if mode is SEARCH_MODE.ITERATIVE_UNBOUND or depth < max_depth:

@@ -1,12 +1,11 @@
-import pytest
 import copy
-import math
 from unittest.mock import patch
+
 from suplex.martin_interface.validation.data_statistics_validation import (
+    check_external_consistency,
+    check_internal_value_consistency,
     try_get_validated_data_statistics,
     try_typecast_data_statistics_file,
-    check_internal_value_consistency,
-    check_external_consistency,
 )
 
 

@@ -1,13 +1,12 @@
 import json
-import pytest
 import os
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch
+
+from suplex.martin_interface.holder import FileHolder
 from suplex.martin_interface.martin_adapter import Adapter
 from suplex.martin_interface.martin_interface_constants import (
     SEARCH_MODE,
-    STANDARD_READOUT_FILES,
 )
-from suplex.martin_interface.holder import FileHolder
 
 
 class TestAdapter:

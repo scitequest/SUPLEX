@@ -1,7 +1,6 @@
-import pytest
 from unittest.mock import Mock, patch
 
-import ipywidgets as widgets
+import pytest
 
 from suplex.ui.elements.navigator import Navigator
 from suplex.ui.ui_constants import PAGE

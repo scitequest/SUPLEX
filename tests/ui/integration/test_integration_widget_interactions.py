@@ -1,18 +1,18 @@
-import pytest
 import logging
-from unittest.mock import Mock, patch, MagicMock, call, create_autospec
 from datetime import date
+from unittest.mock import Mock, patch
+
 import ipywidgets as widgets
 
-from suplex.ui.widget_factory import WidgetFactory
-from suplex.ui.pages.dataset_selection_page import ProjectCard, DatasetSelectionPage
-from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
-from suplex.ui.elements.popup_log_system import PopupLogger
 from suplex.martin_interface.martin_interface_constants import SEARCH_MODE
 from suplex.suplex_modules.submodules.submodule_constants import (
     DATASET_LABEL,
     SELECTION_MODE,
 )
+from suplex.ui.elements.popup_log_system import PopupLogger
+from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
+from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
+from suplex.ui.widget_factory import WidgetFactory
 
 
 class TestWidgetInteractionsIntegration:
@@ -79,7 +79,7 @@ class TestWidgetInteractionsIntegration:
             mock_selector.get_selected_datasets.return_value = []
 
             project_card = ProjectCard(page=page, project=mock_project_with_datasets)
-            project_card._dataset_selector = mock_selector   # <-- fix for lazy init
+            project_card._dataset_selector = mock_selector  # <-- fix for lazy init
 
             # Initially none selected
             assert all(not cb.value for cb in mock_checkboxes)
@@ -98,9 +98,7 @@ class TestWidgetInteractionsIntegration:
             # Test select all
             for cb in mock_checkboxes:
                 cb.value = True
-            mock_selector.get_selected_datasets.return_value = (
-                mock_project_with_datasets.datasets
-            )
+            mock_selector.get_selected_datasets.return_value = mock_project_with_datasets.datasets
 
             project_card._dataset_selector.select_all()
             assert len(project_card._dataset_selector.get_selected_datasets()) == 5
@@ -127,10 +125,8 @@ class TestWidgetInteractionsIntegration:
                 mock_ds.return_value = mock_selector
                 mock_ts.return_value = Mock()
 
-                project_card = ProjectCard(
-                    page=page, project=mock_project_with_datasets
-                )
-                project_card._dataset_selector = mock_selector   # <-- fix for lazy init
+                project_card = ProjectCard(page=page, project=mock_project_with_datasets)
+                project_card._dataset_selector = mock_selector  # <-- fix for lazy init
 
                 # Create date range
                 start_date = date(2023, 1, 2)
@@ -245,11 +241,9 @@ class TestWidgetInteractionsIntegration:
                     mock_project_with_datasets.datasets
                 )
 
-                project_card = ProjectCard(
-                    page=page, project=mock_project_with_datasets
-                )
-                project_card._dataset_selector = mock_selector     # <-- fix for lazy init
-                project_card._tag_selector = mock_tag_selector     # <-- fix for lazy init
+                project_card = ProjectCard(page=page, project=mock_project_with_datasets)
+                project_card._dataset_selector = mock_selector  # <-- fix for lazy init
+                project_card._tag_selector = mock_tag_selector  # <-- fix for lazy init
 
                 # Get available tags
                 available_tags = project_card._tag_selector.get_available_tags()
@@ -293,9 +287,7 @@ class TestWidgetInteractionsIntegration:
             assert icon in info_field.value
             assert message in info_field.value
 
-    def test_accordion_expansion_state(
-        self, mock_navigator, mock_project_with_datasets
-    ):
+    def test_accordion_expansion_state(self, mock_navigator, mock_project_with_datasets):
         """Test accordion widget expansion state management."""
         dataset_page = DatasetSelectionPage(navigator=mock_navigator)
 
@@ -384,15 +376,11 @@ class TestWidgetInteractionsIntegration:
                 ]
                 mock_selector.update_dataset_labels = Mock()
 
-                project_card = ProjectCard(
-                    page=page, project=mock_project_with_datasets
-                )
-                project_card._dataset_selector = mock_selector   # <-- fix for lazy init
+                project_card = ProjectCard(page=page, project=mock_project_with_datasets)
+                project_card._dataset_selector = mock_selector  # <-- fix for lazy init
 
                 # Test ID/Name button synchronization
-                current_format = (
-                    project_card._dataset_selector.get_dataset_label_format()
-                )
+                current_format = project_card._dataset_selector.get_dataset_label_format()
                 assert DATASET_LABEL.ID in current_format
 
                 # Simulate changing to name display
@@ -402,6 +390,5 @@ class TestWidgetInteractionsIntegration:
                 # Verify label format was updated
                 label_format = project_card._dataset_selector.get_dataset_label_format()
                 assert (
-                    DATASET_LABEL.NAME in label_format
-                    or DATASET_LABEL.ID in label_format
+                    DATASET_LABEL.NAME in label_format or DATASET_LABEL.ID in label_format
                 )  # Either is valid

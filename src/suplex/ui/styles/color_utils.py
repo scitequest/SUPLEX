@@ -1,10 +1,9 @@
 import logging
-from typing import Tuple, Optional
 
 logger = logging.getLogger(__name__)
 
 
-def hex_to_rgb(hex_color: str) -> Optional[Tuple[int, int, int]]:
+def hex_to_rgb(hex_color: str) -> tuple[int, int, int] | None:
     """
     Convert a hexadecimal color string to RGB tuple.
 

@@ -1,4 +1,3 @@
-import pytest
 import ipywidgets as widgets
 
 from suplex.suplex_modules.submodules.settings.boxplot_settings import BoxplotSettings

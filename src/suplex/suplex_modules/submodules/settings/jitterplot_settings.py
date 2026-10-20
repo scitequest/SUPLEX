@@ -1,11 +1,12 @@
 import logging
-from typing import Optional, List
+
 import ipywidgets as widgets
-from suplex.ui.widget_factory import WidgetFactory
+
 from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
-    OPTION_INSET,
     JITTER_TYPE,
+    OPTION_INSET,
 )
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +18,12 @@ class JitterplotSettings:
 
     def __init__(
         self,
-        show_jitterplot: Optional[bool] = None,
-        apply_jitter: Optional[bool] = None,
-        point_size: Optional[int] = None,
-        jitter_type: Optional[JITTER_TYPE] = None,
-        jitter_strength: Optional[float] = None,
-        point_alpha: Optional[float] = None,
+        show_jitterplot: bool | None = None,
+        apply_jitter: bool | None = None,
+        point_size: int | None = None,
+        jitter_type: JITTER_TYPE | None = None,
+        jitter_strength: float | None = None,
+        point_alpha: float | None = None,
         show_all_options: bool = False,
     ) -> None:
         """
@@ -176,7 +177,7 @@ class JitterplotSettings:
         logger.debug("Updating jitter type to: %s", type_str)
         self._jitter_type = JITTER_TYPE(type_str)
 
-    def get_active_widgets(self) -> List[widgets.Widget]:
+    def get_active_widgets(self) -> list[widgets.Widget]:
         """
         Get a list of all interactive widgets for jitterplot settings.
 

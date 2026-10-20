@@ -1,4 +1,3 @@
-import pytest
 from enum import Enum
 
 from suplex.ui.ui_constants import PAGE, SCHEME_FIELDS

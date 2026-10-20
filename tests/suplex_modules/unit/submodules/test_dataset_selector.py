@@ -1,12 +1,12 @@
-import pytest
-from unittest.mock import Mock, patch
 from datetime import datetime
+from unittest.mock import Mock, patch
+
 import ipywidgets as widgets
 
 from suplex.suplex_modules.submodules.dataset_selector import DatasetSelector
 from suplex.suplex_modules.submodules.submodule_constants import (
-    DATASET_SELECTOR_MODE,
     DATASET_LABEL,
+    DATASET_SELECTOR_MODE,
 )
 
 

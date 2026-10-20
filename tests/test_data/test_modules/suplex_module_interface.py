@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
-from typing_extensions import Self
-from ipywidgets import Box
+from typing import Self
 
 from ..martin_interface.dataset import Dataset
 
@@ -48,7 +46,7 @@ class SuplexModuleInterface(ABC):
 
     @property
     @abstractmethod
-    def button_style(self) -> Dict[str, str]:
+    def button_style(self) -> dict[str, str]:
         """
         Returns the button style, including font color and button color.
 
@@ -59,7 +57,7 @@ class SuplexModuleInterface(ABC):
         ...
 
     @abstractmethod
-    def check_if_viable(self, datasets: List[Dataset]) -> bool:
+    def check_if_viable(self, datasets: list[Dataset]) -> bool:
         """
         Checks if the module is viable for the provided datasets.
         If the datasets are not viable for the module it should be disabled.
@@ -84,7 +82,7 @@ class SuplexModuleInterface(ABC):
         ...
 
     @abstractmethod
-    def initiate_module(self, datasets: List[Dataset], color_scheme: Any) -> None:
+    def initiate_module(self, datasets: list[Dataset], color_scheme: Any) -> None:
         """
         Initiates module by loading datasets and generating the user interface.
 
@@ -95,7 +93,7 @@ class SuplexModuleInterface(ABC):
         ...
 
     @abstractmethod
-    def update_scheme(self, new_scheme) -> Optional[Self]:
+    def update_scheme(self, new_scheme) -> Self | None:
         """
         Updates module color scheme.
         Only elements which are not part of the widget factory have to be adjusted manually.
@@ -109,7 +107,7 @@ class SuplexModuleInterface(ABC):
         ...
 
     @abstractmethod
-    def reset_module(self) -> Optional[Self]:
+    def reset_module(self) -> Self | None:
         """
         Resets module to its initial state.
         We strongly recommend to let this method return a new instance of the module instead of resetting the current objects attributes.

@@ -1,23 +1,23 @@
-import pytest
-import math
 from enum import Enum
 
+import pytest
+
 from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
-    OPTION_INSET,
-    SCALE_TYPE,
-    INTERPOLATION_TYPE,
-    GRID_STYLE,
-    LEGEND_POSITION,
-    ASPECT_RATIO,
-    get_aspect_ratio_value,
-    SEQUENTIAL_COLOR_SCHEME,
-    DIVERGENT_COLOR_SCHEME,
-    WHISKER_MODE,
-    JITTER_TYPE,
     ANNOTATION_COLOR,
-    LINE_COLOR,
+    ASPECT_RATIO,
     CBAR_ORIENTATION,
     CBAR_TICK_MODE,
+    DIVERGENT_COLOR_SCHEME,
+    GRID_STYLE,
+    INTERPOLATION_TYPE,
+    JITTER_TYPE,
+    LEGEND_POSITION,
+    LINE_COLOR,
+    OPTION_INSET,
+    SCALE_TYPE,
+    SEQUENTIAL_COLOR_SCHEME,
+    WHISKER_MODE,
+    get_aspect_ratio_value,
 )
 
 

@@ -1,19 +1,18 @@
 import logging
 import os
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import ipywidgets as widgets
 from ipyfilechooser import FileChooser
 from ipyfilechooser.errors import InvalidPathError
 
-from suplex.paths import sample_data_dir
-from suplex.martin_interface.martin_interface_constants import (
-    SEARCH_MODE,
-    MARTIN_MEASURE_DIR_DEPTH,
-)
 from suplex.martin_interface.martin_adapter import Adapter
+from suplex.martin_interface.martin_interface_constants import (
+    MARTIN_MEASURE_DIR_DEPTH,
+    SEARCH_MODE,
+)
+from suplex.paths import sample_data_dir
 from suplex.ui.widget_factory import WidgetFactory
-from suplex.ui.styles.color_utils import hex_to_rgba
 
 if TYPE_CHECKING:
     from suplex.ui.elements.navigator import Navigator
@@ -61,10 +60,10 @@ class DirectorySelectionPage:
         self._n_modules = n_modules
 
         # UI Components
-        self._stats_box: Optional[widgets.Widget] = None
-        self._path_display: Optional[widgets.HTML] = None
-        self._search_mode_dropdown: Optional[widgets.Dropdown] = None
-        self._search_depth_spinner: Optional[widgets.Widget] = None
+        self._stats_box: widgets.Widget | None = None
+        self._path_display: widgets.HTML | None = None
+        self._search_mode_dropdown: widgets.Dropdown | None = None
+        self._search_depth_spinner: widgets.Widget | None = None
 
         logger.debug("Directory selection page initialized successfully")
 
@@ -391,7 +390,9 @@ class DirectorySelectionPage:
             chooser = self._new_file_chooser(initial_dir)
         except (OSError, InvalidPathError):
             # The remembered directory is gone or unreadable; start from home instead.
-            logger.warning("Cannot list directory %s, starting chooser at %s", initial_dir, home_dir)
+            logger.warning(
+                "Cannot list directory %s, starting chooser at %s", initial_dir, home_dir
+            )
             chooser = self._new_file_chooser(home_dir)
         chooser.register_callback(self.on_directory_chosen)
         return chooser

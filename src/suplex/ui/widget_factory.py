@@ -1,8 +1,8 @@
 import logging
-from typing import Optional, Tuple, List, Dict, Any, Union, Callable
+from collections.abc import Callable
+from typing import Any
 
 import ipywidgets as widgets
-import re
 
 logger = logging.getLogger(__name__)
 
@@ -14,14 +14,14 @@ class WidgetFactory:
 
     @staticmethod
     def get_layout(
-        layout: Optional[widgets.Layout] = None,
+        layout: widgets.Layout | None = None,
         width: str = "auto",
         height: str = "auto",
-        align_items: Optional[str] = None,
-        justify_content: Optional[str] = None,
-        overflow: Optional[str] = None,
-        overflow_y: Optional[str] = None,
-        overflow_x: Optional[str] = None,
+        align_items: str | None = None,
+        justify_content: str | None = None,
+        overflow: str | None = None,
+        overflow_y: str | None = None,
+        overflow_x: str | None = None,
         **kwargs,
     ) -> widgets.Layout:
         if layout is None:
@@ -53,14 +53,24 @@ class WidgetFactory:
 
     @staticmethod
     def button_default(
-        description: str = "", disabled: bool = False, icon: str = "", tooltip: str = "",
-        width: str = "auto", height: str = "32px", layout: Optional[widgets.Layout] = None,
-        on_click: Optional[Callable] = None, **kwargs
+        description: str = "",
+        disabled: bool = False,
+        icon: str = "",
+        tooltip: str = "",
+        width: str = "auto",
+        height: str = "32px",
+        layout: widgets.Layout | None = None,
+        on_click: Callable | None = None,
+        **kwargs,
     ) -> widgets.Button:
         layout = WidgetFactory.get_layout(layout, width, height)
         button = widgets.Button(
-            description=description, disabled=disabled, icon=icon,
-            tooltip=tooltip, layout=layout, **kwargs
+            description=description,
+            disabled=disabled,
+            icon=icon,
+            tooltip=tooltip,
+            layout=layout,
+            **kwargs,
         )
         button.add_class("styled-widget")
         button.add_class("styled-button")
@@ -71,14 +81,24 @@ class WidgetFactory:
 
     @staticmethod
     def button_emphasis(
-        description: str = "", disabled: bool = False, icon: str = "", tooltip: str = "",
-        width: str = "auto", height: str = "32px", layout: Optional[widgets.Layout] = None,
-        on_click: Optional[Callable] = None, **kwargs
+        description: str = "",
+        disabled: bool = False,
+        icon: str = "",
+        tooltip: str = "",
+        width: str = "auto",
+        height: str = "32px",
+        layout: widgets.Layout | None = None,
+        on_click: Callable | None = None,
+        **kwargs,
     ) -> widgets.Button:
         layout = WidgetFactory.get_layout(layout, width, height)
         button = widgets.Button(
-            description=description, disabled=disabled, icon=icon,
-            tooltip=tooltip, layout=layout, **kwargs
+            description=description,
+            disabled=disabled,
+            icon=icon,
+            tooltip=tooltip,
+            layout=layout,
+            **kwargs,
         )
         button.add_class("styled-widget")
         button.add_class("styled-button")
@@ -89,14 +109,24 @@ class WidgetFactory:
 
     @staticmethod
     def button_success(
-        description: str = "", disabled: bool = False, icon: str = "", tooltip: str = "",
-        width: str = "auto", height: str = "32px", layout: Optional[widgets.Layout] = None,
-        on_click: Optional[Callable] = None, **kwargs
+        description: str = "",
+        disabled: bool = False,
+        icon: str = "",
+        tooltip: str = "",
+        width: str = "auto",
+        height: str = "32px",
+        layout: widgets.Layout | None = None,
+        on_click: Callable | None = None,
+        **kwargs,
     ) -> widgets.Button:
         layout = WidgetFactory.get_layout(layout, width, height)
         button = widgets.Button(
-            description=description, disabled=disabled, icon=icon,
-            tooltip=tooltip, layout=layout, **kwargs
+            description=description,
+            disabled=disabled,
+            icon=icon,
+            tooltip=tooltip,
+            layout=layout,
+            **kwargs,
         )
         button.add_class("styled-widget")
         button.add_class("styled-button")
@@ -107,14 +137,24 @@ class WidgetFactory:
 
     @staticmethod
     def button_danger(
-        description: str = "", disabled: bool = False, icon: str = "", tooltip: str = "",
-        width: str = "auto", height: str = "32px", layout: Optional[widgets.Layout] = None,
-        on_click: Optional[Callable] = None, **kwargs
+        description: str = "",
+        disabled: bool = False,
+        icon: str = "",
+        tooltip: str = "",
+        width: str = "auto",
+        height: str = "32px",
+        layout: widgets.Layout | None = None,
+        on_click: Callable | None = None,
+        **kwargs,
     ) -> widgets.Button:
         layout = WidgetFactory.get_layout(layout, width, height)
         button = widgets.Button(
-            description=description, disabled=disabled, icon=icon,
-            tooltip=tooltip, layout=layout, **kwargs
+            description=description,
+            disabled=disabled,
+            icon=icon,
+            tooltip=tooltip,
+            layout=layout,
+            **kwargs,
         )
         button.add_class("styled-widget")
         button.add_class("styled-button")
@@ -125,14 +165,24 @@ class WidgetFactory:
 
     @staticmethod
     def button_warning(
-        description: str = "", disabled: bool = False, icon: str = "", tooltip: str = "",
-        width: str = "auto", height: str = "32px", layout: Optional[widgets.Layout] = None,
-        on_click: Optional[Callable] = None, **kwargs
+        description: str = "",
+        disabled: bool = False,
+        icon: str = "",
+        tooltip: str = "",
+        width: str = "auto",
+        height: str = "32px",
+        layout: widgets.Layout | None = None,
+        on_click: Callable | None = None,
+        **kwargs,
     ) -> widgets.Button:
         layout = WidgetFactory.get_layout(layout, width, height)
         button = widgets.Button(
-            description=description, disabled=disabled, icon=icon,
-            tooltip=tooltip, layout=layout, **kwargs
+            description=description,
+            disabled=disabled,
+            icon=icon,
+            tooltip=tooltip,
+            layout=layout,
+            **kwargs,
         )
         button.add_class("styled-widget")
         button.add_class("styled-button")
@@ -143,14 +193,25 @@ class WidgetFactory:
 
     @staticmethod
     def toggle_button(
-        description: str = "", disabled: bool = False, icon: str = "", tooltip: str = "",
-        width: str = "auto", height: str = "32px", toggled: bool = False,
-        layout: Optional[widgets.Layout] = None, on_click: Optional[Callable] = None, **kwargs
+        description: str = "",
+        disabled: bool = False,
+        icon: str = "",
+        tooltip: str = "",
+        width: str = "auto",
+        height: str = "32px",
+        toggled: bool = False,
+        layout: widgets.Layout | None = None,
+        on_click: Callable | None = None,
+        **kwargs,
     ) -> widgets.Button:
         layout = WidgetFactory.get_layout(layout, width, height)
         button = widgets.Button(
-            description=description, disabled=disabled, icon=icon,
-            tooltip=tooltip, layout=layout, **kwargs
+            description=description,
+            disabled=disabled,
+            icon=icon,
+            tooltip=tooltip,
+            layout=layout,
+            **kwargs,
         )
         button.add_class("styled-widget")
         button.add_class("styled-button")
@@ -181,9 +242,14 @@ class WidgetFactory:
 
     @staticmethod
     def custom_radio_buttons(
-        number: int = 2, description: Optional[List[str]] = None, i_toggled: int = 0,
-        width: str = "auto", height: str = "32px", layout: Optional[widgets.Layout] = None, **kwargs
-    ) -> List[widgets.Button]:
+        number: int = 2,
+        description: list[str] | None = None,
+        i_toggled: int = 0,
+        width: str = "auto",
+        height: str = "32px",
+        layout: widgets.Layout | None = None,
+        **kwargs,
+    ) -> list[widgets.Button]:
         if number < 1:
             return []
         if description is None:
@@ -218,14 +284,24 @@ class WidgetFactory:
 
     @staticmethod
     def text_input(
-        value: str = "", placeholder: str = "", description: str = "", disabled: bool = False,
-        width: str = "300px", height: str = "32px", layout: Optional[widgets.Layout] = None,
-        on_change: Optional[Callable] = None, **kwargs
+        value: str = "",
+        placeholder: str = "",
+        description: str = "",
+        disabled: bool = False,
+        width: str = "300px",
+        height: str = "32px",
+        layout: widgets.Layout | None = None,
+        on_change: Callable | None = None,
+        **kwargs,
     ) -> widgets.Text:
         layout = WidgetFactory.get_layout(layout, width, height)
         text = widgets.Text(
-            value=value, placeholder=placeholder, description=description,
-            disabled=disabled, layout=layout, **kwargs
+            value=value,
+            placeholder=placeholder,
+            description=description,
+            disabled=disabled,
+            layout=layout,
+            **kwargs,
         )
         text.add_class("styled-widget")
         text.add_class("styled-input")
@@ -235,14 +311,24 @@ class WidgetFactory:
 
     @staticmethod
     def password_input(
-        value: str = "", placeholder: str = "", description: str = "", disabled: bool = False,
-        width: str = "300px", height: str = "32px", layout: Optional[widgets.Layout] = None,
-        on_change: Optional[Callable] = None, **kwargs
+        value: str = "",
+        placeholder: str = "",
+        description: str = "",
+        disabled: bool = False,
+        width: str = "300px",
+        height: str = "32px",
+        layout: widgets.Layout | None = None,
+        on_change: Callable | None = None,
+        **kwargs,
     ) -> widgets.Password:
         layout = WidgetFactory.get_layout(layout, width, height)
         password = widgets.Password(
-            value=value, placeholder=placeholder, description=description,
-            disabled=disabled, layout=layout, **kwargs
+            value=value,
+            placeholder=placeholder,
+            description=description,
+            disabled=disabled,
+            layout=layout,
+            **kwargs,
         )
         password.add_class("styled-widget")
         password.add_class("styled-input")
@@ -252,14 +338,24 @@ class WidgetFactory:
 
     @staticmethod
     def textarea_input(
-        value: str = "", placeholder: str = "", description: str = "", disabled: bool = False,
-        width: str = "400px", height: str = "120px", layout: Optional[widgets.Layout] = None,
-        on_change: Optional[Callable] = None, **kwargs
+        value: str = "",
+        placeholder: str = "",
+        description: str = "",
+        disabled: bool = False,
+        width: str = "400px",
+        height: str = "120px",
+        layout: widgets.Layout | None = None,
+        on_change: Callable | None = None,
+        **kwargs,
     ) -> widgets.Textarea:
         layout = WidgetFactory.get_layout(layout, width, height)
         textarea = widgets.Textarea(
-            value=value, placeholder=placeholder, description=description,
-            disabled=disabled, layout=layout, **kwargs
+            value=value,
+            placeholder=placeholder,
+            description=description,
+            disabled=disabled,
+            layout=layout,
+            **kwargs,
         )
         textarea.add_class("styled-widget")
         textarea.add_class("styled-textarea")
@@ -269,27 +365,40 @@ class WidgetFactory:
 
     @staticmethod
     def number_input(
-        value: Union[int, float] = 0,
-        min_value: Optional[Union[int, float]] = None,
-        max_value: Optional[Union[int, float]] = None,
-        step: Union[int, float] = 1,
-        description: str = "", disabled: bool = False,
-        width: str = "200px", height: str = "32px",
-        layout: Optional[widgets.Layout] = None,
-        on_change: Optional[Callable] = None, **kwargs
-    ) -> Union[widgets.BoundedIntText, widgets.BoundedFloatText]:
+        value: int | float = 0,
+        min_value: int | float | None = None,
+        max_value: int | float | None = None,
+        step: int | float = 1,
+        description: str = "",
+        disabled: bool = False,
+        width: str = "200px",
+        height: str = "32px",
+        layout: widgets.Layout | None = None,
+        on_change: Callable | None = None,
+        **kwargs,
+    ) -> widgets.BoundedIntText | widgets.BoundedFloatText:
         layout = WidgetFactory.get_layout(layout, width, height)
         if isinstance(value, int) and isinstance(step, int):
             widget = widgets.BoundedIntText(
-                value=value, min=min_value or 0, max=max_value or 100,
-                step=step, description=description, disabled=disabled,
-                layout=layout, **kwargs
+                value=value,
+                min=min_value or 0,
+                max=max_value or 100,
+                step=step,
+                description=description,
+                disabled=disabled,
+                layout=layout,
+                **kwargs,
             )
         else:
             widget = widgets.BoundedFloatText(
-                value=float(value), min=min_value or 0.0, max=max_value or 100.0,
-                step=float(step), description=description, disabled=disabled,
-                layout=layout, **kwargs
+                value=float(value),
+                min=min_value or 0.0,
+                max=max_value or 100.0,
+                step=float(step),
+                description=description,
+                disabled=disabled,
+                layout=layout,
+                **kwargs,
             )
         widget.add_class("styled-widget")
         widget.add_class("styled-input")
@@ -299,16 +408,28 @@ class WidgetFactory:
 
     @staticmethod
     def int_number_input(
-        value: int = 0, min_value: Optional[int] = None, max_value: Optional[int] = None,
-        step: int = 1, description: str = "", disabled: bool = False,
-        width: str = "200px", height: str = "32px",
-        layout: Optional[widgets.Layout] = None, on_change: Optional[Callable] = None, **kwargs
+        value: int = 0,
+        min_value: int | None = None,
+        max_value: int | None = None,
+        step: int = 1,
+        description: str = "",
+        disabled: bool = False,
+        width: str = "200px",
+        height: str = "32px",
+        layout: widgets.Layout | None = None,
+        on_change: Callable | None = None,
+        **kwargs,
     ) -> widgets.BoundedIntText:
         layout = WidgetFactory.get_layout(layout, width, height)
         widget = widgets.BoundedIntText(
-            value=value, min=min_value or 0, max=max_value or 100,
-            step=step, description=description, disabled=disabled,
-            layout=layout, **kwargs
+            value=value,
+            min=min_value or 0,
+            max=max_value or 100,
+            step=step,
+            description=description,
+            disabled=disabled,
+            layout=layout,
+            **kwargs,
         )
         widget.add_class("styled-widget")
         widget.add_class("styled-input")
@@ -318,16 +439,28 @@ class WidgetFactory:
 
     @staticmethod
     def float_number_input(
-        value: float = 0.0, min_value: Optional[float] = None, max_value: Optional[float] = None,
-        step: float = 0.1, description: str = "", disabled: bool = False,
-        width: str = "200px", height: str = "32px",
-        layout: Optional[widgets.Layout] = None, on_change: Optional[Callable] = None, **kwargs
+        value: float = 0.0,
+        min_value: float | None = None,
+        max_value: float | None = None,
+        step: float = 0.1,
+        description: str = "",
+        disabled: bool = False,
+        width: str = "200px",
+        height: str = "32px",
+        layout: widgets.Layout | None = None,
+        on_change: Callable | None = None,
+        **kwargs,
     ) -> widgets.BoundedFloatText:
         layout = WidgetFactory.get_layout(layout, width, height)
         widget = widgets.BoundedFloatText(
-            value=value, min=min_value or 0.0, max=max_value or 100.0,
-            step=step, description=description, disabled=disabled,
-            layout=layout, **kwargs
+            value=value,
+            min=min_value or 0.0,
+            max=max_value or 100.0,
+            step=step,
+            description=description,
+            disabled=disabled,
+            layout=layout,
+            **kwargs,
         )
         widget.add_class("styled-widget")
         widget.add_class("styled-input")
@@ -339,19 +472,26 @@ class WidgetFactory:
 
     @staticmethod
     def dropdown(
-        options: Optional[List[Union[str, tuple]]] = None,
-        value: Optional[Any] = None,
-        description: str = "", disabled: bool = False,
-        width: str = "200px", height: str = "32px",
-        layout: Optional[widgets.Layout] = None,
-        on_change: Optional[Callable] = None, **kwargs
+        options: list[str | tuple] | None = None,
+        value: Any | None = None,
+        description: str = "",
+        disabled: bool = False,
+        width: str = "200px",
+        height: str = "32px",
+        layout: widgets.Layout | None = None,
+        on_change: Callable | None = None,
+        **kwargs,
     ) -> widgets.Dropdown:
         if options is None:
             options = []
         layout = WidgetFactory.get_layout(layout, width, height)
         dropdown_widget = widgets.Dropdown(
-            options=options, value=value, description=description,
-            disabled=disabled, layout=layout, **kwargs
+            options=options,
+            value=value,
+            description=description,
+            disabled=disabled,
+            layout=layout,
+            **kwargs,
         )
         dropdown_widget.add_class("styled-widget")
         dropdown_widget.add_class("styled-dropdown")
@@ -365,12 +505,11 @@ class WidgetFactory:
         description: str = "",
         disabled: bool = False,
         indent: bool = True,
-        on_change: Optional[Callable] = None,
+        on_change: Callable | None = None,
         **kwargs,
     ) -> widgets.Checkbox:
         checkbox_widget = widgets.Checkbox(
-            value=value, description=description, disabled=disabled,
-            indent=indent, **kwargs
+            value=value, description=description, disabled=disabled, indent=indent, **kwargs
         )
         checkbox_widget.add_class("styled-widget")
         checkbox_widget.add_class("styled-checkbox")
@@ -380,11 +519,11 @@ class WidgetFactory:
 
     @staticmethod
     def radio_buttons(
-        options: List[str],
+        options: list[str],
         i_selected: int,
-        on_change: Optional[Callable] = None,
+        on_change: Callable | None = None,
         **kwargs,
-    ) -> List[widgets.Checkbox]:
+    ) -> list[widgets.Checkbox]:
         checkboxes = []
         for i, option in enumerate(options):
             cb = WidgetFactory.checkbox(value=(i == i_selected), description=option, **kwargs)
@@ -411,16 +550,30 @@ class WidgetFactory:
 
     @staticmethod
     def int_slider(
-        value: int = 0, min_value: int = 0, max_value: int = 100, step: int = 1,
-        description: str = "", disabled: bool = False, orientation: str = "horizontal",
-        width: str = "300px", height: str = "auto",
-        layout: Optional[widgets.Layout] = None, on_change: Optional[Callable] = None, **kwargs
+        value: int = 0,
+        min_value: int = 0,
+        max_value: int = 100,
+        step: int = 1,
+        description: str = "",
+        disabled: bool = False,
+        orientation: str = "horizontal",
+        width: str = "300px",
+        height: str = "auto",
+        layout: widgets.Layout | None = None,
+        on_change: Callable | None = None,
+        **kwargs,
     ) -> widgets.IntSlider:
         layout = WidgetFactory.get_layout(layout, width, height)
         slider = widgets.IntSlider(
-            value=value, min=min_value, max=max_value, step=step,
-            description=description, disabled=disabled, orientation=orientation,
-            layout=layout, **kwargs
+            value=value,
+            min=min_value,
+            max=max_value,
+            step=step,
+            description=description,
+            disabled=disabled,
+            orientation=orientation,
+            layout=layout,
+            **kwargs,
         )
         slider.add_class("styled-widget")
         slider.add_class("styled-slider")
@@ -430,16 +583,30 @@ class WidgetFactory:
 
     @staticmethod
     def float_slider(
-        value: float = 0.0, min_value: float = 0.0, max_value: float = 100.0, step: float = 0.1,
-        description: str = "", disabled: bool = False, orientation: str = "horizontal",
-        width: str = "300px", height: str = "auto",
-        layout: Optional[widgets.Layout] = None, on_change: Optional[Callable] = None, **kwargs
+        value: float = 0.0,
+        min_value: float = 0.0,
+        max_value: float = 100.0,
+        step: float = 0.1,
+        description: str = "",
+        disabled: bool = False,
+        orientation: str = "horizontal",
+        width: str = "300px",
+        height: str = "auto",
+        layout: widgets.Layout | None = None,
+        on_change: Callable | None = None,
+        **kwargs,
     ) -> widgets.FloatSlider:
         layout = WidgetFactory.get_layout(layout, width, height)
         slider = widgets.FloatSlider(
-            value=value, min=min_value, max=max_value, step=step,
-            description=description, disabled=disabled, orientation=orientation,
-            layout=layout, **kwargs
+            value=value,
+            min=min_value,
+            max=max_value,
+            step=step,
+            description=description,
+            disabled=disabled,
+            orientation=orientation,
+            layout=layout,
+            **kwargs,
         )
         slider.add_class("styled-widget")
         slider.add_class("styled-slider")
@@ -449,12 +616,21 @@ class WidgetFactory:
 
     @staticmethod
     def int_range_slider(
-        value: Union[List[int], Tuple[int, int]] = [0, 100],
-        min_value: int = 0, max_value: int = 100, step: int = 1,
-        description: str = "", disabled: bool = False, orientation: str = "horizontal",
-        width: str = "300px", height: str = "auto",
-        continuous_update: bool = False, readout: bool = True, readout_format: str = "auto",
-        layout: Optional[widgets.Layout] = None, on_change: Optional[Callable] = None, **kwargs
+        value: list[int] | tuple[int, int] = [0, 100],
+        min_value: int = 0,
+        max_value: int = 100,
+        step: int = 1,
+        description: str = "",
+        disabled: bool = False,
+        orientation: str = "horizontal",
+        width: str = "300px",
+        height: str = "auto",
+        continuous_update: bool = False,
+        readout: bool = True,
+        readout_format: str = "auto",
+        layout: widgets.Layout | None = None,
+        on_change: Callable | None = None,
+        **kwargs,
     ) -> widgets.IntRangeSlider:
         if isinstance(value, tuple):
             value = list(value)
@@ -462,10 +638,18 @@ class WidgetFactory:
             readout_format = "d"
         layout = WidgetFactory.get_layout(layout, width, height)
         slider = widgets.IntRangeSlider(
-            value=value, min=min_value, max=max_value, step=step,
-            description=description, disabled=disabled, orientation=orientation,
-            continuous_update=continuous_update, readout=readout,
-            readout_format=readout_format, layout=layout, **kwargs
+            value=value,
+            min=min_value,
+            max=max_value,
+            step=step,
+            description=description,
+            disabled=disabled,
+            orientation=orientation,
+            continuous_update=continuous_update,
+            readout=readout,
+            readout_format=readout_format,
+            layout=layout,
+            **kwargs,
         )
         slider.add_class("styled-widget")
         slider.add_class("styled-slider")
@@ -475,12 +659,21 @@ class WidgetFactory:
 
     @staticmethod
     def float_range_slider(
-        value: Union[List[float], Tuple[float, float]] = [0.0, 100.0],
-        min_value: float = 0.0, max_value: float = 100.0, step: float = 0.1,
-        description: str = "", disabled: bool = False, orientation: str = "horizontal",
-        width: str = "300px", height: str = "auto",
-        continuous_update: bool = False, readout: bool = True, readout_format: str = "auto",
-        layout: Optional[widgets.Layout] = None, on_change: Optional[Callable] = None, **kwargs
+        value: list[float] | tuple[float, float] = [0.0, 100.0],
+        min_value: float = 0.0,
+        max_value: float = 100.0,
+        step: float = 0.1,
+        description: str = "",
+        disabled: bool = False,
+        orientation: str = "horizontal",
+        width: str = "300px",
+        height: str = "auto",
+        continuous_update: bool = False,
+        readout: bool = True,
+        readout_format: str = "auto",
+        layout: widgets.Layout | None = None,
+        on_change: Callable | None = None,
+        **kwargs,
     ) -> widgets.FloatRangeSlider:
         if isinstance(value, tuple):
             value = list(value)
@@ -488,10 +681,18 @@ class WidgetFactory:
             readout_format = ".1f"
         layout = WidgetFactory.get_layout(layout, width, height)
         slider = widgets.FloatRangeSlider(
-            value=value, min=min_value, max=max_value, step=step,
-            description=description, disabled=disabled, orientation=orientation,
-            continuous_update=continuous_update, readout=readout,
-            readout_format=readout_format, layout=layout, **kwargs
+            value=value,
+            min=min_value,
+            max=max_value,
+            step=step,
+            description=description,
+            disabled=disabled,
+            orientation=orientation,
+            continuous_update=continuous_update,
+            readout=readout,
+            readout_format=readout_format,
+            layout=layout,
+            **kwargs,
         )
         slider.add_class("styled-widget")
         slider.add_class("styled-slider")
@@ -503,14 +704,18 @@ class WidgetFactory:
 
     @staticmethod
     def date_picker(
-        value: Optional[Any] = None, description: str = "", disabled: bool = False,
-        width: str = "200px", height: str = "32px",
-        layout: Optional[widgets.Layout] = None, on_change: Optional[Callable] = None, **kwargs
+        value: Any | None = None,
+        description: str = "",
+        disabled: bool = False,
+        width: str = "200px",
+        height: str = "32px",
+        layout: widgets.Layout | None = None,
+        on_change: Callable | None = None,
+        **kwargs,
     ) -> widgets.DatePicker:
         layout = WidgetFactory.get_layout(layout, width, height)
         dp = widgets.DatePicker(
-            value=value, description=description, disabled=disabled,
-            layout=layout, **kwargs
+            value=value, description=description, disabled=disabled, layout=layout, **kwargs
         )
         dp.add_class("styled-widget")
         dp.add_class("styled-date-picker")
@@ -520,23 +725,33 @@ class WidgetFactory:
 
     @staticmethod
     def progress_bar(
-        value: Union[int, float] = 0,
-        min_value: Union[int, float] = 0,
-        max_value: Union[int, float] = 100,
+        value: int | float = 0,
+        min_value: int | float = 0,
+        max_value: int | float = 100,
         description: str = "",
-        width: str = "300px", height: str = "20px",
-        layout: Optional[widgets.Layout] = None, **kwargs
-    ) -> Union[widgets.IntProgress, widgets.FloatProgress]:
+        width: str = "300px",
+        height: str = "20px",
+        layout: widgets.Layout | None = None,
+        **kwargs,
+    ) -> widgets.IntProgress | widgets.FloatProgress:
         layout = WidgetFactory.get_layout(layout, width, height)
         if isinstance(value, int):
             progress = widgets.IntProgress(
-                value=value, min=min_value, max=max_value,
-                description=description, layout=layout, **kwargs
+                value=value,
+                min=min_value,
+                max=max_value,
+                description=description,
+                layout=layout,
+                **kwargs,
             )
         else:
             progress = widgets.FloatProgress(
-                value=float(value), min=float(min_value), max=float(max_value),
-                description=description, layout=layout, **kwargs
+                value=float(value),
+                min=float(min_value),
+                max=float(max_value),
+                description=description,
+                layout=layout,
+                **kwargs,
             )
         progress.add_class("styled-widget")
         progress.add_class("styled-progress")
@@ -545,7 +760,7 @@ class WidgetFactory:
     # ===================== TAB, ACCORDION, OUTPUT =====================
 
     @staticmethod
-    def tab(layout: Optional[widgets.Layout] = None, **kwargs) -> widgets.Tab:
+    def tab(layout: widgets.Layout | None = None, **kwargs) -> widgets.Tab:
         layout = WidgetFactory.get_layout(layout, width="100%", height="auto")
         tab_widget = widgets.Tab(layout=layout, **kwargs)
         tab_widget.add_class("styled-widget")
@@ -554,11 +769,11 @@ class WidgetFactory:
 
     @staticmethod
     def accordion(
-        children: Optional[List[widgets.Widget]] = None,
-        titles: Optional[List[str]] = None,
+        children: list[widgets.Widget] | None = None,
+        titles: list[str] | None = None,
         width: str = "100%",
         height: str = "auto",
-        layout: Optional[widgets.Layout] = None,
+        layout: widgets.Layout | None = None,
         **kwargs,
     ) -> widgets.Accordion:
         if children is None:
@@ -578,7 +793,7 @@ class WidgetFactory:
     def output_widget(
         width: str = "100%",
         height: str = "200px",
-        layout: Optional[widgets.Layout] = None,
+        layout: widgets.Layout | None = None,
         **kwargs,
     ) -> widgets.Output:
         layout = WidgetFactory.get_layout(layout, width, height)
@@ -603,7 +818,7 @@ class WidgetFactory:
         value: str = "",
         width: str = "100%",
         height: str = "auto",
-        layout: Optional[widgets.Layout] = None,
+        layout: widgets.Layout | None = None,
         **kwargs,
     ) -> widgets.HTML:
         layout = WidgetFactory.get_layout(layout, width, height)
@@ -616,7 +831,7 @@ class WidgetFactory:
 
     @staticmethod
     def hbox(
-        children: Optional[List[widgets.Widget]] = None,
+        children: list[widgets.Widget] | None = None,
         width: str = "100%",
         height: str = "auto",
         gap: str = "5px",
@@ -625,16 +840,21 @@ class WidgetFactory:
         overflow: str = "auto",
         overflow_y: str = "auto",
         overflow_x: str = "auto",
-        layout: Optional[widgets.Layout] = None,
+        layout: widgets.Layout | None = None,
         **kwargs,
     ) -> widgets.HBox:
         if children is None:
             children = []
 
         layout = WidgetFactory.get_layout(
-            layout=layout, width=width, height=height,
-            align_items=align_items, justify_content=justify_content,
-            overflow=overflow, overflow_y=overflow_y, overflow_x=overflow_x
+            layout=layout,
+            width=width,
+            height=height,
+            align_items=align_items,
+            justify_content=justify_content,
+            overflow=overflow,
+            overflow_y=overflow_y,
+            overflow_x=overflow_x,
         )
 
         if gap and len(children) > 1:
@@ -644,7 +864,9 @@ class WidgetFactory:
                 if i < len(children) - 1:
                     placeholder = widgets.HTML(
                         value="",
-                        layout=widgets.Layout(width=gap, height="100%", margin="0", padding="0", border="none")
+                        layout=widgets.Layout(
+                            width=gap, height="100%", margin="0", padding="0", border="none"
+                        ),
                     )
                     gapped_children.append(placeholder)
             children = gapped_children
@@ -664,7 +886,7 @@ class WidgetFactory:
 
     @staticmethod
     def vbox(
-        children: Optional[List[widgets.Widget]] = None,
+        children: list[widgets.Widget] | None = None,
         width: str = "100%",
         height: str = "auto",
         gap: str = "5px",
@@ -673,16 +895,21 @@ class WidgetFactory:
         overflow: str = "auto",
         overflow_y: str = "auto",
         overflow_x: str = "auto",
-        layout: Optional[widgets.Layout] = None,
+        layout: widgets.Layout | None = None,
         **kwargs,
     ) -> widgets.VBox:
         if children is None:
             children = []
 
         layout = WidgetFactory.get_layout(
-            layout=layout, width=width, height=height,
-            align_items=align_items, justify_content=justify_content,
-            overflow=overflow, overflow_y=overflow_y, overflow_x=overflow_x
+            layout=layout,
+            width=width,
+            height=height,
+            align_items=align_items,
+            justify_content=justify_content,
+            overflow=overflow,
+            overflow_y=overflow_y,
+            overflow_x=overflow_x,
         )
 
         if gap and len(children) > 1:
@@ -692,7 +919,9 @@ class WidgetFactory:
                 if i < len(children) - 1:
                     placeholder = widgets.HTML(
                         value="",
-                        layout=widgets.Layout(height=gap, width="100%", margin="0", padding="0", border="none")
+                        layout=widgets.Layout(
+                            height=gap, width="100%", margin="0", padding="0", border="none"
+                        ),
                     )
                     gapped_children.append(placeholder)
             children = gapped_children
@@ -712,22 +941,26 @@ class WidgetFactory:
 
     @staticmethod
     def grid_container(
-        children: Optional[List[widgets.Widget]] = None,
+        children: list[widgets.Widget] | None = None,
         padding: str = "5px",
         width: str = "100%",
         height: str = "100%",
         overflow: str = "auto",
         overflow_y: str = "auto",
         overflow_x: str = "hidden",
-        layout: Optional[widgets.Layout] = None,
+        layout: widgets.Layout | None = None,
         **kwargs,
     ) -> widgets.HBox:
         if children is None:
             children = []
 
         layout = WidgetFactory.get_layout(
-            layout=layout, width=width, height=height,
-            overflow=overflow, overflow_y=overflow_y, overflow_x=overflow_x
+            layout=layout,
+            width=width,
+            height=height,
+            overflow=overflow,
+            overflow_y=overflow_y,
+            overflow_x=overflow_x,
         )
 
         if not getattr(layout, "display", None):
@@ -758,119 +991,182 @@ class WidgetFactory:
 
     @staticmethod
     def info_field_default(
-        children: Optional[List[widgets.Widget]] = None,
-        width: str = "100%", height: str = "auto", gap: str = "5px",
-        align_items: str = "stretch", justify_content: str = "flex-start",
-        layout: Optional[widgets.Layout] = None, **kwargs
+        children: list[widgets.Widget] | None = None,
+        width: str = "100%",
+        height: str = "auto",
+        gap: str = "5px",
+        align_items: str = "stretch",
+        justify_content: str = "flex-start",
+        layout: widgets.Layout | None = None,
+        **kwargs,
     ) -> widgets.VBox:
         if children is None:
             children = []
         info_field = WidgetFactory.vbox(
-            children=children, width=width, height=height, gap=gap,
-            align_items=align_items, justify_content=justify_content,
-            layout=layout, **kwargs
+            children=children,
+            width=width,
+            height=height,
+            gap=gap,
+            align_items=align_items,
+            justify_content=justify_content,
+            layout=layout,
+            **kwargs,
         )
         info_field.add_class("info-field-default")
         return info_field
 
     @staticmethod
     def info_field_info(
-        children: Optional[List[widgets.Widget]] = None,
-        width: str = "100%", height: str = "auto", gap: str = "5px",
-        align_items: str = "stretch", justify_content: str = "flex-start",
-        layout: Optional[widgets.Layout] = None, **kwargs
+        children: list[widgets.Widget] | None = None,
+        width: str = "100%",
+        height: str = "auto",
+        gap: str = "5px",
+        align_items: str = "stretch",
+        justify_content: str = "flex-start",
+        layout: widgets.Layout | None = None,
+        **kwargs,
     ) -> widgets.VBox:
         if children is None:
             children = []
         info_field = WidgetFactory.vbox(
-            children=children, width=width, height=height, gap=gap,
-            align_items=align_items, justify_content=justify_content,
-            layout=layout, **kwargs
+            children=children,
+            width=width,
+            height=height,
+            gap=gap,
+            align_items=align_items,
+            justify_content=justify_content,
+            layout=layout,
+            **kwargs,
         )
         info_field.add_class("info-field-info")
         return info_field
 
     @staticmethod
     def info_field_success(
-        children: Optional[List[widgets.Widget]] = None,
-        width: str = "100%", height: str = "auto", gap: str = "5px",
-        align_items: str = "stretch", justify_content: str = "flex-start",
-        layout: Optional[widgets.Layout] = None, **kwargs
+        children: list[widgets.Widget] | None = None,
+        width: str = "100%",
+        height: str = "auto",
+        gap: str = "5px",
+        align_items: str = "stretch",
+        justify_content: str = "flex-start",
+        layout: widgets.Layout | None = None,
+        **kwargs,
     ) -> widgets.VBox:
         if children is None:
             children = []
         info_field = WidgetFactory.vbox(
-            children=children, width=width, height=height, gap=gap,
-            align_items=align_items, justify_content=justify_content,
-            layout=layout, **kwargs
+            children=children,
+            width=width,
+            height=height,
+            gap=gap,
+            align_items=align_items,
+            justify_content=justify_content,
+            layout=layout,
+            **kwargs,
         )
         info_field.add_class("info-field-success")
         return info_field
 
     @staticmethod
     def info_field_warning(
-        children: Optional[List[widgets.Widget]] = None,
-        width: str = "100%", height: str = "auto", gap: str = "5px",
-        align_items: str = "stretch", justify_content: str = "flex-start",
-        layout: Optional[widgets.Layout] = None, **kwargs
+        children: list[widgets.Widget] | None = None,
+        width: str = "100%",
+        height: str = "auto",
+        gap: str = "5px",
+        align_items: str = "stretch",
+        justify_content: str = "flex-start",
+        layout: widgets.Layout | None = None,
+        **kwargs,
     ) -> widgets.VBox:
         if children is None:
             children = []
         info_field = WidgetFactory.vbox(
-            children=children, width=width, height=height, gap=gap,
-            align_items=align_items, justify_content=justify_content,
-            layout=layout, **kwargs
+            children=children,
+            width=width,
+            height=height,
+            gap=gap,
+            align_items=align_items,
+            justify_content=justify_content,
+            layout=layout,
+            **kwargs,
         )
         info_field.add_class("info-field-warning")
         return info_field
 
     @staticmethod
     def info_field_error(
-        children: Optional[List[widgets.Widget]] = None,
-        width: str = "100%", height: str = "auto", gap: str = "5px",
-        align_items: str = "stretch", justify_content: str = "flex-start",
-        layout: Optional[widgets.Layout] = None, **kwargs
+        children: list[widgets.Widget] | None = None,
+        width: str = "100%",
+        height: str = "auto",
+        gap: str = "5px",
+        align_items: str = "stretch",
+        justify_content: str = "flex-start",
+        layout: widgets.Layout | None = None,
+        **kwargs,
     ) -> widgets.VBox:
         if children is None:
             children = []
         info_field = WidgetFactory.vbox(
-            children=children, width=width, height=height, gap=gap,
-            align_items=align_items, justify_content=justify_content,
-            layout=layout, **kwargs
+            children=children,
+            width=width,
+            height=height,
+            gap=gap,
+            align_items=align_items,
+            justify_content=justify_content,
+            layout=layout,
+            **kwargs,
         )
         info_field.add_class("info-field-error")
         return info_field
 
     @staticmethod
     def info_field_critical(
-        children: Optional[List[widgets.Widget]] = None,
-        width: str = "100%", height: str = "auto", gap: str = "5px",
-        align_items: str = "stretch", justify_content: str = "flex-start",
-        layout: Optional[widgets.Layout] = None, **kwargs
+        children: list[widgets.Widget] | None = None,
+        width: str = "100%",
+        height: str = "auto",
+        gap: str = "5px",
+        align_items: str = "stretch",
+        justify_content: str = "flex-start",
+        layout: widgets.Layout | None = None,
+        **kwargs,
     ) -> widgets.VBox:
         if children is None:
             children = []
         info_field = WidgetFactory.vbox(
-            children=children, width=width, height=height, gap=gap,
-            align_items=align_items, justify_content=justify_content,
-            layout=layout, **kwargs
+            children=children,
+            width=width,
+            height=height,
+            gap=gap,
+            align_items=align_items,
+            justify_content=justify_content,
+            layout=layout,
+            **kwargs,
         )
         info_field.add_class("info-field-critical")
         return info_field
 
     @staticmethod
     def info_field_debug(
-        children: Optional[List[widgets.Widget]] = None,
-        width: str = "100%", height: str = "auto", gap: str = "5px",
-        align_items: str = "stretch", justify_content: str = "flex-start",
-        layout: Optional[widgets.Layout] = None, **kwargs
+        children: list[widgets.Widget] | None = None,
+        width: str = "100%",
+        height: str = "auto",
+        gap: str = "5px",
+        align_items: str = "stretch",
+        justify_content: str = "flex-start",
+        layout: widgets.Layout | None = None,
+        **kwargs,
     ) -> widgets.VBox:
         if children is None:
             children = []
         info_field = WidgetFactory.vbox(
-            children=children, width=width, height=height, gap=gap,
-            align_items=align_items, justify_content=justify_content,
-            layout=layout, **kwargs
+            children=children,
+            width=width,
+            height=height,
+            gap=gap,
+            align_items=align_items,
+            justify_content=justify_content,
+            layout=layout,
+            **kwargs,
         )
         info_field.add_class("info-field-debug")
         return info_field

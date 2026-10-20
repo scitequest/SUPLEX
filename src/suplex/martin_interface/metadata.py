@@ -1,6 +1,5 @@
-from datetime import datetime, timedelta
 from dataclasses import dataclass
-from typing import List
+from datetime import datetime, timedelta
 
 
 @dataclass(frozen=True)
@@ -16,7 +15,7 @@ class Patient:
 
     pat_id: str  # Changed name due to 'id' beeing a keyword.
     name: str
-    tags: List[str]
+    tags: list[str]
 
 
 @dataclass(frozen=True)
@@ -86,7 +85,7 @@ class Metadata:
     datetime: datetime
     patient: Patient
     image: Image
-    incubations: List[Incubation]
+    incubations: list[Incubation]
 
     @property
     def pat_id(self) -> str:
@@ -97,7 +96,7 @@ class Metadata:
         return self.patient.name
 
     @property
-    def tags(self) -> List[str]:
+    def tags(self) -> list[str]:
         return self.patient.tags
 
     @property

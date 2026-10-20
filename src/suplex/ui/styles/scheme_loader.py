@@ -1,17 +1,16 @@
 import importlib.util
 import inspect
 import logging
-import os
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any
 
 from suplex.ui.ui_constants import SCHEME_FIELDS
 
 logger = logging.getLogger(__name__)
 
 
-def load_all_schemes(directory: Path) -> Dict[str, Any]:
+def load_all_schemes(directory: Path) -> dict[str, Any]:
     """
     Scans the directory for Python files, validates them, and attempts to load
     scheme classes from each valid file. Returns a dictionary mapping scheme
@@ -82,7 +81,7 @@ def load_all_schemes(directory: Path) -> Dict[str, Any]:
         return {}
 
 
-def validate_scheme_files(python_files: List[Path]) -> List[Path]:
+def validate_scheme_files(python_files: list[Path]) -> list[Path]:
     """
     Validate that Python files meet requirements for being scheme files.
     Filters out system files, test files, and other non-scheme files based
@@ -172,7 +171,7 @@ def is_system_file(file_path: Path) -> bool:
         return True  # Skip files that can't be checked safely
 
 
-def try_load_schemes_from_file(file_path: Path) -> List[Any]:
+def try_load_schemes_from_file(file_path: Path) -> list[Any]:
     """
     Dynamically imports the specified file and extracts all classes that
     match the required scheme schema. Handles import errors gracefully.
@@ -249,7 +248,7 @@ def try_load_schemes_from_file(file_path: Path) -> List[Any]:
     return scheme_classes
 
 
-def validate_against_schema(schema: Dict[str, Any], test_obj: Any, path: str = "") -> bool:
+def validate_against_schema(schema: dict[str, Any], test_obj: Any, path: str = "") -> bool:
     """
     Recursively checks that the object has all required attributes and that
     nested objects (classes) also match their expected structure. This ensures
@@ -338,7 +337,7 @@ def validate_against_schema(schema: Dict[str, Any], test_obj: Any, path: str = "
         return False
 
 
-def get_schemes(schemes_directory: str = "schemes") -> Dict[str, Any]:
+def get_schemes(schemes_directory: str = "schemes") -> dict[str, Any]:
     """
     Convenience function that constructs the full path to the schemes directory
     and loads all valid schemes found within it.

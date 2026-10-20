@@ -1,11 +1,12 @@
 import logging
-from typing import Optional, List
+
 import ipywidgets as widgets
-from suplex.ui.widget_factory import WidgetFactory
+
 from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
     OPTION_INSET,
     WHISKER_MODE,
 )
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 
@@ -17,14 +18,14 @@ class BoxplotSettings:
 
     def __init__(
         self,
-        show_boxplot: Optional[bool] = None,
-        show_outliers: Optional[bool] = None,
-        whisker_mode: Optional[WHISKER_MODE] = None,
-        iqr_factor: Optional[float] = None,
-        percentile_min: Optional[int] = None,
-        percentile_max: Optional[int] = None,
-        box_alpha: Optional[float] = None,
-        box_width: Optional[float] = None,
+        show_boxplot: bool | None = None,
+        show_outliers: bool | None = None,
+        whisker_mode: WHISKER_MODE | None = None,
+        iqr_factor: float | None = None,
+        percentile_min: int | None = None,
+        percentile_max: int | None = None,
+        box_alpha: float | None = None,
+        box_width: float | None = None,
         show_all_options: bool = False,
     ) -> None:
         """
@@ -297,7 +298,7 @@ class BoxplotSettings:
         else:
             self._whisker_inputs_vbox.children = []
 
-    def get_active_widgets(self) -> List[widgets.Widget]:
+    def get_active_widgets(self) -> list[widgets.Widget]:
         """
         Get a list of all interactive widgets for boxplot settings.
 

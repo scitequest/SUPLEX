@@ -1,6 +1,3 @@
-from typing import List
-
-
 class Project:
     """
     A Project serves as a container for datasets, allowing users to organize related
@@ -29,7 +26,7 @@ class Project:
         """
         self._datasets.append(dataset)
 
-    def get_measurement_labels(self) -> List[str]:
+    def get_measurement_labels(self) -> list[str]:
         """
         Retrieve measurement labels from all datasets in the project.
 
@@ -44,7 +41,7 @@ class Project:
             ret.append(dataset.get_name_label())
         return ret
 
-    def get_tags(self) -> List[str]:
+    def get_tags(self) -> list[str]:
         """
         Retrieve all tags from all datasets in the project.
 
@@ -59,7 +56,7 @@ class Project:
             tags += dataset.tags
         return list(set(tags))
 
-    def get_suplex_tags(self) -> List[str]:
+    def get_suplex_tags(self) -> list[str]:
         """
         Retrieve all suplex tags from all datasets in the project.
 

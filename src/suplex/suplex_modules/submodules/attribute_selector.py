@@ -1,22 +1,24 @@
 # DEPRECATED
 
 import logging
-from typing import List, Optional, Union, Dict, Any
+from typing import Any
+
 import ipywidgets as widgets
+
 from suplex.martin_interface.dataset import Dataset
-from suplex.ui.widget_factory import WidgetFactory
 from suplex.suplex_modules.submodules.submodule_constants import (
-    DATASET_ATTRIBUTE,
     DATA_ATTRIBUTES,
     DATA_STATISTICS_ATTRIBUTES,
+    DATASET_ATTRIBUTE,
 )
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 
 
 def extract_value_list_from_dataset(
     dataset: Dataset, attribute: DATASET_ATTRIBUTE
-) -> Union[List[float], List[List[float]], List[List[List[float]]]]:
+) -> list[float] | list[list[float]] | list[list[list[float]]]:
     """
     Extracts the values of the specified attribute from the given dataset and returns them as a nested list.
 
@@ -151,7 +153,7 @@ def extract_value_list_from_dataset(
     return value_list
 
 
-def flatten_list(nested_list: Union[List[Any], Any]) -> List[Any]:
+def flatten_list(nested_list: list[Any] | Any) -> list[Any]:
     """
     Convenience method which recursively flattens a nested list structure into a single-level list.
 
@@ -178,7 +180,7 @@ def flatten_list(nested_list: Union[List[Any], Any]) -> List[Any]:
     return flat
 
 
-def get_flat_value_list(dataset: Dataset, attribute: DATASET_ATTRIBUTE) -> List[float]:
+def get_flat_value_list(dataset: Dataset, attribute: DATASET_ATTRIBUTE) -> list[float]:
     """
     Extract and flatten values from a dataset based on the specified attribute type.
 
@@ -252,9 +254,11 @@ class AttributeSelector:
         self._widgets = []
         self._selected_fields = set()
 
-    def get_selected_values(self, dataset: Dataset) -> Dict[
+    def get_selected_values(
+        self, dataset: Dataset
+    ) -> dict[
         DATASET_ATTRIBUTE,
-        Union[List[float], List[List[float]], List[List[List[float]]]],
+        list[float] | list[list[float]] | list[list[list[float]]],
     ]:
         """
         Collects the selected fields from the widgets and extracts the corresponding values from the given dataset.
@@ -290,8 +294,8 @@ class AttributeSelector:
 
     def get_dropdown_widget(
         self,
-        included_attributes: List[DATASET_ATTRIBUTE] = list(DATASET_ATTRIBUTE),
-        layout: Optional[widgets.Layout] = None,
+        included_attributes: list[DATASET_ATTRIBUTE] = list(DATASET_ATTRIBUTE),
+        layout: widgets.Layout | None = None,
     ) -> widgets.Dropdown:
         """
         Get a dropdown widget for single attribute selection.
@@ -319,9 +323,9 @@ class AttributeSelector:
 
     def get_checkbox_widgets(
         self,
-        included_attributes: List[DATASET_ATTRIBUTE] = list(DATASET_ATTRIBUTE),
-        layout: Optional[widgets.Layout] = None,
-    ) -> List[widgets.Checkbox]:
+        included_attributes: list[DATASET_ATTRIBUTE] = list(DATASET_ATTRIBUTE),
+        layout: widgets.Layout | None = None,
+    ) -> list[widgets.Checkbox]:
         """
         Get checkbox widgets for multiple attribute selection.
 
@@ -345,9 +349,9 @@ class AttributeSelector:
 
     def get_radio_button_widgets(
         self,
-        included_attributes: List[DATASET_ATTRIBUTE],
-        layout: Optional[widgets.Layout] = None,
-    ) -> List[widgets.Checkbox]:
+        included_attributes: list[DATASET_ATTRIBUTE],
+        layout: widgets.Layout | None = None,
+    ) -> list[widgets.Checkbox]:
         """
         Get radio button widgets for single attribute selection.
 

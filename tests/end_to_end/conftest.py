@@ -1,33 +1,25 @@
-import pytest
-import tempfile
-import shutil
-import os
 import json
-from pathlib import Path
+import os
+import shutil
+import tempfile
 from unittest.mock import MagicMock, patch
-from datetime import datetime
+
+import pytest
 
 from suplex.martin_interface.martin_adapter import Adapter
 from suplex.martin_interface.martin_interface_constants import SEARCH_MODE
-from suplex.martin_interface.dataset import Dataset
-
+from suplex.suplex_modules.module_loader import load_modules
 from suplex.ui.elements.navigator import Navigator
 from suplex.ui.gui import GUI
-from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
-from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage
-from suplex.ui.pages.module_selection_page import ModuleSelectionPage
 
-from suplex.suplex_modules.module_loader import load_modules
-from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
-
-from tests.martin_interface.conftest import (
+# Fixtures shared with the martin_interface tests; imported so pytest can find them here.
+from tests.martin_interface.conftest import (  # noqa: F401
     sample_data_dict,
     sample_data_statistics_dict,
     sample_metadata_dict_natural,
     sample_parameters_dict_polygon,
     sample_suplex_dict,
 )
-
 
 # -------------------------------------------------------------------------
 # Temporary MARTin Dataset Creation Fixtures

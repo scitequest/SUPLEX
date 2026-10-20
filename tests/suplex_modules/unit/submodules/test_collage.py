@@ -1,27 +1,26 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
 import ipywidgets as widgets
-from PIL import Image
 import matplotlib.pyplot as plt
 import svgutils.transform as sg
 
 from suplex.suplex_modules.submodules.collage import (
-    format_image_to_svg,
-    scale_svgs,
+    Collage,
     add_padding_to_svgs,
-    get_gridded_svgs,
-    get_svg_array_for_svgs,
-    generate_collage_figure,
     add_title_to_svg,
     create_collage,
-    Collage,
+    format_image_to_svg,
+    generate_collage_figure,
+    get_gridded_svgs,
+    get_svg_array_for_svgs,
+    scale_svgs,
 )
 from suplex.suplex_modules.submodules.submodule_constants import (
     COLLAGE_LAYOUT,
-    SCALE_OPTION,
-    READING_ORDER,
-    TITLE_POSITION,
     COLOR,
+    READING_ORDER,
+    SCALE_OPTION,
+    TITLE_POSITION,
 )
 
 
@@ -39,7 +38,6 @@ class TestCollageFunctions:
             patch("suplex.suplex_modules.submodules.collage.plt") as mock_plt,
             patch("suplex.suplex_modules.submodules.collage.sg.fromfile") as mock_fromfile,
         ):
-
             # Mock array for PIL path (ndim and shape access)
             mock_arr = MagicMock()
             mock_arr.ndim = 3
@@ -159,10 +157,11 @@ class TestCollageFunctions:
             patch("suplex.suplex_modules.submodules.collage.add_padding_to_svgs") as mock_pad,
             patch("suplex.suplex_modules.submodules.collage.get_gridded_svgs") as mock_grid,
             patch("suplex.suplex_modules.submodules.collage.get_svg_array_for_svgs") as mock_array,
-            patch("suplex.suplex_modules.submodules.collage.generate_collage_figure") as mock_generate,
+            patch(
+                "suplex.suplex_modules.submodules.collage.generate_collage_figure"
+            ) as mock_generate,
             patch("suplex.suplex_modules.submodules.collage.add_title_to_svg") as mock_title,
         ):
-
             mock_svg = Mock()
             mock_format.return_value = mock_svg
             mock_scale.return_value = [mock_svg]

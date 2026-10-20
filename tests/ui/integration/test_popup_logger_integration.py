@@ -1,10 +1,5 @@
-import pytest
-from unittest.mock import Mock, patch
 import logging
-
-import ipywidgets as widgets
-
-from suplex.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
+from unittest.mock import Mock, patch
 
 
 class TestPopupLoggerIntegration:

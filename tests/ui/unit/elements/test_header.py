@@ -1,8 +1,5 @@
-import pytest
-from unittest.mock import Mock, patch, mock_open
 import base64
-
-import ipywidgets as widgets
+from unittest.mock import Mock, mock_open, patch
 
 from suplex.ui.elements.header import Header
 
@@ -62,7 +59,7 @@ class TestHeader:
     def test_load_icon_read_error(self, header):
         """Returns fallback div when the file cannot be read."""
         with patch("os.path.exists", return_value=True):
-            with patch("builtins.open", side_effect=IOError("Read error")):
+            with patch("builtins.open", side_effect=OSError("Read error")):
                 result = header.load_icon("/path/to/icon.png", 60)
 
         assert '<div style="width: 60px; height: 60px; background: #ddd;' in result

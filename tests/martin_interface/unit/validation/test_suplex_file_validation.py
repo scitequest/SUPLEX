@@ -1,5 +1,5 @@
-import pytest
 from unittest.mock import patch
+
 from suplex.martin_interface.validation.suplex_file_validation import (
     try_get_validated_suplex_file,
     try_typecast_suplex_file,

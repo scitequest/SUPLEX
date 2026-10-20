@@ -1,24 +1,24 @@
-import pytest
-from unittest.mock import Mock, patch
 from datetime import datetime
+from unittest.mock import Mock, patch
+
 import ipywidgets as widgets
 
 from suplex.suplex_modules.submodules.dataset_sorter import (
-    sort_datasets,
+    DatasetSorter,
+    SortStep,
+    sort_alphanumerically,
     sort_by_avg_value,
+    sort_by_cumulative_value,
+    sort_by_has_tag,
     sort_by_max_value,
     sort_by_median_value,
-    sort_by_cumulative_value,
     sort_by_number_of_values,
-    sort_alphanumerically,
-    sort_by_has_tag,
-    SortStep,
-    DatasetSorter,
+    sort_datasets,
 )
 from suplex.suplex_modules.submodules.submodule_constants import (
-    SORT_METHOD,
-    DATASET_DESCRIPTOR,
     DATASET_ATTRIBUTE,
+    DATASET_DESCRIPTOR,
+    SORT_METHOD,
 )
 
 

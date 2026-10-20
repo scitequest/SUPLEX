@@ -1,16 +1,16 @@
+import logging
 import os
-from .validation import *
+
 from .dataset import Dataset
-from .project import Project
-from .holder import PathHolder, FileHolder
+from .holder import FileHolder, PathHolder
 from .martin_interface_constants import (
+    IMAGE_EXTENSIONS,
     SEARCH_MODE,
     STANDARD_READOUT_FILES,
-    IMAGE_EXTENSIONS,
 )
+from .project import Project
 from .search_directories import delve_dirs, sweep_dirs
-import logging
-from typing import List
+from .validation import *
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class Adapter:
         path: str,
         mode: SEARCH_MODE = SEARCH_MODE.RECURSIVE,
         search_depth: int = 5,
-        readout_files: List[str] = STANDARD_READOUT_FILES,
+        readout_files: list[str] = STANDARD_READOUT_FILES,
     ) -> None:
 
         self._datasets = []
@@ -240,7 +240,7 @@ class Adapter:
         project.add_dataset(dataset)
         self.datasets.append(dataset)
 
-    def get_datasets_by_project(self) -> List[dict[str, any]]:
+    def get_datasets_by_project(self) -> list[dict[str, any]]:
         """
         Returns a list of dictionaries organizing datasets by project for GUI display.
         Additionally it extracts labels and tags for each dataset of all projects.
@@ -262,9 +262,9 @@ class Adapter:
         return project_dicts
 
     @property
-    def datasets(self) -> List[Dataset]:
+    def datasets(self) -> list[Dataset]:
         return self._datasets
 
     @property
-    def projects(self) -> List[Project]:
+    def projects(self) -> list[Project]:
         return self._projects

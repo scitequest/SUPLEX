@@ -1,22 +1,22 @@
-import pytest
 from unittest.mock import Mock, patch
+
 import ipywidgets as widgets
 
+from suplex.martin_interface.dataset import Dataset
 from suplex.suplex_modules.submodules.sample_spot_filter import (
+    SampleSpotFilter,
+    aggregate_filter_states_all,
+    aggregate_filter_states_any,
+    get_normalization_factors,
     get_sample_threshold_map,
     get_spot_threshold_map,
-    aggregate_filter_states_any,
-    aggregate_filter_states_all,
-    get_normalization_factors,
-    SampleSpotFilter,
 )
 from suplex.suplex_modules.submodules.submodule_constants import (
-    THRESHOLD_FILTER_STATE,
-    NORMALIZATION,
     DATASET_ATTRIBUTE,
+    NORMALIZATION,
     SELECTION_MODE,
+    THRESHOLD_FILTER_STATE,
 )
-from suplex.martin_interface.dataset import Dataset
 
 
 class TestSampleSpotFilterFunctions:

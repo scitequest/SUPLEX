@@ -1,13 +1,10 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-import numpy as np
-import pandas as pd
-import ipywidgets as widgets
-from PIL import Image
+from unittest.mock import Mock, patch
 
-from suplex.suplex_modules.vanilla.heatmap_collage import OverviewHeatmapModule
+import numpy as np
+
 from suplex.martin_interface.dataset import Dataset
-from suplex.suplex_modules.submodules.submodule_constants import DATASET_LABEL, NORMALIZATION
+from suplex.suplex_modules.submodules.submodule_constants import NORMALIZATION
+from suplex.suplex_modules.vanilla.heatmap_collage import OverviewHeatmapModule
 
 
 class TestHeatmapCollage:
@@ -57,7 +54,8 @@ class TestHeatmapCollage:
         module = OverviewHeatmapModule()
         with (
             patch(
-                "suplex.suplex_modules.submodules.viability_rules.has_negative_values", return_value=False
+                "suplex.suplex_modules.submodules.viability_rules.has_negative_values",
+                return_value=False,
             ),
             patch(
                 "suplex.suplex_modules.submodules.viability_rules.has_negative_data_values",
@@ -79,7 +77,8 @@ class TestHeatmapCollage:
         """Module is NOT viable and updates hover text when no datasets are selected."""
         module = OverviewHeatmapModule()
         with patch(
-            "suplex.suplex_modules.submodules.viability_rules.no_datasets_selected", return_value=True
+            "suplex.suplex_modules.submodules.viability_rules.no_datasets_selected",
+            return_value=True,
         ):
             assert module.check_if_viable([]) is False
             assert "no datasets" in module.get_module_hover_text().lower()
@@ -89,7 +88,8 @@ class TestHeatmapCollage:
         module = OverviewHeatmapModule()
         bad_datasets = [datasets_with_issues[2]]
         with patch(
-            "suplex.suplex_modules.submodules.viability_rules.has_negative_values", return_value=True
+            "suplex.suplex_modules.submodules.viability_rules.has_negative_values",
+            return_value=True,
         ):
             assert module.check_if_viable(bad_datasets) is False
             assert "negative value" in module.get_module_hover_text().lower()
@@ -207,9 +207,7 @@ class TestHeatmapCollage:
         mock_value_extractor.return_value = Mock()
         mock_value_extractor.return_value.get_ui.return_value = Mock()
         mock_value_extractor.return_value.get_active_widgets.return_value = [Mock()]
-        mock_value_extractor.return_value.get_reference_selector.return_value.get_ref_container.return_value = (
-            Mock()
-        )
+        mock_value_extractor.return_value.get_reference_selector.return_value.get_ref_container.return_value = Mock()
         mock_value_extractor.return_value.attribute = Mock()
         mock_value_extractor.return_value.normalization = NORMALIZATION.RAW
         mock_value_extractor.return_value.references = []

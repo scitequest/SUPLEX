@@ -1,15 +1,14 @@
 import logging
-
-from suplex.config import DEMO
 import os
 import tkinter as tk
 from datetime import datetime
 from tkinter import filedialog
-from typing import List, Dict, Any, Optional
+from typing import Any
 
 import ipywidgets as widgets
 import pyperclip
 
+from suplex.config import DEMO
 from suplex.ui.styles.popup_logger_styles import get_popup_logger_styles
 from suplex.ui.styles.schemes.default_scheme import DEFAULT_SCHEME
 
@@ -46,21 +45,21 @@ class PopupLogger:
         self._scheme = scheme
         self._max_messages = max_messages
         self._is_visible = False
-        self._log_messages: List[Dict[str, Any]] = []
+        self._log_messages: list[dict[str, Any]] = []
         self._unread_count = 0
         self._min_log_level = min_log_level
 
         # UI Components
-        self._toggle_button: Optional[widgets.Button] = None
-        self._popup_panel: Optional[widgets.VBox] = None
-        self._log_output: Optional[widgets.HTML] = None
-        self._message_counter: Optional[widgets.HTML] = None
+        self._toggle_button: widgets.Button | None = None
+        self._popup_panel: widgets.VBox | None = None
+        self._log_output: widgets.HTML | None = None
+        self._message_counter: widgets.HTML | None = None
 
         # Used for scheme updates
-        self._close_button: Optional[widgets.Button] = None
-        self._clear_button: Optional[widgets.Button] = None
-        self._copy_button: Optional[widgets.Button] = None
-        self._save_button: Optional[widgets.Button] = None
+        self._close_button: widgets.Button | None = None
+        self._clear_button: widgets.Button | None = None
+        self._copy_button: widgets.Button | None = None
+        self._save_button: widgets.Button | None = None
 
         try:
             self.create_popup_log_widget()
@@ -70,7 +69,7 @@ class PopupLogger:
             raise
 
     @property
-    def toggle_button(self) -> Optional[widgets.Button]:
+    def toggle_button(self) -> widgets.Button | None:
         """
         Get the toggle button widget for showing/hiding the popup logger.
 
@@ -80,7 +79,7 @@ class PopupLogger:
         return self._toggle_button
 
     @property
-    def popup_panel(self) -> Optional[widgets.VBox]:
+    def popup_panel(self) -> widgets.VBox | None:
         """
         Get the main popup panel widget.
 
@@ -204,7 +203,7 @@ class PopupLogger:
                 layout=widgets.Layout(width="auto", height="40%"),
             )
 
-            def dropdown_changed(change: Dict[str, Any]) -> None:
+            def dropdown_changed(change: dict[str, Any]) -> None:
                 """Handle log level filter changes."""
                 old_level = self._min_log_level
                 self._min_log_level = int(min_level_dropdown.value)
@@ -311,7 +310,7 @@ class PopupLogger:
         except Exception as e:
             logger.error("Failed to show popup: %s", e, exc_info=True)
 
-    def close_popup(self, button: Optional[widgets.Button] = None) -> None:
+    def close_popup(self, button: widgets.Button | None = None) -> None:
         """
         Hide the popup panel.
 

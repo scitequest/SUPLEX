@@ -1,86 +1,80 @@
-import ipywidgets as widgets
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-import seaborn as sns
-from typing import Dict, List, Optional, Union, Any, Callable
-from typing_extensions import Self
-import io
-import os
-from tkinter import filedialog, Tk
-import numpy as np
-import logging
-
-from suplex.config import DEMO
 import csv
+import io
+import logging
 import math
-import svgutils.transform as sg
+import os
 import tempfile
 import time
-import pandas as pd
 import warnings
+from collections.abc import Callable
+from tkinter import Tk, filedialog
+from typing import Any, Self
 
-from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
+import ipywidgets as widgets
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import svgutils.transform as sg
+
+from suplex.config import DEMO
 from suplex.martin_interface.dataset import Dataset
-from suplex.ui.widget_factory import WidgetFactory
-from suplex.suplex_modules.submodules.viability_rules import (
-    no_datasets_selected,
-    sample_count_not_uniform,
-    spot_count_is_not_uniform,
-    has_insufficient_number_of_samples,
-    has_negative_values,
-)
-from suplex.suplex_modules.submodules.value_extractor import (
-    ValueExtractor,
-    get_flat_value_list,
-    flatten_list,
-)
-from suplex.suplex_modules.submodules.submodule_constants import (
-    DATASET_ATTRIBUTE,
-    DATA_ATTRIBUTES,
-    DATA_STATISTICS_ATTRIBUTES,
-    NORMALIZATION,
-    DATASET_LABEL,
-    NORMALIZATION_DEFAULT,
-    NORMALIZATION_REFERENCE_POINT,
-    COLLAGE_LAYOUT,
-    SCALE_OPTION,
-    COLOR,
-    TITLE_POSITION,
-    READING_ORDER,
-    SELECTION_MODE,
-)
-from suplex.suplex_modules.submodules.dataset_sorter import DatasetSorter
-from suplex.suplex_modules.submodules.dataset_filters import DatasetFilter
-from suplex.suplex_modules.submodules.sample_spot_filter import SampleSpotFilter
 from suplex.suplex_modules.submodules.collage import (
     Collage,
-    add_title_to_svg,
     add_padding_to_svgs,
+    add_title_to_svg,
 )
-
+from suplex.suplex_modules.submodules.dataset_filters import DatasetFilter
+from suplex.suplex_modules.submodules.dataset_sorter import DatasetSorter
+from suplex.suplex_modules.submodules.dynamic_threshold_filter import apply_dynamic_filtering
+from suplex.suplex_modules.submodules.sample_spot_filter import SampleSpotFilter
 from suplex.suplex_modules.submodules.settings.general_graph_settings import (
     GeneralGraphSettings,
 )
-
 from suplex.suplex_modules.submodules.settings.heatmap_settings import HeatmapSettings
-
 from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
-    OPTION_INSET,
     ANNOTATION_COLOR,
-    LINE_COLOR,
-    CBAR_ORIENTATION,
-    SEQUENTIAL_COLOR_SCHEME,
-    GRID_STYLE,
-    OPTION_WIDGETS_MAX_WIDTH,
     ASPECT_RATIO,
     CBAR_ORIENTATION,
     CBAR_TICK_MODE,
+    GRID_STYLE,
+    LINE_COLOR,
+    OPTION_INSET,
+    OPTION_WIDGETS_MAX_WIDTH,
+    SEQUENTIAL_COLOR_SCHEME,
     get_aspect_ratio_value,
 )
-
+from suplex.suplex_modules.submodules.submodule_constants import (
+    COLLAGE_LAYOUT,
+    COLOR,
+    DATA_ATTRIBUTES,
+    DATA_STATISTICS_ATTRIBUTES,
+    DATASET_ATTRIBUTE,
+    DATASET_LABEL,
+    NORMALIZATION,
+    NORMALIZATION_DEFAULT,
+    NORMALIZATION_REFERENCE_POINT,
+    READING_ORDER,
+    SCALE_OPTION,
+    SELECTION_MODE,
+    TITLE_POSITION,
+)
 from suplex.suplex_modules.submodules.submodule_utils import number_to_letters
-
-from suplex.suplex_modules.submodules.dynamic_threshold_filter import apply_dynamic_filtering
+from suplex.suplex_modules.submodules.value_extractor import (
+    ValueExtractor,
+    flatten_list,
+    get_flat_value_list,
+)
+from suplex.suplex_modules.submodules.viability_rules import (
+    has_insufficient_number_of_samples,
+    has_negative_values,
+    no_datasets_selected,
+    sample_count_not_uniform,
+    spot_count_is_not_uniform,
+)
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +82,6 @@ MAX_PIXELS_GRAPH = 2**20
 
 
 class HitmapModule(SuplexModuleInterface):
-
     def __init__(self) -> None:
         """
         Initialize the HitmapModule with default settings and UI elements.
@@ -198,7 +191,7 @@ class HitmapModule(SuplexModuleInterface):
         return "Vanilla"
 
     @property
-    def button_style(self) -> Dict[str, str]:
+    def button_style(self) -> dict[str, str]:
         """
         Get the button style configuration for the module.
 
@@ -207,7 +200,7 @@ class HitmapModule(SuplexModuleInterface):
         """
         return {"font_color": "#FFFFFF", "button_color": "#ff3333", "button_icon": "🎯"}
 
-    def check_if_viable(self, datasets: List[Dataset]) -> bool:
+    def check_if_viable(self, datasets: list[Dataset]) -> bool:
         """
         Check if the module is viable based on the provided datasets.
         Future iteration may reduce this list.
@@ -285,7 +278,7 @@ class HitmapModule(SuplexModuleInterface):
         """
         return self._module_hover_text
 
-    def initiate_module(self, datasets: List[Dataset], color_scheme: Any) -> widgets.Box:
+    def initiate_module(self, datasets: list[Dataset], color_scheme: Any) -> widgets.Box:
         """
         Initialize module with datasets.
 
@@ -298,7 +291,6 @@ class HitmapModule(SuplexModuleInterface):
         """
         logger.debug("Initiating module %s with %d datasets", self.module_name, len(datasets))
         try:
-
             self._datasets = datasets
             self._included_datasets = datasets.copy()
             self._color_scheme = color_scheme
@@ -501,7 +493,7 @@ class HitmapModule(SuplexModuleInterface):
 
                 # Don't auto update on tabs which don't depict any data
                 ignore_tabs = ["Sorting & Filters", "Settings"]
-                if not current_tab_title in ignore_tabs:
+                if current_tab_title not in ignore_tabs:
                     self.auto_update(self.update_analysis)
 
             self._tabs.observe(on_tab_change, names="selected_index")
@@ -1259,7 +1251,7 @@ class HitmapModule(SuplexModuleInterface):
                 <li><strong>Attribute:</strong> {dataset_filter_attribute_text}</li>
                 <li><strong>Threshold:</strong> {self._dataset_filter.threshold}</li>
                 <li><strong>Inverted Selection:</strong> {self._dataset_filter.invert}</li>
-                <li><strong>Number of Excluded  Sets:</strong> {len(self._excluded_datasets)} / {len(self._datasets)} ({len(self._excluded_datasets)/len(self._datasets)*100:.1f}%)</li>
+                <li><strong>Number of Excluded  Sets:</strong> {len(self._excluded_datasets)} / {len(self._datasets)} ({len(self._excluded_datasets) / len(self._datasets) * 100:.1f}%)</li>
                 <li><strong>Excluded Sets:</strong> {excluded_set_identifiers}</li>
             </ul>
             """
@@ -1304,7 +1296,7 @@ class HitmapModule(SuplexModuleInterface):
                 <li><strong>Dynamic Filter Active:</strong> {apply_dynamic_filter}</li>
                 <li><strong>Dynamic Filter Sparsity:</strong> {self._sparsity_sider.value}</li>
                 <li><strong>Filter Propagation Mode:</strong> {self._compound_mode_dropdown.value}</li>
-                <li><strong>Values in Range:</strong> {n_values_included} / {n_values} ({n_values_included/n_values*100:.1f}%)</li>
+                <li><strong>Values in Range:</strong> {n_values_included} / {n_values} ({n_values_included / n_values * 100:.1f}%)</li>
                 <li><strong>Filtered Global Mean:</strong> {filtered_values_mean:.4f}</li>
                 <li><strong>Filtered Global Min:</strong> {filtered_values_min:.4f}</li>
                 <li><strong>Filtered Global Max:</strong> {filtered_values_max:.4f}</li>
@@ -1331,7 +1323,7 @@ class HitmapModule(SuplexModuleInterface):
                 not self._apply_static_filter_checkbox.value
                 and not self._apply_dynamic_filter_checkbox.value
             ):
-                html_str = f"Please select a filter method to generate statistics."
+                html_str = "Please select a filter method to generate statistics."
                 self._dataset_stats_box.children = [
                     WidgetFactory.info_field_error([WidgetFactory.html_widget(html_str)])
                 ]
@@ -1502,14 +1494,14 @@ class HitmapModule(SuplexModuleInterface):
                 not self._apply_static_filter_checkbox.value
                 and not self._apply_dynamic_filter_checkbox.value
             ):
-                html_str = f"Please select a filter method to generate a hitmap."
+                html_str = "Please select a filter method to generate a hitmap."
                 self._compound_plot_box.children = [
                     WidgetFactory.info_field_error([WidgetFactory.html_widget(html_str)])
                 ]
                 return
 
             if not self._compound_map:
-                html_str = f"No datasets left after filtering."
+                html_str = "No datasets left after filtering."
                 self._compound_plot_box.children = [
                     WidgetFactory.info_field_error([WidgetFactory.html_widget(html_str)])
                 ]
@@ -1519,7 +1511,7 @@ class HitmapModule(SuplexModuleInterface):
 
             with tempfile.NamedTemporaryFile(suffix=".svg", delete=False) as tmp_svg:
                 svg_fig.save(tmp_svg.name)
-                with open(tmp_svg.name, "r", encoding="utf-8") as f:
+                with open(tmp_svg.name, encoding="utf-8") as f:
                     svg_string = f.read()
 
                 # Extremely ugly solution for the way windows handles tempfiles
@@ -1569,14 +1561,12 @@ class HitmapModule(SuplexModuleInterface):
                 and not self._apply_dynamic_filter_checkbox.value
             ):
                 logger.warning(
-                    f"Could not export compound plots. Please select a filter method to generate a hitmap."
+                    "Could not export compound plots. Please select a filter method to generate a hitmap."
                 )
                 return
 
             if not self._compound_map:
-                logger.warning(
-                    f"Could not export compound plots. No datasets left after filtering."
-                )
+                logger.warning("Could not export compound plots. No datasets left after filtering.")
                 return
 
             svg_fig = self.get_compound_heatmap_collage()
@@ -1680,14 +1670,14 @@ class HitmapModule(SuplexModuleInterface):
                 not self._apply_static_filter_checkbox.value
                 and not self._apply_dynamic_filter_checkbox.value
             ):
-                html_str = f"Please select a filter method to generate hitmaps."
+                html_str = "Please select a filter method to generate hitmaps."
                 self._collage_plot_box.children = [
                     WidgetFactory.info_field_error([WidgetFactory.html_widget(html_str)])
                 ]
                 return
 
             if not self._compound_map:
-                html_str = f"No datasets left after filtering."
+                html_str = "No datasets left after filtering."
                 self._collage_plot_box.children = [
                     WidgetFactory.info_field_error([WidgetFactory.html_widget(html_str)])
                 ]
@@ -1697,7 +1687,7 @@ class HitmapModule(SuplexModuleInterface):
 
             with tempfile.NamedTemporaryFile(suffix=".svg", delete=False) as tmp_svg:
                 svg_fig.save(tmp_svg.name)
-                with open(tmp_svg.name, "r", encoding="utf-8") as f:
+                with open(tmp_svg.name, encoding="utf-8") as f:
                     svg_string = f.read()
 
                 # Extremely ugly solution for the way windows handles tempfiles
@@ -1747,14 +1737,12 @@ class HitmapModule(SuplexModuleInterface):
                 and not self._apply_dynamic_filter_checkbox.value
             ):
                 logger.warning(
-                    f"Could not export compound plots. Please select a filter method to generate a hitmap."
+                    "Could not export compound plots. Please select a filter method to generate a hitmap."
                 )
                 return
 
             if not self._compound_map:
-                logger.warning(
-                    f"Could not export compound plots. No datasets left after filtering."
-                )
+                logger.warning("Could not export compound plots. No datasets left after filtering.")
                 return
 
             svg_fig = self.get_collage()
@@ -1984,10 +1972,10 @@ class HitmapModule(SuplexModuleInterface):
     def generate_barchart(
         self,
         title: str,
-        plot_values: List[float],
-        groups: List[int] = [],
-        threshold_lines: List[float] = [],
-        max_value: Optional[float] = None,
+        plot_values: list[float],
+        groups: list[int] = [],
+        threshold_lines: list[float] = [],
+        max_value: float | None = None,
     ) -> plt.Figure:
         """
         Generate a barchart figure.
@@ -2166,8 +2154,8 @@ class HitmapModule(SuplexModuleInterface):
     def generate_heatmap(
         self,
         title: str,
-        dataset: Optional[Dataset],
-        plot_values: List[float],
+        dataset: Dataset | None,
+        plot_values: list[float],
         min_value: float,
         max_value: float,
     ) -> plt.Figure:
@@ -2356,7 +2344,7 @@ class HitmapModule(SuplexModuleInterface):
 
         except Exception as e:
             logger.error(
-                f"Failed to generate heatmap for dataset %s: %s",
+                "Failed to generate heatmap for dataset %s: %s",
                 dataset_descriptor,
                 e,
                 exc_info=True,
@@ -2778,7 +2766,7 @@ class HitmapModule(SuplexModuleInterface):
         # Currently this only forces a re-color of our table
         self.update_analysis()
 
-    def reset_module(self) -> Optional[Self]:
+    def reset_module(self) -> Self | None:
         """
         Reset the module to a new instance.
 

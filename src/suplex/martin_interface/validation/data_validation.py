@@ -1,17 +1,15 @@
-import json
-import csv
-import os
-import math
-import logging
 import copy
-from typing import List, Optional, Any
-from .basic_file_validation import *
+import logging
+import math
+from typing import Any
+
 from ..martin_interface_constants import DATA_FIELDS
+from .basic_file_validation import *
 
 logger = logging.getLogger(__name__)
 
 
-def try_get_validated_data(data_file_path: str) -> dict[str, List[dict[str, Any]]]:
+def try_get_validated_data(data_file_path: str) -> dict[str, list[dict[str, Any]]]:
     """
     Conducts a set of checks if a data file is valid.
     Tolerable inconsistencies are logged, if not tolerable entire dataset is not loaded.
@@ -54,8 +52,8 @@ def try_get_validated_data(data_file_path: str) -> dict[str, List[dict[str, Any]
 
 
 def try_typecast_data_file(
-    data_file_path: str, data_file: dict[str, List[dict[str, Any]]]
-) -> dict[str, List[dict[str, Any]]]:
+    data_file_path: str, data_file: dict[str, list[dict[str, Any]]]
+) -> dict[str, list[dict[str, Any]]]:
     """
     Attempts to typecast data_file values to their correct format.
 
@@ -81,7 +79,7 @@ def try_typecast_data_file(
 
 
 def check_value_consistency(
-    data_file_path: str, data_file: dict[str, List[dict[str, Any]]]
+    data_file_path: str, data_file: dict[str, list[dict[str, Any]]]
 ) -> bool:
     """
     Check for logical constraints.

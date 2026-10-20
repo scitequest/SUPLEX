@@ -1,18 +1,20 @@
-import json
-import logging
 import copy
+import logging
 import re
 from datetime import datetime
+from typing import Any
+
 import isodate
-from typing import List, Optional, Any
-from .basic_file_validation import *
+
 from ..martin_interface_constants import (
+    INCUBATION_FIELDS,
     METADATA_FIELDS_REQUIRED,
     PROJECT_FIELDS,
-    INCUBATION_FIELDS,
 )
+from .basic_file_validation import *
 
 logger = logging.getLogger(__name__)
+
 
 def parse_iso_datetime(dt_str: str) -> datetime:
     """
@@ -25,7 +27,8 @@ def parse_iso_datetime(dt_str: str) -> datetime:
         dt_str = match.group(1) + match.group(2)
     return datetime.fromisoformat(dt_str)
 
-def try_get_validated_metadata(metadata_file_path: str) -> Optional[dict[str, Any]]:
+
+def try_get_validated_metadata(metadata_file_path: str) -> dict[str, Any] | None:
     """
     Conducts a set of checks to validate a metadata file.
     Tolerable inconsistencies are logged, while intolerable issues prevent file loading.
@@ -72,7 +75,7 @@ def try_get_validated_metadata(metadata_file_path: str) -> Optional[dict[str, An
 
 def try_typecast_metadata_file(
     metadata_file_path: str, metadata_file: dict[str, Any]
-) -> Optional[dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Attempts to typecast metadata_file values to their correct format.
 

@@ -1,61 +1,62 @@
+import csv
+import io
+import logging
+import warnings
+from tkinter import Tk, filedialog
+from typing import Any, Self
+
 import ipywidgets as widgets
 import matplotlib.pyplot as plt
-import seaborn as sns
-from typing import Dict, List, Optional, Union, Any
-from typing_extensions import Self
-import io
-from tkinter import filedialog, Tk
 import numpy as np
-import logging
+import seaborn as sns
 
 from suplex.config import DEMO
-import csv
-import warnings
-
-from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 from suplex.martin_interface.dataset import Dataset
-from suplex.ui.widget_factory import WidgetFactory
-from suplex.suplex_modules.submodules.viability_rules import no_datasets_selected, has_negative_values
-from suplex.suplex_modules.submodules.value_extractor import (
-    ValueExtractor,
-    extract_value_list_from_dataset,
-    get_flat_value_list,
-    flatten_list,
-)
-from suplex.suplex_modules.submodules.submodule_constants import (
-    DATASET_ATTRIBUTE,
-    DATA_ATTRIBUTES,
-    DATA_STATISTICS_ATTRIBUTES,
-    NORMALIZATION,
-    NORMALIZATION_DEFAULT,
-    DATASET_LABEL,
-)
-from suplex.suplex_modules.submodules.dataset_sorter import DatasetSorter
 from suplex.suplex_modules.submodules.dataset_filters import DatasetFilter
+from suplex.suplex_modules.submodules.dataset_sorter import DatasetSorter
 from suplex.suplex_modules.submodules.sample_spot_filter import (
     SampleSpotFilter,
     get_normalization_factors,
 )
+from suplex.suplex_modules.submodules.settings.boxplot_settings import BoxplotSettings
 from suplex.suplex_modules.submodules.settings.general_graph_settings import (
     GeneralGraphSettings,
 )
-from suplex.suplex_modules.submodules.settings.boxplot_settings import BoxplotSettings
 from suplex.suplex_modules.submodules.settings.jitterplot_settings import JitterplotSettings
 from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
-    SEQUENTIAL_COLOR_SCHEME,
-    SCALE_TYPE,
+    ASPECT_RATIO,
     GRID_STYLE,
     JITTER_TYPE,
-    WHISKER_MODE,
     OPTION_INSET,
     OPTION_WIDGETS_MAX_WIDTH,
-    ASPECT_RATIO,
+    SCALE_TYPE,
+    SEQUENTIAL_COLOR_SCHEME,
+    WHISKER_MODE,
     get_aspect_ratio_value,
+)
+from suplex.suplex_modules.submodules.submodule_constants import (
+    DATA_ATTRIBUTES,
+    DATA_STATISTICS_ATTRIBUTES,
+    DATASET_ATTRIBUTE,
+    DATASET_LABEL,
+    NORMALIZATION,
+    NORMALIZATION_DEFAULT,
 )
 from suplex.suplex_modules.submodules.submodule_utils import (
     apply_normalization,
     calculate_step_size,
 )
+from suplex.suplex_modules.submodules.value_extractor import (
+    ValueExtractor,
+    flatten_list,
+    get_flat_value_list,
+)
+from suplex.suplex_modules.submodules.viability_rules import (
+    has_negative_values,
+    no_datasets_selected,
+)
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 ABS_MAX_VALUE = 2**16 - 1
@@ -193,7 +194,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         return "Vanilla"
 
     @property
-    def button_style(self) -> Dict[str, str]:
+    def button_style(self) -> dict[str, str]:
         """
         Get the style configuration for the module button.
 
@@ -202,7 +203,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         """
         return {"font_color": "#FFFFFF", "button_color": "#28A745", "button_icon": "📊"}
 
-    def check_if_viable(self, datasets: List[Dataset]) -> bool:
+    def check_if_viable(self, datasets: list[Dataset]) -> bool:
         """
         Check if module can work with provided datasets.
 
@@ -247,7 +248,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         """
         return self._module_hover_text
 
-    def initiate_module(self, datasets: List[Dataset], color_scheme: Any) -> widgets.Box:
+    def initiate_module(self, datasets: list[Dataset], color_scheme: Any) -> widgets.Box:
         """
         Initialize module with datasets.
 
@@ -505,18 +506,14 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 description="Apply Value Threshold",
                 value=False,
             )
-            self._apply_threshold_checkbox.observe(
-                lambda b: self.update_analysis(), names="value"
-            )
+            self._apply_threshold_checkbox.observe(lambda b: self.update_analysis(), names="value")
 
             # Decides if we depict threshold lines. This only affects the graph.
             self._show_threshold_checkbox = self._create_checkbox(
                 description="Depict Value Threshold",
                 value=True,
             )
-            self._show_threshold_checkbox.observe(
-                lambda b: self.update_graph(), names="value"
-            )
+            self._show_threshold_checkbox.observe(lambda b: self.update_graph(), names="value")
 
             spot_threshold_section = WidgetFactory.vbox(
                 children=[
@@ -955,7 +952,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 <li><strong>Attribute:</strong> {dataset_filter_attribute_text}</li>
                 <li><strong>Threshold:</strong> {self._dataset_filter.get_threshold_slider().value}</li>
                 <li><strong>Inverted Selection:</strong> {self._dataset_filter.invert}</li>
-                <li><strong>Number of Excluded  Sets:</strong> {len(self._excluded_datasets)} / {len(self._datasets)} ({len(self._excluded_datasets)/len(self._datasets)*100:.1f}%)</li>
+                <li><strong>Number of Excluded  Sets:</strong> {len(self._excluded_datasets)} / {len(self._datasets)} ({len(self._excluded_datasets) / len(self._datasets) * 100:.1f}%)</li>
                 <li><strong>Excluded Sets:</strong> {excluded_set_identifiers}</li>
             </ul>
             """
@@ -1022,7 +1019,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
                 <li><strong>Sample Filtering Affects Spots:</strong> {self._sample_spot_filter.sample_affects_spots}</li>
                 <li><strong>Spot Filtering Affects Samples:</strong> {self._sample_spot_filter.spots_affect_sample}</li>
                 <li><strong>Propagation Mode:</strong> {self._sample_spot_filter.sample_filter_mode.value}</li>
-                <li><strong>Values in Range:</strong> {n_values_included} / {len(flat_flag_list)} ({n_values_included/len(flat_flag_list)*100:.1f}%)</li>
+                <li><strong>Values in Range:</strong> {n_values_included} / {len(flat_flag_list)} ({n_values_included / len(flat_flag_list) * 100:.1f}%)</li>
                 <li><strong>Filtered Global Mean:</strong> {filtered_values_mean:.4f}</li>
                 <li><strong>Filtered Global Min:</strong> {filtered_values_min:.4f}</li>
                 <li><strong>Filtered Global Max:</strong> {filtered_values_max:.4f}</li>
@@ -1264,8 +1261,8 @@ class IntensityOverviewModule(SuplexModuleInterface):
             logger.error("Failed to export plot: %s", e, exc_info=True)
 
     def filter_empty_datasets(
-        self, value_lists: Dict[Dataset, List[float]]
-    ) -> Dict[Dataset, List[float]]:
+        self, value_lists: dict[Dataset, list[float]]
+    ) -> dict[Dataset, list[float]]:
         """
         Remove datasets that contain only NaN/None values when the user has disabled the inclusion of empty datasets.
 
@@ -1305,9 +1302,9 @@ class IntensityOverviewModule(SuplexModuleInterface):
             return label[:max_length]
 
         side_len = (max_length - 3) // 2
-        return f"{label[:side_len]}...{label[-(max_length - 3 - side_len):]}"
+        return f"{label[:side_len]}...{label[-(max_length - 3 - side_len) :]}"
 
-    def generate_box_jitter_plot(self, plot_data: Dict[str, List[float]]) -> plt.Figure:
+    def generate_box_jitter_plot(self, plot_data: dict[str, list[float]]) -> plt.Figure:
         """
         Generate the actual intensity plot.
 
@@ -1757,7 +1754,7 @@ class IntensityOverviewModule(SuplexModuleInterface):
         # Currently this only forces a re-color of our table
         self.update_analysis()
 
-    def reset_module(self) -> Optional[Self]:
+    def reset_module(self) -> Self | None:
         """
         Reset module to initial state.
 

@@ -1,9 +1,11 @@
+from datetime import datetime
+from unittest.mock import Mock
+
 import pytest
-from unittest.mock import Mock, patch
-from datetime import datetime, timedelta
+
 from suplex.martin_interface.dataset import Dataset
-from suplex.martin_interface.sample import Sample, DataStatistics
-from suplex.martin_interface.holder import PathHolder, FileHolder
+from suplex.martin_interface.holder import FileHolder
+from suplex.martin_interface.sample import DataStatistics
 
 
 class TestDataset:

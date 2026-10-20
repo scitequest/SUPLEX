@@ -1,17 +1,13 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-from pathlib import Path
-from datetime import datetime, date
-import os
+from datetime import date
+from unittest.mock import Mock, patch
 
-from suplex.ui.gui import GUI
-from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
-from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
 from suplex.martin_interface.martin_interface_constants import SEARCH_MODE
 from suplex.suplex_modules.submodules.submodule_constants import (
     DATASET_LABEL,
     SELECTION_MODE,
 )
+from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
+from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
 
 
 class TestAdapterDataIntegration:
@@ -47,9 +43,7 @@ class TestAdapterDataIntegration:
         assert dataset_page._project_cards[0].title == "Project Alpha"
         assert dataset_page._project_cards[1].title == "Project Beta"
 
-    def test_dataset_filtering_by_date(
-        self, integrated_gui_with_data, mock_adapter_complex_data
-    ):
+    def test_dataset_filtering_by_date(self, integrated_gui_with_data, mock_adapter_complex_data):
         """Test dataset filtering by date range."""
         gui = integrated_gui_with_data
         navigator = gui._navigator
@@ -100,9 +94,7 @@ class TestAdapterDataIntegration:
         selected = project_card._dataset_selector.get_selected_datasets()
         assert len(selected) >= 1
 
-    def test_dataset_filtering_by_tags(
-        self, integrated_gui_with_data, mock_adapter_complex_data
-    ):
+    def test_dataset_filtering_by_tags(self, integrated_gui_with_data, mock_adapter_complex_data):
         """Test dataset filtering by tags."""
         gui = integrated_gui_with_data
         navigator = gui._navigator
@@ -133,7 +125,9 @@ class TestAdapterDataIntegration:
                 project_card._is_created = True
 
                 project_card._tag_selector.get_tagged_datasets_any.return_value = project.datasets
-                project_card._tag_selector.get_tagged_datasets_all.return_value = project.datasets[:2]
+                project_card._tag_selector.get_tagged_datasets_all.return_value = project.datasets[
+                    :2
+                ]
 
         # ANY mode
         project_card._tag_selection_mode = SELECTION_MODE.ANY
@@ -296,6 +290,7 @@ class TestAdapterDataIntegration:
         with patch("suplex.ui.pages.module_selection_page.widgets.Tab"):
             with patch("suplex.ui.pages.module_selection_page.WidgetFactory"):
                 from suplex.ui.pages.module_selection_page import ModuleSelectionPage
+
                 module_page = ModuleSelectionPage(navigator=navigator, modules=mock_modules)
                 navigator._module_selection_page = module_page
                 navigator.navigate_to_module_selection()

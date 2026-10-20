@@ -89,7 +89,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--version", action="version", version=f"SUPLEX {__version__}")
     parser.add_argument(
-        "--port", type=int, default=None, help=f"port to listen on (default: first free from {DEFAULT_PORT})"
+        "--port",
+        type=int,
+        default=None,
+        help=f"port to listen on (default: first free from {DEFAULT_PORT})",
     )
     parser.add_argument("--no-browser", action="store_true", help="do not open a browser window")
     parser.add_argument("--debug", action="store_true", help="show kernel tracebacks in the page")

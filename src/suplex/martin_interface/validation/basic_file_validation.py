@@ -1,13 +1,13 @@
-import json
 import csv
-import os
+import json
 import logging
-from typing import List, Optional, Any
+import os
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def get_data_file(file_path: str) -> Optional[dict[str, List]]:
+def get_data_file(file_path: str) -> dict[str, list] | None:
     """
     Validates if a file is a JSON or TSV in the format of data or data_statistics and converts it to a list of dictionaries.
 
@@ -38,7 +38,7 @@ def get_data_file(file_path: str) -> Optional[dict[str, List]]:
     return None
 
 
-def try_get_valid_json(file_path: str) -> Optional[dict[str, Any]]:
+def try_get_valid_json(file_path: str) -> dict[str, Any] | None:
     """
     Attempts to load a JSON file and verify it has a dictionary as its top-level structure.
 
@@ -57,7 +57,7 @@ def try_get_valid_json(file_path: str) -> Optional[dict[str, Any]]:
 
     logger.debug(f"Attempting to load JSON from {file_path}")
     try:
-        with open(file_path, "r") as file:
+        with open(file_path) as file:
             file_data = json.load(file)
         if not isinstance(file_data, dict):
             logger.error(f"JSON at {file_path} is not a dictionary at the top level")
@@ -69,7 +69,7 @@ def try_get_valid_json(file_path: str) -> Optional[dict[str, Any]]:
         return None
 
 
-def try_get_valid_tsv_as_dicts(file_path: str) -> Optional[List[dict[str, Any]]]:
+def try_get_valid_tsv_as_dicts(file_path: str) -> list[dict[str, Any]] | None:
     """
     Attempts to load a TSV file and convert it to a list of dictionaries.
 
@@ -85,7 +85,7 @@ def try_get_valid_tsv_as_dicts(file_path: str) -> Optional[List[dict[str, Any]]]
 
     logger.debug(f"Attempting to load TSV from {file_path}")
     try:
-        with open(file_path, "r", newline="") as file:
+        with open(file_path, newline="") as file:
             reader = csv.DictReader(file, delimiter="\t")
             if not reader.fieldnames:
                 logger.error(f"TSV at {file_path} has no headers")
@@ -157,7 +157,7 @@ def is_Key_Structure_Identical(
     return True
 
 
-def is_dict_list_uniform(file_path: str, file: List[dict[str, Any]]) -> bool:
+def is_dict_list_uniform(file_path: str, file: list[dict[str, Any]]) -> bool:
     """
     Checks if all dictionaries in a list have the same keys.
 

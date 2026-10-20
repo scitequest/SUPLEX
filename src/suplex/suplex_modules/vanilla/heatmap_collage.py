@@ -1,92 +1,82 @@
-import ipywidgets as widgets
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-import seaborn as sns
-from typing import Dict, List, Optional, Union, Any, Callable
-from typing_extensions import Self
-import io
-import os
-from tkinter import filedialog, Tk
-import numpy as np
-import logging
-
-from suplex.config import DEMO
 import csv
+import io
+import logging
 import math
-from PIL import Image
-import svgutils.transform as sg
+import os
 import tempfile
 import time
 import warnings
+from collections.abc import Callable
+from tkinter import Tk, filedialog
+from typing import Any, Self
 
-from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
+import ipywidgets as widgets
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import svgutils.transform as sg
+from PIL import Image
+
+from suplex.config import DEMO
 from suplex.martin_interface.dataset import Dataset
-from suplex.ui.widget_factory import WidgetFactory
-from suplex.suplex_modules.submodules.viability_rules import no_datasets_selected, has_negative_values
-from suplex.suplex_modules.submodules.value_extractor import (
-    ValueExtractor,
-    extract_value_list_from_dataset,
-    get_flat_value_list,
-    flatten_list,
-    get_reference_statistics,
-)
-from suplex.suplex_modules.submodules.submodule_constants import (
-    DATASET_ATTRIBUTE,
-    DATA_ATTRIBUTES,
-    DATA_STATISTICS_ATTRIBUTES,
-    NORMALIZATION,
-    DATASET_LABEL,
-    NORMALIZATION_DEFAULT,
-    NORMALIZATION_REFERENCE_POINT,
-    COLLAGE_LAYOUT,
-    SCALE_OPTION,
-    COLOR,
-    TITLE_POSITION,
-    READING_ORDER,
-)
-from suplex.suplex_modules.submodules.dataset_sorter import DatasetSorter
-from suplex.suplex_modules.submodules.dataset_filters import DatasetFilter
-from suplex.suplex_modules.submodules.sample_spot_filter import (
-    SampleSpotFilter,
-    get_normalization_factors,
-)
 from suplex.suplex_modules.submodules.collage import (
     Collage,
-    add_title_to_svg,
     add_padding_to_svgs,
+    add_title_to_svg,
 )
-
+from suplex.suplex_modules.submodules.dataset_filters import DatasetFilter
+from suplex.suplex_modules.submodules.dataset_sorter import DatasetSorter
+from suplex.suplex_modules.submodules.sample_spot_filter import (
+    SampleSpotFilter,
+)
 from suplex.suplex_modules.submodules.settings.general_graph_settings import (
     GeneralGraphSettings,
 )
-
 from suplex.suplex_modules.submodules.settings.heatmap_settings import HeatmapSettings
 from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
-    OPTION_INSET,
-    DIVERGENT_COLOR_SCHEME,
     ANNOTATION_COLOR,
-    LINE_COLOR,
-    CBAR_ORIENTATION,
-)
-
-from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
-    SEQUENTIAL_COLOR_SCHEME,
-    SCALE_TYPE,
-    GRID_STYLE,
-    JITTER_TYPE,
-    WHISKER_MODE,
-    OPTION_INSET,
-    OPTION_WIDGETS_MAX_WIDTH,
     ASPECT_RATIO,
     CBAR_ORIENTATION,
     CBAR_TICK_MODE,
+    DIVERGENT_COLOR_SCHEME,
+    GRID_STYLE,
+    LINE_COLOR,
+    OPTION_INSET,
+    OPTION_WIDGETS_MAX_WIDTH,
+    SEQUENTIAL_COLOR_SCHEME,
     get_aspect_ratio_value,
 )
-
-from suplex.suplex_modules.submodules.submodule_utils import (
-    number_to_letters,
-    calculate_step_size,
+from suplex.suplex_modules.submodules.submodule_constants import (
+    COLLAGE_LAYOUT,
+    COLOR,
+    DATA_ATTRIBUTES,
+    DATA_STATISTICS_ATTRIBUTES,
+    DATASET_ATTRIBUTE,
+    DATASET_LABEL,
+    NORMALIZATION,
+    NORMALIZATION_DEFAULT,
+    NORMALIZATION_REFERENCE_POINT,
+    READING_ORDER,
+    SCALE_OPTION,
+    TITLE_POSITION,
 )
+from suplex.suplex_modules.submodules.submodule_utils import (
+    calculate_step_size,
+    number_to_letters,
+)
+from suplex.suplex_modules.submodules.value_extractor import (
+    ValueExtractor,
+    flatten_list,
+    get_flat_value_list,
+    get_reference_statistics,
+)
+from suplex.suplex_modules.submodules.viability_rules import (
+    has_negative_values,
+    no_datasets_selected,
+)
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +84,6 @@ MAX_PIXELS_GRAPH = 2**20
 
 
 class OverviewHeatmapModule(SuplexModuleInterface):
-
     def __init__(self):
         """
         Initialize the OverviewHeatmapModule with default settings and UI elements.
@@ -181,7 +170,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         return "Vanilla"
 
     @property
-    def button_style(self) -> Dict[str, str]:
+    def button_style(self) -> dict[str, str]:
         """
         Get the style configuration for the module button.
 
@@ -190,7 +179,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         """
         return {"font_color": "#FFFFFF", "button_color": "#ED9121", "button_icon": "🗺️"}
 
-    def check_if_viable(self, datasets: List[Dataset]) -> bool:
+    def check_if_viable(self, datasets: list[Dataset]) -> bool:
         """
         Check if module can work with provided datasets.
 
@@ -235,7 +224,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         """
         return self._module_hover_text
 
-    def initiate_module(self, datasets: List[Dataset], color_scheme: Any) -> widgets.Box:
+    def initiate_module(self, datasets: list[Dataset], color_scheme: Any) -> widgets.Box:
         """
         Initialize module with datasets.
 
@@ -248,7 +237,6 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         """
         logger.debug("Initiating module %s with %d datasets", self.module_name, len(datasets))
         try:
-
             self._datasets = datasets
             self._included_datasets = datasets.copy()
             self._color_scheme = color_scheme
@@ -463,7 +451,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 current_tab_title = self._tabs.titles[current_tab_index]
 
                 ignore_tabs = ["Sorting & Filters", "Settings"]
-                if not current_tab_title in ignore_tabs:
+                if current_tab_title not in ignore_tabs:
                     self.auto_update(self.update_analysis)
 
             self._tabs.observe(on_tab_change, names="selected_index")
@@ -1015,7 +1003,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 <li><strong>Attribute:</strong> {dataset_filter_attribute_text}</li>
                 <li><strong>Threshold:</strong> {self._dataset_filter.threshold}</li>
                 <li><strong>Inverted Selection:</strong> {self._dataset_filter.invert}</li>
-                <li><strong>Number of Excluded  Sets:</strong> {len(self._excluded_datasets)} / {len(self._datasets)} ({len(self._excluded_datasets)/len(self._datasets)*100:.1f}%)</li>
+                <li><strong>Number of Excluded  Sets:</strong> {len(self._excluded_datasets)} / {len(self._datasets)} ({len(self._excluded_datasets) / len(self._datasets) * 100:.1f}%)</li>
                 <li><strong>Excluded Sets:</strong> {excluded_set_identifiers}</li>
             </ul>
             """
@@ -1073,7 +1061,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 <li><strong>Sample Filtering Affects Spots:</strong> {self._sample_spot_filter.sample_affects_spots}</li>
                 <li><strong>Spot Filtering Affects Samples:</strong> {self._sample_spot_filter.spots_affect_sample}</li>
                 <li><strong>Propagation Mode:</strong> {self._sample_spot_filter.sample_filter_mode.value}</li>
-                <li><strong>Values in Range:</strong> {n_values_included} / {len(flat_flag_list)} ({n_values_included/len(flat_flag_list)*100:.1f}%)</li>
+                <li><strong>Values in Range:</strong> {n_values_included} / {len(flat_flag_list)} ({n_values_included / len(flat_flag_list) * 100:.1f}%)</li>
                 <li><strong>Filtered Global Mean:</strong> {filtered_values_mean:.4f}</li>
                 <li><strong>Filtered Global Min:</strong> {filtered_values_min:.4f}</li>
                 <li><strong>Filtered Global Max:</strong> {filtered_values_max:.4f}</li>
@@ -1253,7 +1241,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             self._value_extractor.normalization in NORMALIZATION_REFERENCE_POINT
             and len(self._value_extractor.references) == 0
         ):
-            html_str = f"Please select reference indices to generate a plot."
+            html_str = "Please select reference indices to generate a plot."
             self._plot_box.children = [
                 WidgetFactory.info_field_error([WidgetFactory.html_widget(html_str)])
             ]
@@ -1291,7 +1279,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
             with tempfile.NamedTemporaryFile(suffix=".svg", delete=False) as tmp_svg:
                 svg_fig.save(tmp_svg.name)
-                with open(tmp_svg.name, "r", encoding="utf-8") as f:
+                with open(tmp_svg.name, encoding="utf-8") as f:
                     svg_string = f.read()
 
                 # Extremely ugly solution for the way windows handles tempfiles
@@ -1397,8 +1385,8 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             logger.error("Failed to export plot: %s", e, exc_info=True)
 
     def filter_empty_datasets(
-        self, value_lists: Dict[Dataset, List[float]]
-    ) -> Dict[Dataset, List[float]]:
+        self, value_lists: dict[Dataset, list[float]]
+    ) -> dict[Dataset, list[float]]:
         """
         Remove datasets that contain only NaN/None values when the user has disabled the inclusion of empty datasets.
 
@@ -1420,7 +1408,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             and not all(val is None or (val is not None and np.isnan(val)) for val in value_list)
         }
 
-    def get_collage(self, plot_data: Dict[Dataset, List[float]]) -> sg.SVGFigure:
+    def get_collage(self, plot_data: dict[Dataset, list[float]]) -> sg.SVGFigure:
         """
         Generate a collage from individual dataset heatmaps and images.
 
@@ -1537,7 +1525,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         logger.debug("Collage generated successfully")
         return collage_image
 
-    def get_heatmaps(self, dataset: Dataset, plot_values: List[float]) -> List[plt.Figure]:
+    def get_heatmaps(self, dataset: Dataset, plot_values: list[float]) -> list[plt.Figure]:
         """
         Generate heatmaps for the dataset, splitting by spotfields if applicable.
 
@@ -1563,7 +1551,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             for spot_field_values in spot_field_values_list
         ]
 
-    def generate_heatmap(self, dataset: Dataset, plot_values: List[float]) -> plt.Figure:
+    def generate_heatmap(self, dataset: Dataset, plot_values: list[float]) -> plt.Figure:
         """
         Generate a single heatmap for the given dataset and values.
 
@@ -1574,7 +1562,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         Returns:
             plt.Figure: The generated heatmap figure.
         """
-        logger.debug(f"Generating heatmap for dataset: %s", dataset.id)
+        logger.debug("Generating heatmap for dataset: %s", dataset.id)
         try:
             # Edge case where there is only one non NaN value
             if sum(~np.isnan(plot_values)) <= 1:
@@ -1879,7 +1867,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
     def add_global_colorbar(
         self,
         svg_image: sg.SVGFigure,
-        plot_data: Dict[Dataset, List[float]],
+        plot_data: dict[Dataset, list[float]],
         bar_width=200,
     ) -> sg.SVGFigure:
         """
@@ -1982,7 +1970,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
                 cb.set_ticklabels(ticklabels)
         else:
             tick_mode = self._heatmap_settings.cbar_tick_mode
-            logger.debug(f"Setting global colorbar ticks with mode: %s", tick_mode.value)
+            logger.debug("Setting global colorbar ticks with mode: %s", tick_mode.value)
 
             if tick_mode == CBAR_TICK_MODE.HIDE:
                 cb.set_ticks([])
@@ -2048,7 +2036,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         logger.debug("Global colorbar added successfully")
         return combined_fig
 
-    def get_data_matrix(self, value_lists: Dict[Dataset, List[float]]):
+    def get_data_matrix(self, value_lists: dict[Dataset, list[float]]):
         """
         Prepare a data matrix for CSV export.
 
@@ -2158,7 +2146,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
         # Currently this only forces a re-color of our table
         self.update_analysis()
 
-    def reset_module(self) -> Optional[Self]:
+    def reset_module(self) -> Self | None:
         """
         Reset module to initial state.
 

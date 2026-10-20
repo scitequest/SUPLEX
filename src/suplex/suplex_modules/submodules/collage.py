@@ -1,29 +1,28 @@
 import logging
-from typing import List, Optional, Union
-import ipywidgets as widgets
-from PIL import Image
-import numpy as np
-import matplotlib.pyplot as plt
-
-import svgutils.transform as sg
-import tempfile
 import os
+import tempfile
 
-from suplex.suplex_modules.submodules.submodule_utils import get_color_tuple
+import ipywidgets as widgets
+import matplotlib.pyplot as plt
+import numpy as np
+import svgutils.transform as sg
+from PIL import Image
+
+from suplex.suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET
 from suplex.suplex_modules.submodules.submodule_constants import (
     COLLAGE_LAYOUT,
     COLOR,
     READING_ORDER,
-    TITLE_POSITION,
     SCALE_OPTION,
+    TITLE_POSITION,
 )
-from suplex.suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET
+from suplex.suplex_modules.submodules.submodule_utils import get_color_tuple
 from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 
 
-def format_image_to_svg(input_item: Union[Image.Image, plt.Figure], dpi: int = 300) -> sg.SVGFigure:
+def format_image_to_svg(input_item: Image.Image | plt.Figure, dpi: int = 300) -> sg.SVGFigure:
     """
     Formats a PIL image or Matplotlib figure to an SVGFigure.
 
@@ -71,7 +70,7 @@ def format_image_to_svg(input_item: Union[Image.Image, plt.Figure], dpi: int = 3
         raise ValueError("Conversion to figure failed")
 
 
-def scale_svgs(svgs: List[sg.SVGFigure], scale_option: SCALE_OPTION) -> List[sg.SVGFigure]:
+def scale_svgs(svgs: list[sg.SVGFigure], scale_option: SCALE_OPTION) -> list[sg.SVGFigure]:
     """
     Scales SVGFigures according to the specified scale option while preserving or ignoring aspect ratio.
 
@@ -156,8 +155,8 @@ def scale_svgs(svgs: List[sg.SVGFigure], scale_option: SCALE_OPTION) -> List[sg.
 
 
 def add_padding_to_svgs(
-    svgs: List[sg.SVGFigure], horizontal_padding: int = 0, vertical_padding: int = 0
-) -> List[sg.SVGFigure]:
+    svgs: list[sg.SVGFigure], horizontal_padding: int = 0, vertical_padding: int = 0
+) -> list[sg.SVGFigure]:
     """
     Adds padding to SVGFigures by adjusting their size and positions.
 
@@ -194,7 +193,7 @@ def add_padding_to_svgs(
     return padded_svgs
 
 
-def get_gridded_svgs(svgs: List[sg.SVGFigure], layout: COLLAGE_LAYOUT) -> List[sg.SVGFigure]:
+def get_gridded_svgs(svgs: list[sg.SVGFigure], layout: COLLAGE_LAYOUT) -> list[sg.SVGFigure]:
     """
     Adjusts sizes of SVGFigures based on the layout by adding padding to equalize dimensions.
 
@@ -247,11 +246,11 @@ def get_gridded_svgs(svgs: List[sg.SVGFigure], layout: COLLAGE_LAYOUT) -> List[s
 
 
 def get_svg_array_for_svgs(
-    svgs: List[sg.SVGFigure],
+    svgs: list[sg.SVGFigure],
     n_cols: int,
     layout: COLLAGE_LAYOUT,
     reading_order: READING_ORDER,
-) -> List[List[Optional[sg.SVGFigure]]]:
+) -> list[list[sg.SVGFigure | None]]:
     """
     Creates a 2D array representing the collage layout with SVGFigures and spacers.
 
@@ -320,7 +319,7 @@ def get_svg_array_for_svgs(
 
 
 def generate_collage_figure(
-    collage_array: List[List[Optional[sg.SVGFigure]]],
+    collage_array: list[list[sg.SVGFigure | None]],
 ) -> sg.SVGFigure:
     """
     Generates a collage figure from a 2D array of SVGFigures.
@@ -331,7 +330,7 @@ def generate_collage_figure(
     Returns:
         An sg.SVGFigure containing the arranged collage.
     """
-    logger.debug(f"Generating collage figure")
+    logger.debug("Generating collage figure")
 
     n_rows = len(collage_array)
     n_cols = len(collage_array[0]) if n_rows > 0 else 0
@@ -520,7 +519,7 @@ def add_title_to_svg(
 
 
 def create_collage(
-    images: List[Union[Image.Image, plt.Figure]],
+    images: list[Image.Image | plt.Figure],
     layout: COLLAGE_LAYOUT = COLLAGE_LAYOUT.GRID_EQUAL_ALL,
     reading_order: READING_ORDER = READING_ORDER.LEFT_RIGHT_TOP_BOTTOM,
     columns: int = 5,
@@ -612,24 +611,24 @@ class Collage:
 
     def __init__(
         self,
-        layouts: Optional[List[COLLAGE_LAYOUT]] = None,
-        columns: Optional[int] = None,
-        max_columns: Optional[int] = None,
-        scaling: Optional[List[SCALE_OPTION]] = None,
-        padding_horizontal: Optional[int] = None,
-        max_padding_horizontal: Optional[int] = None,
-        padding_vertical: Optional[int] = None,
-        max_padding_vertical: Optional[int] = None,
-        margin_vertical: Optional[int] = None,
-        max_margin_vertical: Optional[int] = None,
-        margin_horizontal: Optional[int] = None,
-        max_margin_horizontal: Optional[int] = None,
-        title: Optional[str] = "",
-        title_positions: Optional[List[TITLE_POSITION]] = None,
-        title_colors: Optional[List[COLOR]] = None,
-        font_size: Optional[int] = None,
-        max_font_size: Optional[int] = None,
-        reading_orders: Optional[List[READING_ORDER]] = None,
+        layouts: list[COLLAGE_LAYOUT] | None = None,
+        columns: int | None = None,
+        max_columns: int | None = None,
+        scaling: list[SCALE_OPTION] | None = None,
+        padding_horizontal: int | None = None,
+        max_padding_horizontal: int | None = None,
+        padding_vertical: int | None = None,
+        max_padding_vertical: int | None = None,
+        margin_vertical: int | None = None,
+        max_margin_vertical: int | None = None,
+        margin_horizontal: int | None = None,
+        max_margin_horizontal: int | None = None,
+        title: str | None = "",
+        title_positions: list[TITLE_POSITION] | None = None,
+        title_colors: list[COLOR] | None = None,
+        font_size: int | None = None,
+        max_font_size: int | None = None,
+        reading_orders: list[READING_ORDER] | None = None,
         show_all_options: bool = False,
     ) -> None:
         logger.debug("Initializing CollageSettings")
@@ -707,10 +706,10 @@ class Collage:
 
     def create_widgets(
         self,
-        layouts: List[COLLAGE_LAYOUT],
+        layouts: list[COLLAGE_LAYOUT],
         columns: int,
         max_columns: int,
-        scaling: List[SCALE_OPTION],
+        scaling: list[SCALE_OPTION],
         padding_horizontal: int,
         max_padding_horizontal: int,
         padding_vertical: int,
@@ -720,11 +719,11 @@ class Collage:
         margin_horizontal: int,
         max_margin_horizontal: int,
         title: str,
-        title_positions: List[TITLE_POSITION],
-        title_colors: List[COLOR],
+        title_positions: list[TITLE_POSITION],
+        title_colors: list[COLOR],
         font_size: int,
         max_font_size: int,
-        reading_orders: List[READING_ORDER],
+        reading_orders: list[READING_ORDER],
     ) -> None:
         """
         Creates UI widgets for collage settings.
@@ -927,7 +926,7 @@ class Collage:
     def get_reading_order_dropdown(self):
         return self._reading_order_dropdown
 
-    def get_active_widgets(self) -> List[widgets.Widget]:
+    def get_active_widgets(self) -> list[widgets.Widget]:
         """
         Returns a list of active widgets based on enabled options.
 
@@ -1206,19 +1205,19 @@ class Collage:
 
     def generate_collage(
         self,
-        images: List[Union[Image.Image, plt.Figure]],
-        layout: Optional[COLLAGE_LAYOUT] = None,
-        columns: Optional[int] = None,
-        scale_option: Optional[SCALE_OPTION] = None,
-        padding_horizontal: Optional[int] = None,
-        padding_vertical: Optional[int] = None,
-        horizontal_margin: Optional[int] = None,
-        vertical_margin: Optional[int] = None,
-        title: Optional[str] = None,
-        title_position: Optional[TITLE_POSITION] = None,
-        title_color: Optional[COLOR] = None,
-        font_size: Optional[int] = None,
-        reading_order: Optional[READING_ORDER] = None,
+        images: list[Image.Image | plt.Figure],
+        layout: COLLAGE_LAYOUT | None = None,
+        columns: int | None = None,
+        scale_option: SCALE_OPTION | None = None,
+        padding_horizontal: int | None = None,
+        padding_vertical: int | None = None,
+        horizontal_margin: int | None = None,
+        vertical_margin: int | None = None,
+        title: str | None = None,
+        title_position: TITLE_POSITION | None = None,
+        title_color: COLOR | None = None,
+        font_size: int | None = None,
+        reading_order: READING_ORDER | None = None,
         dpi=300,
     ) -> sg.SVGFigure:
         """

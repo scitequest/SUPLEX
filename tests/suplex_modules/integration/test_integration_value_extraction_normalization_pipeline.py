@@ -1,18 +1,16 @@
-import pytest
-from typing import List, Dict, Any
+from typing import Any
 
-from suplex.suplex_modules.submodules.value_extractor import (
-    ValueExtractor,
-    ReferencePointSelector,
-    extract_value_list_from_dataset,
-    get_flat_value_list,
-    flatten_list,
-)
 from suplex.suplex_modules.submodules.submodule_constants import (
     DATASET_ATTRIBUTE,
     NORMALIZATION,
 )
-
+from suplex.suplex_modules.submodules.value_extractor import (
+    ReferencePointSelector,
+    ValueExtractor,
+    extract_value_list_from_dataset,
+    flatten_list,
+    get_flat_value_list,
+)
 
 # =============================================================================
 # Integration tests for value extraction and normalization pipeline
@@ -28,7 +26,7 @@ class TestIntegrationValueExtractionAndNormalizationPipeline:
     # -------------------------------------------------------------------------
 
     def test_extract_value_list_from_dataset_mean_minus_min(
-        self, positive_uniform_datasets: List[Any]
+        self, positive_uniform_datasets: list[Any]
     ) -> None:
         """Should correctly extract MEAN_MINUS_MIN values."""
         dataset = positive_uniform_datasets[0]
@@ -45,7 +43,7 @@ class TestIntegrationValueExtractionAndNormalizationPipeline:
         assert all(v > 0 for v in flat_values)
 
     def test_extract_value_list_from_dataset_normalized_mean(
-        self, positive_uniform_datasets: List[Any]
+        self, positive_uniform_datasets: list[Any]
     ) -> None:
         """Should extract NORMALIZED_MEAN values (0-1 range)."""
         dataset = positive_uniform_datasets[0]
@@ -56,7 +54,7 @@ class TestIntegrationValueExtractionAndNormalizationPipeline:
         assert all(0.0 <= v <= 1.0 for v in flat_values)
 
     def test_get_flat_value_list_returns_flat_list(
-        self, positive_uniform_datasets: List[Any]
+        self, positive_uniform_datasets: list[Any]
     ) -> None:
         """get_flat_value_list should return a single flat list of numeric values."""
         dataset = positive_uniform_datasets[0]
@@ -70,7 +68,7 @@ class TestIntegrationValueExtractionAndNormalizationPipeline:
     # Normalization strategies - use the public extract_values() API
     # -------------------------------------------------------------------------
 
-    def test_value_extractor_raw_normalization(self, positive_uniform_datasets: List[Any]) -> None:
+    def test_value_extractor_raw_normalization(self, positive_uniform_datasets: list[Any]) -> None:
         """RAW normalization should return the original extracted values."""
         extractor = ValueExtractor()
         dataset = positive_uniform_datasets[0]
@@ -88,7 +86,7 @@ class TestIntegrationValueExtractionAndNormalizationPipeline:
         assert len(values) > 0
 
     def test_value_extractor_internal_normalization(
-        self, positive_uniform_datasets: List[Any]
+        self, positive_uniform_datasets: list[Any]
     ) -> None:
         """INTERNAL normalization should scale values relative to each dataset's own min/max."""
         extractor = ValueExtractor()
@@ -106,7 +104,7 @@ class TestIntegrationValueExtractionAndNormalizationPipeline:
             assert max(values) <= 1.0
 
     def test_value_extractor_global_normalization_across_multiple_datasets(
-        self, positive_uniform_datasets: List[Any]
+        self, positive_uniform_datasets: list[Any]
     ) -> None:
         """GLOBAL normalization should use statistics from all provided datasets."""
         extractor = ValueExtractor()
@@ -132,7 +130,7 @@ class TestIntegrationValueExtractionAndNormalizationPipeline:
         assert hasattr(selector, "get_ref_container")
 
     def test_value_extractor_supports_reference_points_via_selector(
-        self, positive_uniform_datasets: List[Any]
+        self, positive_uniform_datasets: list[Any]
     ) -> None:
         """ValueExtractor should support reference-based normalization via the selector."""
         extractor = ValueExtractor()
@@ -158,7 +156,7 @@ class TestIntegrationValueExtractionAndNormalizationPipeline:
         assert len(flat_values) > 0
         assert any(v < 0 for v in flat_values)
 
-    def test_extract_from_empty_dataset_list(self, empty_dataset_list: List[Any]) -> None:
+    def test_extract_from_empty_dataset_list(self, empty_dataset_list: list[Any]) -> None:
         """Extractor should handle empty dataset list gracefully."""
         extractor = ValueExtractor()
         result = extractor.extract_values(
@@ -179,7 +177,7 @@ class TestIntegrationValueExtractionAndNormalizationPipeline:
         assert flatten_list(already_flat) == already_flat
 
     def test_get_flat_value_list_on_dataset_with_varying_spot_counts(
-        self, non_uniform_sample_count_datasets: List[Any]
+        self, non_uniform_sample_count_datasets: list[Any]
     ) -> None:
         """Should correctly flatten even when samples have different numbers of spots."""
         for dataset in non_uniform_sample_count_datasets:

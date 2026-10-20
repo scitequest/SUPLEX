@@ -1,18 +1,19 @@
 import json
 import logging
-from typing import List, Optional, Any
-from .basic_file_validation import *
+from typing import Any
+
 from ..martin_interface_constants import (
-    PARAMETERS_FIELDS_POLYGON,
     PARAMETERS_FIELDS_CIRCLE,
+    PARAMETERS_FIELDS_POLYGON,
 )
+from .basic_file_validation import *
 
 logger = logging.getLogger(__name__)
 
 
 def try_get_validated_parameters(
-    parameters_file_path: str, data_file: dict[str, List[dict[str, Any]]]
-) -> Optional[dict[str, Any]]:
+    parameters_file_path: str, data_file: dict[str, list[dict[str, Any]]]
+) -> dict[str, Any] | None:
     """
     Conducts a set of checks to validate a parameters file.
     Tolerable inconsistencies are logged, while intolerable issues prevent file loading.
@@ -89,7 +90,7 @@ def try_get_validated_parameters(
 
 def try_typecast_parameters_file(
     parameters_file_path: str, parameters_file: dict[str, Any], spots_are_circular: bool
-) -> Optional[dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Attempts to typecast parameters_file values to their correct format.
 
@@ -190,7 +191,7 @@ def check_internal_value_consistency(
 
 
 def check_external_consistency(
-    data_file: dict[str, List[dict[str, Any]]],
+    data_file: dict[str, list[dict[str, Any]]],
     parameters_file_path: str,
     parameters_file: dict[str, Any],
 ) -> bool:

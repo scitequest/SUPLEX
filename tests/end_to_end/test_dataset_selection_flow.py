@@ -1,5 +1,4 @@
-import pytest
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from suplex.martin_interface.dataset import Dataset
 

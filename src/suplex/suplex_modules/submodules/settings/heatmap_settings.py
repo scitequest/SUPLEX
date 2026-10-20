@@ -1,15 +1,15 @@
 import logging
-from typing import Optional, List
+
 import ipywidgets as widgets
-from enum import Enum
-from suplex.ui.widget_factory import WidgetFactory
+
 from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
-    OPTION_INSET,
     ANNOTATION_COLOR,
-    LINE_COLOR,
     CBAR_ORIENTATION,
     CBAR_TICK_MODE,
+    LINE_COLOR,
+    OPTION_INSET,
 )
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 
@@ -21,28 +21,28 @@ class HeatmapSettings:
 
     def __init__(
         self,
-        square: Optional[bool] = None,
-        symmetric_scaling: Optional[bool] = None,
-        annot: Optional[bool] = None,
-        annot_fontsize: Optional[float] = None,
-        annot_digits: Optional[int] = None,
-        annot_color: Optional[str] = None,
-        linewidths: Optional[float] = None,
-        linecolor: Optional[str] = None,
-        robust: Optional[bool] = None,
-        cbar_options: Optional[List[CBAR_ORIENTATION]] = None,
-        cbar_tick_options: Optional[List[CBAR_TICK_MODE]] = None,
-        use_letter_annotation_x: Optional[bool] = None,
-        use_letter_annotation_y: Optional[bool] = None,
-        start_at_index_0: Optional[bool] = None,
-        n_cols: Optional[int] = None,
-        col_labels: Optional[str] = None,
-        row_labels: Optional[str] = None,
-        use_custom_col_labels: Optional[bool] = None,
-        use_custom_row_labels: Optional[bool] = None,
-        highlight_reference_points: Optional[bool] = None,
-        highlight_colors: Optional[List[str]] = None,
-        cell_size: Optional[float] = None,
+        square: bool | None = None,
+        symmetric_scaling: bool | None = None,
+        annot: bool | None = None,
+        annot_fontsize: float | None = None,
+        annot_digits: int | None = None,
+        annot_color: str | None = None,
+        linewidths: float | None = None,
+        linecolor: str | None = None,
+        robust: bool | None = None,
+        cbar_options: list[CBAR_ORIENTATION] | None = None,
+        cbar_tick_options: list[CBAR_TICK_MODE] | None = None,
+        use_letter_annotation_x: bool | None = None,
+        use_letter_annotation_y: bool | None = None,
+        start_at_index_0: bool | None = None,
+        n_cols: int | None = None,
+        col_labels: str | None = None,
+        row_labels: str | None = None,
+        use_custom_col_labels: bool | None = None,
+        use_custom_row_labels: bool | None = None,
+        highlight_reference_points: bool | None = None,
+        highlight_colors: list[str] | None = None,
+        cell_size: float | None = None,
         show_all_options: bool = False,
     ) -> None:
         """
@@ -199,8 +199,8 @@ class HeatmapSettings:
         linewidths: float,
         linecolor: str,
         robust: bool,
-        cbar_orientations: List[CBAR_ORIENTATION],
-        cbar_tick_options: List[CBAR_TICK_MODE],
+        cbar_orientations: list[CBAR_ORIENTATION],
+        cbar_tick_options: list[CBAR_TICK_MODE],
         use_letter_annotation_x: bool,
         use_letter_annotation_y: bool,
         start_at_index_0: bool,
@@ -210,7 +210,7 @@ class HeatmapSettings:
         use_custom_col_labels: bool,
         use_custom_row_labels: bool,
         highlight_reference_points: bool,
-        highlight_colors: List[ANNOTATION_COLOR],
+        highlight_colors: list[ANNOTATION_COLOR],
         cell_size: float,
     ) -> None:
         """
@@ -416,7 +416,7 @@ class HeatmapSettings:
         )
         self._highlight_reference_points_widget.disabled = not self._highlight_color_enabled
 
-    def get_active_widgets(self) -> List[widgets.Widget]:
+    def get_active_widgets(self) -> list[widgets.Widget]:
         """
         Get a list of all interactive widgets for heatmap settings.
 

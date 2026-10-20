@@ -1,21 +1,17 @@
-import pytest
 import logging
-from unittest.mock import Mock, MagicMock, patch
-import sys
-from pathlib import Path
-from datetime import datetime, date
+from datetime import date, datetime
+from unittest.mock import MagicMock, Mock, patch
+
 import ipywidgets as widgets
+import pytest
 
-from suplex.ui.gui import GUI
-from suplex.ui.ui_constants import PAGE
-from suplex.ui.pages.about_page import AboutPage
-from suplex.ui.pages.module_selection_page import ModuleSelectionPage
-from suplex.ui.pages.directory_selection_page import DirectorySelectionPage, SEARCH_MODE
-from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
-from suplex.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
-from suplex.ui.elements.navigator import Navigator
 from suplex.ui.elements.header import Header
-
+from suplex.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
+from suplex.ui.gui import GUI
+from suplex.ui.pages.about_page import AboutPage
+from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
+from suplex.ui.pages.directory_selection_page import SEARCH_MODE, DirectorySelectionPage
+from suplex.ui.pages.module_selection_page import ModuleSelectionPage
 
 # =============================================================================
 # Scheme mocks
@@ -1009,8 +1005,8 @@ def mock_adapter_complex_data():
         dataset.name = f"Dataset {i}"
         dataset.image_creation_date = datetime(2023, 1, i + 1, 10, 0, 0)
         dataset.measure_date = datetime(2023, 1, i + 2, 14, 30, 0)
-        dataset.tags = [f"tag_{i%3}", f"tag_{i%4}", "common"]
-        dataset.suplex_tags = [f"suplex_tag_{i%2}"]
+        dataset.tags = [f"tag_{i % 3}", f"tag_{i % 4}", "common"]
+        dataset.suplex_tags = [f"suplex_tag_{i % 2}"]
         dataset.metadata = Mock()
         dataset.metadata.name = f"Dataset {i}"
         dataset.metadata.pat_id = f"PAT_{i:03d}"

@@ -1,15 +1,11 @@
-import pytest
+from datetime import date
 from unittest.mock import Mock, patch
 
-import ipywidgets as widgets
-from datetime import date
-
-from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
 from suplex.suplex_modules.submodules.submodule_constants import (
-    DATASET_SELECTOR_MODE,
     DATASET_LABEL,
     SELECTION_MODE,
 )
+from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
 
 
 class TestDatasetSelectionPage:
@@ -162,6 +158,7 @@ class TestDatasetSelectionPage:
         assert isinstance(new_page, DatasetSelectionPage)
         assert new_page is not dataset_selection_page
         assert new_page._project_cards == []
+
 
 class TestProjectCard:
     """Tests for the individual ProjectCard component used inside DatasetSelectionPage."""

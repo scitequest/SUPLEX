@@ -1,24 +1,23 @@
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
+
 import ipywidgets as widgets
-import numpy as np
 
 from suplex.suplex_modules.submodules.dataset_filters import (
-    has_flat_distribution,
-    has_low_variance,
+    DatasetFilter,
     contains_value_above,
     contains_value_below,
+    has_flat_distribution,
+    has_low_variance,
     is_avg_value_above,
     is_avg_value_below,
     is_max_value_above,
     is_max_value_below,
     is_min_value_above,
     is_min_value_below,
-    DatasetFilter,
 )
 from suplex.suplex_modules.submodules.submodule_constants import (
-    FILTER_METHOD,
     DATASET_ATTRIBUTE,
+    FILTER_METHOD,
 )
 
 

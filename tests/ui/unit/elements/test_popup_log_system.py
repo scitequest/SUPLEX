@@ -1,9 +1,7 @@
-import pytest
-from unittest.mock import Mock, patch
 import logging
-from datetime import datetime
+from unittest.mock import Mock, patch
 
-import ipywidgets as widgets
+import pytest
 
 from suplex.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
 

@@ -1,32 +1,28 @@
 import logging
+from typing import Any
+
 import ipywidgets as widgets
-import statistics
 import numpy as np
-from typing import List, Union, Optional, Callable, Tuple, Any
-from enum import Enum
 
 from suplex.martin_interface.dataset import Dataset
-from suplex.ui.widget_factory import WidgetFactory
+from suplex.suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET
 from suplex.suplex_modules.submodules.submodule_constants import (
-    SORT_METHOD,
     DATASET_ATTRIBUTE,
     DATASET_DESCRIPTOR,
-    DATA_ATTRIBUTES,
-    DATA_STATISTICS_ATTRIBUTES,
-    PARAMETERS_ATTRIBUTES,
+    SORT_METHOD,
 )
 from suplex.suplex_modules.submodules.value_extractor import (
     ValueExtractor,
     get_flat_value_list,
 )
-from suplex.suplex_modules.submodules.settings.submodule_settings_constants import OPTION_INSET
+from suplex.ui.widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
 
 
 def sort_datasets(
-    datasets: List[Dataset], reference_list: List[Any], invert_order: bool = False
-) -> Tuple[List[Dataset], List[Any]]:
+    datasets: list[Dataset], reference_list: list[Any], invert_order: bool = False
+) -> tuple[list[Dataset], list[Any]]:
     """
     Sort datasets according to the order of a given reference_list.
     This method requires two 1D lists and can either be called directly or indirectly via other sort methods such as sort_by_avg_value which pre-process the reference list.
@@ -69,10 +65,10 @@ def sort_datasets(
 
 
 def sort_by_avg_value(
-    datasets: List[Dataset],
-    reference_lists: List[List[Union[float, int]]],
+    datasets: list[Dataset],
+    reference_lists: list[list[float | int]],
     invert_order: bool = False,
-) -> Tuple[List[Dataset], List[Union[float, int]]]:
+) -> tuple[list[Dataset], list[float | int]]:
     """
     Sort datasets by the average value of their reference lists.
 
@@ -95,10 +91,10 @@ def sort_by_avg_value(
 
 
 def sort_by_cumulative_value(
-    datasets: List[Dataset],
-    reference_lists: List[List[Union[float, int]]],
+    datasets: list[Dataset],
+    reference_lists: list[list[float | int]],
     invert_order: bool = False,
-) -> Tuple[List[Dataset], List[Union[float, int]]]:
+) -> tuple[list[Dataset], list[float | int]]:
     """
     Sort datasets by the cumulative (sum) value of their reference lists.
 
@@ -121,10 +117,10 @@ def sort_by_cumulative_value(
 
 
 def sort_by_max_value(
-    datasets: List[Dataset],
-    reference_lists: List[List[Union[float, int]]],
+    datasets: list[Dataset],
+    reference_lists: list[list[float | int]],
     invert_order: bool = False,
-) -> Tuple[List[Dataset], List[Union[float, int]]]:
+) -> tuple[list[Dataset], list[float | int]]:
     """
     Sort datasets by the maximum value in their reference lists.
 
@@ -147,10 +143,10 @@ def sort_by_max_value(
 
 
 def sort_by_min_value(
-    datasets: List[Dataset],
-    reference_lists: List[List[Union[float, int]]],
+    datasets: list[Dataset],
+    reference_lists: list[list[float | int]],
     invert_order: bool = False,
-) -> Tuple[List[Dataset], List[Union[float, int]]]:
+) -> tuple[list[Dataset], list[float | int]]:
     """
     Sort datasets by the minimum value in their reference lists.
 
@@ -173,10 +169,10 @@ def sort_by_min_value(
 
 
 def sort_by_median_value(
-    datasets: List[Dataset],
-    reference_lists: List[List[Union[float, int]]],
+    datasets: list[Dataset],
+    reference_lists: list[list[float | int]],
     invert_order: bool = False,
-) -> Tuple[List[Dataset], List[Union[float, int]]]:
+) -> tuple[list[Dataset], list[float | int]]:
     """
     Sort datasets by the median value of their reference lists.
 
@@ -199,10 +195,10 @@ def sort_by_median_value(
 
 
 def sort_by_number_of_values(
-    datasets: List[Dataset],
-    reference_lists: List[List[Union[float, int]]],
+    datasets: list[Dataset],
+    reference_lists: list[list[float | int]],
     invert_order: bool = False,
-) -> Tuple[List[Dataset], List[Union[float, int]]]:
+) -> tuple[list[Dataset], list[float | int]]:
     """
     Sort datasets by the number of values in their reference lists.
 
@@ -225,8 +221,8 @@ def sort_by_number_of_values(
 
 
 def sort_alphanumerically(
-    datasets: List[Dataset], descriptor: DATASET_DESCRIPTOR, invert_order: bool = False
-) -> Tuple[List[Dataset], List[str]]:
+    datasets: list[Dataset], descriptor: DATASET_DESCRIPTOR, invert_order: bool = False
+) -> tuple[list[Dataset], list[str]]:
     """
     Sort datasets alphanumerically based on the specified descriptor.
 
@@ -299,8 +295,8 @@ def sort_alphanumerically(
 
 
 def sort_by_has_tag(
-    datasets: List[Dataset], tag: str, invert_order: bool = False
-) -> Tuple[List[Dataset], List[bool]]:
+    datasets: list[Dataset], tag: str, invert_order: bool = False
+) -> tuple[list[Dataset], list[bool]]:
     """
     Sort datasets based on whether they have the specified tag.
     Datasets with the tag come before those without it.
@@ -336,10 +332,10 @@ class SortStep:
     def __init__(
         self,
         label: str = "",
-        allowed_sort_methods: List[SORT_METHOD] = None,
-        allowed_set_descriptors: List[DATASET_DESCRIPTOR] = None,
-        allowed_attributes: List[DATASET_ATTRIBUTE] = None,
-        tags: List[str] = None,
+        allowed_sort_methods: list[SORT_METHOD] = None,
+        allowed_set_descriptors: list[DATASET_DESCRIPTOR] = None,
+        allowed_attributes: list[DATASET_ATTRIBUTE] = None,
+        tags: list[str] = None,
     ):
         """
         Initialize a SortStep instance.
@@ -449,7 +445,7 @@ class SortStep:
             layout=widgets.Layout(margin="0px", padding=OPTION_INSET.PRIMARY, gap="5px"),
         )
 
-    def get_sorted_datasets(self, datasets: List[Dataset]) -> List[Dataset]:
+    def get_sorted_datasets(self, datasets: list[Dataset]) -> list[Dataset]:
         """
         Sort the given datasets based on current step settings.
 
@@ -541,12 +537,12 @@ class DatasetSorter:
 
     def __init__(
         self,
-        allowed_sort_methods: List[SORT_METHOD] = list(SORT_METHOD),
-        allowed_set_descriptors: List[DATASET_DESCRIPTOR] = list(DATASET_DESCRIPTOR),
-        allowed_attributes: List[DATASET_ATTRIBUTE] = list(DATASET_ATTRIBUTE),
+        allowed_sort_methods: list[SORT_METHOD] = list(SORT_METHOD),
+        allowed_set_descriptors: list[DATASET_DESCRIPTOR] = list(DATASET_DESCRIPTOR),
+        allowed_attributes: list[DATASET_ATTRIBUTE] = list(DATASET_ATTRIBUTE),
         num_levels: int = 1,
         max_num_levels: int = 3,
-        tags: List[str] = None,
+        tags: list[str] = None,
     ):
         """
         Initialize DatasetSorter.
@@ -628,7 +624,7 @@ class DatasetSorter:
         logger.debug("DatasetSorter UI built with %d sections", len(sections))
         return self._ui_container
 
-    def create_sorting_section(self) -> Optional[widgets.Widget]:
+    def create_sorting_section(self) -> widgets.Widget | None:
         """
         Create sorting configuration widgets.
 
@@ -698,7 +694,7 @@ class DatasetSorter:
         self._num_levels = n_steps
         logger.debug("Sorting steps updated to %d", n_steps)
 
-    def get_sorted_datasets(self, datasets) -> List[Dataset]:
+    def get_sorted_datasets(self, datasets) -> list[Dataset]:
         """
         Get sorted datasets based on current settings.
         Applies multi-level sorting in sequence by delegating to each SortStep.

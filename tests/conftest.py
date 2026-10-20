@@ -1,12 +1,13 @@
-import pytest
+from typing import Any
 from unittest.mock import Mock
-from typing import Dict, List, Any
-from PIL import Image
-import matplotlib.pyplot as plt
-import svgutils.transform as sg
 
-from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
+import matplotlib.pyplot as plt
+import pytest
+import svgutils.transform as sg
+from PIL import Image
+
 from suplex.martin_interface.dataset import Dataset
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 
 
 @pytest.fixture
@@ -34,7 +35,7 @@ def test_suplex_module():
             name: str = "TestModule",
             version: str = "1.0.0",
             group_name="test",
-            button_colours: Dict[str, str] = {
+            button_colours: dict[str, str] = {
                 "font_color": "#000000",
                 "button_color": "#FFFFFF",
             },
@@ -57,16 +58,16 @@ def test_suplex_module():
             return self._group_name
 
         @property
-        def button_style(self) -> Dict[str, str]:
+        def button_style(self) -> dict[str, str]:
             return self._button_colours
 
-        def check_if_viable(self, datasets: List[Any]) -> bool:
+        def check_if_viable(self, datasets: list[Any]) -> bool:
             return True
 
         def get_module_hover_text(self) -> str:
             return "Description of module"
 
-        def initiate_module(self, datasets: List[Any], ui: Any) -> None:
+        def initiate_module(self, datasets: list[Any], ui: Any) -> None:
             pass
 
         def update_scheme(self, new_scheme) -> None:

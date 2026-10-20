@@ -1,11 +1,9 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock, PropertyMock
-import numpy as np
-import ipywidgets as widgets
+from unittest.mock import Mock, PropertyMock, patch
 
-from suplex.suplex_modules.vanilla.intensity_overview import IntensityOverviewModule
+import numpy as np
+
 from suplex.martin_interface.dataset import Dataset
-from suplex.suplex_modules.submodules.submodule_constants import DATASET_LABEL
+from suplex.suplex_modules.vanilla.intensity_overview import IntensityOverviewModule
 
 
 class TestIntensityOverview:
@@ -48,10 +46,12 @@ class TestIntensityOverview:
         module = IntensityOverviewModule()
         with (
             patch(
-                "suplex.suplex_modules.vanilla.intensity_overview.no_datasets_selected", return_value=False
+                "suplex.suplex_modules.vanilla.intensity_overview.no_datasets_selected",
+                return_value=False,
             ),
             patch(
-                "suplex.suplex_modules.vanilla.intensity_overview.has_negative_values", return_value=False
+                "suplex.suplex_modules.vanilla.intensity_overview.has_negative_values",
+                return_value=False,
             ),
         ):
             assert module.check_if_viable(viable_datasets) is True
@@ -61,7 +61,8 @@ class TestIntensityOverview:
         """Module is NOT viable and updates hover text when no datasets are selected."""
         module = IntensityOverviewModule()
         with patch(
-            "suplex.suplex_modules.vanilla.intensity_overview.no_datasets_selected", return_value=True
+            "suplex.suplex_modules.vanilla.intensity_overview.no_datasets_selected",
+            return_value=True,
         ):
             assert module.check_if_viable([]) is False
             assert "no datasets" in module.get_module_hover_text().lower()
@@ -71,7 +72,8 @@ class TestIntensityOverview:
         module = IntensityOverviewModule()
         bad_datasets = [datasets_with_issues[2]]
         with patch(
-            "suplex.suplex_modules.vanilla.intensity_overview.has_negative_values", return_value=True
+            "suplex.suplex_modules.vanilla.intensity_overview.has_negative_values",
+            return_value=True,
         ):
             assert module.check_if_viable(bad_datasets) is False
             assert "negative value" in module.get_module_hover_text().lower()
