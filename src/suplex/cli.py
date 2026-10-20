@@ -9,6 +9,7 @@ import webbrowser
 from importlib.resources import files
 
 from suplex import __version__
+from suplex.paths import user_modules_dir, user_schemes_dir
 
 DEFAULT_PORT = 8866
 PORT_RANGE = 100
@@ -112,6 +113,8 @@ def run(port: int | None, open_browser: bool, debug: bool, demo: bool) -> int:
     port = port if port is not None else find_free_port()
     url = f"http://127.0.0.1:{port}/"
     print(f"Starting SUPLEX {__version__} on {url} (Ctrl+C to stop)")
+    print(f"Custom modules: {user_modules_dir()}")
+    print(f"Custom colour schemes: {user_schemes_dir()}")
     if open_browser:
         _open_browser_when_ready(url, port)
 
