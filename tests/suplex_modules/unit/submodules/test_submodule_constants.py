@@ -1,7 +1,7 @@
 import pytest
 from enum import Enum
 
-from suplex_modules.submodules.submodule_constants import (
+from suplex.suplex_modules.submodules.submodule_constants import (
     DATASET_LABEL,
     DATASET_SELECTOR_MODE,
     SELECTION_MODE,

@@ -4,8 +4,8 @@ import numpy as np
 import ipywidgets as widgets
 from pathlib import Path
 
-from suplex_modules.adapters.excel_adapter import ExcelAdapter
-from src.martin_interface.dataset import Dataset
+from suplex.suplex_modules.adapters.excel_adapter import ExcelAdapter
+from suplex.martin_interface.dataset import Dataset
 
 
 class TestExcelAdapter:
@@ -48,7 +48,7 @@ class TestExcelAdapter:
         """Module is NOT viable and updates hover text when no datasets are selected."""
         module = ExcelAdapter()
         with patch(
-            "suplex_modules.submodules.viability_rules.no_datasets_selected", return_value=True
+            "suplex.suplex_modules.submodules.viability_rules.no_datasets_selected", return_value=True
         ):
             assert module.check_if_viable([]) is False
             assert "no datasets" in module.get_module_hover_text().lower()
@@ -73,8 +73,8 @@ class TestExcelAdapter:
     # -------------------------------------------------------------------------
     # UI / Initiate Smoke Test
     # -------------------------------------------------------------------------
-    @patch("suplex_modules.adapters.excel_adapter.WidgetFactory")
-    @patch("suplex_modules.adapters.excel_adapter.ValueExtractor")
+    @patch("suplex.suplex_modules.adapters.excel_adapter.WidgetFactory")
+    @patch("suplex.suplex_modules.adapters.excel_adapter.ValueExtractor")
     def test_initiate_module_smoke(
         self,
         mock_value_extractor,
@@ -120,9 +120,9 @@ class TestExcelAdapter:
         module._value_extractor.attribute = Mock(value="mean_val")
     
         with (
-            patch("suplex_modules.adapters.excel_adapter.Workbook") as mock_wb,
-            patch("suplex_modules.adapters.excel_adapter.filedialog") as mock_filedialog,
-            patch("suplex_modules.adapters.excel_adapter.get_shortened_label") as mock_shorten,
+            patch("suplex.suplex_modules.adapters.excel_adapter.Workbook") as mock_wb,
+            patch("suplex.suplex_modules.adapters.excel_adapter.filedialog") as mock_filedialog,
+            patch("suplex.suplex_modules.adapters.excel_adapter.get_shortened_label") as mock_shorten,
             patch("builtins.open") as mock_open,
         ):
             mock_filedialog.asksaveasfilename.return_value = "/tmp/test.xlsx"

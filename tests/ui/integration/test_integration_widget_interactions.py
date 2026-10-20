@@ -4,12 +4,12 @@ from unittest.mock import Mock, patch, MagicMock, call, create_autospec
 from datetime import date
 import ipywidgets as widgets
 
-from src.ui.widget_factory import WidgetFactory
-from src.ui.pages.dataset_selection_page import ProjectCard, DatasetSelectionPage
-from src.ui.pages.directory_selection_page import DirectorySelectionPage
-from src.ui.elements.popup_log_system import PopupLogger
-from martin_interface.martin_interface_constants import SEARCH_MODE
-from suplex_modules.submodules.submodule_constants import (
+from suplex.ui.widget_factory import WidgetFactory
+from suplex.ui.pages.dataset_selection_page import ProjectCard, DatasetSelectionPage
+from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
+from suplex.ui.elements.popup_log_system import PopupLogger
+from suplex.martin_interface.martin_interface_constants import SEARCH_MODE
+from suplex.suplex_modules.submodules.submodule_constants import (
     DATASET_LABEL,
     SELECTION_MODE,
 )
@@ -65,7 +65,7 @@ class TestWidgetInteractionsIntegration:
         page.navigator.current_scheme.LAYOUT_COLOR.WIDGET.ACCORDION.LINES = "#DDDDDD"
         page.handle_dataset_selection_changed = Mock()
 
-        with patch("src.ui.pages.dataset_selection_page.DatasetSelector") as mock_ds:
+        with patch("suplex.ui.pages.dataset_selection_page.DatasetSelector") as mock_ds:
             # Create mock dataset selector
             mock_selector = Mock()
             mock_ds.return_value = mock_selector
@@ -120,8 +120,8 @@ class TestWidgetInteractionsIntegration:
         page.navigator.current_scheme = Mock()
         page.navigator.current_scheme.LAYOUT_COLOR.WIDGET.ACCORDION.LINES = "#DDDDDD"
 
-        with patch("src.ui.pages.dataset_selection_page.DatasetSelector") as mock_ds:
-            with patch("src.ui.pages.dataset_selection_page.TagSelector") as mock_ts:
+        with patch("suplex.ui.pages.dataset_selection_page.DatasetSelector") as mock_ds:
+            with patch("suplex.ui.pages.dataset_selection_page.TagSelector") as mock_ts:
                 # Mock the selectors
                 mock_selector = Mock()
                 mock_ds.return_value = mock_selector
@@ -228,8 +228,8 @@ class TestWidgetInteractionsIntegration:
         page.navigator.current_scheme = Mock()
         page.navigator.current_scheme.LAYOUT_COLOR.WIDGET.ACCORDION.LINES = "#DDDDDD"
 
-        with patch("src.ui.pages.dataset_selection_page.DatasetSelector") as mock_ds:
-            with patch("src.ui.pages.dataset_selection_page.TagSelector") as mock_ts:
+        with patch("suplex.ui.pages.dataset_selection_page.DatasetSelector") as mock_ds:
+            with patch("suplex.ui.pages.dataset_selection_page.TagSelector") as mock_ts:
                 # Mock the selectors
                 mock_selector = Mock()
                 mock_ds.return_value = mock_selector
@@ -300,7 +300,7 @@ class TestWidgetInteractionsIntegration:
         dataset_page = DatasetSelectionPage(navigator=mock_navigator)
 
         # Create real widgets for accordion children instead of mocks
-        with patch("src.ui.pages.dataset_selection_page.ProjectCard") as mock_pc:
+        with patch("suplex.ui.pages.dataset_selection_page.ProjectCard") as mock_pc:
             cards = []
             real_widgets = []  # Store real widgets for accordion
 
@@ -370,8 +370,8 @@ class TestWidgetInteractionsIntegration:
         page.navigator.current_scheme.LAYOUT_COLOR.WIDGET.ACCORDION.LINES = "#DDDDDD"
         page.handle_dataset_selection_changed = Mock()
 
-        with patch("src.ui.pages.dataset_selection_page.DatasetSelector") as mock_ds:
-            with patch("src.ui.pages.dataset_selection_page.TagSelector") as mock_ts:
+        with patch("suplex.ui.pages.dataset_selection_page.DatasetSelector") as mock_ds:
+            with patch("suplex.ui.pages.dataset_selection_page.TagSelector") as mock_ts:
                 # Mock the selectors
                 mock_selector = Mock()
                 mock_ds.return_value = mock_selector

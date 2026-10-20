@@ -1,7 +1,7 @@
 import pytest
 from dataclasses import is_dataclass
-from src.martin_interface.general_parameters import GeneralParameters
-from src.martin_interface.roi_elements import RoiParameters, Coordinates
+from suplex.martin_interface.general_parameters import GeneralParameters
+from suplex.martin_interface.roi_elements import RoiParameters, Coordinates
 
 
 class TestGeneralParameters:

@@ -4,8 +4,8 @@ from typing import Dict, List, Any
 import ipywidgets as widgets
 import inspect
 
-from suplex_modules.suplex_module_interface import SuplexModuleInterface
-from martin_interface.dataset import Dataset
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.martin_interface.dataset import Dataset
 
 
 class TestSuplexModuleInterface:

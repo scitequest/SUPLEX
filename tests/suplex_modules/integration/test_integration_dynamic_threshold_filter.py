@@ -1,11 +1,11 @@
 import pytest
 from typing import List, Any
 
-from suplex_modules.submodules.dynamic_threshold_filter import (
+from suplex.suplex_modules.submodules.dynamic_threshold_filter import (
     apply_dynamic_filtering,
     FilteredValue,
 )
-from suplex_modules.submodules.submodule_constants import DATASET_ATTRIBUTE
+from suplex.suplex_modules.submodules.submodule_constants import DATASET_ATTRIBUTE
 
 
 # =============================================================================
@@ -27,7 +27,7 @@ class TestIntegrationDynamicThresholdFilter:
     ) -> None:
         """Pipeline should run end-to-end on real FakeDataset objects and return correct types."""
         dataset = positive_uniform_datasets[0]
-        from suplex_modules.submodules.value_extractor import get_flat_value_list
+        from suplex.suplex_modules.submodules.value_extractor import get_flat_value_list
 
         values = get_flat_value_list(dataset, attribute=DATASET_ATTRIBUTE.MEAN_MINUS_MIN)
 
@@ -47,7 +47,7 @@ class TestIntegrationDynamicThresholdFilter:
     ) -> None:
         """Alternative grouping strategy should also run without error."""
         dataset = positive_uniform_datasets[0]
-        from suplex_modules.submodules.value_extractor import get_flat_value_list
+        from suplex.suplex_modules.submodules.value_extractor import get_flat_value_list
 
         values = get_flat_value_list(dataset, attribute=DATASET_ATTRIBUTE.MEAN_MINUS_MIN)
 
@@ -78,7 +78,7 @@ class TestIntegrationDynamicThresholdFilter:
 
     def test_dynamic_filtering_on_negative_values(self, negative_value_dataset: Any) -> None:
         """Filter should still process datasets containing negatives."""
-        from suplex_modules.submodules.value_extractor import get_flat_value_list
+        from suplex.suplex_modules.submodules.value_extractor import get_flat_value_list
 
         values = get_flat_value_list(
             negative_value_dataset, attribute=DATASET_ATTRIBUTE.MEAN_MINUS_MIN

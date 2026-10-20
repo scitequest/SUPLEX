@@ -3,8 +3,8 @@ from unittest.mock import Mock, patch
 
 import ipywidgets as widgets
 
-from src.ui.elements.navigator import Navigator
-from ui.ui_constants import PAGE
+from suplex.ui.elements.navigator import Navigator
+from suplex.ui.ui_constants import PAGE
 
 
 class TestNavigator:
@@ -120,7 +120,7 @@ class TestNavigator:
         nav._current_step = PAGE.DIRECTORY_SELECTION
         nav._adapter = Mock()
 
-        with patch("src.ui.elements.navigator.DatasetSelectionPage") as mock_page_class:
+        with patch("suplex.ui.elements.navigator.DatasetSelectionPage") as mock_page_class:
             mock_instance = Mock()
             mock_instance.get_ui = Mock(return_value=Mock())
             mock_page_class.return_value = mock_instance
@@ -274,7 +274,7 @@ class TestNavigator:
         navigator._back_button = Mock()
         navigator._forward_button = Mock()
 
-        with patch("src.ui.elements.navigator.get_navigator_styles"):
+        with patch("suplex.ui.elements.navigator.get_navigator_styles"):
             navigator.update_scheme(new_scheme)
 
         assert navigator._scheme == new_scheme

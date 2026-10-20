@@ -1,8 +1,8 @@
 import pytest
 import ipywidgets as widgets
 
-from suplex_modules.submodules.settings.boxplot_settings import BoxplotSettings
-from suplex_modules.submodules.settings.submodule_settings_constants import WHISKER_MODE
+from suplex.suplex_modules.submodules.settings.boxplot_settings import BoxplotSettings
+from suplex.suplex_modules.submodules.settings.submodule_settings_constants import WHISKER_MODE
 
 
 class TestBoxplotSettings:

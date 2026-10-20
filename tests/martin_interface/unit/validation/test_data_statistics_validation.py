@@ -2,7 +2,7 @@ import pytest
 import copy
 import math
 from unittest.mock import patch
-from src.martin_interface.validation.data_statistics_validation import (
+from suplex.martin_interface.validation.data_statistics_validation import (
     try_get_validated_data_statistics,
     try_typecast_data_statistics_file,
     check_internal_value_consistency,
@@ -17,7 +17,7 @@ class TestDataStatisticsValidation:
     # try_get_validated_data_statistics tests
     # -------------------------------------------------------------------------
 
-    @patch("src.martin_interface.validation.data_statistics_validation.get_data_file")
+    @patch("suplex.martin_interface.validation.data_statistics_validation.get_data_file")
     def test_try_get_validated_data_statistics_invalid_file(self, mock_get_data):
         """Returns None when get_data_file fails to load the file (invalid JSON/TSV or missing file)."""
         mock_get_data.return_value = None
@@ -25,7 +25,7 @@ class TestDataStatisticsValidation:
         result = try_get_validated_data_statistics("/test/path", {})
         assert result is None
 
-    @patch("src.martin_interface.validation.data_statistics_validation.get_data_file")
+    @patch("suplex.martin_interface.validation.data_statistics_validation.get_data_file")
     def test_try_get_validated_data_statistics_success(
         self,
         mock_get_data,
@@ -178,7 +178,7 @@ class TestDataStatisticsValidation:
         sample_data_statistics_dict["values"][0]["adjusted_average"] = float("nan")
 
         with patch(
-            "src.martin_interface.validation.data_statistics_validation.logger"
+            "suplex.martin_interface.validation.data_statistics_validation.logger"
         ) as mock_logger:
             result = check_internal_value_consistency("/test/path", sample_data_statistics_dict)
             assert result is True  # NaN is tolerated but logged

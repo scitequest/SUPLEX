@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import List, Any
 
-from suplex_modules.vanilla.hitmap import HitmapModule
+from suplex.suplex_modules.vanilla.hitmap import HitmapModule
 
 
 class TestIntegrationHitmapModule:
@@ -43,9 +43,9 @@ class TestIntegrationHitmapModule:
     # Module lifecycle
     # -------------------------------------------------------------------------
 
-    @patch("suplex_modules.vanilla.hitmap.WidgetFactory")
-    @patch("suplex_modules.vanilla.hitmap.ValueExtractor")
-    @patch("suplex_modules.vanilla.hitmap.SampleSpotFilter")
+    @patch("suplex.suplex_modules.vanilla.hitmap.WidgetFactory")
+    @patch("suplex.suplex_modules.vanilla.hitmap.ValueExtractor")
+    @patch("suplex.suplex_modules.vanilla.hitmap.SampleSpotFilter")
     def test_initiate_module_builds_ui_for_valid_input(
         self,
         mock_sample_spot_filter: MagicMock,

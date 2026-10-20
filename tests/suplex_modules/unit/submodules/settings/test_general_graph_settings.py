@@ -1,8 +1,8 @@
 import pytest
 import ipywidgets as widgets
 
-from suplex_modules.submodules.settings.general_graph_settings import GeneralGraphSettings
-from suplex_modules.submodules.settings.submodule_settings_constants import (
+from suplex.suplex_modules.submodules.settings.general_graph_settings import GeneralGraphSettings
+from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
     SCALE_TYPE,
     SEQUENTIAL_COLOR_SCHEME,
     DIVERGENT_COLOR_SCHEME,

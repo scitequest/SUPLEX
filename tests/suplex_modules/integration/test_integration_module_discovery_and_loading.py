@@ -2,13 +2,13 @@ import pytest
 from pathlib import Path
 from typing import List, Any, Set
 
-from suplex_modules.module_loader import (
+from suplex.suplex_modules.module_loader import (
     load_modules,
     delve_dirs,
     sweep_dirs,
     try_get_module,
 )
-from suplex_modules.module_constants import (
+from suplex.suplex_modules.module_constants import (
     SEARCH_MODE,
     FILE,
     STANDARD_READOUT_FILE_TYPE,
@@ -16,7 +16,7 @@ from suplex_modules.module_constants import (
     DEFAULT_IGNORE_FILES,
     DEFAULT_IGNORE_EXTENSIONS,
 )
-from suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 
 
 # =============================================================================

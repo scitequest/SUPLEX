@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import List, Any
 
-from suplex_modules.adapters.excel_adapter import ExcelAdapter
+from suplex.suplex_modules.adapters.excel_adapter import ExcelAdapter
 
 
 # =============================================================================
@@ -46,7 +46,7 @@ class TestIntegrationExcelAdapter:
     # Module lifecycle
     # -------------------------------------------------------------------------
 
-    @patch("suplex_modules.adapters.excel_adapter.WidgetFactory")
+    @patch("suplex.suplex_modules.adapters.excel_adapter.WidgetFactory")
     def test_initiate_module_creates_export_ui(
         self,
         mock_widget_factory: MagicMock,

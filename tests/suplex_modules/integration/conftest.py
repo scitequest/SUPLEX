@@ -345,11 +345,11 @@ def temp_module_directory(tmp_path: Path) -> Path:
     valid_module = mod_dir / "valid_test_module.py"
     valid_module.write_text(
         """
-from suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 from typing import List, Dict, Any, Optional
 from typing_extensions import Self
 import ipywidgets as widgets
-from martin_interface.dataset import Dataset
+from suplex.martin_interface.dataset import Dataset
 
 class ValidTestModule(SuplexModuleInterface):
     @property
@@ -410,8 +410,8 @@ class NotASuplexModule:
 @pytest.fixture
 def loaded_valid_module(temp_module_directory: Path):
     """Convenience fixture that returns the loaded ValidTestModule instance."""
-    from suplex_modules.module_loader import load_modules
-    from suplex_modules.module_constants import SEARCH_MODE
+    from suplex.suplex_modules.module_loader import load_modules
+    from suplex.suplex_modules.module_constants import SEARCH_MODE
 
     modules = load_modules(
         dir_path=str(temp_module_directory),

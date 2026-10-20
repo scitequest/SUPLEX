@@ -4,8 +4,8 @@ from unittest.mock import Mock, patch
 import ipywidgets as widgets
 from datetime import date
 
-from src.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
-from suplex_modules.submodules.submodule_constants import (
+from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
+from suplex.suplex_modules.submodules.submodule_constants import (
     DATASET_SELECTOR_MODE,
     DATASET_LABEL,
     SELECTION_MODE,
@@ -30,7 +30,7 @@ class TestDatasetSelectionPage:
     # -------------------------------------------------------------------------
     # UI rendering (get_ui)
     # -------------------------------------------------------------------------
-    @patch("src.ui.pages.dataset_selection_page.WidgetFactory")
+    @patch("suplex.ui.pages.dataset_selection_page.WidgetFactory")
     def test_get_ui_no_adapter(self, mock_factory, dataset_selection_page):
         """When no adapter exists, returns a helpful error HTML widget."""
         dataset_selection_page._navigator.adapter = None
@@ -43,7 +43,7 @@ class TestDatasetSelectionPage:
         mock_factory.html_widget.assert_called_once()
         assert "No adapter available" in mock_factory.html_widget.call_args[1]["value"]
 
-    @patch("src.ui.pages.dataset_selection_page.WidgetFactory")
+    @patch("suplex.ui.pages.dataset_selection_page.WidgetFactory")
     def test_get_ui_no_projects(self, mock_factory, dataset_selection_page):
         """When adapter has no projects, shows a clear message."""
         dataset_selection_page._navigator.adapter.projects = []
@@ -55,8 +55,8 @@ class TestDatasetSelectionPage:
         assert result == mock_html
         assert "No projects found" in mock_factory.html_widget.call_args[1]["value"]
 
-    @patch("src.ui.pages.dataset_selection_page.WidgetFactory")
-    @patch("src.ui.pages.dataset_selection_page.ProjectCard")
+    @patch("suplex.ui.pages.dataset_selection_page.WidgetFactory")
+    @patch("suplex.ui.pages.dataset_selection_page.ProjectCard")
     def test_get_ui_with_projects(
         self, mock_project_card_class, mock_factory, dataset_selection_page, mock_project
     ):
@@ -171,8 +171,8 @@ class TestProjectCard:
     # -------------------------------------------------------------------------
     def test_initialization(self, mock_page, mock_project_with_datasets):
         """ProjectCard initializes lazily (DatasetSelector/TagSelector created in generate_ui)."""
-        with patch("src.ui.pages.dataset_selection_page.DatasetSelector") as mock_ds:
-            with patch("src.ui.pages.dataset_selection_page.TagSelector") as mock_ts:
+        with patch("suplex.ui.pages.dataset_selection_page.DatasetSelector") as mock_ds:
+            with patch("suplex.ui.pages.dataset_selection_page.TagSelector") as mock_ts:
                 card = ProjectCard(page=mock_page, project=mock_project_with_datasets)
 
                 assert card._page == mock_page
@@ -195,9 +195,9 @@ class TestProjectCard:
     # -------------------------------------------------------------------------
     # UI building
     # -------------------------------------------------------------------------
-    @patch("src.ui.pages.dataset_selection_page.DatasetSelector")
-    @patch("src.ui.pages.dataset_selection_page.TagSelector")
-    @patch("src.ui.pages.dataset_selection_page.WidgetFactory")
+    @patch("suplex.ui.pages.dataset_selection_page.DatasetSelector")
+    @patch("suplex.ui.pages.dataset_selection_page.TagSelector")
+    @patch("suplex.ui.pages.dataset_selection_page.WidgetFactory")
     def test_generate_ui(self, mock_factory, mock_ts, mock_ds, project_card):
         """generate_ui() builds a two-column HBox, lazily creating DatasetSelector and TagSelector."""
         project_card.create_left_column = Mock(return_value=Mock())
@@ -216,7 +216,7 @@ class TestProjectCard:
         project_card.create_left_column.assert_called_once()
         project_card.create_right_column.assert_called_once()
 
-    @patch("src.ui.pages.dataset_selection_page.WidgetFactory")
+    @patch("suplex.ui.pages.dataset_selection_page.WidgetFactory")
     def test_create_left_column(self, mock_factory, project_card):
         """Left column contains ID/Name toggle, select/deselect all, and dataset selector."""
         mock_button = Mock()
@@ -236,7 +236,7 @@ class TestProjectCard:
         assert mock_factory.button_success.called
         assert mock_factory.button_danger.called
 
-    @patch("src.ui.pages.dataset_selection_page.WidgetFactory")
+    @patch("suplex.ui.pages.dataset_selection_page.WidgetFactory")
     def test_create_right_column(self, mock_factory, project_card):
         """Right column contains date filter and tag filter sections."""
         project_card.create_date_filter_box = Mock(return_value=Mock())
@@ -330,7 +330,7 @@ class TestProjectCard:
     # -------------------------------------------------------------------------
     # ID / Name toggle handlers (detailed behavior test)
     # -------------------------------------------------------------------------
-    @patch("src.ui.pages.dataset_selection_page.WidgetFactory")
+    @patch("suplex.ui.pages.dataset_selection_page.WidgetFactory")
     def test_id_name_toggle_handlers(self, mock_factory, project_card):
         """ID/Name radio buttons correctly update the dataset label format."""
         button1 = Mock()  # ID button

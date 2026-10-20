@@ -1,10 +1,10 @@
 import pytest
 from unittest.mock import patch
 
-from src.martin_interface.martin_adapter import Adapter
-from src.martin_interface.dataset import Dataset
+from suplex.martin_interface.martin_adapter import Adapter
+from suplex.martin_interface.dataset import Dataset
 
-from suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 
 
 class TestFullWizardWorkflow:

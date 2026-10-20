@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime, timedelta
-from src.martin_interface.metadata import (
+from suplex.martin_interface.metadata import (
     Patient,
     Image,
     Concentration,

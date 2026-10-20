@@ -2,7 +2,7 @@ import pytest
 import math
 import copy
 from unittest.mock import patch
-from src.martin_interface.validation.data_validation import (
+from suplex.martin_interface.validation.data_validation import (
     try_get_validated_data,
     try_typecast_data_file,
     check_value_consistency,
@@ -16,7 +16,7 @@ class TestDataValidation:
     # try_get_validated_data tests
     # -------------------------------------------------------------------------
 
-    @patch("src.martin_interface.validation.data_validation.get_data_file")
+    @patch("suplex.martin_interface.validation.data_validation.get_data_file")
     def test_try_get_validated_data_invalid_file(self, mock_get_data):
         """Returns None when get_data_file fails to load the file (invalid JSON/TSV or missing file)."""
         mock_get_data.return_value = None
@@ -24,7 +24,7 @@ class TestDataValidation:
         result = try_get_validated_data("/test/path")
         assert result is None
 
-    @patch("src.martin_interface.validation.data_validation.get_data_file")
+    @patch("suplex.martin_interface.validation.data_validation.get_data_file")
     def test_try_get_validated_data_invalid_structure(self, mock_get_data):
         """Returns None when the key structure does not match DATA_FIELDS (is_Key_Structure_Identical fails)."""
         mock_get_data.return_value = {"wrong_key": []}
@@ -32,7 +32,7 @@ class TestDataValidation:
         result = try_get_validated_data("/test/path")
         assert result is None
 
-    @patch("src.martin_interface.validation.data_validation.get_data_file")
+    @patch("suplex.martin_interface.validation.data_validation.get_data_file")
     def test_try_get_validated_data_success(self, mock_get_data, sample_data_dict):
         """Successfully validates and returns a properly structured data file after all checks pass."""
         mock_get_data.return_value = sample_data_dict
@@ -191,7 +191,7 @@ class TestDataValidation:
         """NaN values are tolerated (logged as warning) but do not cause failure."""
         sample_data_dict["values"][0]["min"] = float("nan")
 
-        with patch("src.martin_interface.validation.data_validation.logger") as mock_logger:
+        with patch("suplex.martin_interface.validation.data_validation.logger") as mock_logger:
             result = check_value_consistency("/test/path", sample_data_dict)
             assert result is True  # NaN is tolerated but logged
             mock_logger.warning.assert_called()
@@ -202,7 +202,7 @@ class TestDataValidation:
         sample_data_dict["values"][0]["std_deviation"] = -25.0
         sample_data_dict["values"][0]["normalized_mean"] = 1.5
 
-        with patch("src.martin_interface.validation.data_validation.logger") as mock_logger:
+        with patch("suplex.martin_interface.validation.data_validation.logger") as mock_logger:
             result = check_value_consistency("/test/path", sample_data_dict)
             assert result is True  # Logical errors are tolerated but logged
             assert mock_logger.warning.call_count >= 3

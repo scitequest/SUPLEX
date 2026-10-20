@@ -466,7 +466,7 @@ def sample_suplex_dict():
 @pytest.fixture
 def mock_path_holder():
     """Fully populated mock PathHolder for dataset path tests."""
-    from src.martin_interface.holder import PathHolder
+    from suplex.martin_interface.holder import PathHolder
 
     return PathHolder(
         dataset_path="/test/dataset",
@@ -489,7 +489,7 @@ def mock_file_holder(
     sample_suplex_dict,
 ):
     """Fully populated mock FileHolder using the sample data fixtures."""
-    from src.martin_interface.holder import FileHolder
+    from suplex.martin_interface.holder import FileHolder
 
     return FileHolder(
         data_file=sample_data_dict,

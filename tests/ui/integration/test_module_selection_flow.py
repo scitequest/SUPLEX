@@ -3,8 +3,8 @@ from unittest.mock import Mock, patch
 
 import ipywidgets as widgets
 
-from src.ui.pages.module_selection_page import ModuleSelectionPage
-from ui.ui_constants import PAGE
+from suplex.ui.pages.module_selection_page import ModuleSelectionPage
+from suplex.ui.ui_constants import PAGE
 
 
 class TestModuleSelectionFlow:
@@ -39,7 +39,7 @@ class TestModuleSelectionFlow:
     # -------------------------------------------------------------------------
     # Module Tile Creation & Events
     # -------------------------------------------------------------------------
-    @patch("src.ui.pages.module_selection_page.Event")
+    @patch("suplex.ui.pages.module_selection_page.Event")
     def test_create_module_tile_viable_with_click(
         self, mock_event, module_selection_page, mock_modules
     ):
@@ -47,7 +47,7 @@ class TestModuleSelectionFlow:
         module = mock_modules[0]
         mock_html = Mock()
 
-        with patch("src.ui.pages.module_selection_page.WidgetFactory") as mock_factory:
+        with patch("suplex.ui.pages.module_selection_page.WidgetFactory") as mock_factory:
             mock_factory.html_widget.return_value = mock_html
 
             mock_click_event = Mock()
@@ -89,7 +89,7 @@ class TestModuleSelectionFlow:
         """Scheme updates refresh module tiles and icons."""
         module_selection_page._module_tiles = [Mock(), Mock()]
 
-        with patch("src.ui.pages.module_selection_page.WidgetFactory"):
+        with patch("suplex.ui.pages.module_selection_page.WidgetFactory"):
             module_selection_page.get_ui = Mock()
 
             module_selection_page._navigator.update_scheme = Mock()
@@ -107,7 +107,7 @@ class TestModuleSelectionFlow:
         mock_modules[1].group_name = "Analysis"
         mock_modules[2].group_name = ""
 
-        with patch("src.ui.pages.module_selection_page.WidgetFactory") as mock_factory:
+        with patch("suplex.ui.pages.module_selection_page.WidgetFactory") as mock_factory:
             mock_tab = Mock()
             mock_factory.tab.return_value = mock_tab
             mock_factory.grid_container.return_value = Mock()
@@ -122,7 +122,7 @@ class TestModuleSelectionFlow:
         """Empty modules list returns fallback UI."""
         page = ModuleSelectionPage(navigator=mock_navigator, modules=[])
 
-        with patch("src.ui.pages.module_selection_page.WidgetFactory") as mock_factory:
+        with patch("suplex.ui.pages.module_selection_page.WidgetFactory") as mock_factory:
             mock_vbox = Mock()
             mock_factory.vbox.return_value = mock_vbox
             result = page.get_ui([])

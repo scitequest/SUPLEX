@@ -2,8 +2,8 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from datetime import datetime
 
-from src.martin_interface.dataset import Dataset
-from suplex_modules.submodules.submodule_constants import DATASET_SELECTOR_MODE
+from suplex.martin_interface.dataset import Dataset
+from suplex.suplex_modules.submodules.submodule_constants import DATASET_SELECTOR_MODE
 
 
 # =============================================================================
@@ -14,7 +14,7 @@ from suplex_modules.submodules.submodule_constants import DATASET_SELECTOR_MODE
 @pytest.fixture
 def mock_attribute_selector():
     """Mock of the AttributeSelector class."""
-    from suplex_modules.submodules.attribute_selector import AttributeSelector
+    from suplex.suplex_modules.submodules.attribute_selector import AttributeSelector
 
     selector = Mock(spec=AttributeSelector)
     selector.attribute = "MEAN_MINUS_MIN"
@@ -24,7 +24,7 @@ def mock_attribute_selector():
 @pytest.fixture
 def mock_dataset_sorter():
     """Mock of the DatasetSorter class."""
-    from suplex_modules.submodules.dataset_sorter import DatasetSorter
+    from suplex.suplex_modules.submodules.dataset_sorter import DatasetSorter
 
     sorter = Mock(spec=DatasetSorter)
     sorter.get_sorted_datasets = MagicMock(return_value=[])
@@ -34,7 +34,7 @@ def mock_dataset_sorter():
 @pytest.fixture
 def mock_dataset_filter():
     """Mock of the DatasetFilter class."""
-    from suplex_modules.submodules.dataset_filters import DatasetFilter
+    from suplex.suplex_modules.submodules.dataset_filters import DatasetFilter
 
     filter_obj = Mock(spec=DatasetFilter)
     filter_obj.get_filtered_datasets = MagicMock(return_value=([], []))
@@ -44,7 +44,7 @@ def mock_dataset_filter():
 @pytest.fixture
 def mock_sample_spot_filter():
     """Mock of the SampleSpotFilter class."""
-    from suplex_modules.submodules.sample_spot_filter import SampleSpotFilter
+    from suplex.suplex_modules.submodules.sample_spot_filter import SampleSpotFilter
 
     filter_obj = Mock(spec=SampleSpotFilter)
     filter_obj.get_filter_maps = MagicMock(return_value=({}, {}))
@@ -72,7 +72,7 @@ def mock_coordinates_list():
 @pytest.fixture
 def attribute_selector():
     """Fresh AttributeSelector instance for widget testing."""
-    from suplex_modules.submodules.attribute_selector import AttributeSelector
+    from suplex.suplex_modules.submodules.attribute_selector import AttributeSelector
 
     return AttributeSelector()
 
@@ -108,7 +108,7 @@ def mock_datasets_with_labels():
 @pytest.fixture
 def dataset_selector(mock_datasets_with_labels):
     """Fresh DatasetSelector in MULTIPLE_UNBOUND mode (default)."""
-    from suplex_modules.submodules.dataset_selector import DatasetSelector
+    from suplex.suplex_modules.submodules.dataset_selector import DatasetSelector
 
     return DatasetSelector(
         datasets=mock_datasets_with_labels,
@@ -119,7 +119,7 @@ def dataset_selector(mock_datasets_with_labels):
 @pytest.fixture
 def bounded_dataset_selector(mock_datasets_with_labels):
     """DatasetSelector in MULTIPLE_BOUND mode with limit=2."""
-    from suplex_modules.submodules.dataset_selector import DatasetSelector
+    from suplex.suplex_modules.submodules.dataset_selector import DatasetSelector
 
     return DatasetSelector(
         datasets=mock_datasets_with_labels,
@@ -131,7 +131,7 @@ def bounded_dataset_selector(mock_datasets_with_labels):
 @pytest.fixture
 def single_dataset_selector(mock_datasets_with_labels):
     """DatasetSelector in SINGLE mode."""
-    from suplex_modules.submodules.dataset_selector import DatasetSelector
+    from suplex.suplex_modules.submodules.dataset_selector import DatasetSelector
 
     return DatasetSelector(
         datasets=mock_datasets_with_labels,
@@ -164,7 +164,7 @@ def mock_datasets_with_tags():
 @pytest.fixture
 def tag_selector(mock_datasets_with_tags):
     """Fresh TagSelector instance."""
-    from suplex_modules.submodules.tag_selector import TagSelector
+    from suplex.suplex_modules.submodules.tag_selector import TagSelector
 
     return TagSelector(datasets=mock_datasets_with_tags)
 
@@ -184,21 +184,21 @@ def small_value_list():
 @pytest.fixture
 def mock_shapiro():
     """Mock for shapiro test (used in apply_adaptive_significance_cutoff)."""
-    with patch("suplex_modules.submodules.dynamic_threshold_filter.shapiro") as mock:
+    with patch("suplex.suplex_modules.submodules.dynamic_threshold_filter.shapiro") as mock:
         yield mock
 
 
 @pytest.fixture
 def mock_ks_2samp():
     """Mock for ks_2samp test (used in apply_sparsity_cutoff)."""
-    with patch("suplex_modules.submodules.dynamic_threshold_filter.ks_2samp") as mock:
+    with patch("suplex.suplex_modules.submodules.dynamic_threshold_filter.ks_2samp") as mock:
         yield mock
 
 
 @pytest.fixture
 def value_extractor():
     """Fresh ValueExtractor with all options enabled (default)."""
-    from suplex_modules.submodules.value_extractor import ValueExtractor
+    from suplex.suplex_modules.submodules.value_extractor import ValueExtractor
 
     return ValueExtractor(show_all_options=True)
 
@@ -206,7 +206,7 @@ def value_extractor():
 @pytest.fixture
 def reference_point_selector():
     """Fresh ReferencePointSelector for testing reference logic."""
-    from suplex_modules.submodules.value_extractor import ReferencePointSelector
+    from suplex.suplex_modules.submodules.value_extractor import ReferencePointSelector
 
     return ReferencePointSelector(max_index=10, initial_references=[0, 3, 5])
 
@@ -219,7 +219,7 @@ def reference_point_selector():
 @pytest.fixture
 def general_graph_settings():
     """Fresh GeneralGraphSettings with all options enabled (default behaviour)."""
-    from suplex_modules.submodules.settings.general_graph_settings import GeneralGraphSettings
+    from suplex.suplex_modules.submodules.settings.general_graph_settings import GeneralGraphSettings
 
     return GeneralGraphSettings(show_all_options=True)
 
@@ -227,7 +227,7 @@ def general_graph_settings():
 @pytest.fixture
 def minimal_general_graph_settings():
     """Minimal GeneralGraphSettings – only a few options explicitly enabled."""
-    from suplex_modules.submodules.settings.general_graph_settings import GeneralGraphSettings
+    from suplex.suplex_modules.submodules.settings.general_graph_settings import GeneralGraphSettings
 
     return GeneralGraphSettings(
         show_all_options=False,
@@ -241,7 +241,7 @@ def minimal_general_graph_settings():
 @pytest.fixture
 def boxplot_settings():
     """Fresh BoxplotSettings instance with all options enabled (default behaviour)."""
-    from suplex_modules.submodules.settings.boxplot_settings import BoxplotSettings
+    from suplex.suplex_modules.submodules.settings.boxplot_settings import BoxplotSettings
 
     return BoxplotSettings(show_all_options=True)
 
@@ -249,7 +249,7 @@ def boxplot_settings():
 @pytest.fixture
 def minimal_boxplot_settings():
     """BoxplotSettings with only the most important options enabled."""
-    from suplex_modules.submodules.settings.boxplot_settings import BoxplotSettings
+    from suplex.suplex_modules.submodules.settings.boxplot_settings import BoxplotSettings
 
     return BoxplotSettings(
         show_boxplot=True,
@@ -262,7 +262,7 @@ def minimal_boxplot_settings():
 @pytest.fixture
 def heatmap_settings():
     """Fresh HeatmapSettings instance with all options enabled (default behaviour)."""
-    from suplex_modules.submodules.settings.heatmap_settings import HeatmapSettings
+    from suplex.suplex_modules.submodules.settings.heatmap_settings import HeatmapSettings
 
     return HeatmapSettings(show_all_options=True)
 
@@ -270,7 +270,7 @@ def heatmap_settings():
 @pytest.fixture
 def minimal_heatmap_settings():
     """Minimal HeatmapSettings – only core options explicitly enabled."""
-    from suplex_modules.submodules.settings.heatmap_settings import HeatmapSettings
+    from suplex.suplex_modules.submodules.settings.heatmap_settings import HeatmapSettings
 
     return HeatmapSettings(
         square=True,
@@ -282,7 +282,7 @@ def minimal_heatmap_settings():
 @pytest.fixture
 def jitterplot_settings():
     """Fresh JitterplotSettings instance with all options enabled (default behaviour)."""
-    from suplex_modules.submodules.settings.jitterplot_settings import JitterplotSettings
+    from suplex.suplex_modules.submodules.settings.jitterplot_settings import JitterplotSettings
 
     return JitterplotSettings(show_all_options=True)
 
@@ -290,7 +290,7 @@ def jitterplot_settings():
 @pytest.fixture
 def minimal_jitterplot_settings():
     """Minimal JitterplotSettings – only core options explicitly enabled."""
-    from suplex_modules.submodules.settings.jitterplot_settings import JitterplotSettings
+    from suplex.suplex_modules.submodules.settings.jitterplot_settings import JitterplotSettings
 
     return JitterplotSettings(
         show_jitterplot=True,

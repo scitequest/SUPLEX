@@ -1,7 +1,7 @@
 import pytest
 from dataclasses import is_dataclass
-from src.martin_interface.sample import Sample, DataStatistics
-from src.martin_interface.roi_elements import (
+from suplex.martin_interface.sample import Sample, DataStatistics
+from suplex.martin_interface.roi_elements import (
     Spot,
     SpotValues,
     RoiParameters,

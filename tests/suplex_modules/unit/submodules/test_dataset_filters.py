@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import ipywidgets as widgets
 import numpy as np
 
-from suplex_modules.submodules.dataset_filters import (
+from suplex.suplex_modules.submodules.dataset_filters import (
     has_flat_distribution,
     has_low_variance,
     contains_value_above,
@@ -16,7 +16,7 @@ from suplex_modules.submodules.dataset_filters import (
     is_min_value_below,
     DatasetFilter,
 )
-from suplex_modules.submodules.submodule_constants import (
+from suplex.suplex_modules.submodules.submodule_constants import (
     FILTER_METHOD,
     DATASET_ATTRIBUTE,
 )
@@ -111,7 +111,7 @@ class TestDatasetFilter:
             default_threshold=0.5,
         )
         with patch(
-            "suplex_modules.submodules.dataset_filters.get_flat_value_list",
+            "suplex.suplex_modules.submodules.dataset_filters.get_flat_value_list",
             return_value=[100, 200],
         ):
             included, excluded = filter_obj.get_filtered_datasets(mock_datasets)
@@ -158,7 +158,7 @@ class TestDatasetFilter:
         )
 
         with patch(
-            "suplex_modules.submodules.dataset_filters.get_flat_value_list",
+            "suplex.suplex_modules.submodules.dataset_filters.get_flat_value_list",
             return_value=[100, 200],
         ):
             included, excluded = filter_obj.get_filtered_datasets(mock_datasets)
@@ -184,7 +184,7 @@ class TestDatasetFilter:
         filter_obj = DatasetFilter()
 
         with patch(
-            "suplex_modules.submodules.dataset_filters.get_flat_value_list",
+            "suplex.suplex_modules.submodules.dataset_filters.get_flat_value_list",
             return_value=[],
         ):
             included, excluded = filter_obj.get_filtered_datasets(mock_datasets)

@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import List, Any
 
-from suplex_modules.vanilla.intensity_overview import IntensityOverviewModule
+from suplex.suplex_modules.vanilla.intensity_overview import IntensityOverviewModule
 
 
 class TestIntegrationIntensityOverviewModule:
@@ -40,10 +40,10 @@ class TestIntegrationIntensityOverviewModule:
     # Module lifecycle
     # -------------------------------------------------------------------------
 
-    @patch("suplex_modules.vanilla.intensity_overview.WidgetFactory")
-    @patch("suplex_modules.vanilla.intensity_overview.ValueExtractor")
-    @patch("suplex_modules.vanilla.intensity_overview.BoxplotSettings")
-    @patch("suplex_modules.vanilla.intensity_overview.JitterplotSettings")
+    @patch("suplex.suplex_modules.vanilla.intensity_overview.WidgetFactory")
+    @patch("suplex.suplex_modules.vanilla.intensity_overview.ValueExtractor")
+    @patch("suplex.suplex_modules.vanilla.intensity_overview.BoxplotSettings")
+    @patch("suplex.suplex_modules.vanilla.intensity_overview.JitterplotSettings")
     def test_initiate_module_creates_box_jitter_ui(
         self,
         mock_jitter_settings: MagicMock,

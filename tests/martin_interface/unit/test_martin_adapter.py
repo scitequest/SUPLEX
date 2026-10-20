@@ -2,12 +2,12 @@ import json
 import pytest
 import os
 from unittest.mock import Mock, patch, MagicMock
-from src.martin_interface.martin_adapter import Adapter
-from src.martin_interface.martin_interface_constants import (
+from suplex.martin_interface.martin_adapter import Adapter
+from suplex.martin_interface.martin_interface_constants import (
     SEARCH_MODE,
     STANDARD_READOUT_FILES,
 )
-from src.martin_interface.holder import FileHolder
+from suplex.martin_interface.holder import FileHolder
 
 
 class TestAdapter:
@@ -19,7 +19,7 @@ class TestAdapter:
 
     def test_adapter_init_invalid_path(self):
         """Handles non-existent or invalid directory path gracefully and logs an error."""
-        with patch("src.martin_interface.martin_adapter.logger") as mock_logger:
+        with patch("suplex.martin_interface.martin_adapter.logger") as mock_logger:
             adapter = Adapter("/invalid/path")
             mock_logger.error.assert_called_once()
             assert adapter._datasets == []
@@ -27,7 +27,7 @@ class TestAdapter:
 
     def test_adapter_init_valid_path_no_files(self, temp_dir):
         """When no MARTin files are found, logs a warning and initializes empty collections."""
-        with patch("src.martin_interface.martin_adapter.logger") as mock_logger:
+        with patch("suplex.martin_interface.martin_adapter.logger") as mock_logger:
             adapter = Adapter(temp_dir)
             mock_logger.warning.assert_called()
             assert adapter._datasets == []
@@ -35,7 +35,7 @@ class TestAdapter:
 
     def test_adapter_init_recursive_mode(self, create_sample_files):
         """Uses delve_dirs for SEARCH_MODE.RECURSIVE."""
-        with patch("src.martin_interface.martin_adapter.delve_dirs") as mock_delve:
+        with patch("suplex.martin_interface.martin_adapter.delve_dirs") as mock_delve:
             mock_delve.return_value = set()
             adapter = Adapter(create_sample_files, mode=SEARCH_MODE.RECURSIVE)
             mock_delve.assert_called_once()
@@ -47,7 +47,7 @@ class TestAdapter:
             SEARCH_MODE.ITERATIVE_BOUNDED_ALL,
             SEARCH_MODE.ITERATIVE_BOUNDED_BOTTOM,
         ]:
-            with patch("src.martin_interface.martin_adapter.sweep_dirs") as mock_sweep:
+            with patch("suplex.martin_interface.martin_adapter.sweep_dirs") as mock_sweep:
                 mock_sweep.return_value = set()
                 adapter = Adapter(create_sample_files, mode=mode)
                 mock_sweep.assert_called_once()
@@ -103,11 +103,11 @@ class TestAdapter:
     # validate_files tests
     # -------------------------------------------------------------------------
 
-    @patch("src.martin_interface.martin_adapter.try_get_validated_data")
-    @patch("src.martin_interface.martin_adapter.try_get_validated_data_statistics")
-    @patch("src.martin_interface.martin_adapter.try_get_validated_metadata")
-    @patch("src.martin_interface.martin_adapter.try_get_validated_parameters")
-    @patch("src.martin_interface.martin_adapter.try_get_validated_suplex_file")
+    @patch("suplex.martin_interface.martin_adapter.try_get_validated_data")
+    @patch("suplex.martin_interface.martin_adapter.try_get_validated_data_statistics")
+    @patch("suplex.martin_interface.martin_adapter.try_get_validated_metadata")
+    @patch("suplex.martin_interface.martin_adapter.try_get_validated_parameters")
+    @patch("suplex.martin_interface.martin_adapter.try_get_validated_suplex_file")
     def test_validate_files(
         self,
         mock_suplex,
@@ -131,7 +131,7 @@ class TestAdapter:
         assert file_holder is not None
         assert file_holder.data_file == {"values": []}
 
-    @patch("src.martin_interface.martin_adapter.try_get_validated_data")
+    @patch("suplex.martin_interface.martin_adapter.try_get_validated_data")
     def test_validate_files_no_data(self, mock_data, mock_path_holder):
         """Returns None immediately if the data file validation fails."""
         mock_data.return_value = None
@@ -147,7 +147,7 @@ class TestAdapter:
 
     def test_establish_project_structure_no_data_file(self, mock_path_holder):
         """Early return (None) when FileHolder has no valid data_file."""
-        from src.martin_interface.holder import FileHolder
+        from suplex.martin_interface.holder import FileHolder
 
         file_holder = FileHolder(data_file=None)
 

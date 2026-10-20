@@ -5,10 +5,10 @@ from datetime import datetime
 import tempfile
 import os
 
-from src.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
-from src.ui.gui import GUI
-from src.ui.pages.directory_selection_page import DirectorySelectionPage
-from src.martin_interface.martin_adapter import Adapter
+from suplex.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
+from suplex.ui.gui import GUI
+from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
+from suplex.martin_interface.martin_adapter import Adapter
 
 
 class TestLoggingSystemIntegration:
@@ -86,10 +86,10 @@ class TestLoggingSystemIntegration:
 
         try:
             with patch(
-                "src.ui.elements.popup_log_system.filedialog.asksaveasfilename",
+                "suplex.ui.elements.popup_log_system.filedialog.asksaveasfilename",
                 return_value=tmp_filename,
             ):
-                with patch("src.ui.elements.popup_log_system.tk"):
+                with patch("suplex.ui.elements.popup_log_system.tk"):
                     popup_logger.save_logs()
 
             # Verify file was created and contains logs
@@ -159,8 +159,8 @@ class TestLoggingSystemIntegration:
         assert popup_logger._log_messages[0]["message"] == "Log message 5"
         assert popup_logger._log_messages[-1]["message"] == "Log message 9"
 
-    @patch("src.ui.pages.directory_selection_page.os.path.exists")
-    @patch("src.ui.pages.directory_selection_page.os.path.isdir")
+    @patch("suplex.ui.pages.directory_selection_page.os.path.exists")
+    @patch("suplex.ui.pages.directory_selection_page.os.path.isdir")
     def test_logging_during_directory_search(
         self, mock_isdir, mock_exists, gui_with_logging
     ):
@@ -211,7 +211,7 @@ class TestLoggingSystemIntegration:
         test_logger.error("Copy test error")
 
         # Mock clipboard
-        with patch("src.ui.elements.popup_log_system.pyperclip.copy") as mock_copy:
+        with patch("suplex.ui.elements.popup_log_system.pyperclip.copy") as mock_copy:
             popup_logger.copy_logs()
 
             # Verify clipboard received formatted logs

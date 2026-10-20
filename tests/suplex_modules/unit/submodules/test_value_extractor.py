@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import Mock, patch
 import ipywidgets as widgets
 
-from suplex_modules.submodules.value_extractor import (
+from suplex.suplex_modules.submodules.value_extractor import (
     extract_value_list_from_dataset,
     flatten_list,
     get_flat_value_list,
@@ -13,7 +13,7 @@ from suplex_modules.submodules.value_extractor import (
     ValueExtractor,
     ReferencePointSelector,
 )
-from suplex_modules.submodules.submodule_constants import (
+from suplex.suplex_modules.submodules.submodule_constants import (
     DATASET_ATTRIBUTE,
     NORMALIZATION,
 )

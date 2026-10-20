@@ -1,6 +1,6 @@
 import pytest
 
-from src.ui.styles.color_utils import (
+from suplex.ui.styles.color_utils import (
     hex_to_rgb,
     rgb_to_hex,
     get_luminance,

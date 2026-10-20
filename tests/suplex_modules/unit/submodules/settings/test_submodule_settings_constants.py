@@ -2,7 +2,7 @@ import pytest
 import math
 from enum import Enum
 
-from suplex_modules.submodules.settings.submodule_settings_constants import (
+from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
     OPTION_INSET,
     SCALE_TYPE,
     INTERPOLATION_TYPE,

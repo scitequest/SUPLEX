@@ -6,15 +6,15 @@ from pathlib import Path
 from datetime import datetime, date
 import ipywidgets as widgets
 
-from src.ui.gui import GUI
-from src.ui.ui_constants import PAGE
-from src.ui.pages.about_page import AboutPage
-from src.ui.pages.module_selection_page import ModuleSelectionPage
-from src.ui.pages.directory_selection_page import DirectorySelectionPage, SEARCH_MODE
-from src.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
-from src.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
-from src.ui.elements.navigator import Navigator
-from src.ui.elements.header import Header
+from suplex.ui.gui import GUI
+from suplex.ui.ui_constants import PAGE
+from suplex.ui.pages.about_page import AboutPage
+from suplex.ui.pages.module_selection_page import ModuleSelectionPage
+from suplex.ui.pages.directory_selection_page import DirectorySelectionPage, SEARCH_MODE
+from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
+from suplex.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
+from suplex.ui.elements.navigator import Navigator
+from suplex.ui.elements.header import Header
 
 
 # =============================================================================
@@ -756,19 +756,19 @@ def mock_navigator():
 @pytest.fixture
 def navigator(mock_gui, mock_scheme, mock_modules):
     """Real Navigator instance with mocked page classes (for integration-style tests)."""
-    with patch("src.ui.elements.navigator.widgets.Button") as mock_button:
-        with patch("src.ui.elements.navigator.widgets.HBox") as mock_hbox:
-            with patch("src.ui.elements.navigator.widgets.HTML") as mock_html:
-                with patch("src.ui.elements.navigator.get_navigator_styles") as mock_styles:
-                    with patch("src.ui.elements.navigator.AboutPage") as mock_about_page:
+    with patch("suplex.ui.elements.navigator.widgets.Button") as mock_button:
+        with patch("suplex.ui.elements.navigator.widgets.HBox") as mock_hbox:
+            with patch("suplex.ui.elements.navigator.widgets.HTML") as mock_html:
+                with patch("suplex.ui.elements.navigator.get_navigator_styles") as mock_styles:
+                    with patch("suplex.ui.elements.navigator.AboutPage") as mock_about_page:
                         with patch(
-                            "src.ui.elements.navigator.DirectorySelectionPage"
+                            "suplex.ui.elements.navigator.DirectorySelectionPage"
                         ) as mock_dir_page:
                             with patch(
-                                "src.ui.elements.navigator.DatasetSelectionPage"
+                                "suplex.ui.elements.navigator.DatasetSelectionPage"
                             ) as mock_dataset_page:
                                 with patch(
-                                    "src.ui.elements.navigator.ModuleSelectionPage"
+                                    "suplex.ui.elements.navigator.ModuleSelectionPage"
                                 ) as mock_module_page:
                                     mock_about_instance = Mock()
                                     mock_about_instance.get_ui = Mock(return_value=Mock())
@@ -805,7 +805,7 @@ def navigator(mock_gui, mock_scheme, mock_modules):
                                     mock_container.children = []
                                     mock_hbox.return_value = mock_container
 
-                                    from src.ui.elements.navigator import Navigator
+                                    from suplex.ui.elements.navigator import Navigator
 
                                     navigator = Navigator(mock_gui, mock_scheme, mock_modules)
 
@@ -837,8 +837,8 @@ def header(mock_gui, mock_schemes):
 @pytest.fixture
 def popup_logger(mock_scheme):
     """Real PopupLogger instance."""
-    with patch("src.ui.elements.popup_log_system.widgets"):
-        with patch("src.ui.elements.popup_log_system.get_popup_logger_styles"):
+    with patch("suplex.ui.elements.popup_log_system.widgets"):
+        with patch("suplex.ui.elements.popup_log_system.get_popup_logger_styles"):
             logger = PopupLogger(scheme=mock_scheme, max_messages=100, min_log_level=logging.INFO)
             return logger
 
@@ -851,7 +851,7 @@ def popup_logger(mock_scheme):
 @pytest.fixture
 def about_page():
     """Real AboutPage instance."""
-    with patch("src.ui.pages.about_page.hex_to_rgba") as mock_hex_to_rgba:
+    with patch("suplex.ui.pages.about_page.hex_to_rgba") as mock_hex_to_rgba:
         mock_hex_to_rgba.return_value = "rgba(230, 243, 255, 0.8)"
         page = AboutPage()
         return page
@@ -973,8 +973,8 @@ def mock_project_with_datasets():
 @pytest.fixture
 def project_card(mock_page, mock_project_with_datasets):
     """Create ProjectCard instance."""
-    with patch("src.ui.pages.dataset_selection_page.DatasetSelector"):
-        with patch("src.ui.pages.dataset_selection_page.TagSelector"):
+    with patch("suplex.ui.pages.dataset_selection_page.DatasetSelector"):
+        with patch("suplex.ui.pages.dataset_selection_page.TagSelector"):
             return ProjectCard(page=mock_page, project=mock_project_with_datasets)
 
 
@@ -1177,9 +1177,9 @@ def integrated_gui(mock_modules, mock_schemes, mock_popup_logger):
     content.layout = Mock()
 
     gui = GUI(mock_modules, mock_schemes, content, mock_popup_logger)
-    with patch("src.ui.elements.header.Header.load_icon", return_value="<img>"):
-        with patch("src.ui.elements.navigator.widgets"):
-            with patch("src.ui.gui.widgets"):
+    with patch("suplex.ui.elements.header.Header.load_icon", return_value="<img>"):
+        with patch("suplex.ui.elements.navigator.widgets"):
+            with patch("suplex.ui.gui.widgets"):
                 gui.build_gui()
 
     return gui

@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional
 import ipywidgets
-from martin_interface.dataset import Dataset
+from suplex.martin_interface.dataset import Dataset
 
 
 class NoInheritanceSuplexModule:

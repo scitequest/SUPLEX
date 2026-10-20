@@ -1,6 +1,6 @@
 import pytest
 from dataclasses import is_dataclass
-from src.martin_interface.roi_elements import (
+from suplex.martin_interface.roi_elements import (
     Coordinates,
     SpotValues,
     RoiParameters,

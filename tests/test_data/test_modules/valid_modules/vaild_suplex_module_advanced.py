@@ -1,4 +1,4 @@
-from src.suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 from typing import Dict, List, Optional, Any
 import ipywidgets
 from abc import ABC

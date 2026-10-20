@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock
-from src.martin_interface.project import Project
+from suplex.martin_interface.project import Project
 
 
 class TestProject:

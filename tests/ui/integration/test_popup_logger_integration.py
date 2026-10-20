@@ -4,7 +4,7 @@ import logging
 
 import ipywidgets as widgets
 
-from src.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
+from suplex.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
 
 
 class TestPopupLoggerIntegration:
@@ -73,7 +73,7 @@ class TestPopupLoggerIntegration:
     # -------------------------------------------------------------------------
     # Copy / Save / Clear Actions
     # -------------------------------------------------------------------------
-    @patch("src.ui.elements.popup_log_system.pyperclip")
+    @patch("suplex.ui.elements.popup_log_system.pyperclip")
     def test_copy_logs_integration(self, mock_pyperclip, popup_logger):
         """Copy action formats logs and puts them on the clipboard."""
         popup_logger._log_messages = [
@@ -88,8 +88,8 @@ class TestPopupLoggerIntegration:
             mock_pyperclip.copy.assert_called_once_with("Formatted logs")
             mock_add.assert_called_with("Logs copied to clipboard.", logging.INFO)
 
-    @patch("src.ui.elements.popup_log_system.tk")
-    @patch("src.ui.elements.popup_log_system.filedialog")
+    @patch("suplex.ui.elements.popup_log_system.tk")
+    @patch("suplex.ui.elements.popup_log_system.filedialog")
     @patch("builtins.open", create=True)
     def test_save_logs_integration(self, mock_open, mock_filedialog, mock_tk, popup_logger):
         """Save action opens dialog and writes logs to file."""
@@ -139,7 +139,7 @@ class TestPopupLoggerIntegration:
         popup_logger.update_button_appearance = Mock()
         popup_logger.refresh_log_display = Mock()
 
-        with patch("src.ui.elements.popup_log_system.get_popup_logger_styles"):
+        with patch("suplex.ui.elements.popup_log_system.get_popup_logger_styles"):
             popup_logger.update_scheme(alt_mock_scheme)
 
         assert popup_logger._scheme == alt_mock_scheme

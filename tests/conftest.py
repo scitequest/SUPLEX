@@ -5,8 +5,8 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import svgutils.transform as sg
 
-from src.suplex_modules.suplex_module_interface import SuplexModuleInterface
-from src.martin_interface.dataset import Dataset
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.martin_interface.dataset import Dataset
 
 
 @pytest.fixture

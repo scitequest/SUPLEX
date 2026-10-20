@@ -2,9 +2,9 @@ import pytest
 import logging
 from pathlib import Path
 
-from src.suplex_modules.module_loader import load_modules
-from src.suplex_modules.suplex_module_interface import SuplexModuleInterface
-from src.suplex_modules.module_constants import SEARCH_MODE
+from suplex.suplex_modules.module_loader import load_modules
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.suplex_modules.module_constants import SEARCH_MODE
 
 
 class TestModuleLoadingIntegration:

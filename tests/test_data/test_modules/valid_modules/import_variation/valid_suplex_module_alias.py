@@ -1,4 +1,4 @@
-from src.suplex_modules.suplex_module_interface import SuplexModuleInterface as SMI
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface as SMI
 from typing import Dict, List, Optional, Any
 import ipywidgets
 

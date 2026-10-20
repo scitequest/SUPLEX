@@ -7,18 +7,18 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 from datetime import datetime
 
-from src.martin_interface.martin_adapter import Adapter
-from src.martin_interface.martin_interface_constants import SEARCH_MODE
-from src.martin_interface.dataset import Dataset
+from suplex.martin_interface.martin_adapter import Adapter
+from suplex.martin_interface.martin_interface_constants import SEARCH_MODE
+from suplex.martin_interface.dataset import Dataset
 
-from ui.elements.navigator import Navigator
-from ui.gui import GUI
-from ui.pages.directory_selection_page import DirectorySelectionPage
-from ui.pages.dataset_selection_page import DatasetSelectionPage
-from ui.pages.module_selection_page import ModuleSelectionPage
+from suplex.ui.elements.navigator import Navigator
+from suplex.ui.gui import GUI
+from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
+from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage
+from suplex.ui.pages.module_selection_page import ModuleSelectionPage
 
-from suplex_modules.module_loader import load_modules
-from suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.suplex_modules.module_loader import load_modules
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 
 from tests.martin_interface.conftest import (
     sample_data_dict,

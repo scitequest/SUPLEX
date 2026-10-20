@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime, timedelta
 
-from src.martin_interface.dataset import Dataset
+from suplex.martin_interface.dataset import Dataset
 
 
 class TestDatasetSelectionFlow:

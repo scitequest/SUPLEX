@@ -1,15 +1,15 @@
 import pytest
 from typing import List, Any
 
-from suplex_modules.submodules.dataset_filters import DatasetFilter
-from suplex_modules.submodules.sample_spot_filter import SampleSpotFilter
-from suplex_modules.submodules.dataset_sorter import DatasetSorter
-from suplex_modules.submodules.submodule_constants import (
+from suplex.suplex_modules.submodules.dataset_filters import DatasetFilter
+from suplex.suplex_modules.submodules.sample_spot_filter import SampleSpotFilter
+from suplex.suplex_modules.submodules.dataset_sorter import DatasetSorter
+from suplex.suplex_modules.submodules.submodule_constants import (
     DATASET_ATTRIBUTE,
     FILTER_METHOD,
     SORT_METHOD,
 )
-from suplex_modules.submodules.value_extractor import get_flat_value_list
+from suplex.suplex_modules.submodules.value_extractor import get_flat_value_list
 
 
 class TestIntegrationFilteringAndSortingPipeline:

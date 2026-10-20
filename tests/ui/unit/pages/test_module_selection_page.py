@@ -4,8 +4,8 @@ import base64
 
 import ipywidgets as widgets
 
-from src.ui.pages.module_selection_page import ModuleSelectionPage
-from suplex_modules.submodules.submodule_constants import DATASET_SELECTOR_MODE
+from suplex.ui.pages.module_selection_page import ModuleSelectionPage
+from suplex.suplex_modules.submodules.submodule_constants import DATASET_SELECTOR_MODE
 
 
 class TestModuleSelectionPage:
@@ -28,7 +28,7 @@ class TestModuleSelectionPage:
     # -------------------------------------------------------------------------
     # Main UI (get_ui)
     # -------------------------------------------------------------------------
-    @patch("src.ui.pages.module_selection_page.WidgetFactory")
+    @patch("suplex.ui.pages.module_selection_page.WidgetFactory")
     def test_get_ui_success(self, mock_factory, module_selection_page, mock_modules):
         """get_ui() builds a tabbed interface with grouped module tiles."""
         mock_datasets = [Mock(), Mock()]
@@ -59,7 +59,7 @@ class TestModuleSelectionPage:
         for module in mock_modules:
             module.check_if_viable.return_value = False
 
-        with patch("src.ui.pages.module_selection_page.WidgetFactory"):
+        with patch("suplex.ui.pages.module_selection_page.WidgetFactory"):
             module_selection_page.create_module_tile = Mock(return_value=Mock())
             module_selection_page.get_ui([])
 
@@ -71,7 +71,7 @@ class TestModuleSelectionPage:
         """With no modules at all, shows a fallback message."""
         page = ModuleSelectionPage(navigator=mock_navigator, modules=[])
 
-        with patch("src.ui.pages.module_selection_page.WidgetFactory") as mock_factory:
+        with patch("suplex.ui.pages.module_selection_page.WidgetFactory") as mock_factory:
             mock_vbox = Mock()
             mock_factory.vbox.return_value = mock_vbox
             mock_factory.html_widget.return_value = Mock()
@@ -84,15 +84,15 @@ class TestModuleSelectionPage:
         """Modules without a group_name are placed in the 'No group' tab."""
         mock_modules[0].group_name = ""
 
-        with patch("src.ui.pages.module_selection_page.WidgetFactory"):
+        with patch("suplex.ui.pages.module_selection_page.WidgetFactory"):
             module_selection_page.create_module_tile = Mock(return_value=Mock())
             module_selection_page.get_ui([])
 
     # -------------------------------------------------------------------------
     # Module Tile Creation
     # -------------------------------------------------------------------------
-    @patch("src.ui.pages.module_selection_page.widgets.HTML")
-    @patch("src.ui.pages.module_selection_page.Event")
+    @patch("suplex.ui.pages.module_selection_page.widgets.HTML")
+    @patch("suplex.ui.pages.module_selection_page.Event")
     def test_create_module_tile_viable(
         self, mock_event_class, mock_html_class, module_selection_page, mock_modules
     ):
@@ -122,8 +122,8 @@ class TestModuleSelectionPage:
         mock_click_event.on_dom_event.assert_called_once()
         assert len(module_selection_page._tile_events) == 3
 
-    @patch("src.ui.pages.module_selection_page.widgets.HTML")
-    @patch("src.ui.pages.module_selection_page.Event")
+    @patch("suplex.ui.pages.module_selection_page.widgets.HTML")
+    @patch("suplex.ui.pages.module_selection_page.Event")
     def test_create_module_tile_not_viable(
         self, mock_event_class, mock_html_class, module_selection_page, mock_modules
     ):
@@ -251,8 +251,8 @@ class TestModuleSelectionPage:
     # -------------------------------------------------------------------------
     def test_hover_event_handlers(self, module_selection_page, mock_modules):
         """Hover events correctly call update_info_field / clear_hover_text."""
-        with patch("src.ui.pages.module_selection_page.widgets.HTML"):
-            with patch("src.ui.pages.module_selection_page.Event") as mock_event:
+        with patch("suplex.ui.pages.module_selection_page.widgets.HTML"):
+            with patch("suplex.ui.pages.module_selection_page.Event") as mock_event:
                 mock_hover_event = Mock()
                 mock_hover_release = Mock()
                 mock_event.side_effect = [mock_hover_event, mock_hover_release, Mock()]

@@ -1,6 +1,6 @@
 import pytest
 from enum import Enum
-from src.martin_interface.martin_interface_constants import (
+from suplex.martin_interface.martin_interface_constants import (
     MARTIN_MEASURE_DIR_DEPTH,
     STANDARD_READOUT_FILES,
     TOLERANCE,

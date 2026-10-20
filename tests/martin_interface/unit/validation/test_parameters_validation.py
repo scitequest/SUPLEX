@@ -2,7 +2,7 @@ import pytest
 import copy
 import json  # added to fix NameError in test_empty_string_raises_error
 from unittest.mock import patch
-from src.martin_interface.validation.parameters_validation import (
+from suplex.martin_interface.validation.parameters_validation import (
     try_get_validated_parameters,
     try_typecast_parameters_file,
     check_internal_value_consistency,
@@ -18,7 +18,7 @@ class TestParametersValidation:
     # try_get_validated_parameters tests
     # -------------------------------------------------------------------------
 
-    @patch("src.martin_interface.validation.parameters_validation.try_get_valid_json")
+    @patch("suplex.martin_interface.validation.parameters_validation.try_get_valid_json")
     def test_try_get_validated_parameters_invalid_json(self, mock_json):
         """Returns None immediately when the JSON file cannot be parsed."""
         mock_json.return_value = None
@@ -26,7 +26,7 @@ class TestParametersValidation:
         result = try_get_validated_parameters("/test/path", {})
         assert result is None
 
-    @patch("src.martin_interface.validation.parameters_validation.try_get_valid_json")
+    @patch("suplex.martin_interface.validation.parameters_validation.try_get_valid_json")
     def test_try_get_validated_parameters_typo_compatibility(
         self, mock_json, sample_parameters_dict_polygon
     ):
@@ -36,19 +36,19 @@ class TestParametersValidation:
         mock_json.return_value = params
 
         with patch(
-            "src.martin_interface.validation.parameters_validation.is_Key_Structure_Identical",
+            "suplex.martin_interface.validation.parameters_validation.is_Key_Structure_Identical",
             return_value=True,
         ):
             with patch(
-                "src.martin_interface.validation.parameters_validation.try_typecast_parameters_file"
+                "suplex.martin_interface.validation.parameters_validation.try_typecast_parameters_file"
             ) as mock_typecast:
                 mock_typecast.return_value = sample_parameters_dict_polygon
                 with patch(
-                    "src.martin_interface.validation.parameters_validation.check_internal_value_consistency",
+                    "suplex.martin_interface.validation.parameters_validation.check_internal_value_consistency",
                     return_value=True,
                 ):
                     with patch(
-                        "src.martin_interface.validation.parameters_validation.check_external_consistency",
+                        "suplex.martin_interface.validation.parameters_validation.check_external_consistency",
                         return_value=True,
                     ):
                         result = try_get_validated_parameters("/test/path", {})
@@ -56,11 +56,11 @@ class TestParametersValidation:
                             "subtract_background" in mock_typecast.call_args[1]["parameters_file"]
                         )
 
-    @patch("src.martin_interface.validation.parameters_validation.check_external_consistency")
-    @patch("src.martin_interface.validation.parameters_validation.check_internal_value_consistency")
-    @patch("src.martin_interface.validation.parameters_validation.try_typecast_parameters_file")
-    @patch("src.martin_interface.validation.parameters_validation.is_Key_Structure_Identical")
-    @patch("src.martin_interface.validation.parameters_validation.try_get_valid_json")
+    @patch("suplex.martin_interface.validation.parameters_validation.check_external_consistency")
+    @patch("suplex.martin_interface.validation.parameters_validation.check_internal_value_consistency")
+    @patch("suplex.martin_interface.validation.parameters_validation.try_typecast_parameters_file")
+    @patch("suplex.martin_interface.validation.parameters_validation.is_Key_Structure_Identical")
+    @patch("suplex.martin_interface.validation.parameters_validation.try_get_valid_json")
     def test_try_get_validated_parameters_success_polygon(
         self,
         mock_json,
@@ -117,11 +117,11 @@ class TestParametersValidation:
             == sample_parameters_dict_polygon["background_rectangles"][0]["coordinates"]
         )
 
-    @patch("src.martin_interface.validation.parameters_validation.check_external_consistency")
-    @patch("src.martin_interface.validation.parameters_validation.check_internal_value_consistency")
-    @patch("src.martin_interface.validation.parameters_validation.try_typecast_parameters_file")
-    @patch("src.martin_interface.validation.parameters_validation.is_Key_Structure_Identical")
-    @patch("src.martin_interface.validation.parameters_validation.try_get_valid_json")
+    @patch("suplex.martin_interface.validation.parameters_validation.check_external_consistency")
+    @patch("suplex.martin_interface.validation.parameters_validation.check_internal_value_consistency")
+    @patch("suplex.martin_interface.validation.parameters_validation.try_typecast_parameters_file")
+    @patch("suplex.martin_interface.validation.parameters_validation.is_Key_Structure_Identical")
+    @patch("suplex.martin_interface.validation.parameters_validation.try_get_valid_json")
     def test_try_get_validated_parameters_success_circle(
         self,
         mock_json,

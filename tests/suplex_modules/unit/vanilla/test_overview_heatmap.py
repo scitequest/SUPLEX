@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 import ipywidgets as widgets
 
-from suplex_modules.vanilla.overview_heatmap import OverviewHeatmapModule
-from src.martin_interface.dataset import Dataset
-from suplex_modules.submodules.submodule_constants import DATASET_LABEL, NORMALIZATION
+from suplex.suplex_modules.vanilla.overview_heatmap import OverviewHeatmapModule
+from suplex.martin_interface.dataset import Dataset
+from suplex.suplex_modules.submodules.submodule_constants import DATASET_LABEL, NORMALIZATION
 
 
 class TestOverviewHeatmap:
@@ -50,10 +50,10 @@ class TestOverviewHeatmap:
         module = OverviewHeatmapModule()
         with (
             patch(
-                "suplex_modules.vanilla.overview_heatmap.no_datasets_selected", return_value=False
+                "suplex.suplex_modules.vanilla.overview_heatmap.no_datasets_selected", return_value=False
             ),
             patch(
-                "suplex_modules.vanilla.overview_heatmap.has_negative_values", return_value=False
+                "suplex.suplex_modules.vanilla.overview_heatmap.has_negative_values", return_value=False
             ),
         ):
             assert module.check_if_viable(viable_datasets) is True
@@ -63,7 +63,7 @@ class TestOverviewHeatmap:
         """Module is NOT viable and updates hover text when no datasets are selected."""
         module = OverviewHeatmapModule()
         with patch(
-            "suplex_modules.vanilla.overview_heatmap.no_datasets_selected", return_value=True
+            "suplex.suplex_modules.vanilla.overview_heatmap.no_datasets_selected", return_value=True
         ):
             assert module.check_if_viable([]) is False
             assert "no datasets" in module.get_module_hover_text().lower()
@@ -74,7 +74,7 @@ class TestOverviewHeatmap:
         # datasets_with_issues[2] contains a negative mean_minus_min value
         bad_datasets = [datasets_with_issues[2]]
         with patch(
-            "suplex_modules.vanilla.overview_heatmap.has_negative_values", return_value=True
+            "suplex.suplex_modules.vanilla.overview_heatmap.has_negative_values", return_value=True
         ):
             assert module.check_if_viable(bad_datasets) is False
             assert "negative value" in module.get_module_hover_text().lower()
@@ -160,11 +160,11 @@ class TestOverviewHeatmap:
     # -------------------------------------------------------------------------
     # UI / Initiate Smoke Test
     # -------------------------------------------------------------------------
-    @patch("suplex_modules.vanilla.overview_heatmap.WidgetFactory")
-    @patch("suplex_modules.vanilla.overview_heatmap.ValueExtractor")
-    @patch("suplex_modules.vanilla.overview_heatmap.DatasetSorter")
-    @patch("suplex_modules.vanilla.overview_heatmap.DatasetFilter")
-    @patch("suplex_modules.vanilla.overview_heatmap.SampleSpotFilter")
+    @patch("suplex.suplex_modules.vanilla.overview_heatmap.WidgetFactory")
+    @patch("suplex.suplex_modules.vanilla.overview_heatmap.ValueExtractor")
+    @patch("suplex.suplex_modules.vanilla.overview_heatmap.DatasetSorter")
+    @patch("suplex.suplex_modules.vanilla.overview_heatmap.DatasetFilter")
+    @patch("suplex.suplex_modules.vanilla.overview_heatmap.SampleSpotFilter")
     def test_initiate_module_smoke(
         self,
         mock_sample_spot_filter,

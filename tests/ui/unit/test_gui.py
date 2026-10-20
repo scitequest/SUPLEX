@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 
 import ipywidgets as widgets
 
-from src.ui.gui import GUI
+from suplex.ui.gui import GUI
 
 
 class TestGUI:
@@ -43,11 +43,11 @@ class TestGUI:
     # -------------------------------------------------------------------------
     # Building the GUI
     # -------------------------------------------------------------------------
-    @patch("src.ui.gui.Header")
-    @patch("src.ui.gui.Navigator")
-    @patch("src.ui.gui.get_widget_styles")
-    @patch("src.ui.gui.get_gui_styles")
-    @patch("src.ui.gui.widgets")
+    @patch("suplex.ui.gui.Header")
+    @patch("suplex.ui.gui.Navigator")
+    @patch("suplex.ui.gui.get_widget_styles")
+    @patch("suplex.ui.gui.get_gui_styles")
+    @patch("suplex.ui.gui.widgets")
     def test_build_gui(
         self,
         mock_widgets,
@@ -178,8 +178,8 @@ class TestGUI:
         """current_scheme property returns the active scheme."""
         assert gui.current_scheme == gui._current_scheme
 
-    @patch("src.ui.gui.get_gui_styles")
-    @patch("src.ui.gui.widgets")
+    @patch("suplex.ui.gui.get_gui_styles")
+    @patch("suplex.ui.gui.widgets")
     def test_update_layout(self, mock_widgets, mock_gui_styles, gui):
         """update_layout() assembles the complete GUI layout."""
         gui._header = Mock()
@@ -203,8 +203,8 @@ class TestGUI:
         assert len(gui._content.children) == 3  # styles, main_layout, logger_box
         gui.set_info_field_state.assert_called_once_with("")
 
-    @patch("src.ui.gui.get_gui_styles")
-    @patch("src.ui.gui.get_widget_styles")
+    @patch("suplex.ui.gui.get_gui_styles")
+    @patch("suplex.ui.gui.get_widget_styles")
     def test_update_scheme(self, mock_widget_styles, mock_gui_styles, gui):
         """update_scheme() refreshes all components with the new color scheme."""
         gui._navigator = Mock()

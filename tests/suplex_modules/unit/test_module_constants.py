@@ -2,7 +2,7 @@ import pytest
 import os
 from pathlib import Path
 
-from suplex_modules.module_constants import (
+from suplex.suplex_modules.module_constants import (
     DEFAULT_MODULE_DIRECTORY,
     DEFAULT_SEARCH_DEPTH,
     STANDARD_READOUT_FILE_TYPE,

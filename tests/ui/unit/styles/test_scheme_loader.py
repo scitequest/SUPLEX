@@ -4,7 +4,7 @@ from pathlib import Path
 import importlib.util
 import sys
 
-from src.ui.styles.scheme_loader import (
+from suplex.ui.styles.scheme_loader import (
     load_all_schemes,
     validate_scheme_files,
     is_system_file,
@@ -42,7 +42,7 @@ class TestSchemeLoader:
 
     def test_is_system_file_error_handling(self):
         """is_system_file() returns True and logs error when given None or invalid input."""
-        with patch("src.ui.styles.scheme_loader.logger") as mock_logger:
+        with patch("suplex.ui.styles.scheme_loader.logger") as mock_logger:
             result = is_system_file(None)
             assert result is True
             mock_logger.error.assert_called()
@@ -128,9 +128,9 @@ class TestSchemeLoader:
     # -------------------------------------------------------------------------
     # File loading
     # -------------------------------------------------------------------------
-    @patch("src.ui.styles.scheme_loader.importlib.util.spec_from_file_location")
-    @patch("src.ui.styles.scheme_loader.importlib.util.module_from_spec")
-    @patch("src.ui.styles.scheme_loader.inspect.isclass")
+    @patch("suplex.ui.styles.scheme_loader.importlib.util.spec_from_file_location")
+    @patch("suplex.ui.styles.scheme_loader.importlib.util.module_from_spec")
+    @patch("suplex.ui.styles.scheme_loader.inspect.isclass")
     def test_try_load_schemes_from_file_success(
         self,
         mock_isclass,
@@ -151,25 +151,25 @@ class TestSchemeLoader:
 
         mock_isclass.return_value = True
 
-        with patch("src.ui.styles.scheme_loader.inspect.getmembers") as mock_getmembers:
+        with patch("suplex.ui.styles.scheme_loader.inspect.getmembers") as mock_getmembers:
             mock_getmembers.return_value = [("TestScheme", mock_scheme_class)]
 
-            with patch("src.ui.styles.scheme_loader.validate_against_schema") as mock_validate:
+            with patch("suplex.ui.styles.scheme_loader.validate_against_schema") as mock_validate:
                 mock_validate.return_value = True
                 result = try_load_schemes_from_file(Path("test.py"))
 
         assert len(result) == 1
         assert result[0] == mock_scheme_class
 
-    @patch("src.ui.styles.scheme_loader.importlib.util.spec_from_file_location")
+    @patch("suplex.ui.styles.scheme_loader.importlib.util.spec_from_file_location")
     def test_try_load_schemes_from_file_no_spec(self, mock_spec_from_file):
         """Returns empty list when spec cannot be created."""
         mock_spec_from_file.return_value = None
         result = try_load_schemes_from_file(Path("test.py"))
         assert result == []
 
-    @patch("src.ui.styles.scheme_loader.importlib.util.spec_from_file_location")
-    @patch("src.ui.styles.scheme_loader.importlib.util.module_from_spec")
+    @patch("suplex.ui.styles.scheme_loader.importlib.util.spec_from_file_location")
+    @patch("suplex.ui.styles.scheme_loader.importlib.util.module_from_spec")
     def test_try_load_schemes_from_file_import_error(
         self, mock_module_from_spec, mock_spec_from_file
     ):
@@ -188,9 +188,9 @@ class TestSchemeLoader:
     # -------------------------------------------------------------------------
     # Full loading pipeline
     # -------------------------------------------------------------------------
-    @patch("src.ui.styles.scheme_loader.Path.glob")
-    @patch("src.ui.styles.scheme_loader.Path.exists")
-    @patch("src.ui.styles.scheme_loader.Path.is_dir")
+    @patch("suplex.ui.styles.scheme_loader.Path.glob")
+    @patch("suplex.ui.styles.scheme_loader.Path.exists")
+    @patch("suplex.ui.styles.scheme_loader.Path.is_dir")
     def test_load_all_schemes_success(
         self, mock_is_dir, mock_exists, mock_glob, mock_scheme_class, temp_scheme_dir
     ):
@@ -204,10 +204,10 @@ class TestSchemeLoader:
         file2.name = "scheme2.py"
         mock_glob.return_value = [file1, file2]
 
-        with patch("src.ui.styles.scheme_loader.validate_scheme_files") as mock_validate:
+        with patch("suplex.ui.styles.scheme_loader.validate_scheme_files") as mock_validate:
             mock_validate.return_value = [file1, file2]
 
-            with patch("src.ui.styles.scheme_loader.try_load_schemes_from_file") as mock_load:
+            with patch("suplex.ui.styles.scheme_loader.try_load_schemes_from_file") as mock_load:
                 scheme1 = Mock()
                 scheme1.NAME = "Scheme1"
                 scheme2 = Mock()
@@ -248,10 +248,10 @@ class TestSchemeLoader:
         file1 = temp_scheme_dir / "bad_scheme.py"
         file1.write_text("# Bad scheme")
 
-        with patch("src.ui.styles.scheme_loader.validate_scheme_files") as mock_validate:
+        with patch("suplex.ui.styles.scheme_loader.validate_scheme_files") as mock_validate:
             mock_validate.return_value = [file1]
 
-            with patch("src.ui.styles.scheme_loader.try_load_schemes_from_file") as mock_load:
+            with patch("suplex.ui.styles.scheme_loader.try_load_schemes_from_file") as mock_load:
                 bad_scheme = Mock()
                 del bad_scheme.NAME
                 mock_load.return_value = [bad_scheme]
@@ -263,8 +263,8 @@ class TestSchemeLoader:
     # -------------------------------------------------------------------------
     # High-level get_schemes convenience function
     # -------------------------------------------------------------------------
-    @patch("src.ui.styles.scheme_loader.Path")
-    @patch("src.ui.styles.scheme_loader.load_all_schemes")
+    @patch("suplex.ui.styles.scheme_loader.Path")
+    @patch("suplex.ui.styles.scheme_loader.load_all_schemes")
     def test_get_schemes_success(self, mock_load_all, mock_path_class):
         """get_schemes() resolves the schemes directory and loads all schemes."""
         mock_path = Mock()
@@ -281,8 +281,8 @@ class TestSchemeLoader:
         assert result == schemes
         mock_load_all.assert_called_once()
 
-    @patch("src.ui.styles.scheme_loader.Path")
-    @patch("src.ui.styles.scheme_loader.load_all_schemes")
+    @patch("suplex.ui.styles.scheme_loader.Path")
+    @patch("suplex.ui.styles.scheme_loader.load_all_schemes")
     def test_get_schemes_empty(self, mock_load_all, mock_path_class):
         """Logs a warning when no schemes are loaded."""
         mock_path = Mock()
@@ -292,7 +292,7 @@ class TestSchemeLoader:
 
         mock_load_all.return_value = {}
 
-        with patch("src.ui.styles.scheme_loader.logger") as mock_logger:
+        with patch("suplex.ui.styles.scheme_loader.logger") as mock_logger:
             result = get_schemes("schemes")
 
             assert result == {}
@@ -301,8 +301,8 @@ class TestSchemeLoader:
     # -------------------------------------------------------------------------
     # Module cleanup
     # -------------------------------------------------------------------------
-    @patch("src.ui.styles.scheme_loader.importlib.util.spec_from_file_location")
-    @patch("src.ui.styles.scheme_loader.importlib.util.module_from_spec")
+    @patch("suplex.ui.styles.scheme_loader.importlib.util.spec_from_file_location")
+    @patch("suplex.ui.styles.scheme_loader.importlib.util.module_from_spec")
     def test_module_cleanup_in_try_load_schemes(self, mock_module_from_spec, mock_spec_from_file):
         """try_load_schemes_from_file() properly cleans up sys.modules after loading."""
         module_name = "test_scheme_module_cleanup"
@@ -315,7 +315,7 @@ class TestSchemeLoader:
         test_module.__name__ = module_name
         mock_module_from_spec.return_value = test_module
 
-        with patch("src.ui.styles.scheme_loader.inspect.getmembers") as mock_members:
+        with patch("suplex.ui.styles.scheme_loader.inspect.getmembers") as mock_members:
             mock_members.return_value = []
 
             if module_name in sys.modules:

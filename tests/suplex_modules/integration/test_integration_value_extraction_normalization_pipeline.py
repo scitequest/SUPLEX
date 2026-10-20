@@ -1,14 +1,14 @@
 import pytest
 from typing import List, Dict, Any
 
-from suplex_modules.submodules.value_extractor import (
+from suplex.suplex_modules.submodules.value_extractor import (
     ValueExtractor,
     ReferencePointSelector,
     extract_value_list_from_dataset,
     get_flat_value_list,
     flatten_list,
 )
-from suplex_modules.submodules.submodule_constants import (
+from suplex.suplex_modules.submodules.submodule_constants import (
     DATASET_ATTRIBUTE,
     NORMALIZATION,
 )

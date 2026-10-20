@@ -1,6 +1,6 @@
 import pytest
 from dataclasses import is_dataclass
-from src.martin_interface.holder import PathHolder, FileHolder
+from suplex.martin_interface.holder import PathHolder, FileHolder
 
 
 class TestHolders:

@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import List, Any
 
-from suplex_modules.vanilla.overview_heatmap import OverviewHeatmapModule
+from suplex.suplex_modules.vanilla.overview_heatmap import OverviewHeatmapModule
 
 
 # =============================================================================
@@ -55,8 +55,8 @@ class TestIntegrationOverviewHeatmapModule:
     # Module lifecycle
     # -------------------------------------------------------------------------
 
-    @patch("suplex_modules.vanilla.overview_heatmap.WidgetFactory")
-    @patch("suplex_modules.vanilla.overview_heatmap.ValueExtractor")
+    @patch("suplex.suplex_modules.vanilla.overview_heatmap.WidgetFactory")
+    @patch("suplex.suplex_modules.vanilla.overview_heatmap.ValueExtractor")
     def test_initiate_module_creates_ui(
         self,
         mock_value_extractor: MagicMock,

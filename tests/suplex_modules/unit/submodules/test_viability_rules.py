@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import Mock
 
-from suplex_modules.submodules.viability_rules import (
+from suplex.suplex_modules.submodules.viability_rules import (
     no_datasets_selected,
     has_insufficient_number_of_datasets,
     has_insufficient_number_of_samples,

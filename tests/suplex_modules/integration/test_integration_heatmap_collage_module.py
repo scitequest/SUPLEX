@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from typing import List, Any
 
-from suplex_modules.vanilla.heatmap_collage import OverviewHeatmapModule
+from suplex.suplex_modules.vanilla.heatmap_collage import OverviewHeatmapModule
 
 
 class TestIntegrationHeatmapCollageModule:
@@ -23,14 +23,14 @@ class TestIntegrationHeatmapCollageModule:
     # Viability
     # -------------------------------------------------------------------------
 
-    @patch("suplex_modules.vanilla.heatmap_collage.has_negative_values", return_value=False)
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.has_negative_values", return_value=False)
     def test_check_if_viable_passes_on_good_datasets(
         self, mock_has_negative, positive_uniform_datasets: List[Any]
     ) -> None:
         module = OverviewHeatmapModule()
         assert module.check_if_viable(positive_uniform_datasets) is True
 
-    @patch("suplex_modules.vanilla.heatmap_collage.has_negative_values", return_value=True)
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.has_negative_values", return_value=True)
     def test_check_if_viable_fails_on_negative_values(
         self, mock_has_negative, negative_value_dataset: Any
     ) -> None:
@@ -41,10 +41,10 @@ class TestIntegrationHeatmapCollageModule:
     # Module lifecycle
     # -------------------------------------------------------------------------
 
-    @patch("suplex_modules.vanilla.heatmap_collage.WidgetFactory")
-    @patch("suplex_modules.vanilla.heatmap_collage.Collage")
-    @patch("suplex_modules.vanilla.heatmap_collage.DatasetSorter")
-    @patch("suplex_modules.vanilla.heatmap_collage.DatasetFilter")
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.WidgetFactory")
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.Collage")
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.DatasetSorter")
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.DatasetFilter")
     def test_initiate_module_creates_ui_without_crashing(
         self,
         mock_dataset_filter: MagicMock,
@@ -88,7 +88,7 @@ class TestIntegrationHeatmapCollageModule:
     # Export helpers
     # -------------------------------------------------------------------------
 
-    @patch("suplex_modules.vanilla.heatmap_collage.ExcelAdapter", create=True)
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.ExcelAdapter", create=True)
     def test_export_overview_sheet_smoke(
         self, mock_excel_adapter: MagicMock, positive_uniform_datasets: List[Any]
     ) -> None:

@@ -1,7 +1,7 @@
 import pytest
 from enum import Enum
 
-from ui.ui_constants import PAGE, SCHEME_FIELDS
+from suplex.ui.ui_constants import PAGE, SCHEME_FIELDS
 
 
 class TestUIConstants:

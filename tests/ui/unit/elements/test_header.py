@@ -4,7 +4,7 @@ import base64
 
 import ipywidgets as widgets
 
-from src.ui.elements.header import Header
+from suplex.ui.elements.header import Header
 
 
 class TestHeader:
@@ -70,7 +70,7 @@ class TestHeader:
     # -------------------------------------------------------------------------
     # Theme dropdown
     # -------------------------------------------------------------------------
-    @patch("src.ui.elements.header.widgets")
+    @patch("suplex.ui.elements.header.widgets")
     def test_update_theme_dropdown(self, mock_widgets, header):
         """update_theme_dropdown() creates a Dropdown with all available schemes."""
         mock_dropdown = Mock()
@@ -84,7 +84,7 @@ class TestHeader:
         assert call_kwargs["value"] == "Default"
         mock_dropdown.observe.assert_called_once()
 
-    @patch("src.ui.elements.header.widgets")
+    @patch("suplex.ui.elements.header.widgets")
     def test_theme_change_handler(self, mock_widgets, header):
         """Changing the theme updates selected_scheme, rebuilds UI, and notifies GUI."""
         mock_dropdown = Mock()
@@ -107,7 +107,7 @@ class TestHeader:
 
     def test_theme_change_same_theme_is_noop(self, header):
         """Selecting the same theme again does nothing (early return)."""
-        with patch("src.ui.elements.header.widgets") as mock_widgets:
+        with patch("suplex.ui.elements.header.widgets") as mock_widgets:
             mock_dropdown = Mock()
             mock_dropdown.value = "Default"
             mock_widgets.Dropdown.return_value = mock_dropdown
@@ -128,8 +128,8 @@ class TestHeader:
     # -------------------------------------------------------------------------
     # UI building
     # -------------------------------------------------------------------------
-    @patch("src.ui.elements.header.widgets")
-    @patch("src.ui.elements.header.get_header_styles")
+    @patch("suplex.ui.elements.header.widgets")
+    @patch("suplex.ui.elements.header.get_header_styles")
     def test_update_ui_element(self, mock_styles, mock_widgets, header):
         """update_ui_element() assembles the complete header layout with all sections."""
         mock_html = Mock()
@@ -152,8 +152,8 @@ class TestHeader:
         header.update_theme_dropdown.assert_called_once()
         assert header._ui is not None
 
-    @patch("src.ui.elements.header.VERSION_NUMBER", "1.0.0")
-    @patch("src.ui.elements.header.widgets")
+    @patch("suplex.ui.elements.header.VERSION_NUMBER", "1.0.0")
+    @patch("suplex.ui.elements.header.widgets")
     def test_version_display(self, mock_widgets, header):
         """Version number is correctly rendered in the header."""
         mock_html = Mock()
@@ -171,7 +171,7 @@ class TestHeader:
         )
         assert version_found
 
-    @patch("src.ui.elements.header.widgets")
+    @patch("suplex.ui.elements.header.widgets")
     def test_social_links_creation(self, mock_widgets, header):
         """Social media links (X, GitHub, MARTin) are present in the generated HTML."""
         mock_html = Mock()
