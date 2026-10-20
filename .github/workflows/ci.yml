@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+    tags: ["v*"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: uv sync --locked --group dev
+      - name: Lint
+        run: |
+          uv run ruff check
+          uv run ruff format --check
+      - name: Test
+        run: uv run pytest --no-cov -p no:cacheprovider
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Build sdist and wheel
+        run: uv build
+      - name: Smoke test the installed tool
+        run: |
+          uv tool install dist/*.whl
+          suplex --version
+          suplex --help
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-distributions
+          path: dist/*
+
+  pyapp:
+    # Self-installing single-file executables; built for releases only.
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build wheel
+        run: uv build --wheel
+      - name: Build PyApp executable
+        run: uv run --no-project python packaging/pyapp/build.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: suplex-pyapp-${{ matrix.os }}
+          path: dist/pyapp/*
+
+  windows-installer:
+    # PyInstaller bundle wrapped in an Inno Setup installer; built for releases only.
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install
+        run: uv sync --locked --group build
+      - name: Build bundle
+        run: uv run pyinstaller --noconfirm --distpath dist --workpath build packaging/windows/suplex.spec
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+      - name: Build installer
+        run: '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" packaging\windows\suplex.iss'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: suplex-windows-installer
+          path: packaging/windows/output/*.exe
