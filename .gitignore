@@ -87,3 +87,5 @@ htmlcov/
 
 # Optional: Ignore build artifacts
 artifacts/
+# Inno Setup output
+packaging/windows/output/
