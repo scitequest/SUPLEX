@@ -20,8 +20,8 @@ import tomllib
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-PYAPP_VERSION = "0.29.0"
-PYTHON_VERSION = "3.13"
+PYAPP_VERSION = "0.30.0"
+PYTHON_VERSION = "3.14"
 
 
 def project_metadata() -> tuple[str, str]:
