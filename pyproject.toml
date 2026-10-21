@@ -25,7 +25,6 @@ classifiers = [
 ]
 dependencies = [
     "ipyevents>=2.0",
-    "ipyfilechooser>=0.6",
     "ipykernel>=6.29",
     "ipywidgets>=8.0",
     "isodate>=0.6",

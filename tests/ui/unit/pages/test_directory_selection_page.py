@@ -84,27 +84,22 @@ class TestDirectorySelectionPage:
         subtitle_call = mock_factory.html_widget.call_args_list[1]
         assert "@keyframes fadeInOut" in subtitle_call[1]["value"]
 
-    @patch("suplex.ui.pages.directory_selection_page.FileChooser")
     @patch("suplex.ui.pages.directory_selection_page.WidgetFactory")
-    def test_create_path_section(self, mock_factory, mock_chooser_class, dir_selection_page):
-        """create_path_section() shows current path and the directory chooser."""
+    def test_create_path_section(self, mock_factory, dir_selection_page):
+        """create_path_section() shows current path and the Select Directory button."""
         dir_selection_page._selected_path = "/test/path"
-
+    
         mock_html = Mock()
-        mock_chooser = Mock()
+        mock_button = Mock()
         mock_factory.html_widget.return_value = mock_html
-        mock_chooser_class.return_value = mock_chooser
+        mock_factory.button_emphasis.return_value = mock_button
         mock_factory.info_field_default.return_value = Mock()
         mock_factory.hbox.return_value = Mock()
-
+    
         result = dir_selection_page.create_path_section()
-
+    
         mock_factory.html_widget.assert_called_with(value="/test/path", width="auto", height="auto")
-        mock_chooser_class.assert_called_once()
-        assert mock_chooser_class.call_args[1]["show_only_dirs"] is True
-        mock_chooser.register_callback.assert_called_once_with(
-            dir_selection_page.on_directory_chosen
-        )
+        mock_factory.button_emphasis.assert_called_once()
 
     @patch("suplex.ui.pages.directory_selection_page.WidgetFactory")
     def test_create_search_options_section(self, mock_factory, dir_selection_page):
@@ -151,27 +146,36 @@ class TestDirectorySelectionPage:
     # -------------------------------------------------------------------------
     # Directory Dialog & Search
     # -------------------------------------------------------------------------
-    def test_on_directory_chosen_success(self, dir_selection_page):
+    @patch("suplex.ui.pages.directory_selection_page.tk")
+    @patch("suplex.ui.pages.directory_selection_page.filedialog")
+    def test_open_directory_dialog_success(self, mock_filedialog, mock_tk, dir_selection_page):
         """Successful directory selection updates path and triggers search."""
-        chooser = Mock(selected_path="/new/selected/path")
-
+        mock_root = Mock()
+        mock_tk.Tk.return_value = mock_root
+        mock_filedialog.askdirectory.return_value = "/new/selected/path"
+    
         dir_selection_page._path_display = Mock()
         dir_selection_page.search_dir = Mock()
-
-        dir_selection_page.on_directory_chosen(chooser)
-
+    
+        dir_selection_page.open_directory_dialog()
+    
         assert dir_selection_page._selected_path == "/new/selected/path"
         assert dir_selection_page._path_display.value == "/new/selected/path"
         dir_selection_page.search_dir.assert_called_once()
-
-    def test_on_directory_chosen_cancelled(self, dir_selection_page):
-        """A chooser without a selection does nothing."""
-        chooser = Mock(selected_path=None)
-
+        mock_root.destroy.assert_called_once()
+    
+    @patch("suplex.ui.pages.directory_selection_page.tk")
+    @patch("suplex.ui.pages.directory_selection_page.filedialog")
+    def test_open_directory_dialog_cancelled(self, mock_filedialog, mock_tk, dir_selection_page):
+        """Cancelled dialog does nothing."""
+        mock_root = Mock()
+        mock_tk.Tk.return_value = mock_root
+        mock_filedialog.askdirectory.return_value = ""
+    
         dir_selection_page.search_dir = Mock()
-
-        dir_selection_page.on_directory_chosen(chooser)
-
+    
+        dir_selection_page.open_directory_dialog()
+    
         dir_selection_page.search_dir.assert_not_called()
 
     @patch("suplex.ui.pages.directory_selection_page.os.path.exists")

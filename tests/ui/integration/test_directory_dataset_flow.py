@@ -27,20 +27,27 @@ class TestDirectoryDatasetFlow:
         assert page._n_datasets == 0
         assert page._n_projects == 0
 
-    def test_directory_chosen_and_search(self, dir_selection_page, mock_adapter_with_data):
-        """Selecting a directory in the chooser triggers search and notifies Navigator."""
-        chooser = Mock(selected_path="/valid/dataset/path")
-
+    @patch("suplex.ui.pages.directory_selection_page.tk")
+    @patch("suplex.ui.pages.directory_selection_page.filedialog")
+    def test_directory_chosen_and_search(
+        self, mock_filedialog, mock_tk, dir_selection_page, mock_adapter_with_data
+    ):
+        """Selecting a directory via the dialog triggers search and notifies Navigator."""
+        mock_root = Mock()
+        mock_tk.Tk.return_value = mock_root
+        mock_filedialog.askdirectory.return_value = "/valid/dataset/path"
+    
         with patch("suplex.ui.pages.directory_selection_page.Adapter") as mock_adapter_class:
             mock_adapter_class.return_value = mock_adapter_with_data
-
+    
             dir_selection_page._path_display = Mock()
             dir_selection_page.search_dir = Mock()
-
-            dir_selection_page.on_directory_chosen(chooser)
-
+    
+            dir_selection_page.open_directory_dialog()
+    
             assert dir_selection_page._selected_path == "/valid/dataset/path"
             dir_selection_page.search_dir.assert_called_once()
+            mock_root.destroy.assert_called_once()
 
     @patch("suplex.ui.pages.directory_selection_page.Adapter")
     @patch("os.path.exists")

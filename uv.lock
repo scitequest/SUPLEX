@@ -1032,18 +1032,6 @@ wheels = [
 ]
 
 [[package]]
-name = "ipyfilechooser"
-version = "0.6.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "ipywidgets" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/13/63/a0bfdda0cdf002421632734e203e4692d72dc4e71cd006f101c90f9ba6d3/ipyfilechooser-0.6.0.tar.gz", hash = "sha256:41df9e4395a924f8e1b78e2804dbe5066dc3fdc233fb07fecfcdc2a0c9a7d8d3", size = 12737, upload-time = "2021-09-15T22:31:56.261Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/00/60/249e3444fcd9c833704741769981cd02fe2c7ce94126b1394e7a3b26e543/ipyfilechooser-0.6.0-py3-none-any.whl", hash = "sha256:4555c24b30b819c91dc0ae5e6f7e4cf8f90e5cca531a9209a1fe4deee288d5c5", size = 11039, upload-time = "2021-09-15T22:31:55.152Z" },
-]
-
-[[package]]
 name = "ipykernel"
 version = "7.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3350,7 +3338,6 @@ version = "0.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "ipyevents" },
-    { name = "ipyfilechooser" },
     { name = "ipykernel" },
     { name = "ipywidgets" },
     { name = "isodate" },
@@ -3383,7 +3370,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "ipyevents", specifier = ">=2.0" },
-    { name = "ipyfilechooser", specifier = ">=0.6" },
     { name = "ipykernel", specifier = ">=6.29" },
     { name = "ipywidgets", specifier = ">=8.0" },
     { name = "isodate", specifier = ">=0.6" },

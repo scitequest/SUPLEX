@@ -1,18 +1,20 @@
 import logging
 import os
-from typing import TYPE_CHECKING
+import tkinter as tk
+from pathlib import Path
+from tkinter import filedialog
+from typing import TYPE_CHECKING, Optional
 
 import ipywidgets as widgets
-from ipyfilechooser import FileChooser
-from ipyfilechooser.errors import InvalidPathError
 
-from suplex.martin_interface.martin_adapter import Adapter
-from suplex.martin_interface.martin_interface_constants import (
-    MARTIN_MEASURE_DIR_DEPTH,
-    SEARCH_MODE,
-)
 from suplex.paths import sample_data_dir
+from suplex.martin_interface.martin_interface_constants import (
+    SEARCH_MODE,
+    MARTIN_MEASURE_DIR_DEPTH,
+)
+from suplex.martin_interface.martin_adapter import Adapter
 from suplex.ui.widget_factory import WidgetFactory
+from suplex.ui.styles.color_utils import hex_to_rgba
 
 if TYPE_CHECKING:
     from suplex.ui.elements.navigator import Navigator
@@ -243,15 +245,16 @@ class DirectorySelectionPage:
             layout=widgets.Layout(padding="0px 0px 0px 12px"),
         )
 
-        dir_chooser = self.create_directory_chooser()
-
+        dir_selector_button = WidgetFactory.button_emphasis(
+            description="Select Directory", width="150px", height="100%"
+        )
+        dir_selector_button.on_click(lambda x: self.open_directory_dialog())
+        
         path_row = WidgetFactory.hbox(
-            children=[path_container, dir_chooser],
+            children=[path_container, dir_selector_button],
             align_items="stretch",
             justify_content="center",
             width="100%",
-            height="50px",
-            overflow="hidden",
         )
 
         return path_row
@@ -374,57 +377,44 @@ class DirectorySelectionPage:
             overflow="hidden",
         )
 
-    def create_directory_chooser(self) -> FileChooser:
+    def open_directory_dialog(self) -> None:
         """
-        Create the in-browser directory chooser.
-
-        The chooser lists directories of the machine running SUPLEX, which works
-        both for local installations and hosted deployments.
-
-        Returns:
-            FileChooser widget restricted to directories
+        Open a directory selection dialog and handle the result.
+    
+        Uses tkinter file dialog to allow users to select a directory.
+        Updates the selected path and triggers directory search.
         """
-        home_dir = os.path.expanduser("~")
-        initial_dir = self._selected_path or home_dir
+        logger.debug("Opening directory selection dialog")
+    
         try:
-            chooser = self._new_file_chooser(initial_dir)
-        except (OSError, InvalidPathError):
-            # The remembered directory is gone or unreadable; start from home instead.
-            logger.warning(
-                "Cannot list directory %s, starting chooser at %s", initial_dir, home_dir
+            root = tk.Tk()
+            root.withdraw()  # Hide the main tkinter window
+            root.attributes("-topmost", True)  # Bring dialog to front
+    
+            # Set initial directory to last selected path if valid, else default to user home
+            initial_dir = (
+                self._selected_path
+                if self._selected_path and os.path.exists(self._selected_path)
+                else os.path.expanduser("~")
             )
-            chooser = self._new_file_chooser(home_dir)
-        chooser.register_callback(self.on_directory_chosen)
-        return chooser
-
-    @staticmethod
-    def _new_file_chooser(start_dir: str) -> FileChooser:
-        return FileChooser(
-            path=start_dir,
-            show_only_dirs=True,
-            select_desc="Select Directory",
-            change_desc="Change Directory",
-            layout=widgets.Layout(width="auto"),
-        )
-
-    def on_directory_chosen(self, chooser: FileChooser) -> None:
-        """
-        Handle a directory selected in the chooser.
-
-        Updates the selected path and triggers the directory search.
-
-        Args:
-            chooser: The chooser widget holding the selection
-        """
-        selected_dir = chooser.selected_path
-        if not selected_dir:
-            logger.debug("Directory selection cancelled by user")
-            return
-
-        self._selected_path = selected_dir
-        self._path_display.value = selected_dir
-        logger.info("Directory selected: %s", selected_dir)
-        self.search_dir()
+    
+            selected_dir = filedialog.askdirectory(
+                title="Select Directory",
+                initialdir=initial_dir
+            )
+    
+            root.destroy()  # Clean up tkinter root
+    
+            if selected_dir:
+                self._selected_path = selected_dir
+                self._path_display.value = selected_dir
+                logger.info("Directory selected via dialog: %s", selected_dir)
+                self.search_dir()
+            else:
+                logger.debug("Directory selection cancelled by user")
+    
+        except Exception as e:
+            logger.error("Error opening directory dialog: %s", e, exc_info=True)
 
     def search_dir(self) -> None:
         """
