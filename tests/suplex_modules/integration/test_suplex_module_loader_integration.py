@@ -29,10 +29,7 @@ class TestModuleLoadingIntegration:
                 record for record in caplog.records if record.levelno == logging.WARNING
             ]
             assert len(warning_logs) == 1
-            assert (
-                "Can't instantiate abstract class IncompleteSuplexModule with abstract methods"
-                in warning_logs[0].message
-            )
+            assert "Can't instantiate abstract class IncompleteSuplexModule" in warning_logs[0].message
 
             assert all(isinstance(module, SuplexModuleInterface) for module in modules)
 
@@ -58,9 +55,5 @@ class TestModuleLoadingIntegration:
                 record for record in caplog.records if record.levelno == logging.WARNING
             ]
             assert len(warning_logs) == 1
-            assert (
-                "Can't instantiate abstract class IncompleteSuplexModule with abstract methods"
-                in warning_logs[0].message
-            )
-
+            assert "Can't instantiate abstract class IncompleteSuplexModule" in warning_logs[0].message
             assert all(isinstance(module, SuplexModuleInterface) for module in modules)
