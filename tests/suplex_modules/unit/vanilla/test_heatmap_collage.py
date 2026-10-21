@@ -1,13 +1,10 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-import numpy as np
-import pandas as pd
-import ipywidgets as widgets
-from PIL import Image
+from unittest.mock import Mock, patch
 
-from suplex_modules.vanilla.heatmap_collage import OverviewHeatmapModule
-from src.martin_interface.dataset import Dataset
-from suplex_modules.submodules.submodule_constants import DATASET_LABEL, NORMALIZATION
+import numpy as np
+
+from suplex.martin_interface.dataset import Dataset
+from suplex.suplex_modules.submodules.submodule_constants import NORMALIZATION
+from suplex.suplex_modules.vanilla.heatmap_collage import OverviewHeatmapModule
 
 
 class TestHeatmapCollage:
@@ -57,18 +54,19 @@ class TestHeatmapCollage:
         module = OverviewHeatmapModule()
         with (
             patch(
-                "suplex_modules.submodules.viability_rules.has_negative_values", return_value=False
-            ),
-            patch(
-                "suplex_modules.submodules.viability_rules.has_negative_data_values",
+                "suplex.suplex_modules.submodules.viability_rules.has_negative_values",
                 return_value=False,
             ),
             patch(
-                "suplex_modules.submodules.viability_rules.has_negative_data_statistics_values",
+                "suplex.suplex_modules.submodules.viability_rules.has_negative_data_values",
                 return_value=False,
             ),
             patch(
-                "suplex_modules.submodules.viability_rules.has_negative_spot_coordinates",
+                "suplex.suplex_modules.submodules.viability_rules.has_negative_data_statistics_values",
+                return_value=False,
+            ),
+            patch(
+                "suplex.suplex_modules.submodules.viability_rules.has_negative_spot_coordinates",
                 return_value=False,
             ),
         ):
@@ -79,7 +77,8 @@ class TestHeatmapCollage:
         """Module is NOT viable and updates hover text when no datasets are selected."""
         module = OverviewHeatmapModule()
         with patch(
-            "suplex_modules.submodules.viability_rules.no_datasets_selected", return_value=True
+            "suplex.suplex_modules.submodules.viability_rules.no_datasets_selected",
+            return_value=True,
         ):
             assert module.check_if_viable([]) is False
             assert "no datasets" in module.get_module_hover_text().lower()
@@ -89,7 +88,8 @@ class TestHeatmapCollage:
         module = OverviewHeatmapModule()
         bad_datasets = [datasets_with_issues[2]]
         with patch(
-            "suplex_modules.submodules.viability_rules.has_negative_values", return_value=True
+            "suplex.suplex_modules.submodules.viability_rules.has_negative_values",
+            return_value=True,
         ):
             assert module.check_if_viable(bad_datasets) is False
             assert "negative value" in module.get_module_hover_text().lower()
@@ -165,14 +165,14 @@ class TestHeatmapCollage:
     # -------------------------------------------------------------------------
     # UI / Initiate Smoke Test
     # -------------------------------------------------------------------------
-    @patch("suplex_modules.vanilla.heatmap_collage.WidgetFactory")
-    @patch("suplex_modules.vanilla.heatmap_collage.ValueExtractor")
-    @patch("suplex_modules.vanilla.heatmap_collage.DatasetSorter")
-    @patch("suplex_modules.vanilla.heatmap_collage.DatasetFilter")
-    @patch("suplex_modules.vanilla.heatmap_collage.SampleSpotFilter")
-    @patch("suplex_modules.vanilla.heatmap_collage.Collage")
-    @patch("suplex_modules.vanilla.heatmap_collage.HeatmapSettings")
-    @patch("suplex_modules.vanilla.heatmap_collage.GeneralGraphSettings")
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.WidgetFactory")
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.ValueExtractor")
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.DatasetSorter")
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.DatasetFilter")
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.SampleSpotFilter")
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.Collage")
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.HeatmapSettings")
+    @patch("suplex.suplex_modules.vanilla.heatmap_collage.GeneralGraphSettings")
     def test_initiate_module_smoke(
         self,
         mock_general_graph_settings,
@@ -207,9 +207,7 @@ class TestHeatmapCollage:
         mock_value_extractor.return_value = Mock()
         mock_value_extractor.return_value.get_ui.return_value = Mock()
         mock_value_extractor.return_value.get_active_widgets.return_value = [Mock()]
-        mock_value_extractor.return_value.get_reference_selector.return_value.get_ref_container.return_value = (
-            Mock()
-        )
+        mock_value_extractor.return_value.get_reference_selector.return_value.get_ref_container.return_value = Mock()
         mock_value_extractor.return_value.attribute = Mock()
         mock_value_extractor.return_value.normalization = NORMALIZATION.RAW
         mock_value_extractor.return_value.references = []
@@ -242,9 +240,9 @@ class TestHeatmapCollage:
 
         # Prevent RuntimeWarning from np.nanmean / nanmin / nanmax on empty mock data in update_overview
         with (
-            patch("suplex_modules.vanilla.heatmap_collage.np.nanmean", return_value=0.0),
-            patch("suplex_modules.vanilla.heatmap_collage.np.nanmin", return_value=0.0),
-            patch("suplex_modules.vanilla.heatmap_collage.np.nanmax", return_value=0.0),
+            patch("suplex.suplex_modules.vanilla.heatmap_collage.np.nanmean", return_value=0.0),
+            patch("suplex.suplex_modules.vanilla.heatmap_collage.np.nanmin", return_value=0.0),
+            patch("suplex.suplex_modules.vanilla.heatmap_collage.np.nanmax", return_value=0.0),
         ):
             ui = module.initiate_module(mock_datasets, mock_color_scheme)
 

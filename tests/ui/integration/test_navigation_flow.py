@@ -1,10 +1,8 @@
-import pytest
 from unittest.mock import Mock, patch
 
-import ipywidgets as widgets
+import pytest
 
-from src.ui.elements.navigator import Navigator
-from ui.ui_constants import PAGE
+from suplex.ui.ui_constants import PAGE
 
 
 class TestNavigationFlow:
@@ -123,7 +121,7 @@ class TestNavigationFlow:
         navigator._back_button = Mock()
         navigator._forward_button = Mock()
 
-        with patch("src.ui.elements.navigator.get_navigator_styles"):
+        with patch("suplex.ui.elements.navigator.get_navigator_styles"):
             navigator.update_scheme(alt_mock_scheme)
 
         assert navigator._scheme == alt_mock_scheme

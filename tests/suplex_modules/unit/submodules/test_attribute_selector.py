@@ -1,19 +1,19 @@
-import pytest
 from unittest.mock import Mock, patch
-import ipywidgets as widgets
 
-from suplex_modules.submodules.attribute_selector import (
-    extract_value_list_from_dataset,
-    get_flat_value_list,
-    flatten_list,
+import ipywidgets as widgets
+import pytest
+
+from suplex.martin_interface.dataset import Dataset
+from suplex.suplex_modules.submodules.attribute_selector import (
     AttributeSelector,
+    extract_value_list_from_dataset,
+    flatten_list,
+    get_flat_value_list,
 )
-from suplex_modules.submodules.submodule_constants import (
-    DATASET_ATTRIBUTE,
+from suplex.suplex_modules.submodules.submodule_constants import (
     DATA_ATTRIBUTES,
-    DATA_STATISTICS_ATTRIBUTES,
+    DATASET_ATTRIBUTE,
 )
-from src.martin_interface.dataset import Dataset
 
 
 class TestAttributeSelector:
@@ -59,7 +59,9 @@ class TestAttributeSelector:
 
     def test_extract_value_list_from_dataset_unknown_attribute(self, mock_dataset):
         """Test handling of unknown attribute (should log warning and return empty)."""
-        with patch("suplex_modules.submodules.attribute_selector.logger.warning") as mock_warning:
+        with patch(
+            "suplex.suplex_modules.submodules.attribute_selector.logger.warning"
+        ) as mock_warning:
             values = extract_value_list_from_dataset(mock_dataset, Mock(value="UNKNOWN"))
             assert values == []
             mock_warning.assert_called()
@@ -67,7 +69,7 @@ class TestAttributeSelector:
     def test_get_flat_value_list(self, mock_nested_value_list):
         """Test flattening of nested value lists returned by extract_value_list_from_dataset."""
         with patch(
-            "suplex_modules.submodules.attribute_selector.extract_value_list_from_dataset",
+            "suplex.suplex_modules.submodules.attribute_selector.extract_value_list_from_dataset",
             return_value=mock_nested_value_list,
         ):
             flat = get_flat_value_list(Mock(), DATASET_ATTRIBUTE.MEAN_MINUS_MIN)

@@ -1,11 +1,9 @@
-import pytest
-from abc import ABC, abstractmethod
-from typing import Dict, List, Any
-import ipywidgets as widgets
 import inspect
 
-from suplex_modules.suplex_module_interface import SuplexModuleInterface
-from martin_interface.dataset import Dataset
+import ipywidgets as widgets
+import pytest
+
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 
 
 class TestSuplexModuleInterface:

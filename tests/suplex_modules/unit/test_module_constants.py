@@ -1,19 +1,17 @@
-import pytest
-import os
 from pathlib import Path
 
-from suplex_modules.module_constants import (
+from suplex.suplex_modules.module_constants import (
+    DEFAULT_IGNORE_DIRS,
+    DEFAULT_IGNORE_EXTENSIONS,
+    DEFAULT_IGNORE_FILES,
     DEFAULT_MODULE_DIRECTORY,
     DEFAULT_SEARCH_DEPTH,
+    FILE,
+    IMAGE_EXTENSIONS,
+    SEARCH_MODE,
     STANDARD_READOUT_FILE_TYPE,
     TOLERANCE,
     VANILLA_MODULE,
-    SEARCH_MODE,
-    FILE,
-    IMAGE_EXTENSIONS,
-    DEFAULT_IGNORE_DIRS,
-    DEFAULT_IGNORE_FILES,
-    DEFAULT_IGNORE_EXTENSIONS,
 )
 
 

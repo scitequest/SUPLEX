@@ -1,9 +1,9 @@
-import pytest
 from unittest.mock import Mock, patch
 
 import ipywidgets as widgets
+import pytest
 
-from src.ui.gui import GUI
+from suplex.ui.gui import GUI
 
 
 class TestGUIIntegration:

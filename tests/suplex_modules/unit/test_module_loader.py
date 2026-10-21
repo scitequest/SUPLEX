@@ -1,28 +1,24 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-import os
 from pathlib import Path
-import ast
-import io
+from unittest.mock import MagicMock, Mock, patch
 
-from suplex_modules.module_loader import (
-    load_modules,
+from suplex.suplex_modules.module_constants import (
+    DEFAULT_IGNORE_DIRS,
+    DEFAULT_IGNORE_EXTENSIONS,
+    DEFAULT_IGNORE_FILES,
+    SEARCH_MODE,
+)
+from suplex.suplex_modules.module_loader import (
     delve_dirs,
-    sweep_dirs,
-    should_ignore_directory,
-    should_ignore_file,
-    should_collect_at_depth,
-    try_get_module,
     has_suplex_interface_classes,
     is_valid_suplex_module_class,
+    load_modules,
+    should_collect_at_depth,
+    should_ignore_directory,
+    should_ignore_file,
+    sweep_dirs,
+    try_get_module,
 )
-from suplex_modules.module_constants import (
-    SEARCH_MODE,
-    DEFAULT_IGNORE_DIRS,
-    DEFAULT_IGNORE_FILES,
-    DEFAULT_IGNORE_EXTENSIONS,
-)
-from suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 
 
 class TestModuleLoader:
@@ -34,10 +30,11 @@ class TestModuleLoader:
     def test_load_modules_recursive_mode(self, mock_scandir_entry):
         """load_modules with RECURSIVE mode collects files via delve_dirs and instantiates modules."""
         with (
-            patch("suplex_modules.module_loader.delve_dirs") as mock_delve,
-            patch("suplex_modules.module_loader.try_get_module", return_value=[Mock()]) as mock_try,
+            patch("suplex.suplex_modules.module_loader.delve_dirs") as mock_delve,
+            patch(
+                "suplex.suplex_modules.module_loader.try_get_module", return_value=[Mock()]
+            ) as mock_try,
         ):
-
             mock_delve.side_effect = lambda *a, **k: k["files"].update(["/test/module1.py"])
 
             result = load_modules(dir_path="/test", mode=SEARCH_MODE.RECURSIVE)
@@ -54,10 +51,11 @@ class TestModuleLoader:
             SEARCH_MODE.ITERATIVE_UNBOUND,
         ]:
             with (
-                patch("suplex_modules.module_loader.sweep_dirs") as mock_sweep,
-                patch("suplex_modules.module_loader.try_get_module", return_value=[]) as mock_try,
+                patch("suplex.suplex_modules.module_loader.sweep_dirs") as mock_sweep,
+                patch(
+                    "suplex.suplex_modules.module_loader.try_get_module", return_value=[]
+                ) as mock_try,
             ):
-
                 mock_sweep.return_value = set()
                 load_modules(dir_path="/test", mode=mode, max_depth=2)
                 mock_sweep.assert_called_once()
@@ -65,10 +63,9 @@ class TestModuleLoader:
     def test_load_modules_with_empty_modules(self, mock_scandir_entry):
         """load_modules returns empty list when try_get_module returns no valid modules."""
         with (
-            patch("suplex_modules.module_loader.delve_dirs") as mock_delve,
-            patch("suplex_modules.module_loader.try_get_module", return_value=[]),
+            patch("suplex.suplex_modules.module_loader.delve_dirs") as mock_delve,
+            patch("suplex.suplex_modules.module_loader.try_get_module", return_value=[]),
         ):
-
             mock_delve.side_effect = lambda *a, **k: k["files"].update(["/test/empty.py"])
 
             result = load_modules(dir_path="/test")
@@ -193,10 +190,15 @@ class TestModuleLoader:
         fake_module.TestModule = test_suplex_module.__class__
 
         with (
-            patch("suplex_modules.module_loader.has_suplex_interface_classes", return_value=True),
-            patch("suplex_modules.module_loader.is_valid_suplex_module_class", return_value=True),
+            patch(
+                "suplex.suplex_modules.module_loader.has_suplex_interface_classes",
+                return_value=True,
+            ),
+            patch(
+                "suplex.suplex_modules.module_loader.is_valid_suplex_module_class",
+                return_value=True,
+            ),
         ):
-
             mock_spec = MagicMock()
             mock_spec.loader = Mock()
 
@@ -208,14 +210,15 @@ class TestModuleLoader:
                     return_value=[("TestModule", test_suplex_module.__class__)],
                 ),
             ):
-
                 modules = try_get_module("/fake/test_module.py")
                 assert len(modules) == 1
                 assert isinstance(modules[0], test_suplex_module.__class__)
 
     def test_try_get_module_invalid_file(self):
         """try_get_module returns empty list for files without a SuplexModuleInterface."""
-        with patch("suplex_modules.module_loader.has_suplex_interface_classes", return_value=False):
+        with patch(
+            "suplex.suplex_modules.module_loader.has_suplex_interface_classes", return_value=False
+        ):
             assert try_get_module("/fake/invalid.py") == []
 
     def test_is_valid_suplex_module_class(self, test_suplex_module):

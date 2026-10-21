@@ -1,9 +1,10 @@
-import pytest
-from unittest.mock import Mock, patch
-import ipywidgets as widgets
 from datetime import date
+from unittest.mock import Mock, patch
 
-from src.ui.widget_factory import WidgetFactory
+import ipywidgets as widgets
+import pytest
+
+from suplex.ui.widget_factory import WidgetFactory
 
 
 class TestWidgetFactory:

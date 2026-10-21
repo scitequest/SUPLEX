@@ -1,12 +1,9 @@
-import pytest
 import ipywidgets as widgets
 
-from suplex_modules.submodules.settings.heatmap_settings import HeatmapSettings
-from suplex_modules.submodules.settings.submodule_settings_constants import (
+from suplex.suplex_modules.submodules.settings.heatmap_settings import HeatmapSettings
+from suplex.suplex_modules.submodules.settings.submodule_settings_constants import (
     ANNOTATION_COLOR,
     LINE_COLOR,
-    CBAR_ORIENTATION,
-    CBAR_TICK_MODE,
 )
 
 

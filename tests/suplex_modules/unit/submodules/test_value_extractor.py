@@ -1,21 +1,19 @@
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+
 import ipywidgets as widgets
 
-from suplex_modules.submodules.value_extractor import (
+from suplex.suplex_modules.submodules.submodule_constants import (
+    DATASET_ATTRIBUTE,
+    NORMALIZATION,
+)
+from suplex.suplex_modules.submodules.value_extractor import (
+    ValueExtractor,
+    apply_normalization,
     extract_value_list_from_dataset,
     flatten_list,
     get_flat_value_list,
-    apply_normalization,
-    normalize_by_factor,
     get_reference_statistics,
-    reference_normalization,
-    ValueExtractor,
-    ReferencePointSelector,
-)
-from suplex_modules.submodules.submodule_constants import (
-    DATASET_ATTRIBUTE,
-    NORMALIZATION,
+    normalize_by_factor,
 )
 
 

@@ -1,6 +1,4 @@
-import pytest
-
-from src.martin_interface.dataset import Dataset
+from suplex.martin_interface.dataset import Dataset
 
 
 class TestModuleLaunchEdgeCases:

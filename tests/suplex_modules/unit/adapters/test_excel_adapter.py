@@ -1,11 +1,6 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-import numpy as np
-import ipywidgets as widgets
-from pathlib import Path
+from unittest.mock import Mock, patch
 
-from suplex_modules.adapters.excel_adapter import ExcelAdapter
-from src.martin_interface.dataset import Dataset
+from suplex.suplex_modules.adapters.excel_adapter import ExcelAdapter
 
 
 class TestExcelAdapter:
@@ -26,7 +21,7 @@ class TestExcelAdapter:
         assert style["font_color"] == "#FFFFFF"
         assert style["button_color"] == "#107C41"
         assert style["button_icon"] == "E"
-        
+
     def test_init_defaults(self):
         """Module initializes with sensible default state (empty datasets, default hover text, etc.)."""
         module = ExcelAdapter()
@@ -48,7 +43,8 @@ class TestExcelAdapter:
         """Module is NOT viable and updates hover text when no datasets are selected."""
         module = ExcelAdapter()
         with patch(
-            "suplex_modules.submodules.viability_rules.no_datasets_selected", return_value=True
+            "suplex.suplex_modules.submodules.viability_rules.no_datasets_selected",
+            return_value=True,
         ):
             assert module.check_if_viable([]) is False
             assert "no datasets" in module.get_module_hover_text().lower()
@@ -73,8 +69,8 @@ class TestExcelAdapter:
     # -------------------------------------------------------------------------
     # UI / Initiate Smoke Test
     # -------------------------------------------------------------------------
-    @patch("suplex_modules.adapters.excel_adapter.WidgetFactory")
-    @patch("suplex_modules.adapters.excel_adapter.ValueExtractor")
+    @patch("suplex.suplex_modules.adapters.excel_adapter.WidgetFactory")
+    @patch("suplex.suplex_modules.adapters.excel_adapter.ValueExtractor")
     def test_initiate_module_smoke(
         self,
         mock_value_extractor,
@@ -118,23 +114,33 @@ class TestExcelAdapter:
         module._conditional_formatting_overview_sheet = Mock(value=False)
         module._value_extractor = Mock()
         module._value_extractor.attribute = Mock(value="mean_val")
-    
+
         with (
-            patch("suplex_modules.adapters.excel_adapter.Workbook") as mock_wb,
-            patch("suplex_modules.adapters.excel_adapter.filedialog") as mock_filedialog,
-            patch("suplex_modules.adapters.excel_adapter.get_shortened_label") as mock_shorten,
+            patch("suplex.suplex_modules.adapters.excel_adapter.Workbook") as mock_wb,
+            patch("suplex.suplex_modules.adapters.excel_adapter.filedialog") as mock_filedialog,
+            patch("suplex.suplex_modules.adapters.excel_adapter.Tk") as mock_tk,
+            patch(
+                "suplex.suplex_modules.adapters.excel_adapter.get_shortened_label"
+            ) as mock_shorten,
             patch("builtins.open") as mock_open,
         ):
             mock_filedialog.asksaveasfilename.return_value = "/tmp/test.xlsx"
             mock_shorten.return_value = "test_sheet"
-    
+
+            # Prevent Tk() from trying to open a real display in CI
+            mock_tk.return_value.withdraw.return_value = None
+            mock_tk.return_value.lift.return_value = None
+            mock_tk.return_value.attributes.return_value = None
+            mock_tk.return_value.focus_force.return_value = None
+            mock_tk.return_value.destroy.return_value = None
+
             # Minimal mocks for openpyxl
             mock_ws = Mock()
             mock_wb.return_value.active = mock_ws
             mock_wb.return_value.remove.return_value = None
             mock_ws.columns = []
-    
+
             module.export_overview_sheet(attribute=module._value_extractor.attribute)
-    
+
             # Should reach file dialog and not crash
             mock_filedialog.asksaveasfilename.assert_called_once()

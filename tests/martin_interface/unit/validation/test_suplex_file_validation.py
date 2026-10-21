@@ -1,6 +1,6 @@
-import pytest
 from unittest.mock import patch
-from src.martin_interface.validation.suplex_file_validation import (
+
+from suplex.martin_interface.validation.suplex_file_validation import (
     try_get_validated_suplex_file,
     try_typecast_suplex_file,
 )
@@ -13,7 +13,7 @@ class TestSuplexFileValidation:
     # try_get_validated_suplex_file tests
     # -------------------------------------------------------------------------
 
-    @patch("src.martin_interface.validation.suplex_file_validation.try_get_valid_json")
+    @patch("suplex.martin_interface.validation.suplex_file_validation.try_get_valid_json")
     def test_try_get_validated_suplex_file_invalid_json(self, mock_json):
         """Returns None when the underlying JSON parsing fails."""
         mock_json.return_value = None
@@ -21,7 +21,7 @@ class TestSuplexFileValidation:
         result = try_get_validated_suplex_file("/test/path")
         assert result is None
 
-    @patch("src.martin_interface.validation.suplex_file_validation.try_get_valid_json")
+    @patch("suplex.martin_interface.validation.suplex_file_validation.try_get_valid_json")
     def test_try_get_validated_suplex_file_valid(self, mock_json, sample_suplex_dict):
         """Successfully returns the suplex dictionary when JSON validation passes."""
         mock_json.return_value = sample_suplex_dict
@@ -29,7 +29,7 @@ class TestSuplexFileValidation:
         result = try_get_validated_suplex_file("/test/path")
         assert result == sample_suplex_dict
 
-    @patch("src.martin_interface.validation.suplex_file_validation.try_get_valid_json")
+    @patch("suplex.martin_interface.validation.suplex_file_validation.try_get_valid_json")
     def test_try_get_validated_suplex_file_empty_dict(self, mock_json):
         """Accepts an empty dictionary as a valid (minimal) suplex file."""
         mock_json.return_value = {}

@@ -1,17 +1,13 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-from pathlib import Path
-from datetime import datetime, date
-import os
+from datetime import date
+from unittest.mock import Mock, patch
 
-from src.ui.gui import GUI
-from src.ui.pages.directory_selection_page import DirectorySelectionPage
-from src.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
-from martin_interface.martin_interface_constants import SEARCH_MODE
-from suplex_modules.submodules.submodule_constants import (
+from suplex.martin_interface.martin_interface_constants import SEARCH_MODE
+from suplex.suplex_modules.submodules.submodule_constants import (
     DATASET_LABEL,
     SELECTION_MODE,
 )
+from suplex.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
+from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
 
 
 class TestAdapterDataIntegration:
@@ -34,7 +30,7 @@ class TestAdapterDataIntegration:
         dataset_page = DatasetSelectionPage(navigator=navigator)
 
         # Get UI - this should process adapter data
-        with patch("src.ui.pages.dataset_selection_page.WidgetFactory") as mock_factory:
+        with patch("suplex.ui.pages.dataset_selection_page.WidgetFactory") as mock_factory:
             mock_accordion = Mock()
             mock_accordion.children = []  # Empty list that supports len()
             mock_factory.accordion.return_value = mock_accordion
@@ -47,9 +43,7 @@ class TestAdapterDataIntegration:
         assert dataset_page._project_cards[0].title == "Project Alpha"
         assert dataset_page._project_cards[1].title == "Project Beta"
 
-    def test_dataset_filtering_by_date(
-        self, integrated_gui_with_data, mock_adapter_complex_data
-    ):
+    def test_dataset_filtering_by_date(self, integrated_gui_with_data, mock_adapter_complex_data):
         """Test dataset filtering by date range."""
         gui = integrated_gui_with_data
         navigator = gui._navigator
@@ -62,10 +56,10 @@ class TestAdapterDataIntegration:
         dataset_page.handle_dataset_selection_changed = Mock()
 
         with patch(
-            "src.suplex_modules.submodules.dataset_selector.WidgetFactory"
+            "suplex.suplex_modules.submodules.dataset_selector.WidgetFactory"
         ) as mock_ds_factory:
             with patch(
-                "src.suplex_modules.submodules.tag_selector.WidgetFactory"
+                "suplex.suplex_modules.submodules.tag_selector.WidgetFactory"
             ) as mock_ts_factory:
                 mock_checkbox = Mock()
                 mock_checkbox.value = False
@@ -100,9 +94,7 @@ class TestAdapterDataIntegration:
         selected = project_card._dataset_selector.get_selected_datasets()
         assert len(selected) >= 1
 
-    def test_dataset_filtering_by_tags(
-        self, integrated_gui_with_data, mock_adapter_complex_data
-    ):
+    def test_dataset_filtering_by_tags(self, integrated_gui_with_data, mock_adapter_complex_data):
         """Test dataset filtering by tags."""
         gui = integrated_gui_with_data
         navigator = gui._navigator
@@ -113,10 +105,10 @@ class TestAdapterDataIntegration:
         dataset_page.navigator = navigator
 
         with patch(
-            "src.suplex_modules.submodules.dataset_selector.WidgetFactory"
+            "suplex.suplex_modules.submodules.dataset_selector.WidgetFactory"
         ) as mock_ds_factory:
             with patch(
-                "src.suplex_modules.submodules.tag_selector.WidgetFactory"
+                "suplex.suplex_modules.submodules.tag_selector.WidgetFactory"
             ) as mock_ts_factory:
                 mock_ds_factory.checkbox.return_value = Mock()
                 mock_ds_factory.vbox.return_value = Mock()
@@ -133,7 +125,9 @@ class TestAdapterDataIntegration:
                 project_card._is_created = True
 
                 project_card._tag_selector.get_tagged_datasets_any.return_value = project.datasets
-                project_card._tag_selector.get_tagged_datasets_all.return_value = project.datasets[:2]
+                project_card._tag_selector.get_tagged_datasets_all.return_value = project.datasets[
+                    :2
+                ]
 
         # ANY mode
         project_card._tag_selection_mode = SELECTION_MODE.ANY
@@ -158,10 +152,10 @@ class TestAdapterDataIntegration:
         project_cards = []
         for i, project in enumerate(mock_adapter_complex_data.projects):
             with patch(
-                "src.suplex_modules.submodules.dataset_selector.WidgetFactory"
+                "suplex.suplex_modules.submodules.dataset_selector.WidgetFactory"
             ) as mock_ds_factory:
                 with patch(
-                    "src.suplex_modules.submodules.tag_selector.WidgetFactory"
+                    "suplex.suplex_modules.submodules.tag_selector.WidgetFactory"
                 ) as mock_ts_factory:
                     mock_ds_factory.checkbox.return_value = Mock()
                     mock_ds_factory.vbox.return_value = Mock()
@@ -207,10 +201,10 @@ class TestAdapterDataIntegration:
         project = mock_adapter_complex_data.projects[0]
 
         with patch(
-            "src.suplex_modules.submodules.dataset_selector.WidgetFactory"
+            "suplex.suplex_modules.submodules.dataset_selector.WidgetFactory"
         ) as mock_ds_factory:
             with patch(
-                "src.suplex_modules.submodules.tag_selector.WidgetFactory"
+                "suplex.suplex_modules.submodules.tag_selector.WidgetFactory"
             ) as mock_ts_factory:
                 mock_ds_factory.checkbox.return_value = Mock()
                 mock_ds_factory.vbox.return_value = Mock()
@@ -245,7 +239,7 @@ class TestAdapterDataIntegration:
         preserved_ids = [d.id for d in preserved_selections]
         assert set(original_ids) == set(preserved_ids)
 
-    @patch("src.ui.pages.directory_selection_page.Adapter")
+    @patch("suplex.ui.pages.directory_selection_page.Adapter")
     def test_directory_search_integration(
         self, mock_adapter_class, integrated_gui_with_data, mock_adapter_complex_data
     ):
@@ -264,8 +258,8 @@ class TestAdapterDataIntegration:
 
         mock_adapter_class.return_value = mock_adapter_complex_data
 
-        with patch("src.ui.pages.directory_selection_page.os.path.exists", return_value=True):
-            with patch("src.ui.pages.directory_selection_page.os.path.isdir", return_value=True):
+        with patch("suplex.ui.pages.directory_selection_page.os.path.exists", return_value=True):
+            with patch("suplex.ui.pages.directory_selection_page.os.path.isdir", return_value=True):
                 dir_page.search_dir()
 
         mock_adapter_class.assert_called_once_with(
@@ -293,9 +287,10 @@ class TestAdapterDataIntegration:
         viable_modules = [m for m in mock_modules if m.check_if_viable(selected_datasets)]
         assert len(viable_modules) > 0
 
-        with patch("src.ui.pages.module_selection_page.widgets.Tab"):
-            with patch("src.ui.pages.module_selection_page.WidgetFactory"):
-                from src.ui.pages.module_selection_page import ModuleSelectionPage
+        with patch("suplex.ui.pages.module_selection_page.widgets.Tab"):
+            with patch("suplex.ui.pages.module_selection_page.WidgetFactory"):
+                from suplex.ui.pages.module_selection_page import ModuleSelectionPage
+
                 module_page = ModuleSelectionPage(navigator=navigator, modules=mock_modules)
                 navigator._module_selection_page = module_page
                 navigator.navigate_to_module_selection()
@@ -314,7 +309,7 @@ class TestAdapterDataIntegration:
 
         dataset_page = DatasetSelectionPage(navigator=navigator)
 
-        with patch("src.ui.pages.dataset_selection_page.WidgetFactory") as mock_factory:
+        with patch("suplex.ui.pages.dataset_selection_page.WidgetFactory") as mock_factory:
             mock_factory.html_widget.return_value = Mock()
             mock_accordion = Mock()
             mock_accordion.children = []

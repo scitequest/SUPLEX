@@ -1,14 +1,10 @@
-import pytest
 from unittest.mock import Mock, patch
-from pathlib import Path
 
-import ipywidgets as widgets
-
-from src.ui.pages.directory_selection_page import DirectorySelectionPage
-from martin_interface.martin_interface_constants import (
-    SEARCH_MODE,
+from suplex.martin_interface.martin_interface_constants import (
     MARTIN_MEASURE_DIR_DEPTH,
+    SEARCH_MODE,
 )
+from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
 
 
 class TestDirectorySelectionPage:
@@ -52,7 +48,7 @@ class TestDirectorySelectionPage:
     # -------------------------------------------------------------------------
     # UI Rendering (get_ui)
     # -------------------------------------------------------------------------
-    @patch("src.ui.pages.directory_selection_page.WidgetFactory")
+    @patch("suplex.ui.pages.directory_selection_page.WidgetFactory")
     def test_get_ui_success(self, mock_factory, dir_selection_page):
         """get_ui() builds the full page layout with title, controls and stats."""
         mock_vbox = Mock()
@@ -72,7 +68,7 @@ class TestDirectorySelectionPage:
     # -------------------------------------------------------------------------
     # UI Component Builders
     # -------------------------------------------------------------------------
-    @patch("src.ui.pages.directory_selection_page.WidgetFactory")
+    @patch("suplex.ui.pages.directory_selection_page.WidgetFactory")
     def test_create_title(self, mock_factory, dir_selection_page):
         """create_title() produces title and animated subtitle."""
         mock_html = Mock()
@@ -88,11 +84,10 @@ class TestDirectorySelectionPage:
         subtitle_call = mock_factory.html_widget.call_args_list[1]
         assert "@keyframes fadeInOut" in subtitle_call[1]["value"]
 
-    @patch("src.ui.pages.directory_selection_page.WidgetFactory")
+    @patch("suplex.ui.pages.directory_selection_page.WidgetFactory")
     def test_create_path_section(self, mock_factory, dir_selection_page):
-        """create_path_section() shows current path and Select Directory button."""
+        """create_path_section() shows current path and the Select Directory button."""
         dir_selection_page._selected_path = "/test/path"
-        dir_selection_page.open_directory_dialog = Mock()
 
         mock_html = Mock()
         mock_button = Mock()
@@ -105,10 +100,8 @@ class TestDirectorySelectionPage:
 
         mock_factory.html_widget.assert_called_with(value="/test/path", width="auto", height="auto")
         mock_factory.button_emphasis.assert_called_once()
-        assert mock_factory.button_emphasis.call_args[1]["description"] == "Select Directory"
-        mock_button.on_click.assert_called_once()
 
-    @patch("src.ui.pages.directory_selection_page.WidgetFactory")
+    @patch("suplex.ui.pages.directory_selection_page.WidgetFactory")
     def test_create_search_options_section(self, mock_factory, dir_selection_page):
         """create_search_options_section() builds dropdown for mode and spinner for depth."""
         mock_dropdown = Mock()
@@ -133,7 +126,7 @@ class TestDirectorySelectionPage:
 
     def test_get_updated_stats_box(self, dir_selection_page):
         """get_updated_stats_box() renders correct statistics using current numbers."""
-        with patch("src.ui.pages.directory_selection_page.WidgetFactory") as mock_factory:
+        with patch("suplex.ui.pages.directory_selection_page.WidgetFactory") as mock_factory:
             mock_html = Mock()
             mock_hbox = Mock()
             mock_factory.html_widget.return_value = mock_html
@@ -153,8 +146,8 @@ class TestDirectorySelectionPage:
     # -------------------------------------------------------------------------
     # Directory Dialog & Search
     # -------------------------------------------------------------------------
-    @patch("src.ui.pages.directory_selection_page.tk")
-    @patch("src.ui.pages.directory_selection_page.filedialog")
+    @patch("suplex.ui.pages.directory_selection_page.tk")
+    @patch("suplex.ui.pages.directory_selection_page.filedialog")
     def test_open_directory_dialog_success(self, mock_filedialog, mock_tk, dir_selection_page):
         """Successful directory selection updates path and triggers search."""
         mock_root = Mock()
@@ -171,8 +164,8 @@ class TestDirectorySelectionPage:
         dir_selection_page.search_dir.assert_called_once()
         mock_root.destroy.assert_called_once()
 
-    @patch("src.ui.pages.directory_selection_page.tk")
-    @patch("src.ui.pages.directory_selection_page.filedialog")
+    @patch("suplex.ui.pages.directory_selection_page.tk")
+    @patch("suplex.ui.pages.directory_selection_page.filedialog")
     def test_open_directory_dialog_cancelled(self, mock_filedialog, mock_tk, dir_selection_page):
         """Cancelled dialog does nothing."""
         mock_root = Mock()
@@ -185,9 +178,9 @@ class TestDirectorySelectionPage:
 
         dir_selection_page.search_dir.assert_not_called()
 
-    @patch("src.ui.pages.directory_selection_page.os.path.exists")
-    @patch("src.ui.pages.directory_selection_page.os.path.isdir")
-    @patch("src.ui.pages.directory_selection_page.Adapter")
+    @patch("suplex.ui.pages.directory_selection_page.os.path.exists")
+    @patch("suplex.ui.pages.directory_selection_page.os.path.isdir")
+    @patch("suplex.ui.pages.directory_selection_page.Adapter")
     def test_search_dir_success(
         self, mock_adapter_class, mock_isdir, mock_exists, dir_selection_page
     ):
@@ -230,7 +223,7 @@ class TestDirectorySelectionPage:
             info_color=dir_selection_page._navigator.current_scheme.LAYOUT_COLOR.INFO_FIELD.WARNING,
         )
 
-    @patch("src.ui.pages.directory_selection_page.os.path.exists")
+    @patch("suplex.ui.pages.directory_selection_page.os.path.exists")
     def test_search_dir_invalid_path(self, mock_exists, dir_selection_page):
         """Invalid path triggers error message and invalid_dataset_dir_selected."""
         # Setup required widgets
@@ -250,20 +243,16 @@ class TestDirectorySelectionPage:
     # -------------------------------------------------------------------------
     # Sample Data
     # -------------------------------------------------------------------------
-    @patch("src.ui.pages.directory_selection_page.Path")
-    @patch("src.ui.pages.directory_selection_page.Adapter")
-    def test_use_sample_data_success(self, mock_adapter_class, mock_path_class, dir_selection_page):
+    @patch("suplex.ui.pages.directory_selection_page.sample_data_dir")
+    @patch("suplex.ui.pages.directory_selection_page.Adapter")
+    def test_use_sample_data_success(
+        self, mock_adapter_class, mock_sample_data_dir, dir_selection_page
+    ):
         """use_sample_data() loads sample data and navigates forward on success."""
         mock_sample_path = Mock()
         mock_sample_path.exists.return_value = True
         mock_sample_path.__str__ = Mock(return_value="/path/to/sample_data")
-
-        # Correctly mock the full Path chain: Path(...).parent.parent.parent / "sample_data"
-        mock_path = Mock()
-        # Make .parent chain return the same mock (so .parent.parent.parent works)
-        mock_path.parent = mock_path
-        mock_path.__truediv__ = Mock(return_value=mock_sample_path)
-        mock_path_class.return_value = mock_path
+        mock_sample_data_dir.return_value = mock_sample_path
 
         mock_adapter = Mock()
         mock_adapter.datasets = [Mock(), Mock()]

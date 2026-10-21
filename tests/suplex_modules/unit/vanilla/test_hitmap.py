@@ -1,16 +1,9 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-import numpy as np
-import pandas as pd
-import ipywidgets as widgets
+from unittest.mock import Mock, patch
 
-from suplex_modules.vanilla.hitmap import HitmapModule
-from src.martin_interface.dataset import Dataset
-from suplex_modules.submodules.submodule_constants import (
-    DATASET_LABEL,
+from suplex.suplex_modules.submodules.submodule_constants import (
     NORMALIZATION,
-    SELECTION_MODE,
 )
+from suplex.suplex_modules.vanilla.hitmap import HitmapModule
 
 
 class TestHitmap:
@@ -58,13 +51,17 @@ class TestHitmap:
         """Module is viable when provided with clean, uniform datasets meeting all rules."""
         module = HitmapModule()
         with (
-            patch("suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False),
-            patch("suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False),
             patch(
-                "suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
+                "suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
                 return_value=False,
             ),
-            patch("suplex_modules.vanilla.hitmap.has_negative_values", return_value=False),
+            patch("suplex.suplex_modules.vanilla.hitmap.has_negative_values", return_value=False),
         ):
             assert module.check_if_viable(viable_datasets) is True
             assert module.get_module_hover_text() == module._DEFAULT_HOVER_TEXT
@@ -72,7 +69,7 @@ class TestHitmap:
     def test_check_if_viable_no_datasets_selected(self):
         """Module is NOT viable and updates hover text when no datasets are selected."""
         module = HitmapModule()
-        with patch("suplex_modules.vanilla.hitmap.no_datasets_selected", return_value=True):
+        with patch("suplex.suplex_modules.vanilla.hitmap.no_datasets_selected", return_value=True):
             assert module.check_if_viable([]) is False
             assert "no datasets" in module.get_module_hover_text().lower()
 
@@ -80,13 +77,17 @@ class TestHitmap:
         """Module is NOT viable when sample counts are not uniform across datasets."""
         module = HitmapModule()
         with (
-            patch("suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=True),
-            patch("suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False),
             patch(
-                "suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
+                "suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=True
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
                 return_value=False,
             ),
-            patch("suplex_modules.vanilla.hitmap.has_negative_values", return_value=False),
+            patch("suplex.suplex_modules.vanilla.hitmap.has_negative_values", return_value=False),
         ):
             assert module.check_if_viable(mock_datasets) is False
             assert "sample count is not uniform" in module.get_module_hover_text().lower()
@@ -95,13 +96,17 @@ class TestHitmap:
         """Module is NOT viable when spot counts are not uniform across datasets."""
         module = HitmapModule()
         with (
-            patch("suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False),
-            patch("suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=True),
             patch(
-                "suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
+                "suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=True
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
                 return_value=False,
             ),
-            patch("suplex_modules.vanilla.hitmap.has_negative_values", return_value=False),
+            patch("suplex.suplex_modules.vanilla.hitmap.has_negative_values", return_value=False),
         ):
             assert module.check_if_viable(mock_datasets) is False
             assert "sample count is not uniform" in module.get_module_hover_text().lower()
@@ -110,10 +115,14 @@ class TestHitmap:
         """Module is NOT viable when any dataset has fewer than 3 samples."""
         module = HitmapModule()
         with (
-            patch("suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False),
-            patch("suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False),
             patch(
-                "suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
+                "suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
                 return_value=True,
             ),
         ):
@@ -125,13 +134,17 @@ class TestHitmap:
         module = HitmapModule()
         bad_datasets = [datasets_with_issues[2]]
         with (
-            patch("suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False),
-            patch("suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False),
             patch(
-                "suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
+                "suplex.suplex_modules.vanilla.hitmap.sample_count_not_uniform", return_value=False
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.spot_count_is_not_uniform", return_value=False
+            ),
+            patch(
+                "suplex.suplex_modules.vanilla.hitmap.has_insufficient_number_of_samples",
                 return_value=False,
             ),
-            patch("suplex_modules.vanilla.hitmap.has_negative_values", return_value=True),
+            patch("suplex.suplex_modules.vanilla.hitmap.has_negative_values", return_value=True),
         ):
             assert module.check_if_viable(bad_datasets) is False
             assert "negative value" in module.get_module_hover_text().lower()
@@ -175,14 +188,14 @@ class TestHitmap:
     # -------------------------------------------------------------------------
     # UI / Initiate Smoke Test
     # -------------------------------------------------------------------------
-    @patch("suplex_modules.vanilla.hitmap.WidgetFactory")
-    @patch("suplex_modules.vanilla.hitmap.ValueExtractor")
-    @patch("suplex_modules.vanilla.hitmap.DatasetSorter")
-    @patch("suplex_modules.vanilla.hitmap.DatasetFilter")
-    @patch("suplex_modules.vanilla.hitmap.SampleSpotFilter")
-    @patch("suplex_modules.vanilla.hitmap.Collage")
-    @patch("suplex_modules.vanilla.hitmap.HeatmapSettings")
-    @patch("suplex_modules.vanilla.hitmap.GeneralGraphSettings")
+    @patch("suplex.suplex_modules.vanilla.hitmap.WidgetFactory")
+    @patch("suplex.suplex_modules.vanilla.hitmap.ValueExtractor")
+    @patch("suplex.suplex_modules.vanilla.hitmap.DatasetSorter")
+    @patch("suplex.suplex_modules.vanilla.hitmap.DatasetFilter")
+    @patch("suplex.suplex_modules.vanilla.hitmap.SampleSpotFilter")
+    @patch("suplex.suplex_modules.vanilla.hitmap.Collage")
+    @patch("suplex.suplex_modules.vanilla.hitmap.HeatmapSettings")
+    @patch("suplex.suplex_modules.vanilla.hitmap.GeneralGraphSettings")
     def test_initiate_module_smoke(
         self,
         mock_general_graph_settings,

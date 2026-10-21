@@ -1,27 +1,26 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
 import ipywidgets as widgets
-from PIL import Image
 import matplotlib.pyplot as plt
 import svgutils.transform as sg
 
-from suplex_modules.submodules.collage import (
-    format_image_to_svg,
-    scale_svgs,
+from suplex.suplex_modules.submodules.collage import (
+    Collage,
     add_padding_to_svgs,
-    get_gridded_svgs,
-    get_svg_array_for_svgs,
-    generate_collage_figure,
     add_title_to_svg,
     create_collage,
-    Collage,
+    format_image_to_svg,
+    generate_collage_figure,
+    get_gridded_svgs,
+    get_svg_array_for_svgs,
+    scale_svgs,
 )
-from suplex_modules.submodules.submodule_constants import (
+from suplex.suplex_modules.submodules.submodule_constants import (
     COLLAGE_LAYOUT,
-    SCALE_OPTION,
-    READING_ORDER,
-    TITLE_POSITION,
     COLOR,
+    READING_ORDER,
+    SCALE_OPTION,
+    TITLE_POSITION,
 )
 
 
@@ -35,11 +34,10 @@ class TestCollageFunctions:
     def test_format_image_to_svg_pil(self, mock_pil_image):
         """PIL Image should be converted via matplotlib to SVGFigure."""
         with (
-            patch("suplex_modules.submodules.collage.np.array") as mock_np_array,
-            patch("suplex_modules.submodules.collage.plt") as mock_plt,
-            patch("suplex_modules.submodules.collage.sg.fromfile") as mock_fromfile,
+            patch("suplex.suplex_modules.submodules.collage.np.array") as mock_np_array,
+            patch("suplex.suplex_modules.submodules.collage.plt") as mock_plt,
+            patch("suplex.suplex_modules.submodules.collage.sg.fromfile") as mock_fromfile,
         ):
-
             # Mock array for PIL path (ndim and shape access)
             mock_arr = MagicMock()
             mock_arr.ndim = 3
@@ -61,8 +59,8 @@ class TestCollageFunctions:
     def test_format_image_to_svg_matplotlib(self, mock_matplotlib_figure):
         """Matplotlib Figure should be saved as SVG and loaded."""
         with (
-            patch("suplex_modules.submodules.collage.sg.fromfile") as mock_fromfile,
-            patch("suplex_modules.submodules.collage.os.remove"),
+            patch("suplex.suplex_modules.submodules.collage.sg.fromfile") as mock_fromfile,
+            patch("suplex.suplex_modules.submodules.collage.os.remove"),
         ):
             mock_svg = Mock()
             mock_fromfile.return_value = mock_svg
@@ -86,7 +84,7 @@ class TestCollageFunctions:
 
     def test_scale_svgs_downscale_to_width(self, mock_collage_svgs):
         """DOWNSCALE_TO_WIDTH should use smallest width."""
-        with patch("suplex_modules.submodules.collage.sg.SVGFigure") as mock_svg_class:
+        with patch("suplex.suplex_modules.submodules.collage.sg.SVGFigure") as mock_svg_class:
             mock_new_svg = MagicMock()
             mock_svg_class.return_value = mock_new_svg
             result = scale_svgs(mock_collage_svgs, SCALE_OPTION.DOWNSCALE_TO_WIDTH)
@@ -96,7 +94,7 @@ class TestCollageFunctions:
 
     def test_add_padding_to_svgs(self, mock_svg_figure):
         """Padding should increase size and move root element."""
-        with patch("suplex_modules.submodules.collage.sg.SVGFigure") as mock_svg_class:
+        with patch("suplex.suplex_modules.submodules.collage.sg.SVGFigure") as mock_svg_class:
             mock_new_svg = MagicMock()
             mock_svg_class.return_value = mock_new_svg
             result = add_padding_to_svgs([mock_svg_figure], 10, 20)
@@ -106,7 +104,7 @@ class TestCollageFunctions:
 
     def test_get_gridded_svgs_equal_all(self, mock_collage_svgs):
         """GRID_EQUAL_ALL should center images with padding."""
-        with patch("suplex_modules.submodules.collage.sg.SVGFigure") as mock_svg_class:
+        with patch("suplex.suplex_modules.submodules.collage.sg.SVGFigure") as mock_svg_class:
             mock_new_svg = MagicMock()
             mock_svg_class.return_value = mock_new_svg
             result = get_gridded_svgs(mock_collage_svgs, COLLAGE_LAYOUT.GRID_EQUAL_ALL)
@@ -135,8 +133,8 @@ class TestCollageFunctions:
     def test_add_title_to_svg_top(self, mock_svg_figure):
         """Title at TOP position should add height and text element."""
         with (
-            patch("suplex_modules.submodules.collage.sg.TextElement") as mock_text,
-            patch("suplex_modules.submodules.collage.sg.SVGFigure") as mock_svg_class,
+            patch("suplex.suplex_modules.submodules.collage.sg.TextElement") as mock_text,
+            patch("suplex.suplex_modules.submodules.collage.sg.SVGFigure") as mock_svg_class,
         ):
             mock_new_svg = MagicMock()
             mock_svg_class.return_value = mock_new_svg
@@ -154,15 +152,16 @@ class TestCollageFunctions:
     def test_create_collage_full_pipeline(self, mock_pil_image):
         """End-to-end collage creation with all steps mocked."""
         with (
-            patch("suplex_modules.submodules.collage.format_image_to_svg") as mock_format,
-            patch("suplex_modules.submodules.collage.scale_svgs") as mock_scale,
-            patch("suplex_modules.submodules.collage.add_padding_to_svgs") as mock_pad,
-            patch("suplex_modules.submodules.collage.get_gridded_svgs") as mock_grid,
-            patch("suplex_modules.submodules.collage.get_svg_array_for_svgs") as mock_array,
-            patch("suplex_modules.submodules.collage.generate_collage_figure") as mock_generate,
-            patch("suplex_modules.submodules.collage.add_title_to_svg") as mock_title,
+            patch("suplex.suplex_modules.submodules.collage.format_image_to_svg") as mock_format,
+            patch("suplex.suplex_modules.submodules.collage.scale_svgs") as mock_scale,
+            patch("suplex.suplex_modules.submodules.collage.add_padding_to_svgs") as mock_pad,
+            patch("suplex.suplex_modules.submodules.collage.get_gridded_svgs") as mock_grid,
+            patch("suplex.suplex_modules.submodules.collage.get_svg_array_for_svgs") as mock_array,
+            patch(
+                "suplex.suplex_modules.submodules.collage.generate_collage_figure"
+            ) as mock_generate,
+            patch("suplex.suplex_modules.submodules.collage.add_title_to_svg") as mock_title,
         ):
-
             mock_svg = Mock()
             mock_format.return_value = mock_svg
             mock_scale.return_value = [mock_svg]
@@ -194,7 +193,7 @@ class TestCollage:
     def test_collage_generate_collage_with_overrides(self, mock_pil_image):
         """generate_collage should respect explicit parameter overrides."""
         collage = Collage(show_all_options=True)
-        with patch("suplex_modules.submodules.collage.create_collage") as mock_create:
+        with patch("suplex.suplex_modules.submodules.collage.create_collage") as mock_create:
             mock_create.return_value = Mock()
             result = collage.generate_collage(
                 images=[mock_pil_image],

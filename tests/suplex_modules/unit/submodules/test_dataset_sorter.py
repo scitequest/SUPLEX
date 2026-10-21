@@ -1,24 +1,24 @@
-import pytest
-from unittest.mock import Mock, patch
 from datetime import datetime
+from unittest.mock import Mock, patch
+
 import ipywidgets as widgets
 
-from suplex_modules.submodules.dataset_sorter import (
-    sort_datasets,
+from suplex.suplex_modules.submodules.dataset_sorter import (
+    DatasetSorter,
+    SortStep,
+    sort_alphanumerically,
     sort_by_avg_value,
+    sort_by_cumulative_value,
+    sort_by_has_tag,
     sort_by_max_value,
     sort_by_median_value,
-    sort_by_cumulative_value,
     sort_by_number_of_values,
-    sort_alphanumerically,
-    sort_by_has_tag,
-    SortStep,
-    DatasetSorter,
+    sort_datasets,
 )
-from suplex_modules.submodules.submodule_constants import (
-    SORT_METHOD,
-    DATASET_DESCRIPTOR,
+from suplex.suplex_modules.submodules.submodule_constants import (
     DATASET_ATTRIBUTE,
+    DATASET_DESCRIPTOR,
+    SORT_METHOD,
 )
 
 
@@ -136,7 +136,7 @@ class TestDatasetSorterFunctions:
     def test_sort_datasets_unequal_length(self, mock_datasets):
         """Should return copies unchanged and log warning when lengths differ."""
         ref_list = [42]  # only one element
-        with patch("suplex_modules.submodules.dataset_sorter.logger.warning") as mock_warn:
+        with patch("suplex.suplex_modules.submodules.dataset_sorter.logger.warning") as mock_warn:
             sorted_ds, sorted_ref = sort_datasets(mock_datasets, ref_list)
             assert sorted_ds == mock_datasets
             assert sorted_ref == ref_list

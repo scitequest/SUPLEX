@@ -1,19 +1,18 @@
-import pytest
 from enum import Enum
 
-from suplex_modules.submodules.submodule_constants import (
-    DATASET_LABEL,
-    DATASET_SELECTOR_MODE,
-    SELECTION_MODE,
-    DATASET_DESCRIPTOR,
-    DATASET_ATTRIBUTE,
-    SORT_METHOD,
-    NORMALIZATION,
-    FILTER_METHOD,
-    THRESHOLD_FILTER_STATE,
+from suplex.suplex_modules.submodules.submodule_constants import (
     DATA_ATTRIBUTES,
     DATA_STATISTICS_ATTRIBUTES,
+    DATASET_ATTRIBUTE,
+    DATASET_DESCRIPTOR,
+    DATASET_LABEL,
+    DATASET_SELECTOR_MODE,
+    FILTER_METHOD,
+    NORMALIZATION,
     PARAMETERS_ATTRIBUTES,
+    SELECTION_MODE,
+    SORT_METHOD,
+    THRESHOLD_FILTER_STATE,
 )
 
 

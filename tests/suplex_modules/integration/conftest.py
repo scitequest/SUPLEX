@@ -17,13 +17,12 @@ Fixtures are designed to be reusable across:
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import List, Optional, Any, Dict
+from pathlib import Path
+from typing import Any
 from unittest.mock import Mock
+
 import numpy as np
 import pytest
-import tempfile
-import os
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -53,14 +52,14 @@ class FakeSpotValues:
 
 @dataclass
 class FakeSpotParameters:
-    coordinates: List[FakeCoordinate] = field(default_factory=list)
+    coordinates: list[FakeCoordinate] = field(default_factory=list)
 
 
 @dataclass
 class FakeSpot:
     spot_values: FakeSpotValues = field(default_factory=FakeSpotValues)
-    spot_parameters: Optional[FakeSpotParameters] = None
-    shape: Optional[str] = "circle"
+    spot_parameters: FakeSpotParameters | None = None
+    shape: str | None = "circle"
 
     # Compatibility properties for viability_rules (which expects direct attributes)
     @property
@@ -107,12 +106,12 @@ class FakeDataStatistics:
 @dataclass
 class FakeSample:
     data_statistics: FakeDataStatistics = field(default_factory=FakeDataStatistics)
-    spots: List[FakeSpot] = field(default_factory=list)
+    spots: list[FakeSpot] = field(default_factory=list)
 
 
 @dataclass
 class FakeBackgroundRectangle:
-    coordinates: List[FakeCoordinate] = field(default_factory=list)
+    coordinates: list[FakeCoordinate] = field(default_factory=list)
 
 
 @dataclass
@@ -122,7 +121,7 @@ class FakeGeneralParameters:
     spots_per_spotfield: int = 64
     invert_lut: bool = False
     subtract_background: bool = True
-    background_rectangles: List[FakeBackgroundRectangle] = field(default_factory=list)
+    background_rectangles: list[FakeBackgroundRectangle] = field(default_factory=list)
 
 
 @dataclass
@@ -142,7 +141,7 @@ class FakeIncubation:
 
 @dataclass
 class FakeMetadata:
-    incubations: List[FakeIncubation] = field(default_factory=list)
+    incubations: list[FakeIncubation] = field(default_factory=list)
     image: FakeImage = field(default_factory=FakeImage)
 
 
@@ -166,16 +165,14 @@ class FakeDataset:
 
     id: str = "DS_INT_001"
     name: str = "Integration Test Dataset"
-    tags: List[str] = field(default_factory=lambda: ["test", "integration"])
-    suplex_tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=lambda: ["test", "integration"])
+    suplex_tags: list[str] = field(default_factory=list)
     project: FakeProject = field(default_factory=FakeProject)
     measure_date: datetime = field(default_factory=lambda: datetime(2025, 6, 1, 10, 30))
     image_creation_date: datetime = field(default_factory=lambda: datetime(2025, 6, 1, 9, 15))
-    samples: List[FakeSample] = field(default_factory=list)
-    general_parameters: Optional[FakeGeneralParameters] = field(
-        default_factory=FakeGeneralParameters
-    )
-    metadata: Optional[FakeMetadata] = field(default_factory=FakeMetadata)
+    samples: list[FakeSample] = field(default_factory=list)
+    general_parameters: FakeGeneralParameters | None = field(default_factory=FakeGeneralParameters)
+    metadata: FakeMetadata | None = field(default_factory=FakeMetadata)
     file_holder: Any = field(default_factory=FakeFileHolder)
 
     def __hash__(self):
@@ -218,10 +215,10 @@ def create_fake_dataset(
         Fully populated FakeDataset ready for value extraction, filtering, etc.
     """
     np.random.seed(seed)
-    samples: List[FakeSample] = []
+    samples: list[FakeSample] = []
 
     for s_idx in range(n_samples):
-        spots: List[FakeSpot] = []
+        spots: list[FakeSpot] = []
         n_spots = n_spots_per_sample if uniform_spots else max(3, n_spots_per_sample - s_idx)
 
         for sp_idx in range(n_spots):
@@ -272,7 +269,7 @@ def create_fake_dataset(
 
 
 @pytest.fixture(scope="session")
-def positive_uniform_datasets() -> List[FakeDataset]:
+def positive_uniform_datasets() -> list[FakeDataset]:
     """Two clean, uniform, positive-value datasets (typical happy-path case)."""
     return [
         create_fake_dataset(
@@ -298,7 +295,7 @@ def negative_value_dataset() -> FakeDataset:
 
 
 @pytest.fixture(scope="function")
-def non_uniform_sample_count_datasets() -> List[FakeDataset]:
+def non_uniform_sample_count_datasets() -> list[FakeDataset]:
     """Datasets with different numbers of samples (violates uniformity rule)."""
     ds1 = create_fake_dataset(dataset_id="DS_UNI_01", n_samples=3, n_spots_per_sample=8, seed=10)
     ds2 = create_fake_dataset(dataset_id="DS_UNI_02", n_samples=5, n_spots_per_sample=8, seed=11)
@@ -312,7 +309,7 @@ def insufficient_samples_dataset() -> FakeDataset:
 
 
 @pytest.fixture(scope="function")
-def empty_dataset_list() -> List[FakeDataset]:
+def empty_dataset_list() -> list[FakeDataset]:
     """Empty list of datasets (edge case for many modules)."""
     return []
 
@@ -345,11 +342,11 @@ def temp_module_directory(tmp_path: Path) -> Path:
     valid_module = mod_dir / "valid_test_module.py"
     valid_module.write_text(
         """
-from suplex_modules.suplex_module_interface import SuplexModuleInterface
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 from typing import List, Dict, Any, Optional
 from typing_extensions import Self
 import ipywidgets as widgets
-from martin_interface.dataset import Dataset
+from suplex.martin_interface.dataset import Dataset
 
 class ValidTestModule(SuplexModuleInterface):
     @property
@@ -410,8 +407,8 @@ class NotASuplexModule:
 @pytest.fixture
 def loaded_valid_module(temp_module_directory: Path):
     """Convenience fixture that returns the loaded ValidTestModule instance."""
-    from suplex_modules.module_loader import load_modules
-    from suplex_modules.module_constants import SEARCH_MODE
+    from suplex.suplex_modules.module_constants import SEARCH_MODE
+    from suplex.suplex_modules.module_loader import load_modules
 
     modules = load_modules(
         dir_path=str(temp_module_directory),

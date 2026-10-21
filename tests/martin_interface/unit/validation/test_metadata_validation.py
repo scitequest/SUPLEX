@@ -1,9 +1,8 @@
-import pytest
 import copy
 from datetime import datetime, timedelta
-import isodate
 from unittest.mock import patch
-from src.martin_interface.validation.metadata_validation import (
+
+from suplex.martin_interface.validation.metadata_validation import (
     try_get_validated_metadata,
     try_typecast_metadata_file,
 )
@@ -16,7 +15,7 @@ class TestMetadataValidation:
     # try_get_validated_metadata tests
     # -------------------------------------------------------------------------
 
-    @patch("src.martin_interface.validation.metadata_validation.try_get_valid_json")
+    @patch("suplex.martin_interface.validation.metadata_validation.try_get_valid_json")
     def test_try_get_validated_metadata_invalid_json(self, mock_json):
         """Returns None immediately when the underlying JSON parsing fails."""
         mock_json.return_value = None
@@ -24,9 +23,9 @@ class TestMetadataValidation:
         result = try_get_validated_metadata("/test/path")
         assert result is None
 
-    @patch("src.martin_interface.validation.metadata_validation.try_typecast_metadata_file")
-    @patch("src.martin_interface.validation.metadata_validation.is_Key_Structure_Identical")
-    @patch("src.martin_interface.validation.metadata_validation.try_get_valid_json")
+    @patch("suplex.martin_interface.validation.metadata_validation.try_typecast_metadata_file")
+    @patch("suplex.martin_interface.validation.metadata_validation.is_Key_Structure_Identical")
+    @patch("suplex.martin_interface.validation.metadata_validation.try_get_valid_json")
     def test_try_get_validated_metadata_success_complete_values(
         self,
         mock_json,

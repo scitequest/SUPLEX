@@ -1,9 +1,9 @@
-import pytest
 from unittest.mock import Mock
+
 import ipywidgets as widgets
 
-from suplex_modules.submodules.tag_selector import TagSelector
-from src.martin_interface.dataset import Dataset
+from suplex.martin_interface.dataset import Dataset
+from suplex.suplex_modules.submodules.tag_selector import TagSelector
 
 
 class TestTagSelectorFunctions:

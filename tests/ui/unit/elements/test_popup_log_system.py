@@ -1,11 +1,9 @@
-import pytest
-from unittest.mock import Mock, patch
 import logging
-from datetime import datetime
+from unittest.mock import Mock, patch
 
-import ipywidgets as widgets
+import pytest
 
-from src.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
+from suplex.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
 
 
 class TestPopupLogger:
@@ -18,8 +16,8 @@ class TestPopupLogger:
     # -------------------------------------------------------------------------
     def test_popup_logger_initialization(self, mock_scheme):
         """PopupLogger initializes with correct defaults and creates UI components."""
-        with patch("src.ui.elements.popup_log_system.widgets"):
-            with patch("src.ui.elements.popup_log_system.get_popup_logger_styles"):
+        with patch("suplex.ui.elements.popup_log_system.widgets"):
+            with patch("suplex.ui.elements.popup_log_system.get_popup_logger_styles"):
                 logger_instance = PopupLogger(
                     scheme=mock_scheme, max_messages=50, min_log_level=logging.DEBUG
                 )
@@ -36,7 +34,7 @@ class TestPopupLogger:
     # -------------------------------------------------------------------------
     def test_create_popup_log_widget(self, popup_logger):
         """create_popup_log_widget() sets up toggle button and popup panel."""
-        with patch("src.ui.elements.popup_log_system.widgets.Button") as mock_button:
+        with patch("suplex.ui.elements.popup_log_system.widgets.Button") as mock_button:
             with patch.object(popup_logger, "create_popup_panel") as mock_panel:
                 mock_panel.return_value = Mock()
                 popup_logger._toggle_button = None
@@ -114,7 +112,7 @@ class TestPopupLogger:
         popup_logger.update_button_appearance = Mock()
         popup_logger.refresh_log_display = Mock()
 
-        with patch("src.ui.elements.popup_log_system.datetime") as mock_dt:
+        with patch("suplex.ui.elements.popup_log_system.datetime") as mock_dt:
             mock_dt.now.return_value.strftime.return_value = "12:34:56"
             popup_logger.add_log_message("Test message", logging.INFO)
 
@@ -226,7 +224,7 @@ class TestPopupLogger:
         popup_logger.update_button_appearance.assert_called_once()
         popup_logger.refresh_log_display.assert_called_once()
 
-    @patch("src.ui.elements.popup_log_system.pyperclip")
+    @patch("suplex.ui.elements.popup_log_system.pyperclip")
     def test_copy_logs_success(self, mock_pyperclip, popup_logger):
         """copy_logs() formats and copies logs to clipboard."""
         popup_logger._log_messages = [
@@ -271,7 +269,7 @@ class TestPopupLogger:
         popup_logger.update_button_appearance = Mock()
         popup_logger.refresh_log_display = Mock()
 
-        with patch("src.ui.elements.popup_log_system.get_popup_logger_styles"):
+        with patch("suplex.ui.elements.popup_log_system.get_popup_logger_styles"):
             popup_logger.update_scheme(new_scheme)
 
         assert popup_logger._scheme == new_scheme

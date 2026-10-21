@@ -1,23 +1,20 @@
-import pytest
 from pathlib import Path
-from typing import List, Any, Set
+from typing import Any
 
-from suplex_modules.module_loader import (
-    load_modules,
+from suplex.suplex_modules.module_constants import (
+    DEFAULT_IGNORE_DIRS,
+    DEFAULT_IGNORE_EXTENSIONS,
+    DEFAULT_IGNORE_FILES,
+    SEARCH_MODE,
+    STANDARD_READOUT_FILE_TYPE,
+)
+from suplex.suplex_modules.module_loader import (
     delve_dirs,
+    load_modules,
     sweep_dirs,
     try_get_module,
 )
-from suplex_modules.module_constants import (
-    SEARCH_MODE,
-    FILE,
-    STANDARD_READOUT_FILE_TYPE,
-    DEFAULT_IGNORE_DIRS,
-    DEFAULT_IGNORE_FILES,
-    DEFAULT_IGNORE_EXTENSIONS,
-)
-from suplex_modules.suplex_module_interface import SuplexModuleInterface
-
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 
 # =============================================================================
 # Integration tests for module discovery and dynamic loading
@@ -37,7 +34,7 @@ class TestIntegrationModuleDiscoveryAndLoading:
         self, temp_module_directory: Path
     ) -> None:
         """Should recursively find and load modules that implement SuplexModuleInterface."""
-        modules: List[SuplexModuleInterface] = load_modules(
+        modules: list[SuplexModuleInterface] = load_modules(
             dir_path=str(temp_module_directory),
             mode=SEARCH_MODE.RECURSIVE,
         )
@@ -74,12 +71,12 @@ class TestIntegrationModuleDiscoveryAndLoading:
         """A successfully loaded module should be usable (viability check + initiate)."""
         # Minimal call to verify runtime usability.
         # Note: the fake module's check_if_viable returns True only for non-empty dataset lists.
-        dummy_for_viability: List[Any] = [object()]
+        dummy_for_viability: list[Any] = [object()]
         assert loaded_valid_module.check_if_viable(dummy_for_viability) is True
         assert loaded_valid_module.get_module_hover_text() == "Integration test module"
 
         # initiate_module should return a widget without crashing (even with empty list is fine here)
-        dummy_datasets: List[Any] = []
+        dummy_datasets: list[Any] = []
         box = loaded_valid_module.initiate_module(dummy_datasets, color_scheme=None)
         assert box is not None
 
@@ -154,7 +151,7 @@ class TestIntegrationModuleDiscoveryAndLoading:
     def test_delve_dirs_finds_python_files_recursively(self, temp_module_directory: Path) -> None:
         """delve_dirs should populate the provided files set with all .py files under the directory tree
         (respecting ignore patterns)."""
-        py_files: Set[str] = set()
+        py_files: set[str] = set()
         delve_dirs(
             search_dir=str(temp_module_directory),
             filetype=STANDARD_READOUT_FILE_TYPE,

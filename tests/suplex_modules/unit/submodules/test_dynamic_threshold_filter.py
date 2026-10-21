@@ -1,17 +1,15 @@
-import pytest
 import math
-from unittest.mock import patch
-import numpy as np
 
-from suplex_modules.submodules.dynamic_threshold_filter import (
+import pytest
+
+from suplex.suplex_modules.submodules.dynamic_threshold_filter import (
+    FilteredValue,
+    apply_adaptive_significance_cutoff,
+    apply_dynamic_filtering,
+    apply_sparsity_cutoff,
     calculate_incremental_deltas,
     group_by_delta_contrast,
-    apply_adaptive_significance_cutoff,
-    apply_sparsity_cutoff,
-    apply_dynamic_filtering,
-    FilteredValue,
 )
-from suplex_modules.submodules.submodule_constants import NORMALIZATION
 
 
 class TestCalculateIncrementalDeltas:

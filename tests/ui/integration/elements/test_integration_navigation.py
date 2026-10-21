@@ -1,14 +1,6 @@
-import pytest
-import logging
-from unittest.mock import Mock, patch, MagicMock
-from pathlib import Path
-from datetime import datetime, date
-import ipywidgets as widgets
+from unittest.mock import Mock, patch
 
-from src.ui.gui import GUI
-from ui.elements.navigator import Navigator
-from ui.ui_constants import PAGE
-from martin_interface.martin_interface_constants import SEARCH_MODE
+from suplex.ui.ui_constants import PAGE
 
 
 class TestNavigationIntegration:
@@ -79,9 +71,7 @@ class TestNavigationIntegration:
         assert navigator._steps[2]["status"] == "locked"
         assert navigator._forward_button.disabled == True
 
-    def test_module_launch_integration(
-        self, integrated_gui, mock_adapter_with_data, mock_modules
-    ):
+    def test_module_launch_integration(self, integrated_gui, mock_adapter_with_data, mock_modules):
         navigator = integrated_gui._navigator
 
         navigator.valid_dataset_dir_selected(mock_adapter_with_data)
@@ -98,7 +88,7 @@ class TestNavigationIntegration:
         assert navigator._current_module == test_module
         test_module.initiate_module.assert_called_once()
 
-    @patch("src.ui.gui.GUI.set_info_field_state")
+    @patch("suplex.ui.gui.GUI.set_info_field_state")
     def test_info_field_updates_during_navigation(
         self, mock_set_info_field_state, integrated_gui, mock_adapter_with_data
     ):
@@ -114,7 +104,7 @@ class TestNavigationIntegration:
             # Simulate what the real method does when datasets are selected
             navigator.set_info_field_state(
                 message="You have selected 2 datasets from 1 project.",
-                info_color=gui._current_scheme.LAYOUT_COLOR.INFO_FIELD.INFO
+                info_color=gui._current_scheme.LAYOUT_COLOR.INFO_FIELD.INFO,
             )
 
         navigator._dataset_selection_page.handle_dataset_selection_changed = (
@@ -130,9 +120,7 @@ class TestNavigationIntegration:
         calls = mock_set_info_field_state.call_args_list
         info_color = gui._current_scheme.LAYOUT_COLOR.INFO_FIELD.INFO
 
-        found = any(
-            len(c[0]) > 1 and c[0][1] == info_color for c in calls
-        )
+        found = any(len(c[0]) > 1 and c[0][1] == info_color for c in calls)
         assert found, "Expected set_info_field_state to be called with INFO color"
 
     def test_breadcrumb_click_navigation(self, integrated_gui, mock_adapter_with_data):
@@ -159,10 +147,10 @@ class TestNavigationIntegration:
 
         assert navigator._current_step == PAGE.DATASET_SELECTION
 
-    @patch("ui.pages.directory_selection_page.Path")
-    @patch("ui.pages.directory_selection_page.Adapter")
+    @patch("suplex.ui.pages.directory_selection_page.sample_data_dir")
+    @patch("suplex.ui.pages.directory_selection_page.Adapter")
     def test_sample_data_navigation(
-        self, mock_adapter_class, mock_path, integrated_gui, mock_adapter_with_data
+        self, mock_adapter_class, mock_sample_data_dir, integrated_gui, mock_adapter_with_data
     ):
         navigator = integrated_gui._navigator
 
@@ -170,7 +158,7 @@ class TestNavigationIntegration:
         mock_sample_path.exists.return_value = True
         mock_sample_path.__str__ = Mock(return_value="/sample/data")
 
-        mock_path.return_value.parent.parent.parent.__truediv__.return_value = mock_sample_path
+        mock_sample_data_dir.return_value = mock_sample_path
         mock_adapter_class.return_value = mock_adapter_with_data
 
         dir_page = navigator._directory_selection_page

@@ -57,12 +57,13 @@ All test files should follow this consistent structure:
 import pytest
 # Explicit imports only (no wildcard imports)
 
+
 class TestClassName:
     """Clear, descriptive English docstring describing what this test class covers."""
 
-    # ------------------------------------------------------------------------- 
+    # -------------------------------------------------------------------------
     # Section Name
-    # ------------------------------------------------------------------------- 
+    # -------------------------------------------------------------------------
 
     def test_something(self, fixture_name):
         """Clear, descriptive English docstring."""
@@ -86,10 +87,13 @@ class TestClassName:
 
 ## Running Tests
 
+All commands below assume the development environment created with `uv sync --group dev`;
+prefix them with `uv run` (or activate `.venv`).
+
 ### Run All Tests
 
 ```bash
-pytest
+uv run pytest
 ```
 
 ### Run Specific Layers
@@ -127,21 +131,21 @@ pytest --pdb
 pytest -k "heatmap"
 
 # Run with coverage
-pytest --cov=src --cov-report=term-missing
+pytest --cov=suplex --cov-report=term-missing
 ```
 
 ### Coverage Reports
 
 ```bash
 # Terminal report
-pytest --cov=src --cov-report=term-missing
+pytest --cov=suplex --cov-report=term-missing
 
 # HTML report (recommended)
-pytest --cov=src --cov-report=html
+pytest --cov=suplex --cov-report=html
 # Then open htmlcov/index.html
 
 # XML report (for CI)
-pytest --cov=src --cov-report=xml
+pytest --cov=suplex --cov-report=xml
 ```
 
 ## Writing New Tests
@@ -174,9 +178,8 @@ The test suite is designed to work well in CI/CD pipelines. Example GitHub Actio
 ```yaml
 - name: Run tests
   run: |
-    pip install -e .
-    pip install -r requirements-dev.txt
-    pytest --cov=src --cov-report=xml
+    uv sync --locked --group dev
+    uv run pytest --cov=suplex --cov-report=xml
 
 - name: Upload coverage
   uses: codecov/codecov-action@v3

@@ -1,5 +1,4 @@
-from src.suplex_modules.suplex_module_interface import SuplexModuleInterface
-from typing import Dict, List, Optional
+from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 
 
 class IncompleteSuplexModule(SuplexModuleInterface):

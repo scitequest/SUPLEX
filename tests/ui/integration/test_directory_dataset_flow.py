@@ -1,13 +1,12 @@
-import pytest
 from unittest.mock import Mock, patch
 
 import ipywidgets as widgets
 
-from src.ui.pages.directory_selection_page import DirectorySelectionPage
-from src.ui.pages.dataset_selection_page import DatasetSelectionPage, ProjectCard
-from martin_interface.martin_interface_constants import SEARCH_MODE
-from ui.ui_constants import PAGE
-from src.ui.elements.navigator import Navigator
+from suplex.martin_interface.martin_interface_constants import SEARCH_MODE
+from suplex.ui.elements.navigator import Navigator
+from suplex.ui.pages.dataset_selection_page import ProjectCard
+from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
+from suplex.ui.ui_constants import PAGE
 
 
 class TestDirectoryDatasetFlow:
@@ -28,17 +27,17 @@ class TestDirectoryDatasetFlow:
         assert page._n_datasets == 0
         assert page._n_projects == 0
 
-    @patch("src.ui.pages.directory_selection_page.tk")
-    @patch("src.ui.pages.directory_selection_page.filedialog")
-    def test_open_directory_dialog_and_search(
+    @patch("suplex.ui.pages.directory_selection_page.tk")
+    @patch("suplex.ui.pages.directory_selection_page.filedialog")
+    def test_directory_chosen_and_search(
         self, mock_filedialog, mock_tk, dir_selection_page, mock_adapter_with_data
     ):
-        """Selecting a directory via dialog triggers search and notifies Navigator."""
+        """Selecting a directory via the dialog triggers search and notifies Navigator."""
         mock_root = Mock()
         mock_tk.Tk.return_value = mock_root
         mock_filedialog.askdirectory.return_value = "/valid/dataset/path"
 
-        with patch("src.ui.pages.directory_selection_page.Adapter") as mock_adapter_class:
+        with patch("suplex.ui.pages.directory_selection_page.Adapter") as mock_adapter_class:
             mock_adapter_class.return_value = mock_adapter_with_data
 
             dir_selection_page._path_display = Mock()
@@ -50,7 +49,7 @@ class TestDirectoryDatasetFlow:
             dir_selection_page.search_dir.assert_called_once()
             mock_root.destroy.assert_called_once()
 
-    @patch("src.ui.pages.directory_selection_page.Adapter")
+    @patch("suplex.ui.pages.directory_selection_page.Adapter")
     @patch("os.path.exists")
     @patch("os.path.isdir")
     def test_search_dir_valid_path(
@@ -99,14 +98,12 @@ class TestDirectoryDatasetFlow:
 
     def test_use_sample_data_success(self, dir_selection_page, mock_adapter_with_data):
         """use_sample_data() loads sample data and advances navigation."""
-        with patch("src.ui.pages.directory_selection_page.Path") as mock_path_class:
+        with patch("suplex.ui.pages.directory_selection_page.sample_data_dir") as mock_sample_dir:
             mock_sample_path = Mock()
             mock_sample_path.exists.return_value = True
-            mock_path_class.return_value.parent.parent.parent.__truediv__.return_value = (
-                mock_sample_path
-            )
+            mock_sample_dir.return_value = mock_sample_path
 
-            with patch("src.ui.pages.directory_selection_page.Adapter") as mock_adapter_class:
+            with patch("suplex.ui.pages.directory_selection_page.Adapter") as mock_adapter_class:
                 mock_adapter_class.return_value = mock_adapter_with_data
 
                 dir_selection_page.use_sample_data()

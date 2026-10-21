@@ -1,22 +1,22 @@
-import pytest
 from unittest.mock import Mock, patch
+
 import ipywidgets as widgets
 
-from suplex_modules.submodules.sample_spot_filter import (
+from suplex.martin_interface.dataset import Dataset
+from suplex.suplex_modules.submodules.sample_spot_filter import (
+    SampleSpotFilter,
+    aggregate_filter_states_all,
+    aggregate_filter_states_any,
+    get_normalization_factors,
     get_sample_threshold_map,
     get_spot_threshold_map,
-    aggregate_filter_states_any,
-    aggregate_filter_states_all,
-    get_normalization_factors,
-    SampleSpotFilter,
 )
-from suplex_modules.submodules.submodule_constants import (
-    THRESHOLD_FILTER_STATE,
-    NORMALIZATION,
+from suplex.suplex_modules.submodules.submodule_constants import (
     DATASET_ATTRIBUTE,
+    NORMALIZATION,
     SELECTION_MODE,
+    THRESHOLD_FILTER_STATE,
 )
-from src.martin_interface.dataset import Dataset
 
 
 class TestSampleSpotFilterFunctions:
@@ -34,11 +34,11 @@ class TestSampleSpotFilterFunctions:
 
         with (
             patch(
-                "suplex_modules.submodules.sample_spot_filter.get_normalization_factors",
+                "suplex.suplex_modules.submodules.sample_spot_filter.get_normalization_factors",
                 return_value=[1.0, 1.0],
             ),
             patch(
-                "suplex_modules.submodules.sample_spot_filter.extract_value_list_from_dataset",
+                "suplex.suplex_modules.submodules.sample_spot_filter.extract_value_list_from_dataset",
                 side_effect=[[100, 200], [50, 150]],
             ),
         ):
@@ -64,11 +64,11 @@ class TestSampleSpotFilterFunctions:
 
         with (
             patch(
-                "suplex_modules.submodules.sample_spot_filter.get_normalization_factors",
+                "suplex.suplex_modules.submodules.sample_spot_filter.get_normalization_factors",
                 return_value=[1.0, 1.0],
             ),
             patch(
-                "suplex_modules.submodules.sample_spot_filter.extract_value_list_from_dataset",
+                "suplex.suplex_modules.submodules.sample_spot_filter.extract_value_list_from_dataset",
                 side_effect=[[[10, 20, 30], [40, 50, 60]], [[70, 80, 90], [100, 110, 120]]],
             ),
         ):
@@ -90,11 +90,11 @@ class TestSampleSpotFilterFunctions:
 
         with (
             patch(
-                "suplex_modules.submodules.sample_spot_filter.get_normalization_factors",
+                "suplex.suplex_modules.submodules.sample_spot_filter.get_normalization_factors",
                 return_value=[1.0, 1.0],
             ),
             patch(
-                "suplex_modules.submodules.sample_spot_filter.extract_value_list_from_dataset",
+                "suplex.suplex_modules.submodules.sample_spot_filter.extract_value_list_from_dataset",
                 side_effect=[[[10, 20], [30, 40]], [[50, 60], [70, 80]]],
             ),
         ):
@@ -155,7 +155,7 @@ class TestSampleSpotFilterFunctions:
     def test_get_normalization_factors_internal(self, mock_datasets):
         """INTERNAL normalization uses max value per dataset."""
         with patch(
-            "suplex_modules.submodules.sample_spot_filter.get_flat_value_list",
+            "suplex.suplex_modules.submodules.sample_spot_filter.get_flat_value_list",
             side_effect=[[100, 200], [50, 150]],
         ):
             factors = get_normalization_factors(
@@ -166,7 +166,7 @@ class TestSampleSpotFilterFunctions:
     def test_get_normalization_factors_global(self, mock_datasets):
         """GLOBAL normalization uses the overall maximum across all datasets."""
         with patch(
-            "suplex_modules.submodules.sample_spot_filter.get_flat_value_list",
+            "suplex.suplex_modules.submodules.sample_spot_filter.get_flat_value_list",
             side_effect=[[100, 200], [50, 150]],
         ):
             factors = get_normalization_factors(
@@ -216,7 +216,7 @@ class TestSampleSpotFilter:
         filter_obj._sample_filter_mode_dropdown.value = SELECTION_MODE.ANY.value
 
         with patch(
-            "suplex_modules.submodules.sample_spot_filter.get_spot_threshold_map",
+            "suplex.suplex_modules.submodules.sample_spot_filter.get_spot_threshold_map",
             return_value={
                 mock_datasets_local[0]: [
                     [THRESHOLD_FILTER_STATE.WITHIN_RANGE, THRESHOLD_FILTER_STATE.BELOW_RANGE]
@@ -243,7 +243,7 @@ class TestSampleSpotFilter:
         }
 
         with patch(
-            "suplex_modules.submodules.sample_spot_filter.extract_value_list_from_dataset",
+            "suplex.suplex_modules.submodules.sample_spot_filter.extract_value_list_from_dataset",
             return_value=[[100, 200, 300], [400, 500, 600]],
         ):
             values = filter_obj.extract_filtered_values_from_datasets(
@@ -262,11 +262,11 @@ class TestSampleSpotFilter:
         filter_obj = SampleSpotFilter()
         with (
             patch(
-                "suplex_modules.submodules.sample_spot_filter.get_flat_value_list",
+                "suplex.suplex_modules.submodules.sample_spot_filter.get_flat_value_list",
                 return_value=[10, 20, 30, 100],
             ),
             patch(
-                "suplex_modules.submodules.sample_spot_filter.extract_value_list_from_dataset",
+                "suplex.suplex_modules.submodules.sample_spot_filter.extract_value_list_from_dataset",
                 return_value=[[10, 20], [30, 100]],
             ),
         ):

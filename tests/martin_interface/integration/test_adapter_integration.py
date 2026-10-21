@@ -1,9 +1,9 @@
-import pytest
-import os
-import json
 import copy
-from src.martin_interface.martin_adapter import Adapter
-from src.martin_interface.martin_interface_constants import SEARCH_MODE
+import json
+import os
+
+from suplex.martin_interface.martin_adapter import Adapter
+from suplex.martin_interface.martin_interface_constants import SEARCH_MODE
 
 
 class TestAdapterIntegration:

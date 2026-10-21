@@ -1,10 +1,9 @@
-import pytest
-import os
-import tempfile
 import json
+import os
 from unittest.mock import patch
-from src.martin_interface.search_directories import delve_dirs, sweep_dirs
-from src.martin_interface.martin_interface_constants import SEARCH_MODE
+
+from suplex.martin_interface.martin_interface_constants import SEARCH_MODE
+from suplex.martin_interface.search_directories import delve_dirs, sweep_dirs
 
 
 class TestSearchDirectories:
@@ -103,7 +102,7 @@ class TestSearchDirectories:
         mock_listdir.side_effect = PermissionError("Access denied")
 
         detected = set()
-        with patch("src.martin_interface.search_directories.logger") as mock_logger:
+        with patch("suplex.martin_interface.search_directories.logger") as mock_logger:
             delve_dirs("/test/path", ["data.json"], detected)
             mock_logger.warning.assert_called()
 
@@ -198,7 +197,7 @@ class TestSearchDirectories:
         """Gracefully handles PermissionError in sweep_dirs and returns empty set."""
         mock_scandir.side_effect = PermissionError("Access denied")
 
-        with patch("src.martin_interface.search_directories.logger") as mock_logger:
+        with patch("suplex.martin_interface.search_directories.logger") as mock_logger:
             detected = sweep_dirs("/test", ["data.json"], SEARCH_MODE.ITERATIVE_UNBOUND)
             mock_logger.warning.assert_called()
             assert len(detected) == 0

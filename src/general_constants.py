@@ -1,5 +1,0 @@
-VERSION_NUMBER = "0.4.0"
-
-RELEASE_STAGE = "open-beta"
-
-BUILD_DATE = "13.06.2026"

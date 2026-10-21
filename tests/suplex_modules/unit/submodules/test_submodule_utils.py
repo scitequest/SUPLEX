@@ -1,13 +1,11 @@
-import pytest
-import math
 from unittest.mock import Mock
 
-from suplex_modules.submodules.submodule_utils import (
-    calculate_step_size,
+from suplex.martin_interface.dataset import Dataset
+from suplex.suplex_modules.submodules.submodule_constants import NORMALIZATION
+from suplex.suplex_modules.submodules.submodule_utils import (
     apply_normalization,
+    calculate_step_size,
 )
-from suplex_modules.submodules.submodule_constants import NORMALIZATION
-from martin_interface.dataset import Dataset
 
 
 class TestSubmoduleUtils:

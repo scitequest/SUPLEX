@@ -1,14 +1,9 @@
-import pytest
 import logging
-from unittest.mock import Mock, patch, MagicMock, mock_open
-from datetime import datetime
-import tempfile
 import os
+import tempfile
+from unittest.mock import Mock, patch
 
-from src.ui.elements.popup_log_system import PopupLogger, PopupLogHandler
-from src.ui.gui import GUI
-from src.ui.pages.directory_selection_page import DirectorySelectionPage
-from src.martin_interface.martin_adapter import Adapter
+from suplex.ui.pages.directory_selection_page import DirectorySelectionPage
 
 
 class TestLoggingSystemIntegration:
@@ -79,21 +74,19 @@ class TestLoggingSystemIntegration:
         test_logger.warning("Test warning")
 
         # Mock file dialog and file operations
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".log"
-        ) as tmp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".log") as tmp_file:
             tmp_filename = tmp_file.name
 
         try:
             with patch(
-                "src.ui.elements.popup_log_system.filedialog.asksaveasfilename",
+                "suplex.ui.elements.popup_log_system.filedialog.asksaveasfilename",
                 return_value=tmp_filename,
             ):
-                with patch("src.ui.elements.popup_log_system.tk"):
+                with patch("suplex.ui.elements.popup_log_system.tk"):
                     popup_logger.save_logs()
 
             # Verify file was created and contains logs
-            with open(tmp_filename, "r") as f:
+            with open(tmp_filename) as f:
                 content = f.read()
                 assert "Test log 1" in content
                 assert "Test error" in content
@@ -159,11 +152,9 @@ class TestLoggingSystemIntegration:
         assert popup_logger._log_messages[0]["message"] == "Log message 5"
         assert popup_logger._log_messages[-1]["message"] == "Log message 9"
 
-    @patch("src.ui.pages.directory_selection_page.os.path.exists")
-    @patch("src.ui.pages.directory_selection_page.os.path.isdir")
-    def test_logging_during_directory_search(
-        self, mock_isdir, mock_exists, gui_with_logging
-    ):
+    @patch("suplex.ui.pages.directory_selection_page.os.path.exists")
+    @patch("suplex.ui.pages.directory_selection_page.os.path.isdir")
+    def test_logging_during_directory_search(self, mock_isdir, mock_exists, gui_with_logging):
         """Test logging during directory search operations."""
         gui, popup_logger, test_logger = gui_with_logging
 
@@ -211,7 +202,7 @@ class TestLoggingSystemIntegration:
         test_logger.error("Copy test error")
 
         # Mock clipboard
-        with patch("src.ui.elements.popup_log_system.pyperclip.copy") as mock_copy:
+        with patch("suplex.ui.elements.popup_log_system.pyperclip.copy") as mock_copy:
             popup_logger.copy_logs()
 
             # Verify clipboard received formatted logs
