@@ -1,65 +1,86 @@
 # SUPLEX
 
-**SUPLEX** is a modular analysis platform for **MARTin** microarray data. It provides tools for data loading, validation, filtering, visualization (heatmaps, hitmaps, intensity overviews) and export, all accessible through a graphical interface that runs in your browser.
+**SUPLEX** is a modular analysis platform for data produced by **[MARTin](https://github.com/scitequest/martin)** (MicroArray Rastering Tool).  
+It provides tools for data loading, validation, filtering, visualization (heatmaps, hitmaps, intensity overviews) and export — all accessible through a graphical interface that runs in your browser.
 
-## Features
+[![MARTin](https://img.shields.io/badge/Data%20from-MARTin-blue?style=flat-square)](https://github.com/scitequest/martin)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/scitequest/SUPLEX/main?urlpath=voila/render/src/suplex/Suplex.ipynb)
 
-- **Robust Data Ingestion** — Load and validate MARTin datasets with automatic fallback handling for missing files
-- **Modular Analysis** — Extensible module system for different visualization and analysis tasks
-- **Interactive UI** — Browser interface built with ipywidgets and served by Voilà
-- **Advanced Filtering** — Date range, tag-based, and statistical threshold filtering
-- **Multiple Visualization Types** — Heatmap collages, hitmaps, intensity overviews, boxplots, and more
-- **Export Capabilities** — Generate high-quality figures and Excel reports
-- **End-to-End Workflow** — Complete wizard from directory selection to module execution
+### Features
+- **Robust Data Ingestion** — Load and validate MARTin datasets with automatic fallback handling for missing files  
+- **Modular Analysis** — Extensible module system for different visualization and analysis tasks  
+- **Interactive UI** — Browser interface built with ipywidgets and served by Voilà  
+- **Advanced Filtering** — Date range, tag-based, and statistical threshold filtering  
+- **Multiple Visualization Types** — Heatmap collages, hitmaps, intensity overviews, boxplots, and more  
+- **Export Capabilities** — Generate high-quality figures and Excel reports  
+- **End-to-End Workflow** — Complete wizard from directory selection to module execution  
 
-## Installation
+## Ways to Use SUPLEX
 
-### As a command line tool (recommended)
+| Method | Best for | Data Saving/Loading | Requirements |
+|--------|----------|---------------------|--------------|
+| **Windows Installer** | Regular use | Full local access | None |
+| **Standalone Executable** | Regular use | Full local access | None |
+| **`uv tool install`** | Developers & power users | Full local access | [uv](https://docs.astral.sh/uv/) |
+| **Online Demo** (Binder) | Quick testing | Disabled (demo mode) | Browser only |
+| **From Source** | Development | Full local access | [uv](https://docs.astral.sh/uv/), Python ≥ 3.11 |
 
-Install [uv](https://docs.astral.sh/uv/) once, then install SUPLEX as a tool. uv manages a private Python for it, so no system Python is required.
+### 1. Windows Installer (Recommended for most users)
+Download the latest `SUPLEX-Setup-*.exe` from the [Releases](https://github.com/scitequest/SUPLEX/releases) page.  
+After installation, start SUPLEX from the Start Menu or Desktop icon. The application opens automatically in your default browser.  
+No Python or Jupyter installation is required. All data stays on your computer.
+
+### 2. Standalone Executable
+Self-installing single-file executables for Windows, macOS and Linux are available in the [Releases](https://github.com/scitequest/SUPLEX/releases).  
+The executable downloads Python and the dependencies on first start and reuses them afterwards.
+
+### 3. Install as a command-line tool (uv)
+Install [uv](https://docs.astral.sh/uv/) once, then:
 
 ```bash
 uv tool install git+https://github.com/scitequest/SUPLEX
 suplex
 ```
 
-`suplex` starts a local server and opens SUPLEX in your default browser. Options: `--port N`, `--no-browser`, `--debug` (show kernel tracebacks), `--demo` (disable saving to disk). Update with `uv tool upgrade suplex`.
+`suplex` starts a local server and opens SUPLEX in your browser.  
+Options: `--port N`, `--no-browser`, `--debug`, `--demo`.  
+Update later with `uv tool upgrade suplex`.
 
-### Standalone executables and Windows installer
-
-Releases ship self-installing single-file executables for Windows, macOS and Linux built with [PyApp](https://ofek.dev/pyapp/), plus a Windows installer (`SUPLEX-Setup-<version>.exe`) that adds Start menu and desktop entries. The executable downloads Python and the locked dependencies on first start and reuses them afterwards.
-
-### Online demo
-
-Try SUPLEX in your browser without installing anything:
+### 4. Online Demo (Binder)
+Try SUPLEX directly in your browser:
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/scitequest/SUPLEX/main?urlpath=voila/render/src/suplex/Suplex.ipynb)
 
-> **Note:** The demo runs on a shared server. Exporting results and saving logs to disk is disabled there (demo mode); use the bundled sample data to explore the modules.
+> **Note:** The demo runs in demo mode. Saving and loading of data is disabled. Use the bundled sample data to explore the modules.
 
-## Usage
+### 5. From Source (Development)
+```bash
+git clone https://github.com/scitequest/SUPLEX.git
+cd SUPLEX
+uv sync --group dev
+uv run suplex
+```
 
-1. Launch the application
-2. Select a directory containing MARTin data, or load the sample data
-3. Choose datasets using date and tag filters
-4. Select an analysis module (e.g. Heatmap Collage, Hitmap)
-5. Configure and run the module
-6. Export results
+### Usage
+1. Launch the application  
+2. Select a directory containing MARTin data, or load the sample data  
+3. Choose datasets using date and tag filters  
+4. Select an analysis module (e.g. Heatmap Collage, Hitmap)  
+5. Configure and run the module  
+6. Export results  
 
 ### Custom modules and colour schemes
-
 SUPLEX loads additional modules and colour schemes from a per-user directory that it creates on first start (the path is printed when `suplex` starts):
 
 | Platform | Modules | Colour schemes |
-|---|---|---|
+|----------|---------|----------------|
 | Linux | `~/.local/share/suplex/modules/` | `~/.local/share/suplex/schemes/` |
 | macOS | `~/Library/Application Support/suplex/modules/` | `~/Library/Application Support/suplex/schemes/` |
 | Windows | `%LOCALAPPDATA%\scitequest\suplex\modules\` | `%LOCALAPPDATA%\scitequest\suplex\schemes\` |
 
 See the [module development guide](docs/SUPLEX_Module_Development_Guide_en.md) ([German](docs/SUPLEX_Module_Development_Guide_ger.md)) for writing modules.
 
-## Development
-
+### Development
 ```bash
 git clone https://github.com/scitequest/SUPLEX.git
 cd SUPLEX
@@ -71,7 +92,6 @@ uv run ruff format       # format
 ```
 
 ### Project structure
-
 ```
 SUPLEX/
 ├── src/suplex/
@@ -94,16 +114,14 @@ SUPLEX/
 
 The code follows a multi-layer architecture:
 
-- **`martin_interface`** — Handles directory scanning, file validation, and provides rich `Dataset` / `Project` objects
-- **`suplex_modules`** — Implements analysis logic through a common `SuplexModuleInterface`
-- **`ui`** — Provides the graphical wizard interface using Navigator + page components
+- **`martin_interface`** — Handles directory scanning, file validation, and provides rich `Dataset` / `Project` objects  
+- **`suplex_modules`** — Implements analysis logic through a common `SuplexModuleInterface`  
+- **`ui`** — Provides the graphical wizard interface using Navigator + page components  
 
 ### Demo mode
-
 Setting the environment variable `SUPLEX_DEMO=1` (or passing `--demo`) disables the buttons that write to the local disk. Binder sets it through the `start` script.
 
 ### Building the distributables
-
 ```bash
 uv build                                       # sdist and wheel in dist/
 uv run python packaging/pyapp/build.py         # executable in dist/pyapp/ (needs cargo)
@@ -113,14 +131,11 @@ On Windows the Inno Setup installer is compiled from `packaging/windows/suplex.i
 
 See [tests/README_tests.md](tests/README_tests.md) for testing guidelines and conventions.
 
-## Requirements
-
+### Requirements
 - Python ≥ 3.11 (installed automatically by uv when using `uv tool install`)
 
-## License
-
+### License
 AGPL-3.0-only
 
-## Author
-
+### Author
 Kai Oliver Kreissner
