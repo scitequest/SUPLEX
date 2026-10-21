@@ -128,10 +128,8 @@ class TestSchemeLoader:
     # -------------------------------------------------------------------------
     @patch("suplex.ui.styles.scheme_loader.importlib.util.spec_from_file_location")
     @patch("suplex.ui.styles.scheme_loader.importlib.util.module_from_spec")
-    @patch("suplex.ui.styles.scheme_loader.inspect.isclass")
     def test_try_load_schemes_from_file_success(
         self,
-        mock_isclass,
         mock_module_from_spec,
         mock_spec_from_file,
         mock_scheme_class,
@@ -141,22 +139,20 @@ class TestSchemeLoader:
         mock_spec.loader = Mock()
         mock_spec.loader.exec_module = Mock()
         mock_spec_from_file.return_value = mock_spec
-
+    
         mock_module = Mock()
         mock_module.__name__ = "test"
         mock_module.TestScheme = mock_scheme_class
         mock_scheme_class.__module__ = "test"
         mock_module_from_spec.return_value = mock_module
-
-        mock_isclass.return_value = True
-
+    
         with patch("suplex.ui.styles.scheme_loader.inspect.getmembers") as mock_getmembers:
             mock_getmembers.return_value = [("TestScheme", mock_scheme_class)]
-
+    
             with patch("suplex.ui.styles.scheme_loader.validate_against_schema") as mock_validate:
                 mock_validate.return_value = True
                 result = try_load_schemes_from_file(Path("test.py"))
-
+    
         assert len(result) == 1
         assert result[0] == mock_scheme_class
 
