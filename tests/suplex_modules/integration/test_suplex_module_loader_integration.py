@@ -30,7 +30,7 @@ class TestModuleLoadingIntegration:
             ]
             assert len(warning_logs) == 1
             assert (
-                "Can't instantiate abstract class IncompleteSuplexModule without an implementation for abstract methods"
+                "Can't instantiate abstract class IncompleteSuplexModule with abstract methods"
                 in warning_logs[0].message
             )
 
@@ -59,7 +59,7 @@ class TestModuleLoadingIntegration:
             ]
             assert len(warning_logs) == 1
             assert (
-                "Can't instantiate abstract class IncompleteSuplexModule without an implementation for abstract methods"
+                "Can't instantiate abstract class IncompleteSuplexModule with abstract methods"
                 in warning_logs[0].message
             )
 
