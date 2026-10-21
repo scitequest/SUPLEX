@@ -118,6 +118,7 @@ class TestExcelAdapter:
         with (
             patch("suplex.suplex_modules.adapters.excel_adapter.Workbook") as mock_wb,
             patch("suplex.suplex_modules.adapters.excel_adapter.filedialog") as mock_filedialog,
+            patch("suplex.suplex_modules.adapters.excel_adapter.Tk") as mock_tk,
             patch(
                 "suplex.suplex_modules.adapters.excel_adapter.get_shortened_label"
             ) as mock_shorten,
@@ -125,6 +126,13 @@ class TestExcelAdapter:
         ):
             mock_filedialog.asksaveasfilename.return_value = "/tmp/test.xlsx"
             mock_shorten.return_value = "test_sheet"
+
+            # Prevent Tk() from trying to open a real display in CI
+            mock_tk.return_value.withdraw.return_value = None
+            mock_tk.return_value.lift.return_value = None
+            mock_tk.return_value.attributes.return_value = None
+            mock_tk.return_value.focus_force.return_value = None
+            mock_tk.return_value.destroy.return_value = None
 
             # Minimal mocks for openpyxl
             mock_ws = Mock()
