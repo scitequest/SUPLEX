@@ -74,7 +74,7 @@ def build(name: str, version: str, wheel: Path, output_dir: Path) -> Path:
         suffix = ".exe" if platform.system() == "Windows" else ""
         built = Path(cargo_root) / "bin" / f"pyapp{suffix}"
         output_dir.mkdir(parents=True, exist_ok=True)
-        target = output_dir / f"{name}{suffix}"
+        target = output_dir / f"suplex{suffix}"
         shutil.copy2(built, target)
     return target
 
