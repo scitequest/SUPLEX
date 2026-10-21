@@ -61,6 +61,7 @@ dev = [
 ]
 
 [tool.uv.build-backend]
+module-name = "suplex"
 source-exclude = ["**/__pycache__", "**/.ipynb_checkpoints"]
 wheel-exclude = ["**/__pycache__", "**/.ipynb_checkpoints"]
 

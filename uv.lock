@@ -3249,6 +3249,71 @@ wheels = [
 ]
 
 [[package]]
+name = "scitequest-suplex"
+version = "0.4.0"
+source = { editable = "." }
+dependencies = [
+    { name = "ipyevents" },
+    { name = "ipykernel" },
+    { name = "ipywidgets" },
+    { name = "isodate" },
+    { name = "matplotlib" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "openpyxl" },
+    { name = "pandas" },
+    { name = "pillow" },
+    { name = "platformdirs" },
+    { name = "pyperclip" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "seaborn" },
+    { name = "svgutils" },
+    { name = "typing-extensions" },
+    { name = "voila" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "jupyterlab" },
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-mock" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "ipyevents", specifier = ">=2.0" },
+    { name = "ipykernel", specifier = ">=6.29" },
+    { name = "ipywidgets", specifier = ">=8.0" },
+    { name = "isodate", specifier = ">=0.6" },
+    { name = "matplotlib", specifier = ">=3.8" },
+    { name = "numpy", specifier = ">=1.26" },
+    { name = "openpyxl", specifier = ">=3.1" },
+    { name = "pandas", specifier = ">=2.2" },
+    { name = "pillow", specifier = ">=10.0" },
+    { name = "platformdirs", specifier = ">=4.0" },
+    { name = "pyperclip", specifier = ">=1.8" },
+    { name = "scipy", specifier = ">=1.11" },
+    { name = "seaborn", specifier = ">=0.13" },
+    { name = "svgutils", specifier = ">=0.3" },
+    { name = "typing-extensions", specifier = ">=4.0" },
+    { name = "voila", specifier = ">=0.5" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "jupyterlab", specifier = ">=4.0" },
+    { name = "mypy", specifier = ">=1.0" },
+    { name = "pytest", specifier = ">=7.0" },
+    { name = "pytest-cov", specifier = ">=4.0" },
+    { name = "pytest-mock", specifier = ">=3.0" },
+    { name = "ruff", specifier = ">=0.5" },
+]
+
+[[package]]
 name = "seaborn"
 version = "0.13.2"
 source = { registry = "https://pypi.org/simple" }
@@ -3330,71 +3395,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/28/e3/55dcc2cfbc3ca9c29519eb6884dd1415ecb53b0e934862d3559ddcb7e20b/stack_data-0.6.3.tar.gz", hash = "sha256:836a778de4fec4dcd1dcd89ed8abff8a221f58308462e1c4aa2a3cf30148f0b9", size = 44707, upload-time = "2023-09-30T13:58:05.479Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f1/7b/ce1eafaf1a76852e2ec9b22edecf1daa58175c090266e9f6c64afcd81d91/stack_data-0.6.3-py3-none-any.whl", hash = "sha256:d5558e0c25a4cb0853cddad3d77da9891a08cb85dd9f9f91b9f8cd66e511e695", size = 24521, upload-time = "2023-09-30T13:58:03.53Z" },
-]
-
-[[package]]
-name = "suplex"
-version = "0.4.0"
-source = { editable = "." }
-dependencies = [
-    { name = "ipyevents" },
-    { name = "ipykernel" },
-    { name = "ipywidgets" },
-    { name = "isodate" },
-    { name = "matplotlib" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "openpyxl" },
-    { name = "pandas" },
-    { name = "pillow" },
-    { name = "platformdirs" },
-    { name = "pyperclip" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "seaborn" },
-    { name = "svgutils" },
-    { name = "typing-extensions" },
-    { name = "voila" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "jupyterlab" },
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-mock" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "ipyevents", specifier = ">=2.0" },
-    { name = "ipykernel", specifier = ">=6.29" },
-    { name = "ipywidgets", specifier = ">=8.0" },
-    { name = "isodate", specifier = ">=0.6" },
-    { name = "matplotlib", specifier = ">=3.8" },
-    { name = "numpy", specifier = ">=1.26" },
-    { name = "openpyxl", specifier = ">=3.1" },
-    { name = "pandas", specifier = ">=2.2" },
-    { name = "pillow", specifier = ">=10.0" },
-    { name = "platformdirs", specifier = ">=4.0" },
-    { name = "pyperclip", specifier = ">=1.8" },
-    { name = "scipy", specifier = ">=1.11" },
-    { name = "seaborn", specifier = ">=0.13" },
-    { name = "svgutils", specifier = ">=0.3" },
-    { name = "typing-extensions", specifier = ">=4.0" },
-    { name = "voila", specifier = ">=0.5" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "jupyterlab", specifier = ">=4.0" },
-    { name = "mypy", specifier = ">=1.0" },
-    { name = "pytest", specifier = ">=7.0" },
-    { name = "pytest-cov", specifier = ">=4.0" },
-    { name = "pytest-mock", specifier = ">=3.0" },
-    { name = "ruff", specifier = ">=0.5" },
 ]
 
 [[package]]
