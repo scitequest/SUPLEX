@@ -1,21 +1,19 @@
 import logging
 import os
 import tkinter as tk
-from pathlib import Path
 from tkinter import filedialog
-from typing import TYPE_CHECKING, Optional
-from suplex.config import DEMO
+from typing import TYPE_CHECKING
 
 import ipywidgets as widgets
 
-from suplex.paths import sample_data_dir
-from suplex.martin_interface.martin_interface_constants import (
-    SEARCH_MODE,
-    MARTIN_MEASURE_DIR_DEPTH,
-)
+from suplex.config import DEMO
 from suplex.martin_interface.martin_adapter import Adapter
+from suplex.martin_interface.martin_interface_constants import (
+    MARTIN_MEASURE_DIR_DEPTH,
+    SEARCH_MODE,
+)
+from suplex.paths import sample_data_dir
 from suplex.ui.widget_factory import WidgetFactory
-from suplex.ui.styles.color_utils import hex_to_rgba
 
 if TYPE_CHECKING:
     from suplex.ui.elements.navigator import Navigator
@@ -247,10 +245,10 @@ class DirectorySelectionPage:
         )
 
         dir_selector_button = WidgetFactory.button_emphasis(
-            description="Select Directory", width="150px", height="100%",disabled=DEMO
+            description="Select Directory", width="150px", height="100%", disabled=DEMO
         )
         dir_selector_button.on_click(lambda x: self.open_directory_dialog())
-        
+
         path_row = WidgetFactory.hbox(
             children=[path_container, dir_selector_button],
             align_items="stretch",
@@ -381,7 +379,7 @@ class DirectorySelectionPage:
     def open_directory_dialog(self) -> None:
         """
         Open a directory selection dialog and handle the result.
-    
+
         Uses tkinter file dialog to allow users to select a directory.
         Updates the selected path and triggers directory search.
         Disabled in demo mode (Binder) because there is no display.
@@ -393,28 +391,25 @@ class DirectorySelectionPage:
                 info_color=self._navigator.current_scheme.LAYOUT_COLOR.INFO_FIELD.INFO,
             )
             return
-    
+
         logger.debug("Opening directory selection dialog")
-    
+
         try:
             root = tk.Tk()
             root.withdraw()  # Hide the main tkinter window
             root.attributes("-topmost", True)  # Bring dialog to front
-    
+
             # Set initial directory to last selected path if valid, else default to user home
             initial_dir = (
                 self._selected_path
                 if self._selected_path and os.path.exists(self._selected_path)
                 else os.path.expanduser("~")
             )
-    
-            selected_dir = filedialog.askdirectory(
-                title="Select Directory",
-                initialdir=initial_dir
-            )
-    
+
+            selected_dir = filedialog.askdirectory(title="Select Directory", initialdir=initial_dir)
+
             root.destroy()  # Clean up tkinter root
-    
+
             if selected_dir:
                 self._selected_path = selected_dir
                 self._path_display.value = selected_dir
@@ -422,7 +417,7 @@ class DirectorySelectionPage:
                 self.search_dir()
             else:
                 logger.debug("Directory selection cancelled by user")
-    
+
         except Exception as e:
             logger.error("Error opening directory dialog: %s", e, exc_info=True)
 

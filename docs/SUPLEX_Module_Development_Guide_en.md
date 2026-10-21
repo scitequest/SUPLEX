@@ -35,7 +35,6 @@ import ipywidgets as widgets
 
 ```python
 class YourModule(SuplexModuleInterface):
-
     @property
     def module_name(self) -> str:
         """Unique name shown in the module selection UI."""
@@ -57,7 +56,7 @@ class YourModule(SuplexModuleInterface):
         return {
             "font_color": "#FFFFFF",
             "button_color": "#2E86AB",
-            "button_icon": "📊"   # Emoji or icon path
+            "button_icon": "📊",  # Emoji or icon path
         }
 
     def check_if_viable(self, datasets: List[Dataset]) -> bool:
@@ -71,7 +70,7 @@ class YourModule(SuplexModuleInterface):
     def initiate_module(self, datasets: List[Dataset], color_scheme) -> Any:
         """
         Main entry point. Creates and returns the module's UI.
-        
+
         Args:
             datasets: List of selected Dataset objects
             color_scheme: Current color scheme for theming
@@ -114,13 +113,13 @@ Project
 ### Commonly Used Dataset Attributes
 
 ```python
-dataset.measure_date            # datetime | None
-dataset.image_creation_date     # datetime | None
-dataset.tags                    # List[str]
-dataset.suplex_tags             # List[str]
-dataset.samples                 # List[Sample]
-dataset.metadata                # Metadata | None
-dataset.general_parameters      # GeneralParameters | None
+dataset.measure_date  # datetime | None
+dataset.image_creation_date  # datetime | None
+dataset.tags  # List[str]
+dataset.suplex_tags  # List[str]
+dataset.samples  # List[Sample]
+dataset.metadata  # Metadata | None
+dataset.general_parameters  # GeneralParameters | None
 ```
 
 ### Working with Samples and Spots
@@ -194,12 +193,15 @@ SUPLEX provides reusable UI components for dataset and tag selection.
 
 ```python
 from suplex.suplex_modules.submodules.dataset_selector import DatasetSelector
-from suplex.suplex_modules.submodules.submodule_constants import DATASET_SELECTOR_MODE, DATASET_LABEL
+from suplex.suplex_modules.submodules.submodule_constants import (
+    DATASET_SELECTOR_MODE,
+    DATASET_LABEL,
+)
 
 selector = DatasetSelector(
     datasets=datasets,
     mode=DATASET_SELECTOR_MODE.MULTIPLE_UNBOUND,
-    label_parts=[DATASET_LABEL.NAME, DATASET_LABEL.MEASURE_DATE]
+    label_parts=[DATASET_LABEL.NAME, DATASET_LABEL.MEASURE_DATE],
 )
 
 ui_element = selector.get_ui_element()
@@ -232,7 +234,10 @@ from suplex.suplex_modules.suplex_module_interface import SuplexModuleInterface
 from suplex.martin_interface.dataset import Dataset
 from suplex.ui.widget_factory import WidgetFactory
 from suplex.suplex_modules.submodules.dataset_selector import DatasetSelector
-from suplex.suplex_modules.submodules.submodule_constants import DATASET_SELECTOR_MODE, DATASET_LABEL
+from suplex.suplex_modules.submodules.submodule_constants import (
+    DATASET_SELECTOR_MODE,
+    DATASET_LABEL,
+)
 
 
 class SimpleAnalysisModule(SuplexModuleInterface):
@@ -257,11 +262,7 @@ class SimpleAnalysisModule(SuplexModuleInterface):
 
     @property
     def button_style(self) -> dict:
-        return {
-            "font_color": "#FFFFFF",
-            "button_color": "#2E86AB",
-            "button_icon": "📊"
-        }
+        return {"font_color": "#FFFFFF", "button_color": "#2E86AB", "button_icon": "📊"}
 
     def check_if_viable(self, datasets: List[Dataset]) -> bool:
         return len(datasets) > 0 and any(d.metadata is not None for d in datasets)
@@ -279,24 +280,24 @@ class SimpleAnalysisModule(SuplexModuleInterface):
         self._dataset_selector = DatasetSelector(
             datasets=datasets,
             mode=DATASET_SELECTOR_MODE.MULTIPLE_UNBOUND,
-            label_parts=[DATASET_LABEL.NAME, DATASET_LABEL.MEASURE_DATE]
+            label_parts=[DATASET_LABEL.NAME, DATASET_LABEL.MEASURE_DATE],
         )
 
-        analyze_btn = WidgetFactory.button_emphasis(
-            "Analyze", icon="🔍", on_click=self._on_analyze
-        )
+        analyze_btn = WidgetFactory.button_emphasis("Analyze", icon="🔍", on_click=self._on_analyze)
 
         self._results_container = WidgetFactory.vbox(
             children=[WidgetFactory.html_widget("<p>Select datasets and click Analyze.</p>")],
-            height="300px"
+            height="300px",
         )
 
         controls = WidgetFactory.vbox([analyze_btn], gap="10px")
 
-        content = WidgetFactory.hbox([
-            self._dataset_selector.get_ui_element(),
-            WidgetFactory.vbox([controls, self._results_container])
-        ])
+        content = WidgetFactory.hbox(
+            [
+                self._dataset_selector.get_ui_element(),
+                WidgetFactory.vbox([controls, self._results_container]),
+            ]
+        )
 
         return WidgetFactory.vbox([header, content], gap="20px")
 
@@ -305,9 +306,9 @@ class SimpleAnalysisModule(SuplexModuleInterface):
 
         if not selected:
             self._results_container.children = [
-                WidgetFactory.info_field_warning([
-                    WidgetFactory.html_widget("Please select at least one dataset.")
-                ])
+                WidgetFactory.info_field_warning(
+                    [WidgetFactory.html_widget("Please select at least one dataset.")]
+                )
             ]
             return
 
@@ -350,7 +351,9 @@ average = sum(mean_values) / len(mean_values) if mean_values else 0
 from datetime import datetime, timedelta
 
 # Filter by recent date
-recent = [d for d in datasets if d.measure_date and d.measure_date > datetime.now() - timedelta(days=30)]
+recent = [
+    d for d in datasets if d.measure_date and d.measure_date > datetime.now() - timedelta(days=30)
+]
 
 # Filter by tag
 control_datasets = [d for d in datasets if "control" in d.tags]
@@ -361,18 +364,21 @@ control_datasets = [d for d in datasets if "control" in d.tags]
 ```python
 import pandas as pd
 
+
 def export_spots_to_csv(datasets, filename="results.csv"):
     records = []
     for ds in datasets:
         for sample in ds.samples:
             for spot in sample.spots:
-                records.append({
-                    "dataset": ds.metadata.name if ds.metadata else "Unknown",
-                    "row": spot.row,
-                    "col": spot.col,
-                    "mean": spot.mean_val,
-                    "normalized": spot.normalized_mean
-                })
+                records.append(
+                    {
+                        "dataset": ds.metadata.name if ds.metadata else "Unknown",
+                        "row": spot.row,
+                        "col": spot.col,
+                        "mean": spot.mean_val,
+                        "normalized": spot.normalized_mean,
+                    }
+                )
     pd.DataFrame(records).to_csv(filename, index=False)
 ```
 

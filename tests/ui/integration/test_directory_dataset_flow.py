@@ -36,15 +36,15 @@ class TestDirectoryDatasetFlow:
         mock_root = Mock()
         mock_tk.Tk.return_value = mock_root
         mock_filedialog.askdirectory.return_value = "/valid/dataset/path"
-    
+
         with patch("suplex.ui.pages.directory_selection_page.Adapter") as mock_adapter_class:
             mock_adapter_class.return_value = mock_adapter_with_data
-    
+
             dir_selection_page._path_display = Mock()
             dir_selection_page.search_dir = Mock()
-    
+
             dir_selection_page.open_directory_dialog()
-    
+
             assert dir_selection_page._selected_path == "/valid/dataset/path"
             dir_selection_page.search_dir.assert_called_once()
             mock_root.destroy.assert_called_once()
