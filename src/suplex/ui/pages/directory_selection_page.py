@@ -4,6 +4,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog
 from typing import TYPE_CHECKING, Optional
+from suplex.config import DEMO
 
 import ipywidgets as widgets
 
@@ -246,7 +247,7 @@ class DirectorySelectionPage:
         )
 
         dir_selector_button = WidgetFactory.button_emphasis(
-            description="Select Directory", width="150px", height="100%"
+            description="Select Directory", width="150px", height="100%",disabled=DEMO
         )
         dir_selector_button.on_click(lambda x: self.open_directory_dialog())
         
@@ -383,7 +384,16 @@ class DirectorySelectionPage:
     
         Uses tkinter file dialog to allow users to select a directory.
         Updates the selected path and triggers directory search.
+        Disabled in demo mode (Binder) because there is no display.
         """
+        if DEMO:
+            logger.info("Directory dialog disabled in demo mode")
+            self._navigator.set_info_field_state(
+                message="Directory selection is disabled in the online demo. Please use the sample data.",
+                info_color=self._navigator.current_scheme.LAYOUT_COLOR.INFO_FIELD.INFO,
+            )
+            return
+    
         logger.debug("Opening directory selection dialog")
     
         try:
