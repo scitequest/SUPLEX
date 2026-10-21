@@ -31,7 +31,9 @@ def project_metadata() -> tuple[str, str]:
 
 
 def built_wheel(name: str, version: str) -> Path:
-    wheel = REPO_ROOT / "dist" / f"{name}-{version}-py3-none-any.whl"
+    # uv normalizes hyphens to underscores in wheel filenames
+    normalized = name.replace("-", "_")
+    wheel = REPO_ROOT / "dist" / f"{normalized}-{version}-py3-none-any.whl"
     if not wheel.is_file():
         sys.exit(f"{wheel} not found; run `uv build --wheel` first")
     return wheel
