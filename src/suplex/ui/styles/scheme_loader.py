@@ -36,7 +36,7 @@ def load_all_schemes(directory: Path) -> dict[str, Any]:
         python_files = list(directory.glob("*.py"))
 
         if not python_files:
-            logger.warning("No Python files found in schemes directory: %s", directory)
+            logger.debug("No Python files found in schemes directory: %s", directory)
             return {}
 
         logger.debug("Found %d potential scheme files in directory", len(python_files))
