@@ -139,6 +139,7 @@ class TestSchemeLoader:
         """Successfully loads and validates scheme classes from a Python file."""
         mock_spec = Mock()
         mock_spec.loader = Mock()
+        mock_spec.loader.exec_module = Mock()
         mock_spec_from_file.return_value = mock_spec
 
         mock_module = Mock()
