@@ -403,7 +403,14 @@ class OverviewHeatmapModule(SuplexModuleInterface):
 
             logger.debug("Module UI initialized successfully")
             self._is_active = True
-            self.update_analysis()
+            self.apply_all_filters()
+            self.update_overview()
+            self.update_dataset_statistics()
+            self._plot_box.children = [
+                WidgetFactory.html_widget(
+                    value="<p style='padding:20px; color:#666;'>Graph is being generated.</p>"
+                )
+            ]
             return module_ui
 
         except Exception as e:

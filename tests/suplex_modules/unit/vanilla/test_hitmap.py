@@ -247,6 +247,8 @@ class TestHitmap:
         mock_sample_spot_filter.return_value.get_threshold_range_slider.return_value = Mock()
         mock_sample_spot_filter.return_value.get_invert_checkbox.return_value = Mock()
         mock_sample_spot_filter.return_value.on_filter_params_changed.return_value = None
+        mock_sample_spot_filter.return_value.get_filter_maps.return_value = ({}, {})
+        mock_sample_spot_filter.return_value.extract_filtered_values_from_datasets.return_value = {}
 
         mock_collage.return_value = Mock()
         mock_collage.return_value.get_ui.return_value = Mock()

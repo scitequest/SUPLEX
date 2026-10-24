@@ -203,6 +203,9 @@ class TestOverviewHeatmap:
         mock_sample_spot_filter.return_value.get_default_sample_map.return_value = {}
         mock_sample_spot_filter.return_value.get_default_spot_map.return_value = {}
         mock_sample_spot_filter.return_value.on_filter_params_changed.return_value = None
+        mock_sample_spot_filter.return_value.get_filter_maps.return_value = ({}, {})
+        mock_sample_spot_filter.return_value.extract_filtered_values_from_datasets.return_value = {}
+        mock_dataset_filter.return_value.get_filtered_datasets.return_value = (mock_datasets, [])
 
         mock_widget_factory.vbox.return_value = Mock()
         mock_widget_factory.hbox.return_value = Mock()

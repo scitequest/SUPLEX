@@ -208,6 +208,8 @@ class TestIntensityOverview:
         mock_sample_spot_filter.return_value.get_sample_affects_spots_checkbox.return_value = Mock()
         mock_sample_spot_filter.return_value.get_spots_affect_sample_checkbox.return_value = Mock()
         mock_sample_spot_filter.return_value.get_sample_filter_mode_dropdown.return_value = Mock()
+        mock_sample_spot_filter.return_value.get_filter_maps.return_value = ({}, {})
+        mock_sample_spot_filter.return_value.extract_filtered_values_from_datasets.return_value = {}
 
         mock_widget_factory.vbox.return_value = Mock()
         mock_widget_factory.hbox.return_value = Mock()
