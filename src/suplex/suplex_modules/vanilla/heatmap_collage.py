@@ -466,7 +466,7 @@ class OverviewHeatmapModule(SuplexModuleInterface):
             self.apply_all_filters()
             self.update_overview()
             self.update_dataset_statistics()
-            
+
             self._plot_box.children = [
                 WidgetFactory.html_widget(
                     value="<p style='padding:20px; color:#666;'>Click <b>Apply Changes</b> to generate the graph.</p>"
