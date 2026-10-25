@@ -4,7 +4,7 @@
 ;     ISCC.exe packaging\windows\suplex.iss
 
 #define AppName "SUPLEX"
-#define AppVersion "0.4.0"
+#define AppVersion "0.4.1"
 #define AppPublisher "Kai Oliver Kreissner / scitequest"
 #define AppURL "https://github.com/scitequest/SUPLEX"
 #define AppExeName "suplex.exe"
