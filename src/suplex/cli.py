@@ -127,8 +127,34 @@ def run(port: int | None, open_browser: bool, debug: bool, demo: bool) -> int:
         "--Voila.open_browser=False",
         f"--VoilaConfiguration.show_tracebacks={debug}",
     ]
+
+    app = Voila.instance()
+    app.initialize(argv)
+
+    def _monitor_kernels() -> None:
+        """Beendet den Prozess, sobald der letzte Kernel weg ist."""
+        import time
+
+        had_kernel = False
+        while True:
+            time.sleep(0.5)
+            try:
+                km = app.kernel_manager
+                if km is None:
+                    continue
+                n = len(km.list_kernel_ids())
+                if n > 0:
+                    had_kernel = True
+                elif had_kernel and n == 0:
+                    print("\nLast kernel exited – shutting down SUPLEX.")
+                    os._exit(0)
+            except Exception:
+                pass
+
+    threading.Thread(target=_monitor_kernels, daemon=True).start()
+
     try:
-        Voila.launch_instance(argv=argv)
+        app.start()
     except KeyboardInterrupt:
         print("\nShutting down SUPLEX.")
     return 0
